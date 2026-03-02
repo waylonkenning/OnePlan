@@ -67,6 +67,13 @@ export function EditableTable<T extends { [key: string]: any }>({
     onUpdate(newRows);
   };
 
+  const handleClearAll = () => {
+    if (window.confirm('Are you sure you want to clear all rows in this table?')) {
+      setRows([]);
+      onUpdate([]);
+    }
+  };
+
   const handlePasteCsv = () => {
     if (!csvText.trim()) return;
 
@@ -227,6 +234,15 @@ export function EditableTable<T extends { [key: string]: any }>({
           <ClipboardPaste size={16} />
           Paste CSV
         </button>
+        <div className="ml-auto">
+          <button
+            onClick={handleClearAll}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 border border-red-100 rounded-lg hover:bg-red-50 hover:border-red-200 transition-all shadow-sm font-medium text-sm"
+          >
+            <Trash2 size={16} />
+            Clear All
+          </button>
+        </div>
       </div>
 
       {isCsvModalOpen && (
