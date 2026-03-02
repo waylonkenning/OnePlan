@@ -19,6 +19,8 @@ steps:
       - '--region'
       - 'us-central1'
       - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
 
 options:
   logging: CLOUD_LOGGING_ONLY
