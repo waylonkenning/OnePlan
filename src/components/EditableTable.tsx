@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ClipboardPaste, X, Check } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export interface Option {
@@ -30,6 +30,8 @@ export function EditableTable<T extends { [key: string]: any }>({
   idField 
 }: EditableTableProps<T>) {
   const [rows, setRows] = useState<T[]>(data);
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
+  const [csvText, setCsvText] = useState('');
 
   useEffect(() => {
     setRows(data);
@@ -65,8 +67,50 @@ export function EditableTable<T extends { [key: string]: any }>({
     onUpdate(newRows);
   };
 
+  const handlePasteCsv = () => {
+    if (!csvText.trim()) return;
+
+    const lines = csvText.trim().split('\n');
+    const newParsedRows: T[] = [];
+
+    lines.forEach(line => {
+      const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      if (values.length === 0 || (values.length === 1 && values[0] === '')) return;
+
+      const newRow: any = {};
+      
+      // Try to map values to columns
+      columns.forEach((col, colIdx) => {
+        if (colIdx < values.length) {
+          let value: any = values[colIdx];
+          if (col.type === 'number') {
+            value = parseFloat(value) || 0;
+          }
+          newRow[col.key] = value;
+        } else {
+          newRow[col.key] = col.type === 'number' ? 0 : '';
+        }
+      });
+
+      // Ensure idField is present
+      if (!newRow[idField]) {
+        newRow[idField] = `csv-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+      }
+
+      newParsedRows.push(newRow as T);
+    });
+
+    if (newParsedRows.length > 0) {
+      const updatedRows = [...rows, ...newParsedRows];
+      setRows(updatedRows);
+      onUpdate(updatedRows);
+      setCsvText('');
+      setIsCsvModalOpen(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       <div className="flex-1 overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
         <table className="w-full text-sm text-left border-collapse">
           <thead className="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 shadow-sm">
@@ -138,14 +182,14 @@ export function EditableTable<T extends { [key: string]: any }>({
             {rows.length === 0 && (
                 <tr>
                     <td colSpan={columns.length + 1} className="p-8 text-center text-slate-400 italic">
-                        No data. Click "Add Row" to start.
+                        No data. Click "Add Row" or "Paste CSV" to start.
                     </td>
                 </tr>
             )}
           </tbody>
         </table>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 flex gap-3">
         <button
           onClick={handleAdd}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium text-sm"
@@ -153,7 +197,60 @@ export function EditableTable<T extends { [key: string]: any }>({
           <Plus size={16} />
           Add Row
         </button>
+        <button
+          onClick={() => setIsCsvModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm font-medium text-sm"
+        >
+          <ClipboardPaste size={16} />
+          Paste CSV
+        </button>
       </div>
+
+      {isCsvModalOpen && (
+        <div className="absolute inset-0 z-20 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-6 rounded-lg">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg flex flex-col overflow-hidden border border-slate-200">
+            <div className="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+                <ClipboardPaste size={18} className="text-blue-500" />
+                Paste CSV Data
+              </h3>
+              <button onClick={() => setIsCsvModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-4 flex-1">
+              <p className="text-xs text-slate-500 mb-3">
+                Paste comma-separated values. Each line will become a new row.
+                <br />
+                Expected columns: <span className="font-mono text-blue-600">{columns.map(c => c.label).join(', ')}</span>
+              </p>
+              <textarea
+                value={csvText}
+                onChange={(e) => setCsvText(e.target.value)}
+                className="w-full h-48 p-3 text-sm font-mono border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+                placeholder="Value 1, Value 2, Value 3..."
+                autoFocus
+              />
+            </div>
+            <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+              <button
+                onClick={() => setIsCsvModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePasteCsv}
+                disabled={!csvText.trim()}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm shadow-sm"
+              >
+                <Check size={16} />
+                Import Rows
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
