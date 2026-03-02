@@ -102,7 +102,7 @@ export default function App() {
       <header className="mb-6 flex-shrink-0 flex justify-between items-start">
         <div className="flex flex-col gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">IT Initiative Visualiser</h1>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">OnePlan</h1>
             <p className="text-slate-500">Strategic roadmap and conflict detection for IT assets</p>
           </div>
           
