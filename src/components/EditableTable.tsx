@@ -71,42 +71,65 @@ export function EditableTable<T extends { [key: string]: any }>({
     if (!csvText.trim()) return;
 
     const lines = csvText.trim().split('\n');
-    const newParsedRows: T[] = [];
+    const updatedRows = [...rows];
+    let hasHeader = false;
 
-    lines.forEach(line => {
-      const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-      if (values.length === 0 || (values.length === 1 && values[0] === '')) return;
-
-      const newRow: any = {};
+    // Basic header detection: check if first line matches column names
+    if (lines.length > 0) {
+      const firstLineValues = lines[0].split(',').map(v => v.trim().toLowerCase());
+      const colLabels = columns.map(c => c.label.toLowerCase());
+      const colKeys = columns.map(c => String(c.key).toLowerCase());
       
-      // Try to map values to columns
+      // If first line contains "id" or matches multiple column labels/keys, treat as header
+      const matches = firstLineValues.filter(v => 
+        v === 'id' || colLabels.includes(v) || colKeys.includes(v)
+      ).length;
+      
+      if (matches >= 2 || (firstLineValues.includes('id') && matches >= 1)) {
+        hasHeader = true;
+      }
+    }
+
+    const startIndex = hasHeader ? 1 : 0;
+
+    for (let i = startIndex; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+
+      // Handle basic quoted values
+      const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
+      const cleanValues = values.map(v => v.trim().replace(/^"|"$/g, ''));
+      
+      const rowData: any = {};
+      
       columns.forEach((col, colIdx) => {
-        if (colIdx < values.length) {
-          let value: any = values[colIdx];
+        if (colIdx < cleanValues.length) {
+          let value: any = cleanValues[colIdx];
           if (col.type === 'number') {
             value = parseFloat(value) || 0;
           }
-          newRow[col.key] = value;
-        } else {
-          newRow[col.key] = col.type === 'number' ? 0 : '';
+          rowData[col.key] = value;
+        } else if (rowData[col.key] === undefined) {
+          rowData[col.key] = col.type === 'number' ? 0 : '';
         }
       });
 
-      // Ensure idField is present
-      if (!newRow[idField]) {
-        newRow[idField] = `csv-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+      // ID Management: check for existing ID
+      const targetId = rowData[idField] || `csv-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+      rowData[idField] = targetId;
+
+      const existingIndex = updatedRows.findIndex(r => r[idField] === targetId);
+      if (existingIndex !== -1) {
+        updatedRows[existingIndex] = { ...updatedRows[existingIndex], ...rowData };
+      } else {
+        updatedRows.push(rowData as T);
       }
-
-      newParsedRows.push(newRow as T);
-    });
-
-    if (newParsedRows.length > 0) {
-      const updatedRows = [...rows, ...newParsedRows];
-      setRows(updatedRows);
-      onUpdate(updatedRows);
-      setCsvText('');
-      setIsCsvModalOpen(false);
     }
+
+    setRows(updatedRows);
+    onUpdate(updatedRows);
+    setCsvText('');
+    setIsCsvModalOpen(false);
   };
 
   return (
