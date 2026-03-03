@@ -201,39 +201,40 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           </div>
       </div>
 
-      <div className="flex-1 overflow-auto relative scroll-smooth">
-        <div className="flex min-w-max sticky top-0 z-30 bg-white shadow-sm border-b border-slate-200">
-          <div className="sticky left-0 w-64 flex-shrink-0 p-4 font-bold text-slate-700 border-r border-slate-200 bg-slate-50 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-            IT Asset
+      <div className="flex-1 overflow-auto scroll-smooth">
+        <div className="relative min-w-max">
+          <div className="flex sticky top-0 z-30 bg-white shadow-sm border-b border-slate-200">
+            <div className="sticky left-0 w-64 flex-shrink-0 p-4 font-bold text-slate-700 border-r border-slate-200 bg-slate-50 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+              IT Asset
+            </div>
+            <div className="flex" style={{ width: totalWidth }}>
+              {timeColumns.map((col, idx) => (
+                <div 
+                  key={idx} 
+                  className={cn(
+                    "flex-shrink-0 border-r border-slate-100 p-2 text-center text-sm font-medium text-slate-600 bg-white flex flex-col justify-center",
+                    col.quarter === 1 && "border-l-2 border-l-slate-300"
+                  )}
+                  style={{ width: CELL_WIDTH }}
+                >
+                  <div className="text-xs text-slate-400 uppercase tracking-wider">{col.year}</div>
+                  <div>Q{col.quarter}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex" style={{ width: totalWidth }}>
-            {timeColumns.map((col, idx) => (
-              <div 
-                key={idx} 
-                className={cn(
-                  "flex-shrink-0 border-r border-slate-100 p-2 text-center text-sm font-medium text-slate-600 bg-white flex flex-col justify-center",
-                  col.quarter === 1 && "border-l-2 border-l-slate-300"
-                )}
-                style={{ width: CELL_WIDTH }}
-              >
-                <div className="text-xs text-slate-400 uppercase tracking-wider">{col.year}</div>
-                <div>Q{col.quarter}</div>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {isCurrentTimeVisible && (
-           <div 
-             className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
-             style={{ left: `calc(16rem + ${currentPos}%)` }}
-           >
-             <div className="absolute -top-1 -translate-x-1/2 bg-red-500 text-white text-[10px] px-1 rounded">Now</div>
-           </div>
-        )}
+          {isCurrentTimeVisible && (
+             <div 
+               className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
+               style={{ left: `calc(16rem + ${currentPos}%)` }}
+             >
+               <div className="absolute top-0 -translate-y-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] px-1 rounded">Now</div>
+             </div>
+          )}
 
-        <div className="flex flex-col min-w-max">
-          {Object.entries(assetsByCategory).map(([category, categoryAssets]: [string, Asset[]]) => (
+          <div className="flex flex-col">
+            {Object.entries(assetsByCategory).map(([category, categoryAssets]: [string, Asset[]]) => (
             <div key={category}>
               <div className="sticky left-0 z-20 bg-slate-100 px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 w-full">
                 {category}
@@ -380,5 +381,6 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
