@@ -66,18 +66,10 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     return Math.max(0.5, percentage);
   };
 
-  const maxBudget = Math.max(...initiatives.map(i => i.budget || 0), 100000);
-  
   const MIN_ROW_HEIGHT = 100;
-  const BAR_MIN_HEIGHT = 24;
-  const BAR_MAX_HEIGHT = 60;
+  const BAR_HEIGHT = 44;
   const BAR_GAP = 8;
   const ROW_PADDING = 24;
-
-  const getBarHeightPx = (budget: number) => {
-    const safeBudget = budget || 0;
-    return (safeBudget / maxBudget) * (BAR_MAX_HEIGHT - BAR_MIN_HEIGHT) + BAR_MIN_HEIGHT;
-  };
 
   const layoutAsset = (assetInitiatives: Initiative[]) => {
     const sorted = [...assetInitiatives].sort((a, b) => a.startDate.localeCompare(b.startDate));
@@ -88,7 +80,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       const left = getPosition(init.startDate);
       const width = getWidth(init.startDate, init.endDate);
       const right = left + width;
-      const height = getBarHeightPx(init.budget || 0);
+      const height = BAR_HEIGHT;
       
       let top = ROW_PADDING;
       let collision = true;
@@ -194,10 +186,6 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 <AlertTriangle size={14} className="text-red-500" />
                 <span className="text-slate-600">Conflict</span>
             </div>
-            <div className="flex items-center gap-2 whitespace-nowrap">
-                <div className="h-4 w-1 bg-slate-300 rounded-full" />
-                <span className="text-slate-600">Height = Spend</span>
-            </div>
           </div>
       </div>
 
@@ -289,7 +277,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                           <div
                             key={init.id}
                             className={cn(
-                              "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-3 text-white overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer hover:scale-[1.01]",
+                              "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 text-white overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer hover:scale-[1.01]",
                               colorClass
                             )}
                             style={{
@@ -300,8 +288,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                             }}
                             title={`${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}`}
                           >
-                            <div className="font-bold text-xs truncate leading-tight drop-shadow-md">{init.name}</div>
-                            {subtitle && <div className="text-[10px] opacity-90 truncate drop-shadow-md">{subtitle}</div>}
+                            <div className="font-bold text-[11px] leading-tight drop-shadow-md line-clamp-2">{init.name}</div>
+                            {subtitle && width > 5 && <div className="text-[9px] opacity-90 truncate drop-shadow-md mt-0.5">{subtitle}</div>}
                           </div>
                         );
                       })}
