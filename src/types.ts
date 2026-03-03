@@ -1,5 +1,11 @@
 export type Quarter = 'Q1' | 'Q2' | 'Q3' | 'Q4';
 
+export interface Strategy {
+  id: string;
+  name: string;
+  color: string; // Tailwind color class or hex
+}
+
 export interface Programme {
   id: string;
   name: string;
@@ -10,6 +16,7 @@ export interface Initiative {
   id: string;
   name: string;
   programmeId: string;
+  strategyId?: string;
   assetId: string;
   startDate: string; // YYYY-MM-DD
   endDate: string;   // YYYY-MM-DD

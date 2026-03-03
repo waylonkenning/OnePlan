@@ -7,8 +7,14 @@ import { useState, useEffect } from 'react';
 import { Timeline } from './components/Timeline';
 import { DataControls } from './components/DataControls';
 import { DataManager } from './components/DataManager';
-import { assets as initialAssets, initiatives as initialInitiatives, milestones as initialMilestones, programmes as initialProgrammes } from './data';
-import { Asset, Initiative, Milestone, Programme } from './types';
+import { 
+  assets as initialAssets, 
+  initiatives as initialInitiatives, 
+  milestones as initialMilestones, 
+  programmes as initialProgrammes,
+  strategies as initialStrategies
+} from './data';
+import { Asset, Initiative, Milestone, Programme, Strategy } from './types';
 import { LayoutGrid, Table, Loader2 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { getAppData, saveAppData } from './lib/db';
@@ -21,6 +27,7 @@ export default function App() {
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [programmes, setProgrammes] = useState<Programme[]>([]);
+  const [strategies, setStrategies] = useState<Strategy[]>([]);
 
   // Load data on mount
   useEffect(() => {
@@ -36,18 +43,21 @@ export default function App() {
             initiatives: initialInitiatives,
             milestones: initialMilestones,
             programmes: initialProgrammes,
+            strategies: initialStrategies,
           };
           await saveAppData(defaults);
           setAssets(defaults.assets);
           setInitiatives(defaults.initiatives);
           setMilestones(defaults.milestones);
           setProgrammes(defaults.programmes);
+          setStrategies(defaults.strategies);
         } else {
           console.log('Loaded data from DB');
           setAssets(dbData.assets);
           setInitiatives(dbData.initiatives);
           setMilestones(dbData.milestones);
           setProgrammes(dbData.programmes);
+          setStrategies(dbData.strategies || []);
         }
       } catch (error) {
         console.error('Failed to load data from DB:', error);
@@ -56,6 +66,7 @@ export default function App() {
         setInitiatives(initialInitiatives);
         setMilestones(initialMilestones);
         setProgrammes(initialProgrammes);
+        setStrategies(initialStrategies);
       } finally {
         setIsLoading(false);
       }
@@ -69,12 +80,14 @@ export default function App() {
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
+    strategies: Strategy[];
   }) => {
     // Update state immediately for UI responsiveness
     setAssets(data.assets);
     setInitiatives(data.initiatives);
     setMilestones(data.milestones);
     setProgrammes(data.programmes);
+    setStrategies(data.strategies);
 
     // Persist to DB
     try {
@@ -135,7 +148,7 @@ export default function App() {
         </div>
 
         <DataControls 
-          data={{ assets, initiatives, milestones, programmes }}
+          data={{ assets, initiatives, milestones, programmes, strategies }}
           onImport={handleUpdate}
           timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
         />
@@ -148,10 +161,11 @@ export default function App() {
             initiatives={initiatives}
             milestones={milestones}
             programmes={programmes}
+            strategies={strategies}
           />
         ) : (
           <DataManager 
-            data={{ assets, initiatives, milestones, programmes }}
+            data={{ assets, initiatives, milestones, programmes, strategies }}
             onUpdate={handleUpdate}
           />
         )}
@@ -159,4 +173,3 @@ export default function App() {
     </div>
   );
 }
-

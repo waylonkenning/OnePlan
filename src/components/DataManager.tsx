@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Asset, Initiative, Milestone, Programme } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
-import { Database, Layers, Calendar, Flag } from 'lucide-react';
+import { Database, Layers, Calendar, Flag, Target } from 'lucide-react';
 
 interface DataManagerProps {
   data: {
@@ -10,16 +10,18 @@ interface DataManagerProps {
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
+    strategies: Strategy[];
   };
   onUpdate: (data: {
     assets: Asset[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
+    strategies: Strategy[];
   }) => void;
 }
 
-type Tab = 'initiatives' | 'assets' | 'programmes' | 'milestones';
+type Tab = 'initiatives' | 'assets' | 'programmes' | 'milestones' | 'strategies';
 
 export function DataManager({ data, onUpdate }: DataManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>('initiatives');
@@ -33,13 +35,15 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
 
   const assetOptions = data.assets.map(a => ({ value: a.id, label: a.name }));
   const programmeOptions = data.programmes.map(p => ({ value: p.id, label: p.name }));
+  const strategyOptions = data.strategies.map(s => ({ value: s.id, label: s.name }));
 
   const initiativeColumns: Column<Initiative>[] = [
     { key: 'name', label: 'Initiative Name', type: 'text', width: '25%' },
     { key: 'assetId', label: 'Asset', type: 'select', options: assetOptions, width: '15%' },
     { key: 'programmeId', label: 'Programme', type: 'select', options: programmeOptions, width: '15%' },
-    { key: 'startDate', label: 'Start Date', type: 'date', width: '12%' },
-    { key: 'endDate', label: 'End Date', type: 'date', width: '12%' },
+    { key: 'strategyId', label: 'Strategy', type: 'select', options: strategyOptions, width: '15%' },
+    { key: 'startDate', label: 'Start Date', type: 'date', width: '10%' },
+    { key: 'endDate', label: 'End Date', type: 'date', width: '10%' },
     { key: 'budget', label: 'Budget ($)', type: 'number', width: '10%' },
   ];
 
@@ -52,6 +56,12 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
   const programmeColumns: Column<Programme>[] = [
     { key: 'id', label: 'ID', type: 'text', width: '20%' },
     { key: 'name', label: 'Programme Name', type: 'text', width: '40%' },
+    { key: 'color', label: 'Color', type: 'color', width: '40%' },
+  ];
+
+  const strategyColumns: Column<Strategy>[] = [
+    { key: 'id', label: 'ID', type: 'text', width: '20%' },
+    { key: 'name', label: 'Strategy Name', type: 'text', width: '40%' },
     { key: 'color', label: 'Color', type: 'color', width: '40%' },
   ];
 
@@ -70,18 +80,19 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
     { id: 'initiatives', label: 'Initiatives', icon: Layers, count: data.initiatives.length },
     { id: 'assets', label: 'Assets', icon: Database, count: data.assets.length },
     { id: 'programmes', label: 'Programmes', icon: Calendar, count: data.programmes.length },
+    { id: 'strategies', label: 'Strategies', icon: Target, count: data.strategies.length },
     { id: 'milestones', label: 'Milestones', icon: Flag, count: data.milestones.length },
   ];
 
   return (
     <div className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-      <div className="flex border-b border-slate-200 bg-white">
+      <div className="flex border-b border-slate-200 bg-white overflow-x-auto">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as Tab)}
             className={cn(
-              "flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors",
+              "flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
               activeTab === tab.id 
                 ? "border-blue-500 text-blue-600 bg-blue-50" 
                 : "border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50"
@@ -118,6 +129,14 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             data={data.programmes} 
             columns={programmeColumns} 
             onUpdate={(newData) => updateData('programmes', newData)}
+            idField="id"
+          />
+        )}
+        {activeTab === 'strategies' && (
+          <EditableTable 
+            data={data.strategies} 
+            columns={strategyColumns} 
+            onUpdate={(newData) => updateData('strategies', newData)}
             idField="id"
           />
         )}
