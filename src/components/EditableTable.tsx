@@ -103,9 +103,10 @@ export function EditableTable<T extends { [key: string]: any }>({
       const line = lines[i].trim();
       if (!line) continue;
 
-      // Handle basic quoted values
-      const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
-      const cleanValues = values.map(v => v.trim().replace(/^"|"$/g, ''));
+      // Robust CSV splitting: handle quotes and spaces correctly
+      // This regex splits by comma only if the comma is NOT inside double quotes
+      const cleanValues = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+        .map(v => v.trim().replace(/^"|"$/g, ''));
       
       const rowData: any = {};
       
