@@ -1,4 +1,4 @@
-import { toPng } from 'html-to-image';
+import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 
 export const exportToPDF = async (elementId: string, filename: string = 'roadmap.pdf') => {
@@ -10,11 +10,12 @@ export const exportToPDF = async (elementId: string, filename: string = 'roadmap
 
   try {
     // To capture the full roadmap, we need to ensure we're getting the scrollable content
-    // We'll target the scrollable area specifically if it exists, or the whole element
-    const scrollableArea = element.querySelector('.overflow-auto') as HTMLElement || element;
+    const scrollableArea = (element.querySelector('.overflow-auto') as HTMLElement) || element;
     
-    const dataUrl = await toPng(scrollableArea, {
-      quality: 0.95,
+    // Using JPEG instead of PNG for significantly smaller file size
+    // Lowering quality slightly to 0.8 for a good balance between clarity and size
+    const dataUrl = await toJpeg(scrollableArea, {
+      quality: 0.8,
       backgroundColor: '#ffffff',
       // We use the scrollWidth of the element to capture the full horizontal roadmap
       width: scrollableArea.scrollWidth,
@@ -25,10 +26,6 @@ export const exportToPDF = async (elementId: string, filename: string = 'roadmap
         width: scrollableArea.scrollWidth + 'px',
         height: scrollableArea.scrollHeight + 'px',
         overflow: 'visible',
-      },
-      filter: (node) => {
-        const tagName = (node as HTMLElement).tagName;
-        return tagName !== 'LINK' && tagName !== 'STYLE';
       }
     });
 
@@ -48,11 +45,8 @@ export const exportToPDF = async (elementId: string, filename: string = 'roadmap
     img.src = dataUrl;
     await new Promise((resolve) => { img.onload = resolve; });
 
-    const imgWidth = pdfWidth;
-    const imgHeight = (img.height * pdfWidth) / img.width;
-
-    let finalWidth = imgWidth;
-    let finalHeight = imgHeight;
+    let finalWidth = pdfWidth;
+    let finalHeight = (img.height * pdfWidth) / img.width;
 
     if (finalHeight > pdfHeight) {
         // Scale to fit height instead
@@ -64,7 +58,8 @@ export const exportToPDF = async (elementId: string, filename: string = 'roadmap
     const x = (pdfWidth - finalWidth) / 2;
     const y = 0;
 
-    pdf.addImage(dataUrl, 'PNG', x, y, finalWidth, finalHeight);
+    // Use JPEG format in jsPDF
+    pdf.addImage(dataUrl, 'JPEG', x, y, finalWidth, finalHeight, undefined, 'FAST');
     pdf.save(filename);
 
   } catch (error) {
