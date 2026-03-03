@@ -54,7 +54,10 @@ export const importFromExcel = async (file: File): Promise<Partial<AppData>> => 
           return XLSX.utils.sheet_to_json(ws);
         };
 
-        result.initiatives = getSheetData<Initiative>('Initiatives');
+        result.initiatives = getSheetData<Initiative>('Initiatives').map(init => ({
+          ...init,
+          budget: Number(init.budget) || 0
+        }));
         result.assets = getSheetData<Asset>('Assets');
         result.programmes = getSheetData<Programme>('Programmes');
         result.strategies = getSheetData<Strategy>('Strategies');
