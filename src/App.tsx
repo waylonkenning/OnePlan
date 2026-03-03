@@ -54,7 +54,7 @@ export default function App() {
         } else {
           console.log('Loaded data from DB');
           setAssets(dbData.assets);
-          setInitiatives(dbData.initiatives);
+          setInitiatives(dbData.initiatives.map(i => ({ ...i, budget: Number(i.budget) || 0 })));
           setMilestones(dbData.milestones);
           setProgrammes(dbData.programmes);
           setStrategies(dbData.strategies || []);

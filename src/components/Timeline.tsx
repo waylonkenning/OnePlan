@@ -66,7 +66,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     return Math.max(0.5, percentage);
   };
 
-  const maxBudget = Math.max(...initiatives.map(i => i.budget), 100000);
+  const maxBudget = Math.max(...initiatives.map(i => i.budget || 0), 100000);
   
   const MIN_ROW_HEIGHT = 100;
   const BAR_MIN_HEIGHT = 24;
@@ -75,7 +75,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const ROW_PADDING = 24;
 
   const getBarHeightPx = (budget: number) => {
-    return (budget / maxBudget) * (BAR_MAX_HEIGHT - BAR_MIN_HEIGHT) + BAR_MIN_HEIGHT;
+    const safeBudget = budget || 0;
+    return (safeBudget / maxBudget) * (BAR_MAX_HEIGHT - BAR_MIN_HEIGHT) + BAR_MIN_HEIGHT;
   };
 
   const layoutAsset = (assetInitiatives: Initiative[]) => {
@@ -87,7 +88,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       const left = getPosition(init.startDate);
       const width = getWidth(init.startDate, init.endDate);
       const right = left + width;
-      const height = getBarHeightPx(init.budget);
+      const height = getBarHeightPx(init.budget || 0);
       
       let top = ROW_PADDING;
       let collision = true;
@@ -296,7 +297,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                               height: height,
                               top: top,
                             }}
-                            title={`${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${init.budget.toLocaleString()}`}
+                            title={`${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}`}
                           >
                             <div className="font-bold text-xs truncate leading-tight drop-shadow-md">{init.name}</div>
                             {subtitle && <div className="text-[10px] opacity-90 truncate drop-shadow-md">{subtitle}</div>}
