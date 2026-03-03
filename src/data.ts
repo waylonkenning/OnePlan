@@ -1,4 +1,11 @@
-import { Asset, Initiative, Milestone, Programme } from './types';
+import { Asset, Initiative, Milestone, Programme, Strategy } from './types';
+
+export const strategies: Strategy[] = [
+  { id: 'strat-1', name: 'Customer First', color: 'bg-indigo-500' },
+  { id: 'strat-2', name: 'Operational Excellence', color: 'bg-cyan-500' },
+  { id: 'strat-3', name: 'Digital Innovation', color: 'bg-fuchsia-500' },
+  { id: 'strat-4', name: 'Regulatory Compliance', color: 'bg-orange-500' },
+];
 
 export const programmes: Programme[] = [
   { id: 'prog-1', name: 'SFTF', color: 'bg-blue-500' },
@@ -20,6 +27,7 @@ export const initiatives: Initiative[] = [
     id: 'init-1',
     name: 'Web Channel Integration',
     programmeId: 'prog-1',
+    strategyId: 'strat-1',
     assetId: 'asset-1',
     startDate: '2026-04-01',
     endDate: '2027-03-31',
@@ -29,6 +37,7 @@ export const initiatives: Initiative[] = [
     id: 'init-2',
     name: 'Enterprise CIAM',
     programmeId: 'prog-2',
+    strategyId: 'strat-3',
     assetId: 'asset-1',
     startDate: '2027-01-01',
     endDate: '2027-12-31',
@@ -38,6 +47,7 @@ export const initiatives: Initiative[] = [
     id: 'init-3',
     name: 'Physical Accept',
     programmeId: 'prog-1',
+    strategyId: 'strat-1',
     assetId: 'asset-3',
     startDate: '2026-01-01',
     endDate: '2026-06-30',
@@ -47,6 +57,7 @@ export const initiatives: Initiative[] = [
     id: 'init-4',
     name: 'Digital Accept',
     programmeId: 'prog-1',
+    strategyId: 'strat-1',
     assetId: 'asset-3',
     startDate: '2026-07-01',
     endDate: '2026-12-31',
@@ -56,6 +67,7 @@ export const initiatives: Initiative[] = [
     id: 'init-5',
     name: 'Legacy Migration',
     programmeId: 'prog-4',
+    strategyId: 'strat-2',
     assetId: 'asset-5',
     startDate: '2026-06-01',
     endDate: '2027-06-01',

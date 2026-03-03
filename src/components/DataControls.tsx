@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Download, Upload, FileSpreadsheet, FileText } from 'lucide-react';
 import { exportToExcel, importFromExcel } from '../lib/excel';
 import { exportToPDF } from '../lib/pdf';
-import { Asset, Initiative, Milestone, Programme } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy } from '../types';
 
 interface DataControlsProps {
   data: {
@@ -10,12 +10,14 @@ interface DataControlsProps {
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
+    strategies: Strategy[];
   };
   onImport: (data: {
     assets: Asset[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
+    strategies: Strategy[];
   }) => void;
   timelineId?: string; // ID of the element to capture for PDF
 }
@@ -53,6 +55,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
           initiatives: importedData.initiatives || [],
           milestones: importedData.milestones || [],
           programmes: importedData.programmes || [],
+          strategies: importedData.strategies || [],
         });
         alert('Data imported successfully!');
       } else {
