@@ -45,9 +45,7 @@ export function EditableTable<T extends { [key: string]: any }>({
   };
 
   const handleAdd = () => {
-    // Create a generic empty object based on columns
     const newRow: any = {};
-    // Generate a simple ID
     newRow[idField] = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     
     columns.forEach(col => {
@@ -78,22 +76,35 @@ export function EditableTable<T extends { [key: string]: any }>({
     if (!csvText.trim()) return;
 
     const lines = csvText.trim().split('\n');
-    const updatedRows = [...rows];
+    let updatedRows = [...rows];
     let hasHeader = false;
+    let headerMapping: (keyof T | null)[] = [];
 
-    // Basic header detection: check if first line matches column names
+    // 1. Detect headers and create mapping
     if (lines.length > 0) {
-      const firstLineValues = lines[0].split(',').map(v => v.trim().toLowerCase());
+      const firstLineValues = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().toLowerCase().replace(/^"|"$/g, ''));
+      
       const colLabels = columns.map(c => c.label.toLowerCase());
       const colKeys = columns.map(c => String(c.key).toLowerCase());
       
-      // If first line contains "id" or matches multiple column labels/keys, treat as header
+      // Check if it looks like a header row
       const matches = firstLineValues.filter(v => 
         v === 'id' || colLabels.includes(v) || colKeys.includes(v)
       ).length;
       
-      if (matches >= 2 || (firstLineValues.includes('id') && matches >= 1)) {
+      if (matches >= 1) {
         hasHeader = true;
+        headerMapping = firstLineValues.map(val => {
+          if (val === 'id' || val === String(idField).toLowerCase()) return idField;
+          
+          const colByKey = columns.find(c => String(c.key).toLowerCase() === val);
+          if (colByKey) return colByKey.key;
+          
+          const colByLabel = columns.find(c => c.label.toLowerCase() === val);
+          if (colByLabel) return colByLabel.key;
+          
+          return null;
+        });
       }
     }
 
@@ -103,30 +114,39 @@ export function EditableTable<T extends { [key: string]: any }>({
       const line = lines[i].trim();
       if (!line) continue;
 
-      // Robust CSV splitting: handle quotes and spaces correctly
-      // This regex splits by comma only if the comma is NOT inside double quotes
-      const cleanValues = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
         .map(v => v.trim().replace(/^"|"$/g, ''));
       
       const rowData: any = {};
       
-      columns.forEach((col, colIdx) => {
-        if (colIdx < cleanValues.length) {
-          let value: any = cleanValues[colIdx];
-          if (col.type === 'number') {
-            value = parseFloat(value) || 0;
+      if (hasHeader) {
+        // Map values according to header position
+        headerMapping.forEach((key, valIdx) => {
+          if (key && valIdx < values.length) {
+            let value: any = values[valIdx];
+            const col = columns.find(c => c.key === key);
+            if (col?.type === 'number') value = parseFloat(value) || 0;
+            rowData[key] = value;
           }
-          rowData[col.key] = value;
-        } else if (rowData[col.key] === undefined) {
-          rowData[col.key] = col.type === 'number' ? 0 : '';
-        }
-      });
+        });
+      } else {
+        // Legacy positional mapping
+        columns.forEach((col, colIdx) => {
+          if (colIdx < values.length) {
+            let value: any = values[colIdx];
+            if (col.type === 'number') value = parseFloat(value) || 0;
+            rowData[col.key] = value;
+          } else if (rowData[col.key] === undefined) {
+            rowData[col.key] = col.type === 'number' ? 0 : '';
+          }
+        });
+      }
 
-      // ID Management: check for existing ID
+      // ID Management
       const targetId = rowData[idField] || `csv-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
       rowData[idField] = targetId;
 
-      const existingIndex = updatedRows.findIndex(r => r[idField] === targetId);
+      const existingIndex = updatedRows.findIndex(r => String(r[idField]) === String(targetId));
       if (existingIndex !== -1) {
         updatedRows[existingIndex] = { ...updatedRows[existingIndex], ...rowData };
       } else {
@@ -282,6 +302,7 @@ export function EditableTable<T extends { [key: string]: any }>({
               <button
                 onClick={handlePasteCsv}
                 disabled={!csvText.trim()}
+                data-testid="import-rows-button"
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm shadow-sm"
               >
                 <Check size={16} />
