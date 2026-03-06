@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid } from 'date-fns';
-import { cn } from '../lib/utils';
+import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, Palette } from 'lucide-react';
 
 interface TimelineProps {
