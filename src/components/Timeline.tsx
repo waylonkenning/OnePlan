@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Asset, Initiative, Milestone, Programme, Strategy } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear } from 'date-fns';
 import { cn } from '../lib/utils';
-import { AlertTriangle, Star, Info, Palette } from 'lucide-react';
+import { AlertTriangle, Star, Info, Palette, ArrowRight } from 'lucide-react';
 
 interface TimelineProps {
   assets: Asset[];
@@ -10,13 +10,14 @@ interface TimelineProps {
   milestones: Milestone[];
   programmes: Programme[];
   strategies: Strategy[];
+  dependencies: Dependency[];
 }
 
 const CELL_WIDTH = 200; // Width of one quarter column
 const START_YEAR = 2026;
 const YEARS_TO_SHOW = 3;
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
 
   // Generate time columns (Quarters)
@@ -139,6 +140,52 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const currentPos = getPosition(now.toISOString());
   const isCurrentTimeVisible = currentPos >= 0 && currentPos <= 100;
 
+  // Calculate all initiative positions for arrows
+  const allPlacements = useMemo(() => {
+    const placements: Record<string, { top: number; left: number; width: number; height: number; rowTop: number; assetId: string }> = {};
+    let currentTotalTop = 48; // Header height
+
+    assets.forEach(asset => {
+      // Add category header height if it's the first asset in category
+      // This is complex because we map over categories in the render
+      // Simplified approach: we'll use a more direct mapping
+    });
+    
+    // Actually, it's easier to calculate these during render or use a ref-based approach
+    // but for SVG arrows, we need absolute-ish coordinates relative to the timeline container.
+    return placements;
+  }, [assets, initiatives]);
+
+  // Refined approach: Map each initiative to its absolute position within the timeline
+  const initiativePositions = useMemo(() => {
+    const positions = new Map<string, { x: number; y: number; width: number; height: number }>();
+    let currentY = 0; // Header height is handled by sticky, but we need absolute Y in the scrollable area
+    
+    // We need to mirror the render logic to find exact Y positions
+    const categories = Object.keys(assetsByCategory);
+    categories.forEach(category => {
+      currentY += 25; // Category header height
+      const categoryAssets = assetsByCategory[category];
+      categoryAssets.forEach(asset => {
+        const assetInitiatives = initiatives.filter(i => i.assetId === asset.id);
+        const { items, height } = layoutAsset(assetInitiatives);
+        
+        items.forEach(({ init, top, left, width, height: barHeight }) => {
+          positions.set(init.id, {
+            x: left,
+            y: currentY + top,
+            width: width,
+            height: barHeight
+          });
+        });
+        
+        currentY += height;
+      });
+    });
+    
+    return positions;
+  }, [assetsByCategory, initiatives]);
+
   return (
     <div id="timeline-visualiser" className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
       
@@ -183,6 +230,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
           <div className="ml-auto flex items-center gap-4">
             <div className="flex items-center gap-2 whitespace-nowrap">
+                <div className="w-6 h-px bg-blue-500 relative">
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[3px] border-y-transparent border-l-[5px] border-l-blue-500" />
+                </div>
+                <span className="text-slate-600">Dependency</span>
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap">
                 <AlertTriangle size={14} className="text-red-500" />
                 <span className="text-slate-600">Conflict</span>
             </div>
@@ -221,7 +274,56 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
              </div>
           )}
 
-          <div className="flex flex-col">
+          <div className="flex flex-col relative">
+            {/* SVG Layer for arrows */}
+            <svg 
+              className="absolute inset-0 z-10 pointer-events-none" 
+              style={{ width: totalWidth + 256, height: '100%' }}
+            >
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="10"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                </marker>
+              </defs>
+              {dependencies.map(dep => {
+                const source = initiativePositions.get(dep.sourceId);
+                const target = initiativePositions.get(dep.targetId);
+                
+                if (!source || !target) return null;
+
+                // Calculate absolute X/Y (256 is the asset name column width)
+                const startX = 256 + (source.x / 100) * totalWidth + (source.width / 100) * totalWidth;
+                const startY = source.y + source.height / 2;
+                const endX = 256 + (target.x / 100) * totalWidth;
+                const endY = target.y + target.height / 2;
+
+                // Create a curved path
+                const dx = endX - startX;
+                const dy = endY - startY;
+                const controlX = startX + dx * 0.5;
+                
+                return (
+                  <path
+                    key={dep.id}
+                    d={`M ${startX} ${startY} C ${controlX} ${startY}, ${controlX} ${endY}, ${endX} ${endY}`}
+                    stroke="#3b82f6"
+                    strokeWidth="2"
+                    fill="none"
+                    markerEnd="url(#arrowhead)"
+                    opacity="0.6"
+                    strokeDasharray={dep.type === 'related' ? "4 2" : ""}
+                  />
+                );
+              })}
+            </svg>
+
             {Object.entries(assetsByCategory).map(([category, categoryAssets]: [string, Asset[]]) => (
             <div key={category}>
               <div className="sticky left-0 z-20 bg-slate-100 px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 w-full">

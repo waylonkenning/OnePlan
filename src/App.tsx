@@ -170,6 +170,7 @@ export default function App() {
             milestones={milestones}
             programmes={programmes}
             strategies={strategies}
+            dependencies={dependencies}
           />
         ) : (
           <DataManager 
