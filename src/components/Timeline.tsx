@@ -23,6 +23,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
+  const [draggingAssetId, setDraggingAssetId] = useState<string | null>(null);
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
   
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -38,27 +39,6 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       return newOrder.filter(cat => categories.includes(cat));
     });
   }, [assets]);
-
-  // Generate time columns (Quarters)
-  const timeColumns = useMemo<{ date: Date; label: string; year: number; quarter: number }[]>(() => {
-    const cols: { date: Date; label: string; year: number; quarter: number }[] = [];
-    let currentDate = startOfYear(new Date(START_YEAR, 0, 1));
-    for (let i = 0; i < YEARS_TO_SHOW * 4; i++) {
-      cols.push({
-        date: currentDate,
-        label: `Q${getQuarter(currentDate)} ${getYear(currentDate)}`,
-        year: getYear(currentDate),
-        quarter: getQuarter(currentDate),
-      });
-      currentDate = addQuarters(currentDate, 1);
-    }
-    return cols;
-  }, []);
-
-  const startDate = timeColumns[0].date;
-  const endDate = addQuarters(timeColumns[timeColumns.length - 1].date, 1);
-  const totalDays = differenceInDays(endDate, startDate);
-  const totalWidth = timeColumns.length * CELL_WIDTH;
 
   // Group assets by category
   const assetsByCategory = useMemo<Record<string, Asset[]>>(() => {
@@ -80,6 +60,56 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       return indexA - indexB;
     });
   }, [assetsByCategory, categoryOrder]);
+
+  // Drag and drop for assets
+  const handleAssetDragStart = (e: React.DragEvent, assetId: string) => {
+    setDraggingAssetId(assetId);
+    e.dataTransfer.setData('text/plain', assetId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleAssetDragOver = (e: React.DragEvent, targetAsset: Asset) => {
+    e.preventDefault();
+    if (draggingAssetId && draggingAssetId !== targetAsset.id && onUpdateAssets) {
+      const draggingAsset = assets.find(a => a.id === draggingAssetId);
+      if (draggingAsset && draggingAsset.category === targetAsset.category) {
+        const newAssets = [...assets];
+        const oldIndex = newAssets.findIndex(a => a.id === draggingAssetId);
+        const newIndex = newAssets.findIndex(a => a.id === targetAsset.id);
+        
+        if (oldIndex !== -1 && newIndex !== -1) {
+          newAssets.splice(oldIndex, 1);
+          newAssets.splice(newIndex, 0, draggingAsset);
+          onUpdateAssets(newAssets);
+        }
+      }
+    }
+  };
+
+  const handleAssetDragEnd = () => {
+    setDraggingAssetId(null);
+  };
+
+  // Generate time columns (Quarters)
+  const timeColumns = useMemo<{ date: Date; label: string; year: number; quarter: number }[]>(() => {
+    const cols: { date: Date; label: string; year: number; quarter: number }[] = [];
+    let currentDate = startOfYear(new Date(START_YEAR, 0, 1));
+    for (let i = 0; i < YEARS_TO_SHOW * 4; i++) {
+      cols.push({
+        date: currentDate,
+        label: `Q${getQuarter(currentDate)} ${getYear(currentDate)}`,
+        year: getYear(currentDate),
+        quarter: getQuarter(currentDate),
+      });
+      currentDate = addQuarters(currentDate, 1);
+    }
+    return cols;
+  }, []);
+
+  const startDate = timeColumns[0].date;
+  const endDate = addQuarters(timeColumns[timeColumns.length - 1].date, 1);
+  const totalDays = differenceInDays(endDate, startDate);
+  const totalWidth = timeColumns.length * CELL_WIDTH;
 
   // Helper to get position and width
   const getPosition = (dateStr: string) => {
@@ -451,16 +481,32 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     const assetMilestones = milestones.filter(m => m.assetId === asset.id);
                     const conflictPoints = getConflictPoints(asset.id);
                     const { items: layoutItems, height: rowHeight } = layoutAsset(assetInitiatives);
+return (
+  <div 
+    key={asset.id} 
+    className={cn(
+      "flex border-b border-slate-200 hover:bg-slate-50 transition-colors group relative",
+      draggingAssetId === asset.id && "opacity-50"
+    )}
+    onDragOver={(e) => handleAssetDragOver(e, asset)}
+  >
+    {/* Asset Name Sidebar (Sticky Left) */}
+    <div 
+        draggable
+        onDragStart={(e) => handleAssetDragStart(e, asset.id)}
+        onDragEnd={handleAssetDragEnd}
+        className="sticky left-0 w-64 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-20 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center cursor-grab active:cursor-grabbing"
+        style={{ height: rowHeight }}
+    >
+      <div className="flex items-center gap-2">
+        <div className="p-0.5 hover:bg-slate-100 rounded text-slate-300 group-hover:text-slate-400">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+        </div>
+        <div className="font-semibold text-slate-800">{asset.name}</div>
+      </div>
+      <div className="text-xs text-slate-400 mt-1 ml-4">{assetInitiatives.length} Initiatives</div>
+    </div>
 
-                    return (
-                      <div key={asset.id} className="flex border-b border-slate-200 hover:bg-slate-50 transition-colors group relative">
-                        <div 
-                            className="sticky left-0 w-64 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-20 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center"
-                            style={{ height: rowHeight }}
-                        >
-                          <div className="font-semibold text-slate-800">{asset.name}</div>
-                          <div className="text-xs text-slate-400 mt-1">{assetInitiatives.length} Initiatives</div>
-                        </div>
 
                         <div className="relative flex-shrink-0" style={{ width: totalWidth, height: rowHeight }}>
                           <div className="absolute inset-0 flex pointer-events-none">
