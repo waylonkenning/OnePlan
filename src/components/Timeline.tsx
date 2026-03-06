@@ -121,55 +121,53 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     }
   }, [initiatives, resizing]);
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (resizing) {
-      const deltaX = e.clientX - resizing.initialX;
-      const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
-      
-      const initiative = localInitiatives.find(i => i.id === resizing.id);
-      if (!initiative) return;
-
-      const newDate = format(addDays(parseISO(resizing.initialDate), deltaDays), 'yyyy-MM-dd');
-      
-      const updatedInitiatives = localInitiatives.map(i => {
-        if (i.id === resizing.id) {
-          const updated = { ...i };
-          if (resizing.edge === 'start') {
-            if (newDate < i.endDate) updated.startDate = newDate;
-          } else {
-            if (newDate > i.startDate) updated.endDate = newDate;
-          }
-          return updated;
-        }
-        return i;
-      });
-      
-      setLocalInitiatives(updatedInitiatives);
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (resizing && onUpdateInitiative) {
-      const updated = localInitiatives.find(i => i.id === resizing.id);
-      if (updated) onUpdateInitiative(updated);
-    }
-    setResizing(null);
-    setDraggingCategory(null);
-  };
-
   useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (resizing) {
+        const deltaX = e.clientX - resizing.initialX;
+        const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
+        
+        const initiative = localInitiatives.find(i => i.id === resizing.id);
+        if (!initiative) return;
+
+        const newDate = format(addDays(parseISO(resizing.initialDate), deltaDays), 'yyyy-MM-dd');
+        
+        const updatedInitiatives = localInitiatives.map(i => {
+          if (i.id === resizing.id) {
+            const updated = { ...i };
+            if (resizing.edge === 'start') {
+              if (newDate < i.endDate) updated.startDate = newDate;
+            } else {
+              if (newDate > i.startDate) updated.endDate = newDate;
+            }
+            return updated;
+          }
+          return i;
+        });
+        
+        setLocalInitiatives(updatedInitiatives);
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (resizing && onUpdateInitiative) {
+        const updated = localInitiatives.find(i => i.id === resizing.id);
+        if (updated) onUpdateInitiative(updated);
+      }
+      setResizing(null);
+      setDraggingCategory(null);
+    };
+
     if (resizing) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
-    } else {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
     }
+    
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizing, initiatives, onUpdateInitiative]);
+  }, [resizing, localInitiatives, totalWidth, totalDays, onUpdateInitiative]);
 
   const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
     setDraggingCategory(category);
