@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
-import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear } from 'date-fns';
+import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid } from 'date-fns';
 import { cn } from '../lib/utils';
-import { AlertTriangle, Star, Info, Palette, ArrowRight } from 'lucide-react';
+import { AlertTriangle, Star, Info, Palette } from 'lucide-react';
 
 interface TimelineProps {
   assets: Asset[];
@@ -11,14 +11,33 @@ interface TimelineProps {
   programmes: Programme[];
   strategies: Strategy[];
   dependencies: Dependency[];
+  onUpdateInitiative?: (initiative: Initiative) => void;
+  onUpdateAssets?: (assets: Asset[]) => void;
 }
 
 const CELL_WIDTH = 200; // Width of one quarter column
 const START_YEAR = 2026;
 const YEARS_TO_SHOW = 3;
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, onUpdateInitiative, onUpdateAssets }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
+  const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
+  const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
+  const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
+  
+  const timelineRef = useRef<HTMLDivElement>(null);
+
+  // Initialize category order
+  useEffect(() => {
+    const categories = Array.from(new Set(assets.map(a => a.category)));
+    setCategoryOrder(prev => {
+      const newOrder = [...prev];
+      categories.forEach(cat => {
+        if (!newOrder.includes(cat)) newOrder.push(cat);
+      });
+      return newOrder.filter(cat => categories.includes(cat));
+    });
+  }, [assets]);
 
   // Generate time columns (Quarters)
   const timeColumns = useMemo<{ date: Date; label: string; year: number; quarter: number }[]>(() => {
@@ -51,20 +70,129 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     return grouped;
   }, [assets]);
 
+  const sortedCategories = useMemo(() => {
+    const categories = Object.keys(assetsByCategory);
+    return [...categories].sort((a, b) => {
+      const indexA = categoryOrder.indexOf(a);
+      const indexB = categoryOrder.indexOf(b);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
+  }, [assetsByCategory, categoryOrder]);
+
   // Helper to get position and width
   const getPosition = (dateStr: string) => {
-    const date = parseISO(dateStr);
-    const daysFromStart = differenceInDays(date, startDate);
-    const percentage = (daysFromStart / totalDays) * 100;
-    return percentage;
+    try {
+      const date = parseISO(dateStr);
+      if (!isValid(date)) return 0;
+      const daysFromStart = differenceInDays(date, startDate);
+      const percentage = (daysFromStart / totalDays) * 100;
+      return percentage;
+    } catch (e) {
+      return 0;
+    }
   };
 
   const getWidth = (startStr: string, endStr: string) => {
-    const start = parseISO(startStr);
-    const end = parseISO(endStr);
-    const days = differenceInDays(end, start);
-    const percentage = (days / totalDays) * 100;
-    return Math.max(0.5, percentage);
+    try {
+      const start = parseISO(startStr);
+      const end = parseISO(endStr);
+      if (!isValid(start) || !isValid(end)) return 0.5;
+      const days = differenceInDays(end, start);
+      const percentage = (days / totalDays) * 100;
+      return Math.max(0.5, percentage);
+    } catch (e) {
+      return 0.5;
+    }
+  };
+
+  const handleResizeStart = (e: React.MouseEvent, id: string, edge: 'start' | 'end', initialDate: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setResizing({ id, edge, initialX: e.clientX, initialDate });
+  };
+
+  const [localInitiatives, setLocalInitiatives] = useState<Initiative[]>(initiatives);
+
+  useEffect(() => {
+    if (!resizing) {
+      setLocalInitiatives(initiatives);
+    }
+  }, [initiatives, resizing]);
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (resizing) {
+      const deltaX = e.clientX - resizing.initialX;
+      const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
+      
+      const initiative = localInitiatives.find(i => i.id === resizing.id);
+      if (!initiative) return;
+
+      const newDate = format(addDays(parseISO(resizing.initialDate), deltaDays), 'yyyy-MM-dd');
+      
+      const updatedInitiatives = localInitiatives.map(i => {
+        if (i.id === resizing.id) {
+          const updated = { ...i };
+          if (resizing.edge === 'start') {
+            if (newDate < i.endDate) updated.startDate = newDate;
+          } else {
+            if (newDate > i.startDate) updated.endDate = newDate;
+          }
+          return updated;
+        }
+        return i;
+      });
+      
+      setLocalInitiatives(updatedInitiatives);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (resizing && onUpdateInitiative) {
+      const updated = localInitiatives.find(i => i.id === resizing.id);
+      if (updated) onUpdateInitiative(updated);
+    }
+    setResizing(null);
+    setDraggingCategory(null);
+  };
+
+  useEffect(() => {
+    if (resizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [resizing, initiatives, onUpdateInitiative]);
+
+  const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
+    setDraggingCategory(category);
+    e.dataTransfer.setData('text/plain', category);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleCategoryDragOver = (e: React.DragEvent, category: string) => {
+    e.preventDefault();
+    if (draggingCategory && draggingCategory !== category) {
+      const newOrder = [...categoryOrder];
+      const oldIndex = newOrder.indexOf(draggingCategory);
+      const newIndex = newOrder.indexOf(category);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        newOrder.splice(oldIndex, 1);
+        newOrder.splice(newIndex, 0, draggingCategory);
+        setCategoryOrder(newOrder);
+      }
+    }
+  };
+
+  const handleCategoryDragEnd = () => {
+    setDraggingCategory(null);
   };
 
   const MIN_ROW_HEIGHT = 100;
@@ -121,7 +249,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   };
 
   const getConflictPoints = (assetId: string) => {
-    const assetInitiatives = initiatives.filter(i => i.assetId === assetId);
+    const assetInitiatives = localInitiatives.filter(i => i.assetId === assetId);
     const points: string[] = [];
     for (let i = 0; i < assetInitiatives.length; i++) {
       for (let j = i + 1; j < assetInitiatives.length; j++) {
@@ -140,34 +268,15 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const currentPos = getPosition(now.toISOString());
   const isCurrentTimeVisible = currentPos >= 0 && currentPos <= 100;
 
-  // Calculate all initiative positions for arrows
-  const allPlacements = useMemo(() => {
-    const placements: Record<string, { top: number; left: number; width: number; height: number; rowTop: number; assetId: string }> = {};
-    let currentTotalTop = 48; // Header height
-
-    assets.forEach(asset => {
-      // Add category header height if it's the first asset in category
-      // This is complex because we map over categories in the render
-      // Simplified approach: we'll use a more direct mapping
-    });
-    
-    // Actually, it's easier to calculate these during render or use a ref-based approach
-    // but for SVG arrows, we need absolute-ish coordinates relative to the timeline container.
-    return placements;
-  }, [assets, initiatives]);
-
-  // Refined approach: Map each initiative to its absolute position within the timeline
   const initiativePositions = useMemo(() => {
     const positions = new Map<string, { x: number; y: number; width: number; height: number }>();
-    let currentY = 0; // Header height is handled by sticky, but we need absolute Y in the scrollable area
+    let currentY = 0; 
     
-    // We need to mirror the render logic to find exact Y positions
-    const categories = Object.keys(assetsByCategory);
-    categories.forEach(category => {
-      currentY += 25; // Category header height
+    sortedCategories.forEach(category => {
+      currentY += 25; 
       const categoryAssets = assetsByCategory[category];
       categoryAssets.forEach(asset => {
-        const assetInitiatives = initiatives.filter(i => i.assetId === asset.id);
+        const assetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
         const { items, height } = layoutAsset(assetInitiatives);
         
         items.forEach(({ init, top, left, width, height: barHeight }) => {
@@ -184,10 +293,10 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     });
     
     return positions;
-  }, [assetsByCategory, initiatives]);
+  }, [assetsByCategory, localInitiatives, sortedCategories, categoryOrder]);
 
   return (
-    <div id="timeline-visualiser" className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <div id="timeline-visualiser" ref={timelineRef} className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
       
       {/* Legend & Controls Bar */}
       <div className="flex-shrink-0 border-b border-slate-200 bg-white p-3 flex flex-wrap gap-x-6 gap-y-3 items-center text-sm overflow-x-auto">
@@ -275,48 +384,32 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           )}
 
           <div className="flex flex-col relative">
-            {/* SVG Layer for arrows */}
             <svg 
               className="absolute inset-0 z-10 pointer-events-none" 
               style={{ width: totalWidth + 256, height: '100%' }}
             >
               <defs>
-                <marker
-                  id="arrowhead"
-                  markerWidth="10"
-                  markerHeight="7"
-                  refX="10"
-                  refY="3.5"
-                  orient="auto"
-                >
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
                   <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
                 </marker>
               </defs>
               {dependencies.map(dep => {
                 const source = initiativePositions.get(dep.sourceId);
                 const target = initiativePositions.get(dep.targetId);
-                
                 if (!source || !target) return null;
 
-                // X positions
-                const sStartX = 256 + (source.x / 100) * totalWidth;
                 const sEndX = 256 + ((source.x + source.width) / 100) * totalWidth;
                 const tStartX = 256 + (target.x / 100) * totalWidth;
-                const tEndX = 256 + ((target.x + target.width) / 100) * totalWidth;
-
                 const sMidY = source.y + source.height / 2;
                 const tMidY = target.y + target.height / 2;
 
                 let path;
-                // Check for temporal overlap
-                if (sEndX >= tStartX && sStartX <= tEndX) {
-                    // Overlap: Draw a purely vertical line at the midpoint of the overlap
-                    const overlapX = (Math.max(sStartX, tStartX) + Math.min(sEndX, tEndX)) / 2;
+                if (sEndX >= tStartX && 256 + (source.x / 100) * totalWidth <= 256 + ((target.x + target.width) / 100) * totalWidth) {
+                    const overlapX = (Math.max(256 + (source.x / 100) * totalWidth, tStartX) + Math.min(sEndX, 256 + ((target.x + target.width) / 100) * totalWidth)) / 2;
                     const startY = source.y < target.y ? source.y + source.height : source.y;
                     const endY = source.y < target.y ? target.y : target.y + target.height;
                     path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
                 } else {
-                    // No overlap: Stepped line with a vertical segment at the midpoint of the gap
                     const midX = (sEndX + tStartX) / 2;
                     path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
                 }
@@ -336,153 +429,109 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               })}
             </svg>
 
-            {Object.entries(assetsByCategory).map(([category, categoryAssets]: [string, Asset[]]) => (
-            <div key={category}>
-              <div className="sticky left-0 z-20 bg-slate-100 px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 w-full">
-                {category}
-              </div>
-
-              {categoryAssets.map(asset => {
-                const assetInitiatives = initiatives.filter(i => i.assetId === asset.id);
-                const assetMilestones = milestones.filter(m => m.assetId === asset.id);
-                const conflictPoints = getConflictPoints(asset.id);
-                const { items: layoutItems, height: rowHeight } = layoutAsset(assetInitiatives);
-
-                return (
-                  <div key={asset.id} className="flex border-b border-slate-200 hover:bg-slate-50 transition-colors group relative">
-                    <div 
-                        className="sticky left-0 w-64 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-20 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center"
-                        style={{ height: rowHeight }}
-                    >
-                      <div className="font-semibold text-slate-800">{asset.name}</div>
-                      <div className="text-xs text-slate-400 mt-1">{assetInitiatives.length} Initiatives</div>
+            {sortedCategories.map((category) => {
+              const categoryAssets = assetsByCategory[category];
+              return (
+                <div key={category} onDragOver={(e) => handleCategoryDragOver(e, category)}>
+                  <div 
+                    draggable
+                    onDragStart={(e) => handleCategoryDragStart(e, category)}
+                    onDragEnd={handleCategoryDragEnd}
+                    className={cn(
+                      "sticky left-0 z-20 bg-slate-100 px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 w-full flex items-center gap-2 cursor-grab active:cursor-grabbing",
+                      draggingCategory === category && "opacity-50"
+                    )}
+                  >
+                    <div className="p-0.5 hover:bg-slate-200 rounded text-slate-400">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
                     </div>
-
-                    <div 
-                      className="relative flex-shrink-0"
-                      style={{ width: totalWidth, height: rowHeight }}
-                    >
-                      <div className="absolute inset-0 flex pointer-events-none">
-                        {timeColumns.map((col, idx) => (
-                          <div 
-                            key={idx} 
-                            className={cn(
-                              "border-r border-slate-100 h-full",
-                              col.quarter === 1 && "border-l-2 border-l-slate-200"
-                            )}
-                            style={{ width: CELL_WIDTH }}
-                          />
-                        ))}
-                      </div>
-
-                      {layoutItems.map(({ init, top, height, left, width }) => {
-                        const prog = programmes.find(p => p.id === init.programmeId);
-                        const strat = strategies.find(s => s.id === init.strategyId);
-                        
-                        const colorClass = colorBy === 'programme' 
-                          ? (prog?.color || 'bg-slate-500') 
-                          : (strat?.color || 'bg-slate-400');
-
-                        const subtitle = colorBy === 'programme' ? prog?.name : strat?.name;
-
-                        if (left + width < 0 || left > 100) return null;
-
-                        return (
-                          <div
-                            key={init.id}
-                            className={cn(
-                              "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 text-white overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer hover:scale-[1.01]",
-                              colorClass
-                            )}
-                            style={{
-                              left: `${left}%`,
-                              width: `${width}%`,
-                              height: height,
-                              top: top,
-                            }}
-                            title={`${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}`}
-                          >
-                            <div className="font-bold text-[11px] leading-tight drop-shadow-md line-clamp-2">{init.name}</div>
-                            {subtitle && width > 5 && <div className="text-[9px] opacity-90 truncate drop-shadow-md mt-0.5">{subtitle}</div>}
-                          </div>
-                        );
-                      })}
-
-                      {conflictPoints.map((date, idx) => {
-                         const pos = getPosition(date);
-                         if (pos < 0 || pos > 100) return null;
-                         return (
-                          <div
-                            key={`conflict-${idx}`}
-                            className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-30 pointer-events-none"
-                            style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
-                          >
-                            <div className="absolute top-0 bottom-0 w-0.5 border-l-2 border-dotted border-red-500/60" />
-                            <div className="relative p-1.5 rounded-full shadow-md border-2 border-white bg-red-500 text-white animate-pulse pointer-events-auto">
-                                <AlertTriangle size={16} fill="currentColor" />
-                            </div>
-                            <div className="absolute top-full mt-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover/marker:opacity-100 transition-opacity whitespace-nowrap shadow-lg z-40 pointer-events-none">
-                                Conflict Detected
-                                <div className="text-[10px] opacity-80">{format(parseISO(date), 'MMM d, yyyy')}</div>
-                            </div>
-                          </div>
-                         );
-                      })}
-
-                      {assetMilestones.map(mile => {
-                         const pos = getPosition(mile.date);
-                         if (pos < 0) return null;
-                         if (pos > 100) {
-                             return (
-                                 <div 
-                                    key={mile.id}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center text-slate-400 text-xs bg-white/80 px-2 py-1 rounded-full border border-slate-200 shadow-sm z-10"
-                                    title={`${mile.name} (${format(parseISO(mile.date), 'yyyy-MM-dd')})`}
-                                 >
-                                     <span className="mr-1 whitespace-nowrap">Future: {mile.name}</span>
-                                     <Star size={12} className="text-slate-400" />
-                                 </div>
-                             )
-                         }
-
-                         return (
-                          <div
-                            key={mile.id}
-                            className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-20"
-                            style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
-                          >
-                            <div className="absolute top-0 bottom-0 w-px border-l border-dashed border-slate-400/50 group-hover/marker:border-slate-600" />
-                            <div className={cn(
-                                "relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110",
-                                mile.type === 'critical' ? "bg-red-100 text-red-600" : 
-                                mile.type === 'warning' ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
-                            )}>
-                                {mile.type === 'critical' ? <Star size={16} fill="currentColor" /> : <Info size={16} />}
-                            </div>
-                            <div className="absolute top-full mt-2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover/marker:opacity-100 transition-opacity whitespace-nowrap shadow-lg pointer-events-none">
-                                {mile.name}
-                                <div className="text-[10px] opacity-70">{format(parseISO(mile.date), 'MMM yyyy')}</div>
-                            </div>
-                          </div>
-                         );
-                      })}
-                      
-                      {assetInitiatives.length === 0 && (
-                          <div className="absolute inset-x-4 inset-y-8 border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center bg-slate-50">
-                              <span className="text-slate-400 text-xs font-medium italic flex items-center gap-2">
-                                  No active initiatives
-                              </span>
-                          </div>
-                      )}
-                    </div>
+                    {category}
                   </div>
-                );
-              })}
-            </div>
-          ))}
+
+                  {categoryAssets.map(asset => {
+                    const assetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
+                    const assetMilestones = milestones.filter(m => m.assetId === asset.id);
+                    const conflictPoints = getConflictPoints(asset.id);
+                    const { items: layoutItems, height: rowHeight } = layoutAsset(assetInitiatives);
+
+                    return (
+                      <div key={asset.id} className="flex border-b border-slate-200 hover:bg-slate-50 transition-colors group relative">
+                        <div 
+                            className="sticky left-0 w-64 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-20 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center"
+                            style={{ height: rowHeight }}
+                        >
+                          <div className="font-semibold text-slate-800">{asset.name}</div>
+                          <div className="text-xs text-slate-400 mt-1">{assetInitiatives.length} Initiatives</div>
+                        </div>
+
+                        <div className="relative flex-shrink-0" style={{ width: totalWidth, height: rowHeight }}>
+                          <div className="absolute inset-0 flex pointer-events-none">
+                            {timeColumns.map((col, idx) => (
+                              <div key={idx} className={cn("border-r border-slate-100 h-full", col.quarter === 1 && "border-l-2 border-l-slate-200")} style={{ width: CELL_WIDTH }} />
+                            ))}
+                          </div>
+
+                          {layoutItems.map(({ init, top, height, left, width }) => {
+                            const prog = programmes.find(p => p.id === init.programmeId);
+                            const strat = strategies.find(s => s.id === init.strategyId);
+                            const colorClass = colorBy === 'programme' ? (prog?.color || 'bg-slate-500') : (strat?.color || 'bg-slate-400');
+                            const subtitle = colorBy === 'programme' ? prog?.name : strat?.name;
+
+                            if (left + width < 0 || left > 100) return null;
+
+                            return (
+                              <div
+                                key={init.id}
+                                className={cn(
+                                  "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 text-white overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer group/item",
+                                  colorClass
+                                )}
+                                style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
+                                title={`${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}`}
+                              >
+                                <div className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => handleResizeStart(e, init.id, 'start', init.startDate)} />
+                                <div className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => handleResizeStart(e, init.id, 'end', init.endDate)} />
+                                <div className="font-bold text-[11px] leading-tight drop-shadow-md line-clamp-2">{init.name}</div>
+                                {subtitle && width > 5 && <div className="text-[9px] opacity-90 truncate drop-shadow-md mt-0.5">{subtitle}</div>}
+                              </div>
+                            );
+                          })}
+
+                          {conflictPoints.map((date, idx) => {
+                             const pos = getPosition(date);
+                             if (pos < 0 || pos > 100) return null;
+                             return (
+                              <div key={`conflict-${idx}`} className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-30 pointer-events-none" style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}>
+                                <div className="absolute top-0 bottom-0 w-0.5 border-l-2 border-dotted border-red-500/60" />
+                                <div className="relative p-1.5 rounded-full shadow-md border-2 border-white bg-red-500 text-white animate-pulse pointer-events-auto">
+                                    <AlertTriangle size={16} fill="currentColor" />
+                                </div>
+                              </div>
+                             );
+                          })}
+
+                          {assetMilestones.map(mile => {
+                             const pos = getPosition(mile.date);
+                             if (pos < 0 || pos > 100) return null;
+                             return (
+                              <div key={mile.id} className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-20" style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}>
+                                <div className="absolute top-0 bottom-0 w-px border-l border-dashed border-slate-400/50 group-hover/marker:border-slate-600" />
+                                <div className={cn("relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110", mile.type === 'critical' ? "bg-red-100 text-red-600" : mile.type === 'warning' ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600")}>
+                                    {mile.type === 'critical' ? <Star size={16} fill="currentColor" /> : <Info size={16} />}
+                                </div>
+                              </div>
+                             );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 }
