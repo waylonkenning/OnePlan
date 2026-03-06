@@ -298,36 +298,36 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 
                 if (!source || !target) return null;
 
-                // X positions: source end to target start
-                const startX = 256 + (source.x / 100) * totalWidth + (source.width / 100) * totalWidth;
-                const endX = 256 + (target.x / 100) * totalWidth;
+                // X positions
+                const sStartX = 256 + (source.x / 100) * totalWidth;
+                const sEndX = 256 + ((source.x + source.width) / 100) * totalWidth;
+                const tStartX = 256 + (target.x / 100) * totalWidth;
+                const tEndX = 256 + ((target.x + target.width) / 100) * totalWidth;
 
-                // Y positions: based on vertical relationship
-                let startY, endY;
-                
-                if (source.y < target.y) {
-                    // Source is above target
-                    startY = source.y + source.height;
-                    endY = target.y;
-                } else if (source.y > target.y) {
-                    // Source is below target
-                    startY = source.y;
-                    endY = target.y + target.height;
+                const sMidY = source.y + source.height / 2;
+                const tMidY = target.y + target.height / 2;
+
+                let path;
+                // Check for temporal overlap
+                if (sEndX >= tStartX && sStartX <= tEndX) {
+                    // Overlap: Draw a purely vertical line at the midpoint of the overlap
+                    const overlapX = (Math.max(sStartX, tStartX) + Math.min(sEndX, tEndX)) / 2;
+                    const startY = source.y < target.y ? source.y + source.height : source.y;
+                    const endY = source.y < target.y ? target.y : target.y + target.height;
+                    path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
                 } else {
-                    // Same row
-                    startY = source.y + source.height / 2;
-                    endY = target.y + target.height / 2;
+                    // No overlap: Stepped line with a vertical segment at the midpoint of the gap
+                    const midX = (sEndX + tStartX) / 2;
+                    path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
                 }
                 
                 return (
-                  <line
+                  <path
                     key={dep.id}
-                    x1={startX}
-                    y1={startY}
-                    x2={endX}
-                    y2={endY}
+                    d={path}
                     stroke="#3b82f6"
                     strokeWidth="2"
+                    fill="none"
                     markerEnd="url(#arrowhead)"
                     opacity="0.6"
                     strokeDasharray={dep.type === 'related' ? "4 2" : ""}
