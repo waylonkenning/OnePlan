@@ -192,6 +192,16 @@ export default function App() {
                 dependencies
               });
             }}
+            onUpdateDependencies={(updatedDependencies) => {
+              handleUpdate({
+                assets,
+                initiatives,
+                milestones,
+                programmes,
+                strategies,
+                dependencies: updatedDependencies
+              });
+            }}
           />
         ) : (
           <DataManager 
