@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Asset, Initiative, Milestone, Programme, Strategy } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
-import { Database, Layers, Calendar, Flag, Target } from 'lucide-react';
+import { Database, Layers, Calendar, Flag, Target, Link2 } from 'lucide-react';
 
 interface DataManagerProps {
   data: {
@@ -11,6 +11,7 @@ interface DataManagerProps {
     milestones: Milestone[];
     programmes: Programme[];
     strategies: Strategy[];
+    dependencies: Dependency[];
   };
   onUpdate: (data: {
     assets: Asset[];
@@ -18,10 +19,11 @@ interface DataManagerProps {
     milestones: Milestone[];
     programmes: Programme[];
     strategies: Strategy[];
+    dependencies: Dependency[];
   }) => void;
 }
 
-type Tab = 'initiatives' | 'assets' | 'programmes' | 'milestones' | 'strategies';
+type Tab = 'initiatives' | 'assets' | 'programmes' | 'milestones' | 'strategies' | 'dependencies';
 
 export function DataManager({ data, onUpdate }: DataManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>('initiatives');
@@ -36,6 +38,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
   const assetOptions = data.assets.map(a => ({ value: a.id, label: a.name }));
   const programmeOptions = data.programmes.map(p => ({ value: p.id, label: p.name }));
   const strategyOptions = data.strategies.map(s => ({ value: s.id, label: s.name }));
+  const initiativeOptions = data.initiatives.map(i => ({ value: i.id, label: i.name }));
 
   const initiativeColumns: Column<Initiative>[] = [
     { key: 'name', label: 'Initiative Name', type: 'text', width: '25%' },
@@ -76,8 +79,19 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
     ], width: '20%' },
   ];
 
+  const dependencyColumns: Column<Dependency>[] = [
+    { key: 'sourceId', label: 'Dependent Initiative', type: 'select', options: initiativeOptions, width: '35%' },
+    { key: 'targetId', label: 'Depends On', type: 'select', options: initiativeOptions, width: '35%' },
+    { key: 'type', label: 'Dependency Type', type: 'select', options: [
+      { value: 'blocks', label: 'Blocks' },
+      { value: 'requires', label: 'Requires' },
+      { value: 'related', label: 'Related' }
+    ], width: '20%' },
+  ];
+
   const tabs = [
     { id: 'initiatives', label: 'Initiatives', icon: Layers, count: data.initiatives.length },
+    { id: 'dependencies', label: 'Dependencies', icon: Link2, count: data.dependencies.length },
     { id: 'assets', label: 'Assets', icon: Database, count: data.assets.length },
     { id: 'programmes', label: 'Programmes', icon: Calendar, count: data.programmes.length },
     { id: 'strategies', label: 'Strategies', icon: Target, count: data.strategies.length },
@@ -113,6 +127,14 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             data={data.initiatives} 
             columns={initiativeColumns} 
             onUpdate={(newData) => updateData('initiatives', newData)}
+            idField="id"
+          />
+        )}
+        {activeTab === 'dependencies' && (
+          <EditableTable 
+            data={data.dependencies} 
+            columns={dependencyColumns} 
+            onUpdate={(newData) => updateData('dependencies', newData)}
             idField="id"
           />
         )}

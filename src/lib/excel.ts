@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { Asset, Initiative, Milestone, Programme, Strategy } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
 
 interface AppData {
   assets: Asset[];
@@ -7,6 +7,7 @@ interface AppData {
   milestones: Milestone[];
   programmes: Programme[];
   strategies: Strategy[];
+  dependencies: Dependency[];
 }
 
 export const exportToExcel = (data: AppData) => {
@@ -31,6 +32,10 @@ export const exportToExcel = (data: AppData) => {
   // 5. Milestones
   const milestonesWs = XLSX.utils.json_to_sheet(data.milestones);
   XLSX.utils.book_append_sheet(wb, milestonesWs, 'Milestones');
+
+  // 6. Dependencies
+  const dependenciesWs = XLSX.utils.json_to_sheet(data.dependencies || []);
+  XLSX.utils.book_append_sheet(wb, dependenciesWs, 'Dependencies');
 
   // Write file
   XLSX.writeFile(wb, `it-roadmap-${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -62,6 +67,7 @@ export const importFromExcel = async (file: File): Promise<Partial<AppData>> => 
         result.programmes = getSheetData<Programme>('Programmes');
         result.strategies = getSheetData<Strategy>('Strategies');
         result.milestones = getSheetData<Milestone>('Milestones');
+        result.dependencies = getSheetData<Dependency>('Dependencies');
 
         resolve(result);
       } catch (error) {
