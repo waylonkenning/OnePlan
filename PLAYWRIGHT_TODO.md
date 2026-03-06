@@ -29,6 +29,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Drag the start handle of an initiative to change its `startDate`.
     - [x] Drag the end handle of an initiative to change its `endDate`.
     - [x] **Persistence:** Ensure resized initiatives don't "snap back" after the mouse is released or the page is refreshed.
+- [x] **Initiative Interaction:**
+    - [x] **Horizontal Move:** Drag an initiative left or right to change start/end dates while maintaining duration.
+    - [x] **Relationship Drawing:** Drag vertically from one initiative to another to create a dependency.
 - [ ] **Drag-and-Drop Reordering:**
     - [ ] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
     - [x] **Asset Reordering:** Drag an asset within its category and verify it moves correctly.
