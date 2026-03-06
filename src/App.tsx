@@ -171,6 +171,17 @@ export default function App() {
             programmes={programmes}
             strategies={strategies}
             dependencies={dependencies}
+            onUpdateInitiative={(updatedInit) => {
+              const updatedInitiatives = initiatives.map(i => i.id === updatedInit.id ? updatedInit : i);
+              handleUpdate({
+                assets,
+                initiatives: updatedInitiatives,
+                milestones,
+                programmes,
+                strategies,
+                dependencies
+              });
+            }}
           />
         ) : (
           <DataManager 
