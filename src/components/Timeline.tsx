@@ -298,24 +298,36 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 
                 if (!source || !target) return null;
 
-                // Calculate absolute X/Y (256 is the asset name column width)
+                // X positions: source end to target start
                 const startX = 256 + (source.x / 100) * totalWidth + (source.width / 100) * totalWidth;
-                const startY = source.y + source.height / 2;
                 const endX = 256 + (target.x / 100) * totalWidth;
-                const endY = target.y + target.height / 2;
 
-                // Create a curved path
-                const dx = endX - startX;
-                const dy = endY - startY;
-                const controlX = startX + dx * 0.5;
+                // Y positions: based on vertical relationship
+                let startY, endY;
+                
+                if (source.y < target.y) {
+                    // Source is above target
+                    startY = source.y + source.height;
+                    endY = target.y;
+                } else if (source.y > target.y) {
+                    // Source is below target
+                    startY = source.y;
+                    endY = target.y + target.height;
+                } else {
+                    // Same row
+                    startY = source.y + source.height / 2;
+                    endY = target.y + target.height / 2;
+                }
                 
                 return (
-                  <path
+                  <line
                     key={dep.id}
-                    d={`M ${startX} ${startY} C ${controlX} ${startY}, ${controlX} ${endY}, ${endX} ${endY}`}
+                    x1={startX}
+                    y1={startY}
+                    x2={endX}
+                    y2={endY}
                     stroke="#3b82f6"
                     strokeWidth="2"
-                    fill="none"
                     markerEnd="url(#arrowhead)"
                     opacity="0.6"
                     strokeDasharray={dep.type === 'related' ? "4 2" : ""}
