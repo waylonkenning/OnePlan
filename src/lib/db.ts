@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Asset, Initiative, Milestone, Programme, Strategy } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
 
 interface ITMapDB extends DBSchema {
   assets: {
@@ -22,10 +22,14 @@ interface ITMapDB extends DBSchema {
     key: string;
     value: Strategy;
   };
+  dependencies: {
+    key: string;
+    value: Dependency;
+  };
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
@@ -48,6 +52,9 @@ export const initDB = () => {
         if (!db.objectStoreNames.contains('strategies')) {
           db.createObjectStore('strategies', { keyPath: 'id' });
         }
+        if (!db.objectStoreNames.contains('dependencies')) {
+          db.createObjectStore('dependencies', { keyPath: 'id' });
+        }
       },
     });
   }
@@ -61,6 +68,7 @@ export const getAppData = async () => {
   const milestones = await db.getAll('milestones');
   const programmes = await db.getAll('programmes');
   const strategies = await db.getAll('strategies');
+  const dependencies = await db.getAll('dependencies');
 
   return {
     assets,
@@ -68,6 +76,7 @@ export const getAppData = async () => {
     milestones,
     programmes,
     strategies,
+    dependencies,
   };
 };
 
@@ -77,9 +86,10 @@ export const saveAppData = async (data: {
   milestones: Milestone[];
   programmes: Programme[];
   strategies: Strategy[];
+  dependencies: Dependency[];
 }) => {
   const db = await initDB();
-  const tx = db.transaction(['assets', 'initiatives', 'milestones', 'programmes', 'strategies'], 'readwrite');
+  const tx = db.transaction(['assets', 'initiatives', 'milestones', 'programmes', 'strategies', 'dependencies'], 'readwrite');
 
   await Promise.all([
     tx.objectStore('assets').clear(),
@@ -87,6 +97,7 @@ export const saveAppData = async (data: {
     tx.objectStore('milestones').clear(),
     tx.objectStore('programmes').clear(),
     tx.objectStore('strategies').clear(),
+    tx.objectStore('dependencies').clear(),
   ]);
 
   await Promise.all([
@@ -95,6 +106,7 @@ export const saveAppData = async (data: {
     ...data.milestones.map(item => tx.objectStore('milestones').add(item)),
     ...data.programmes.map(item => tx.objectStore('programmes').add(item)),
     ...data.strategies.map(item => tx.objectStore('strategies').add(item)),
+    ...data.dependencies.map(item => tx.objectStore('dependencies').add(item)),
   ]);
 
   await tx.done;

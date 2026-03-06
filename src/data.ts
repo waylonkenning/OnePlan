@@ -1,4 +1,4 @@
-import { Asset, Initiative, Milestone, Programme, Strategy } from './types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from './types';
 
 export const strategies: Strategy[] = [
   { id: 'strat-1', name: 'Customer First', color: 'bg-indigo-500' },
@@ -91,3 +91,5 @@ export const milestones: Milestone[] = [
     type: 'warning',
   }
 ];
+
+export const dependencies: Dependency[] = [];

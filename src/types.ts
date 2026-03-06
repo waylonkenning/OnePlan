@@ -24,6 +24,13 @@ export interface Initiative {
   description?: string;
 }
 
+export interface Dependency {
+  id: string;
+  sourceId: string; // The initiative that depends on another
+  targetId: string; // The initiative being depended upon
+  type: 'blocks' | 'requires' | 'related';
+}
+
 export interface Milestone {
   id: string;
   assetId: string;
