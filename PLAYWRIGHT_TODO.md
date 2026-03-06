@@ -31,7 +31,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Persistence:** Ensure resized initiatives don't "snap back" after the mouse is released or the page is refreshed.
 - [ ] **Drag-and-Drop Reordering:**
     - [ ] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
-    - [ ] **Asset Reordering:** Drag an asset within its category and verify it moves correctly.
+    - [x] **Asset Reordering:** Drag an asset within its category and verify it moves correctly.
 - [x] **Conflict Detection:** Create two initiatives on the same asset that overlap in time and verify the red "Conflict Detected" marker appears at the start of the overlap.
 - [x] **Milestones:** Verify milestones are rendered at the correct horizontal position based on their date.
 
