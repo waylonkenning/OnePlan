@@ -13,20 +13,32 @@ interface TimelineProps {
   dependencies: Dependency[];
   onUpdateInitiative?: (initiative: Initiative) => void;
   onUpdateAssets?: (assets: Asset[]) => void;
+  onUpdateDependencies?: (dependencies: Dependency[]) => void;
 }
 
 const CELL_WIDTH = 200; // Width of one quarter column
 const START_YEAR = 2026;
 const YEARS_TO_SHOW = 3;
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, onUpdateInitiative, onUpdateAssets }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, onUpdateInitiative, onUpdateAssets, onUpdateDependencies }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
+  const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
+  const [drawingDependency, setDrawingDependency] = useState<{ 
+    sourceId: string; 
+    startX: number; 
+    startY: number; 
+    currentX: number; 
+    currentY: number;
+  } | null>(null);
   const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
   const [draggingAssetId, setDraggingAssetId] = useState<string | null>(null);
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
   
+  const [initiativePositions, setInitiativePositions] = useState<Map<string, { x: number; y: number; width: number; height: number }>>(new Map());
+  
   const timelineRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Initialize category order
   useEffect(() => {
@@ -143,13 +155,26 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     setResizing({ id, edge, initialX: e.clientX, initialDate });
   };
 
+  const handleMouseDown = (e: React.MouseEvent, init: Initiative) => {
+    // If we click on the edge, handleResizeStart will be called via its own onMouseDown
+    // which has e.stopPropagation(). So here we handle move or dependency draw.
+    console.log('MouseDown on initiative:', init.id, e.clientX, e.clientY);
+    setMoving({ 
+      id: init.id, 
+      initialX: e.clientX, 
+      initialY: e.clientY,
+      initialStart: init.startDate, 
+      initialEnd: init.endDate 
+    });
+  };
+
   const [localInitiatives, setLocalInitiatives] = useState<Initiative[]>(initiatives);
 
   useEffect(() => {
-    if (!resizing) {
+    if (!resizing && !moving) {
       setLocalInitiatives(initiatives);
     }
-  }, [initiatives, resizing]);
+  }, [initiatives, resizing, moving]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -176,19 +201,87 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         });
         
         setLocalInitiatives(updatedInitiatives);
+      } else if (moving) {
+        const deltaX = e.clientX - moving.initialX;
+        const deltaY = e.clientY - moving.initialY;
+        
+        // If we moved vertically more than 30px, switch to drawing dependency
+        if (!drawingDependency && Math.abs(deltaY) > 30) {
+            const sourcePos = initiativePositions.get(moving.id);
+            if (sourcePos && containerRef.current) {
+                const containerRect = containerRef.current.getBoundingClientRect();
+                const startX = 256 + ((sourcePos.x + sourcePos.width/2) / 100) * totalWidth;
+                const startY = sourcePos.y + sourcePos.height/2;
+                
+                setDrawingDependency({
+                    sourceId: moving.id,
+                    startX,
+                    startY,
+                    currentX: e.clientX - containerRect.left,
+                    currentY: e.clientY - containerRect.top
+                });
+                setMoving(null);
+                return;
+            }
+        }
+
+        // Only update dates if we moved horizontally more than 5px
+        if (Math.abs(deltaX) > 5) {
+            const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
+            const updatedInitiatives = localInitiatives.map(i => {
+              if (i.id === moving.id) {
+                return {
+                  ...i,
+                  startDate: format(addDays(parseISO(moving.initialStart), deltaDays), 'yyyy-MM-dd'),
+                  endDate: format(addDays(parseISO(moving.initialEnd), deltaDays), 'yyyy-MM-dd'),
+                };
+              }
+              return i;
+            });
+            setLocalInitiatives(updatedInitiatives);
+        }
+      } else if (drawingDependency) {
+        if (containerRef.current) {
+            const containerRect = containerRef.current.getBoundingClientRect();
+            setDrawingDependency({
+                ...drawingDependency,
+                currentX: e.clientX - containerRect.left,
+                currentY: e.clientY - containerRect.top
+            });
+        }
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
       if (resizing && onUpdateInitiative) {
         const updated = localInitiatives.find(i => i.id === resizing.id);
         if (updated) onUpdateInitiative(updated);
+      } else if (moving && onUpdateInitiative) {
+        const updated = localInitiatives.find(i => i.id === moving.id);
+        if (updated) onUpdateInitiative(updated);
+      } else if (drawingDependency && onUpdateDependencies) {
+        // Find if we released over another initiative
+        const targetElement = document.elementFromPoint(e.clientX, e.clientY);
+        const initiativeEl = targetElement?.closest('[data-initiative-id]');
+        const targetId = initiativeEl?.getAttribute('data-initiative-id');
+        
+        if (targetId && targetId !== drawingDependency.sourceId) {
+            const newDependency: Dependency = {
+                id: `dep-${Date.now()}`,
+                sourceId: drawingDependency.sourceId,
+                targetId: targetId,
+                type: 'blocks'
+            };
+            onUpdateDependencies([...dependencies, newDependency]);
+        }
       }
       setResizing(null);
+      setMoving(null);
+      setDrawingDependency(null);
       setDraggingCategory(null);
     };
 
-    if (resizing) {
+    if (resizing || moving || drawingDependency) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     }
@@ -197,7 +290,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizing, localInitiatives, totalWidth, totalDays, onUpdateInitiative]);
+  }, [resizing, moving, drawingDependency, localInitiatives, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, dependencies, initiativePositions]);
 
   const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
     setDraggingCategory(category);
@@ -276,6 +369,38 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     return { items, height: contentHeight };
   };
 
+  // Keep track of initiative positions for dependency drawing
+  useEffect(() => {
+    const positions = new Map<string, { x: number; y: number; width: number; height: number }>();
+    let currentY = 0;
+    
+    // We need to mirror the rendering loop to calculate Y offsets
+    // This is slightly complex because of the scrollable area
+    // For now, we'll use a simplified version or use refs
+    // Let's use a simpler approach: the dependency renderer already uses initiativePositions
+    // which were previously calculated. We need to populate it.
+    
+    sortedCategories.forEach(category => {
+        currentY += 26; // category header height
+        const categoryAssets = assetsByCategory[category];
+        categoryAssets.forEach(asset => {
+            const assetInitiatives = initiatives.filter(i => i.assetId === asset.id);
+            const { items, height } = layoutAsset(assetInitiatives);
+            items.forEach(item => {
+                positions.set(item.init.id, {
+                    x: item.left,
+                    y: currentY + item.top,
+                    width: item.width,
+                    height: item.height
+                });
+            });
+            currentY += height;
+        });
+    });
+    setInitiativePositions(positions);
+  }, [initiatives, assets, totalWidth, sortedCategories]);
+
+
   const getConflictPoints = (assetId: string) => {
     const assetInitiatives = localInitiatives.filter(i => i.assetId === assetId);
     const points: string[] = [];
@@ -295,33 +420,6 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const now = new Date();
   const currentPos = getPosition(now.toISOString());
   const isCurrentTimeVisible = currentPos >= 0 && currentPos <= 100;
-
-  const initiativePositions = useMemo(() => {
-    const positions = new Map<string, { x: number; y: number; width: number; height: number }>();
-    let currentY = 0; 
-    
-    sortedCategories.forEach(category => {
-      currentY += 25; 
-      const categoryAssets = assetsByCategory[category];
-      categoryAssets.forEach(asset => {
-        const assetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
-        const { items, height } = layoutAsset(assetInitiatives);
-        
-        items.forEach(({ init, top, left, width, height: barHeight }) => {
-          positions.set(init.id, {
-            x: left,
-            y: currentY + top,
-            width: width,
-            height: barHeight
-          });
-        });
-        
-        currentY += height;
-      });
-    });
-    
-    return positions;
-  }, [assetsByCategory, localInitiatives, sortedCategories, categoryOrder]);
 
   return (
     <div id="timeline-visualiser" ref={timelineRef} className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
@@ -411,7 +509,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
              </div>
           )}
 
-          <div className="flex flex-col relative">
+          <div className="flex flex-col relative" ref={containerRef}>
             <svg 
               className="absolute inset-0 z-10 pointer-events-none" 
               style={{ width: totalWidth + 256, height: '100%' }}
@@ -455,6 +553,19 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   />
                 );
               })}
+              
+              {/* Live drawing arrow */}
+              {drawingDependency && (
+                <path
+                  d={`M ${drawingDependency.startX} ${drawingDependency.startY} L ${drawingDependency.currentX} ${drawingDependency.currentY}`}
+                  stroke="#3b82f6"
+                  strokeWidth="3"
+                  fill="none"
+                  markerEnd="url(#arrowhead)"
+                  opacity="0.8"
+                  strokeDasharray="5 5"
+                />
+              )}
             </svg>
 
             {sortedCategories.map((category) => {
@@ -526,17 +637,20 @@ return (
                             return (
                               <div
                                 key={init.id}
+                                data-initiative-id={init.id}
+                                onMouseDown={(e) => handleMouseDown(e, init)}
+                                draggable="false"
                                 className={cn(
-                                  "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 text-white overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer group/item",
+                                  "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 text-white overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
                                   colorClass
                                 )}
                                 style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
                                 title={`${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}`}
                               >
-                                <div className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => handleResizeStart(e, init.id, 'start', init.startDate)} />
-                                <div className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => handleResizeStart(e, init.id, 'end', init.endDate)} />
-                                <div className="font-bold text-[11px] leading-tight drop-shadow-md line-clamp-2">{init.name}</div>
-                                {subtitle && width > 5 && <div className="text-[9px] opacity-90 truncate drop-shadow-md mt-0.5">{subtitle}</div>}
+                                <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'start', init.startDate); }} />
+                                <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'end', init.endDate); }} />
+                                <div draggable="false" className="font-bold text-[11px] leading-tight drop-shadow-md line-clamp-2">{init.name}</div>
+                                {subtitle && width > 5 && <div draggable="false" className="text-[9px] opacity-90 truncate drop-shadow-md mt-0.5">{subtitle}</div>}
                               </div>
                             );
                           })}
