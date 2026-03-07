@@ -199,7 +199,7 @@ export function EditableTable<T extends { [key: string]: any }>({
           <tbody>
             {/* Real Data Rows */}
             {rows.map((row, rowIndex) => (
-              <tr key={String(row[idField])} className="hover:bg-slate-50 group">
+              <tr key={String(row[idField])} data-real="true" className="hover:bg-slate-50 group">
                 {columns.map(col => (
                   <td key={`${String(row[idField])}-${String(col.key)}`} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
                     {col.type === 'select' ? (
@@ -254,18 +254,18 @@ export function EditableTable<T extends { [key: string]: any }>({
               </tr>
             ))}
 
-            {/* Ghost (Empty) Rows */}
+            {/* Blank (Empty) Rows for quick entry */}
             {Array.from({ length: GHOST_ROWS_COUNT }).map((_, i) => (
-              <tr key={`ghost-${i}`} className="hover:bg-slate-50 group">
+              <tr key={`blank-${i}`} className="hover:bg-slate-50 group">
                 {columns.map(col => (
-                  <td key={`ghost-${i}-${String(col.key)}`} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
+                  <td key={`blank-${i}-${String(col.key)}`} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
                     {col.type === 'select' ? (
                       <select
                         value=""
                         onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
-                        className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none italic text-slate-400"
+                        className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none"
                       >
-                        <option value="">(New row...)</option>
+                        <option value=""></option>
                         {col.options?.map(opt => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
@@ -276,9 +276,9 @@ export function EditableTable<T extends { [key: string]: any }>({
                              <select
                                 value=""
                                 onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
-                                className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs italic text-slate-400"
+                                className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
                             >
-                                <option value="">Select Color...</option>
+                                <option value=""></option>
                                 <option value="bg-blue-500">Blue</option>
                                 <option value="bg-emerald-500">Emerald</option>
                                 <option value="bg-amber-500">Amber</option>
@@ -293,14 +293,13 @@ export function EditableTable<T extends { [key: string]: any }>({
                         type={col.type}
                         value=""
                         onChange={(e) => handleChange(rows.length + i, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, true)}
-                        placeholder="(New row...)"
-                        className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none italic text-slate-400"
+                        className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none"
                       />
                     )}
                   </td>
                 ))}
                 <td className="border-b border-slate-100 p-1 text-center">
-                  <div className="w-6 h-6" /> {/* Placeholder for alignment */}
+                  <div className="w-6 h-6" />
                 </td>
               </tr>
             ))}
