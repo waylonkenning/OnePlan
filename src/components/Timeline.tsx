@@ -11,6 +11,7 @@ interface TimelineProps {
   programmes: Programme[];
   strategies: Strategy[];
   dependencies: Dependency[];
+  assetCategories: AssetCategory[];
   onUpdateInitiative?: (initiative: Initiative) => void;
   onUpdateAssets?: (assets: Asset[]) => void;
   onUpdateDependencies?: (dependencies: Dependency[]) => void;
@@ -21,7 +22,7 @@ const CELL_WIDTH = 200; // Width of one quarter column
 const START_YEAR = 2026;
 const YEARS_TO_SHOW = 3;
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
@@ -44,29 +45,31 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
   // Initialize category order
   useEffect(() => {
-    const categories = Array.from(new Set(assets.map(a => a.category)));
+    const categories = assetCategories.sort((a, b) => (a.order || 0) - (b.order || 0)).map(c => c.id);
     setCategoryOrder(prev => {
+      if (prev.length === 0) return categories;
       const newOrder = [...prev];
-      categories.forEach(cat => {
-        if (!newOrder.includes(cat)) newOrder.push(cat);
+      categories.forEach(catId => {
+        if (!newOrder.includes(catId)) newOrder.push(catId);
       });
-      return newOrder.filter(cat => categories.includes(cat));
+      return newOrder.filter(id => categories.includes(id));
     });
-  }, [assets]);
+  }, [assetCategories]);
 
-  // Group assets by category
+  // Group assets by category ID
   const assetsByCategory = useMemo<Record<string, Asset[]>>(() => {
     const grouped: Record<string, Asset[]> = {};
     assets.forEach(a => {
-      if (!grouped[a.category]) grouped[a.category] = [];
-      grouped[a.category].push(a);
+      const catId = a.categoryId || 'uncategorized';
+      if (!grouped[catId]) grouped[catId] = [];
+      grouped[catId].push(a);
     });
     return grouped;
   }, [assets]);
 
-  const sortedCategories = useMemo(() => {
-    const categories = Object.keys(assetsByCategory);
-    return [...categories].sort((a, b) => {
+  const sortedCategoryIds = useMemo(() => {
+    const categoryIds = Object.keys(assetsByCategory);
+    return [...categoryIds].sort((a, b) => {
       const indexA = categoryOrder.indexOf(a);
       const indexB = categoryOrder.indexOf(b);
       if (indexA === -1) return 1;
@@ -86,15 +89,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     e.preventDefault();
     if (draggingAssetId && draggingAssetId !== targetAsset.id && onUpdateAssets) {
       const draggingAsset = assets.find(a => a.id === draggingAssetId);
-      if (draggingAsset && draggingAsset.category === targetAsset.category) {
-        const newAssets = [...assets];
-        const oldIndex = newAssets.findIndex(a => a.id === draggingAssetId);
-        const newIndex = newAssets.findIndex(a => a.id === targetAsset.id);
+      if (draggingAsset && draggingAsset.categoryId === targetAsset.categoryId) {
+        const oldIndex = assets.findIndex(a => a.id === draggingAssetId);
+        const newIndex = assets.findIndex(a => a.id === targetAsset.id);
         
         if (oldIndex !== -1 && newIndex !== -1) {
-          newAssets.splice(oldIndex, 1);
-          newAssets.splice(newIndex, 0, draggingAsset);
-          onUpdateAssets(newAssets);
+          onUpdateAssets(reorder(assets, oldIndex, newIndex));
         }
       }
     }
@@ -415,9 +415,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     // Let's use a simpler approach: the dependency renderer already uses initiativePositions
     // which were previously calculated. We need to populate it.
     
-    sortedCategories.forEach(category => {
+    sortedCategoryIds.forEach(catId => {
         currentY += 26; // category header height
-        const categoryAssets = assetsByCategory[category];
+        const categoryAssets = assetsByCategory[catId];
         categoryAssets.forEach(asset => {
             const assetInitiatives = initiatives.filter(i => i.assetId === asset.id);
             const { items, height } = layoutAsset(assetInitiatives);
@@ -433,7 +433,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         });
     });
     setInitiativePositions(positions);
-  }, [initiatives, assets, totalWidth, sortedCategories]);
+  }, [initiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory]);
 
 
   const getConflictPoints = (assetId: string) => {
@@ -622,23 +622,25 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               )}
             </svg>
 
-            {sortedCategories.map((category) => {
-              const categoryAssets = assetsByCategory[category];
+            {sortedCategoryIds.map((catId) => {
+              const category = assetCategories.find(c => c.id === catId);
+              const categoryName = category?.name || 'Uncategorized';
+              const categoryAssets = assetsByCategory[catId];
               return (
-                <div key={category} onDragOver={(e) => handleCategoryDragOver(e, category)}>
+                <div key={catId} onDragOver={(e) => handleCategoryDragOver(e, catId)}>
                   <div 
                     draggable
-                    onDragStart={(e) => handleCategoryDragStart(e, category)}
+                    onDragStart={(e) => handleCategoryDragStart(e, catId)}
                     onDragEnd={handleCategoryDragEnd}
                     className={cn(
                       "sticky left-0 z-20 bg-slate-100 px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 w-full flex items-center gap-2 cursor-grab active:cursor-grabbing",
-                      draggingCategory === category && "opacity-50"
+                      draggingCategory === catId && "opacity-50"
                     )}
                   >
                     <div className="p-0.5 hover:bg-slate-200 rounded text-slate-400">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
                     </div>
-                    {category}
+                    {categoryName}
                   </div>
 
                   {categoryAssets.map(asset => {

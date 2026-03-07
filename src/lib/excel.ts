@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from '../types';
 
 interface AppData {
   assets: Asset[];
@@ -8,6 +8,7 @@ interface AppData {
   programmes: Programme[];
   strategies: Strategy[];
   dependencies: Dependency[];
+  assetCategories: AssetCategory[];
 }
 
 export const exportToExcel = (data: AppData) => {
@@ -21,19 +22,23 @@ export const exportToExcel = (data: AppData) => {
   const assetsWs = XLSX.utils.json_to_sheet(data.assets);
   XLSX.utils.book_append_sheet(wb, assetsWs, 'Assets');
 
-  // 3. Programmes
+  // 3. Asset Categories
+  const categoriesWs = XLSX.utils.json_to_sheet(data.assetCategories || []);
+  XLSX.utils.book_append_sheet(wb, categoriesWs, 'AssetCategories');
+
+  // 4. Programmes
   const programmesWs = XLSX.utils.json_to_sheet(data.programmes);
   XLSX.utils.book_append_sheet(wb, programmesWs, 'Programmes');
 
-  // 4. Strategies
+  // 5. Strategies
   const strategiesWs = XLSX.utils.json_to_sheet(data.strategies || []);
   XLSX.utils.book_append_sheet(wb, strategiesWs, 'Strategies');
 
-  // 5. Milestones
+  // 6. Milestones
   const milestonesWs = XLSX.utils.json_to_sheet(data.milestones);
   XLSX.utils.book_append_sheet(wb, milestonesWs, 'Milestones');
 
-  // 6. Dependencies
+  // 7. Dependencies
   const dependenciesWs = XLSX.utils.json_to_sheet(data.dependencies || []);
   XLSX.utils.book_append_sheet(wb, dependenciesWs, 'Dependencies');
 
@@ -64,6 +69,7 @@ export const importFromExcel = async (file: File): Promise<Partial<AppData>> => 
           budget: Number(init.budget) || 0
         }));
         result.assets = getSheetData<Asset>('Assets');
+        result.assetCategories = getSheetData<AssetCategory>('AssetCategories');
         result.programmes = getSheetData<Programme>('Programmes');
         result.strategies = getSheetData<Strategy>('Strategies');
         result.milestones = getSheetData<Milestone>('Milestones');

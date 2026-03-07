@@ -13,9 +13,10 @@ import {
   milestones as initialMilestones, 
   programmes as initialProgrammes,
   strategies as initialStrategies,
-  dependencies as initialDependencies
+  dependencies as initialDependencies,
+  assetCategories as initialAssetCategories
 } from './data';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from './types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from './types';
 import { LayoutGrid, Table, Loader2 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { getAppData, saveAppData } from './lib/db';
@@ -30,6 +31,7 @@ export default function App() {
   const [programmes, setProgrammes] = useState<Programme[]>([]);
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [dependencies, setDependencies] = useState<Dependency[]>([]);
+  const [assetCategories, setAssetCategories] = useState<AssetCategory[]>([]);
 
   // Load data on mount
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function App() {
             programmes: initialProgrammes,
             strategies: initialStrategies,
             dependencies: initialDependencies,
+            assetCategories: initialAssetCategories,
           };
           await saveAppData(defaults);
           setAssets(defaults.assets);
@@ -55,6 +58,7 @@ export default function App() {
           setProgrammes(defaults.programmes);
           setStrategies(defaults.strategies);
           setDependencies(defaults.dependencies);
+          setAssetCategories(defaults.assetCategories);
         } else {
           console.log('Loaded data from DB');
           setAssets(dbData.assets);
@@ -63,6 +67,7 @@ export default function App() {
           setProgrammes(dbData.programmes);
           setStrategies(dbData.strategies || []);
           setDependencies(dbData.dependencies || []);
+          setAssetCategories(dbData.assetCategories || []);
         }
       } catch (error) {
         console.error('Failed to load data from DB:', error);
@@ -73,6 +78,7 @@ export default function App() {
         setProgrammes(initialProgrammes);
         setStrategies(initialStrategies);
         setDependencies(initialDependencies);
+        setAssetCategories(initialAssetCategories);
       } finally {
         setIsLoading(false);
       }
@@ -88,6 +94,7 @@ export default function App() {
     programmes: Programme[];
     strategies: Strategy[];
     dependencies: Dependency[];
+    assetCategories: AssetCategory[];
   }) => {
     // Update state immediately for UI responsiveness
     setAssets(data.assets);
@@ -96,6 +103,7 @@ export default function App() {
     setProgrammes(data.programmes);
     setStrategies(data.strategies);
     setDependencies(data.dependencies);
+    setAssetCategories(data.assetCategories);
 
     // Persist to DB
     try {
@@ -156,7 +164,7 @@ export default function App() {
         </div>
 
         <DataControls 
-          data={{ assets, initiatives, milestones, programmes, strategies, dependencies }}
+          data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories }}
           onImport={handleUpdate}
           timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
         />
@@ -171,6 +179,7 @@ export default function App() {
             programmes={programmes}
             strategies={strategies}
             dependencies={dependencies}
+            assetCategories={assetCategories}
             onUpdateInitiative={(updatedInit) => {
               const updatedInitiatives = initiatives.map(i => i.id === updatedInit.id ? updatedInit : i);
               handleUpdate({
@@ -179,7 +188,8 @@ export default function App() {
                 milestones,
                 programmes,
                 strategies,
-                dependencies
+                dependencies,
+                assetCategories,
               });
             }}
             onUpdateAssets={(updatedAssets) => {
@@ -189,7 +199,8 @@ export default function App() {
                 milestones,
                 programmes,
                 strategies,
-                dependencies
+                dependencies,
+                assetCategories,
               });
             }}
             onUpdateDependencies={(updatedDependencies) => {
@@ -199,7 +210,8 @@ export default function App() {
                 milestones,
                 programmes,
                 strategies,
-                dependencies: updatedDependencies
+                dependencies: updatedDependencies,
+                assetCategories,
               });
             }}
             onUpdateMilestone={(updatedMilestone) => {
@@ -210,13 +222,14 @@ export default function App() {
                 milestones: updatedMilestones,
                 programmes,
                 strategies,
-                dependencies
+                dependencies,
+                assetCategories,
               });
             }}
           />
         ) : (
           <DataManager 
-            data={{ assets, initiatives, milestones, programmes, strategies, dependencies }}
+            data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories }}
             onUpdate={handleUpdate}
           />
         )}

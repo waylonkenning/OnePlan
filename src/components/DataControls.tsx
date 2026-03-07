@@ -12,6 +12,7 @@ interface DataControlsProps {
     programmes: Programme[];
     strategies: Strategy[];
     dependencies: Dependency[];
+    assetCategories: AssetCategory[];
   };
   onImport: (data: {
     assets: Asset[];
@@ -20,6 +21,7 @@ interface DataControlsProps {
     programmes: Programme[];
     strategies: Strategy[];
     dependencies: Dependency[];
+    assetCategories: AssetCategory[];
   }) => void;
   timelineId?: string; // ID of the element to capture for PDF
 }
@@ -59,6 +61,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
           programmes: importedData.programmes || [],
           strategies: importedData.strategies || [],
           dependencies: importedData.dependencies || [],
+          assetCategories: importedData.assetCategories || [],
         });
         alert('Data imported successfully!');
       } else {

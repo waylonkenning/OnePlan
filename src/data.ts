@@ -1,4 +1,9 @@
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from './types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from './types';
+
+export const assetCategories: AssetCategory[] = [
+  { id: 'cat-1', name: 'Identity Assets', order: 1 },
+  { id: 'cat-2', name: 'Data Assets', order: 2 },
+];
 
 export const strategies: Strategy[] = [
   { id: 'strat-1', name: 'Customer First', color: 'bg-indigo-500' },
@@ -15,11 +20,11 @@ export const programmes: Programme[] = [
 ];
 
 export const assets: Asset[] = [
-  { id: 'asset-1', name: 'CIAM', category: 'Identity Assets' },
-  { id: 'asset-2', name: 'PAM', category: 'Identity Assets' },
-  { id: 'asset-3', name: 'Digital Credentials', category: 'Identity Assets' },
-  { id: 'asset-4', name: 'Data Lake', category: 'Data Assets' },
-  { id: 'asset-5', name: 'Warehouse', category: 'Data Assets' },
+  { id: 'asset-1', name: 'CIAM', categoryId: 'cat-1' },
+  { id: 'asset-2', name: 'PAM', categoryId: 'cat-1' },
+  { id: 'asset-3', name: 'Digital Credentials', categoryId: 'cat-1' },
+  { id: 'asset-4', name: 'Data Lake', categoryId: 'cat-2' },
+  { id: 'asset-5', name: 'Warehouse', categoryId: 'cat-2' },
 ];
 
 export const initiatives: Initiative[] = [

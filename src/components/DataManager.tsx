@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
-import { Database, Layers, Calendar, Flag, Target, Link2 } from 'lucide-react';
+import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree } from 'lucide-react';
 
 interface DataManagerProps {
   data: {
@@ -12,6 +12,7 @@ interface DataManagerProps {
     programmes: Programme[];
     strategies: Strategy[];
     dependencies: Dependency[];
+    assetCategories: AssetCategory[];
   };
   onUpdate: (data: {
     assets: Asset[];
@@ -20,10 +21,11 @@ interface DataManagerProps {
     programmes: Programme[];
     strategies: Strategy[];
     dependencies: Dependency[];
+    assetCategories: AssetCategory[];
   }) => void;
 }
 
-type Tab = 'initiatives' | 'assets' | 'programmes' | 'milestones' | 'strategies' | 'dependencies';
+type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'programmes' | 'strategies' | 'milestones';
 
 export function DataManager({ data, onUpdate }: DataManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>('initiatives');
@@ -39,6 +41,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
   const programmeOptions = data.programmes.map(p => ({ value: p.id, label: p.name }));
   const strategyOptions = data.strategies.map(s => ({ value: s.id, label: s.name }));
   const initiativeOptions = data.initiatives.map(i => ({ value: i.id, label: i.name }));
+  const categoryOptions = data.assetCategories.map(c => ({ value: c.id, label: c.name }));
 
   const initiativeColumns: Column<Initiative>[] = [
     { key: 'name', label: 'Initiative Name', type: 'text', width: '25%' },
@@ -52,7 +55,12 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
 
   const assetColumns: Column<Asset>[] = [
     { key: 'name', label: 'Asset Name', type: 'text', width: '50%' },
-    { key: 'category', label: 'Category', type: 'text', width: '50%' },
+    { key: 'categoryId', label: 'Category', type: 'select', options: categoryOptions, width: '50%' },
+  ];
+
+  const categoryColumns: Column<AssetCategory>[] = [
+    { key: 'name', label: 'Category Name', type: 'text', width: '80%' },
+    { key: 'order', label: 'Sort Order', type: 'number', width: '20%' },
   ];
 
   const programmeColumns: Column<Programme>[] = [
@@ -90,6 +98,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
     { id: 'initiatives', label: 'Initiatives', icon: Layers, count: data.initiatives.length },
     { id: 'dependencies', label: 'Dependencies', icon: Link2, count: data.dependencies.length },
     { id: 'assets', label: 'Assets', icon: Database, count: data.assets.length },
+    { id: 'assetCategories', label: 'Categories', icon: FolderTree, count: data.assetCategories.length },
     { id: 'programmes', label: 'Programmes', icon: Calendar, count: data.programmes.length },
     { id: 'strategies', label: 'Strategies', icon: Target, count: data.strategies.length },
     { id: 'milestones', label: 'Milestones', icon: Flag, count: data.milestones.length },
@@ -140,6 +149,14 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             data={data.assets} 
             columns={assetColumns} 
             onUpdate={(newData) => updateData('assets', newData)}
+            idField="id"
+          />
+        )}
+        {activeTab === 'assetCategories' && (
+          <EditableTable 
+            data={data.assetCategories} 
+            columns={categoryColumns} 
+            onUpdate={(newData) => updateData('assetCategories', newData)}
             idField="id"
           />
         )}
