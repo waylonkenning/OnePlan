@@ -32,6 +32,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Initiative Interaction:**
     - [x] **Horizontal Move:** Drag an initiative left or right to change start/end dates while maintaining duration.
     - [x] **Relationship Drawing:** Drag vertically from one initiative to another to create a dependency.
+- [x] **Visualization Labels:**
+    - [x] **Milestone Labels:** Display milestone names as text next to icons.
+    - [x] **Dependency Labels:** Display dependency type along the connection arrows.
 - [ ] **Drag-and-Drop Reordering:**
     - [ ] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
     - [x] **Asset Reordering:** Drag an asset within its category and verify it moves correctly.
