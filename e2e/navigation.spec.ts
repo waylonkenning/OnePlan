@@ -48,7 +48,7 @@ test.describe('Navigation & State Management', () => {
   test('Default Data Initialization', async ({ page }) => {
     // Check if defaults exist
     await page.getByRole('button', { name: 'Data Manager' }).click();
-    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(5); // Initiatives length from data.ts is 5
   });
 });

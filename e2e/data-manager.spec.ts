@@ -15,8 +15,8 @@ test.describe('Data Manager Operations', () => {
   });
 
   test('Add and Delete Row', async ({ page }) => {
-    // We only count rows that aren't ghost rows (which have placeholder text)
-    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    // Real rows have data-real="true" attribute
+    const realRows = page.locator('table tbody tr[data-real="true"]');
     const initialCount = await realRows.count();
     
     await page.getByRole('button', { name: 'Add Row' }).click();
@@ -33,7 +33,7 @@ test.describe('Data Manager Operations', () => {
     page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Clear All' }).click();
     
-    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(0);
   });
 
@@ -51,7 +51,7 @@ test.describe('Data Manager Operations', () => {
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
     
-    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(1);
     await expect(realRows.first().locator('input[type="text"]').first()).toHaveValue('New Initiative');
   });
@@ -67,8 +67,7 @@ test.describe('Data Manager Operations', () => {
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
     
-    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
-    // Still 5 default rows
+    const realRows = page.locator('table tbody tr[data-real="true"]');
     const firstRowInput = realRows.first().locator('input[type="text"]').first();
     await expect(firstRowInput).toHaveValue('Updated Init Name');
   });
@@ -88,7 +87,7 @@ test.describe('Data Manager Operations', () => {
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
     
-    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(1);
     
     const firstRow = realRows.first();
