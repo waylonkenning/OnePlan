@@ -14,16 +14,18 @@ interface TimelineProps {
   onUpdateInitiative?: (initiative: Initiative) => void;
   onUpdateAssets?: (assets: Asset[]) => void;
   onUpdateDependencies?: (dependencies: Dependency[]) => void;
+  onUpdateMilestone?: (milestone: Milestone) => void;
 }
 
 const CELL_WIDTH = 200; // Width of one quarter column
 const START_YEAR = 2026;
 const YEARS_TO_SHOW = 3;
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, onUpdateInitiative, onUpdateAssets, onUpdateDependencies }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
+  const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialDate: string } | null>(null);
   const [drawingDependency, setDrawingDependency] = useState<{ 
     sourceId: string; 
     startX: number; 
@@ -168,13 +170,30 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     });
   };
 
+  const handleMilestoneMouseDown = (e: React.MouseEvent, mile: Milestone) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setMovingMilestone({
+        id: mile.id,
+        initialX: e.clientX,
+        initialDate: mile.date
+    });
+  };
+
   const [localInitiatives, setLocalInitiatives] = useState<Initiative[]>(initiatives);
+  const [localMilestones, setLocalMilestones] = useState<Milestone[]>(milestones);
 
   useEffect(() => {
     if (!resizing && !moving) {
       setLocalInitiatives(initiatives);
     }
   }, [initiatives, resizing, moving]);
+
+  useEffect(() => {
+    if (!movingMilestone) {
+        setLocalMilestones(milestones);
+    }
+  }, [milestones, movingMilestone]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -240,6 +259,18 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             });
             setLocalInitiatives(updatedInitiatives);
         }
+      } else if (movingMilestone) {
+        const deltaX = e.clientX - movingMilestone.initialX;
+        const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
+        const newDate = format(addDays(parseISO(movingMilestone.initialDate), deltaDays), 'yyyy-MM-dd');
+        
+        const updatedMilestones = localMilestones.map(m => {
+            if (m.id === movingMilestone.id) {
+                return { ...m, date: newDate };
+            }
+            return m;
+        });
+        setLocalMilestones(updatedMilestones);
       } else if (drawingDependency) {
         if (containerRef.current) {
             const containerRect = containerRef.current.getBoundingClientRect();
@@ -259,6 +290,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       } else if (moving && onUpdateInitiative) {
         const updated = localInitiatives.find(i => i.id === moving.id);
         if (updated) onUpdateInitiative(updated);
+      } else if (movingMilestone && onUpdateMilestone) {
+        const updated = localMilestones.find(m => m.id === movingMilestone.id);
+        if (updated) onUpdateMilestone(updated);
       } else if (drawingDependency && onUpdateDependencies) {
         // Find if we released over another initiative
         const targetElement = document.elementFromPoint(e.clientX, e.clientY);
@@ -277,11 +311,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       }
       setResizing(null);
       setMoving(null);
+      setMovingMilestone(null);
       setDrawingDependency(null);
       setDraggingCategory(null);
     };
 
-    if (resizing || moving || drawingDependency) {
+    if (resizing || moving || movingMilestone || drawingDependency) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     }
@@ -290,7 +325,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizing, moving, drawingDependency, localInitiatives, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, dependencies, initiativePositions]);
+  }, [resizing, moving, movingMilestone, drawingDependency, localInitiatives, localMilestones, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, dependencies, initiativePositions]);
 
   const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
     setDraggingCategory(category);
@@ -688,10 +723,16 @@ return (
                           })}
 
                           {assetMilestones.map(mile => {
-                             const pos = getPosition(mile.date);
+                             const currentMile = localMilestones.find(m => m.id === mile.id) || mile;
+                             const pos = getPosition(currentMile.date);
                              if (pos < 0 || pos > 100) return null;
                              return (
-                              <div key={mile.id} className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-20" style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}>
+                              <div
+                                key={mile.id}
+                                onMouseDown={(e) => handleMilestoneMouseDown(e, mile)}
+                                className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-20 cursor-grab active:cursor-grabbing"
+                                style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
+                              >
                                 <div className="absolute top-0 bottom-0 w-px border-l border-dashed border-slate-400/50 group-hover/marker:border-slate-600" />
                                 <div className={cn(
                                     "relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110",
@@ -702,13 +743,13 @@ return (
                                 </div>
                                 <div className="absolute left-full ml-2 bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-200 shadow-sm opacity-0 group-hover/marker:opacity-100 transition-opacity whitespace-nowrap z-40 pointer-events-none">
                                     <div className="text-[10px] font-bold text-slate-800 leading-none">{mile.name}</div>
-                                    <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(mile.date), 'MMM yyyy')}</div>
+                                    <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(currentMile.date), 'MMM yyyy')}</div>
                                 </div>
                                 {/* Always visible label */}
                                 <div className="absolute top-full mt-1 bg-white/40 px-1 rounded text-[9px] font-semibold text-slate-700 whitespace-nowrap pointer-events-none">
                                     {mile.name}
                                 </div>
-                                </div>
+                              </div>
                              );
                           })}
                         </div>
