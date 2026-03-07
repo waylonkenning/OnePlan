@@ -202,6 +202,17 @@ export default function App() {
                 dependencies: updatedDependencies
               });
             }}
+            onUpdateMilestone={(updatedMilestone) => {
+              const updatedMilestones = milestones.map(m => m.id === updatedMilestone.id ? updatedMilestone : m);
+              handleUpdate({
+                assets,
+                initiatives,
+                milestones: updatedMilestones,
+                programmes,
+                strategies,
+                dependencies
+              });
+            }}
           />
         ) : (
           <DataManager 
