@@ -530,27 +530,46 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 const tMidY = target.y + target.height / 2;
 
                 let path;
+                let labelX, labelY;
+
                 if (sEndX >= tStartX && 256 + (source.x / 100) * totalWidth <= 256 + ((target.x + target.width) / 100) * totalWidth) {
                     const overlapX = (Math.max(256 + (source.x / 100) * totalWidth, tStartX) + Math.min(sEndX, 256 + ((target.x + target.width) / 100) * totalWidth)) / 2;
                     const startY = source.y < target.y ? source.y + source.height : source.y;
                     const endY = source.y < target.y ? target.y : target.y + target.height;
                     path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
+                    labelX = overlapX + 5;
+                    labelY = (startY + endY) / 2;
                 } else {
                     const midX = (sEndX + tStartX) / 2;
                     path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
+                    labelX = midX;
+                    labelY = (sMidY + tMidY) / 2;
                 }
                 
                 return (
-                  <path
-                    key={dep.id}
-                    d={path}
-                    stroke="#3b82f6"
-                    strokeWidth="2"
-                    fill="none"
-                    markerEnd="url(#arrowhead)"
-                    opacity="0.6"
-                    strokeDasharray={dep.type === 'related' ? "4 2" : ""}
-                  />
+                  <React.Fragment key={dep.id}>
+                    <path
+                      d={path}
+                      stroke="#3b82f6"
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd="url(#arrowhead)"
+                      opacity="0.6"
+                      strokeDasharray={dep.type === 'related' ? "4 2" : ""}
+                    />
+                    <text
+                      x={labelX}
+                      y={labelY}
+                      fill="#3b82f6"
+                      fontSize="9"
+                      fontWeight="bold"
+                      className="select-none pointer-events-none"
+                      textAnchor="middle"
+                      style={{ filter: 'drop-shadow(0px 0px 2px white)' }}
+                    >
+                      {dep.type}
+                    </text>
+                  </React.Fragment>
                 );
               })}
               
@@ -674,10 +693,22 @@ return (
                              return (
                               <div key={mile.id} className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-20" style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}>
                                 <div className="absolute top-0 bottom-0 w-px border-l border-dashed border-slate-400/50 group-hover/marker:border-slate-600" />
-                                <div className={cn("relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110", mile.type === 'critical' ? "bg-red-100 text-red-600" : mile.type === 'warning' ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600")}>
+                                <div className={cn(
+                                    "relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110",
+                                    mile.type === 'critical' ? "bg-red-100 text-red-600" : 
+                                    mile.type === 'warning' ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
+                                )}>
                                     {mile.type === 'critical' ? <Star size={16} fill="currentColor" /> : <Info size={16} />}
                                 </div>
-                              </div>
+                                <div className="absolute left-full ml-2 bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-200 shadow-sm opacity-0 group-hover/marker:opacity-100 transition-opacity whitespace-nowrap z-40 pointer-events-none">
+                                    <div className="text-[10px] font-bold text-slate-800 leading-none">{mile.name}</div>
+                                    <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(mile.date), 'MMM yyyy')}</div>
+                                </div>
+                                {/* Always visible label */}
+                                <div className="absolute top-full mt-1 bg-white/40 px-1 rounded text-[9px] font-semibold text-slate-700 whitespace-nowrap pointer-events-none">
+                                    {mile.name}
+                                </div>
+                                </div>
                              );
                           })}
                         </div>
