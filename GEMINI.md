@@ -16,7 +16,7 @@ All feature development and bug fixes must follow this strict sequence:
     *   Run the specific test to confirm it passes (Green).
     *   Run the full suite (`npx playwright test`) to ensure no regressions.
 5.  **Documentation:** Update `PLAYWRIGHT_TODO.md` and any relevant README sections.
-6.  **Deployment:** Commit and push to `main` to trigger the Google Cloud Build pipeline.
+6.  **Deployment:** Commit and push to `main`. Google Cloud Build is configured with a 1st Gen GitHub trigger that automatically detects the push and executes the `cloudbuild.yaml` pipeline. No manual deployment steps or direct interaction with the GCP console are required.
 
 ## 2. Technical Stack
 - **Frontend:** React (TypeScript) + Vite
