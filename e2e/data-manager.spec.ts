@@ -94,8 +94,8 @@ test.describe('Data Manager Operations', () => {
     await expect(realRows).toHaveCount(1);
     
     const firstRow = realRows.first();
-    await expect(firstRow.locator('input[type="text"]').first()).toHaveValue('asset-99');
-    await expect(firstRow.locator('input[type="text"]').nth(1)).toHaveValue('Very Important, Secure Server');
-    await expect(firstRow.locator('input[type="text"]').nth(2)).toHaveValue('Security Services');
+    // ID is now hidden, so the first visible input is the name
+    await expect(firstRow.locator('input[type="text"]').first()).toHaveValue('Very Important, Secure Server');
+    await expect(firstRow.locator('input[type="text"]').nth(1)).toHaveValue('Security Services');
   });
 });

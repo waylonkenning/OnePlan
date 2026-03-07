@@ -51,20 +51,17 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
   ];
 
   const assetColumns: Column<Asset>[] = [
-    { key: 'id', label: 'ID', type: 'text', width: '20%' },
-    { key: 'name', label: 'Asset Name', type: 'text', width: '40%' },
-    { key: 'category', label: 'Category', type: 'text', width: '40%' },
+    { key: 'name', label: 'Asset Name', type: 'text', width: '50%' },
+    { key: 'category', label: 'Category', type: 'text', width: '50%' },
   ];
 
   const programmeColumns: Column<Programme>[] = [
-    { key: 'id', label: 'ID', type: 'text', width: '20%' },
-    { key: 'name', label: 'Programme Name', type: 'text', width: '40%' },
+    { key: 'name', label: 'Programme Name', type: 'text', width: '60%' },
     { key: 'color', label: 'Color', type: 'color', width: '40%' },
   ];
 
   const strategyColumns: Column<Strategy>[] = [
-    { key: 'id', label: 'ID', type: 'text', width: '20%' },
-    { key: 'name', label: 'Strategy Name', type: 'text', width: '40%' },
+    { key: 'name', label: 'Strategy Name', type: 'text', width: '60%' },
     { key: 'color', label: 'Color', type: 'color', width: '40%' },
   ];
 
