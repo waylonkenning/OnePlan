@@ -35,6 +35,9 @@ test.describe('Data Manager Operations', () => {
     
     const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(0);
+    
+    // Total rows should be exactly 1 (the single blank row)
+    await expect(page.locator('table tbody tr')).toHaveCount(1);
   });
 
   test('CSV Paste: Import New', async ({ page }) => {
