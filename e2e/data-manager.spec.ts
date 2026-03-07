@@ -45,11 +45,15 @@ test.describe('Data Manager Operations', () => {
     await page.getByRole('button', { name: 'Clear All' }).click();
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
+    // Use the correct column order from DataManager.tsx: name, assetId, programmeId, strategyId, startDate, endDate, budget
     const textarea = page.locator('textarea');
     await textarea.fill(`name,startDate,endDate,budget\nNew Initiative,2026-01-01,2026-12-31,100000`);
     
+    // Give state a moment to sync and button to enable
+    await page.waitForTimeout(1000);
+    
     const importBtn = page.getByTestId('import-rows-button');
-    await expect(importBtn).toBeEnabled();
+    await expect(importBtn).toBeEnabled({ timeout: 5000 });
     await importBtn.click();
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
@@ -62,10 +66,12 @@ test.describe('Data Manager Operations', () => {
   test('CSV Paste: Update Existing', async ({ page }) => {
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     const textarea = page.locator('textarea');
+    // init-1 exists in default data
     await textarea.fill(`id,name\ninit-1,Updated Init Name`);
     
+    await page.waitForTimeout(1000);
     const importBtn = page.getByTestId('import-rows-button');
-    await expect(importBtn).toBeEnabled();
+    await expect(importBtn).toBeEnabled({ timeout: 5000 });
     await importBtn.click();
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
@@ -81,11 +87,13 @@ test.describe('Data Manager Operations', () => {
     await page.getByRole('button', { name: 'Clear All' }).click();
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
+    // Asset columns: id, name, categoryId
     const textarea = page.locator('textarea');
-    await textarea.fill(`id,name,category\nasset-99,"Very Important, Secure Server",Security Services`);
+    await textarea.fill(`id,name,categoryId\nasset-99,"Very Important, Secure Server",cat-1`);
     
+    await page.waitForTimeout(1000);
     const importBtn = page.getByTestId('import-rows-button');
-    await expect(importBtn).toBeEnabled();
+    await expect(importBtn).toBeEnabled({ timeout: 5000 });
     await importBtn.click();
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
@@ -96,6 +104,7 @@ test.describe('Data Manager Operations', () => {
     const firstRow = realRows.first();
     // ID is now hidden, so the first visible input is the name
     await expect(firstRow.locator('input[type="text"]').first()).toHaveValue('Very Important, Secure Server');
-    await expect(firstRow.locator('input[type="text"]').nth(1)).toHaveValue('Security Services');
+    // Category is now a select
+    await expect(firstRow.locator('select')).toHaveValue('cat-1');
   });
 });

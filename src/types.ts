@@ -12,6 +12,12 @@ export interface Programme {
   color: string; // Tailwind color class or hex
 }
 
+export interface AssetCategory {
+  id: string;
+  name: string;
+  order?: number;
+}
+
 export interface Initiative {
   id: string;
   name: string;
@@ -42,7 +48,7 @@ export interface Milestone {
 export interface Asset {
   id: string;
   name: string;
-  category: string;
+  categoryId: string;
 }
 
 export interface TimeColumn {

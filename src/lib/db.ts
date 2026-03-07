@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from '../types';
 
 interface ITMapDB extends DBSchema {
   assets: {
@@ -26,10 +26,14 @@ interface ITMapDB extends DBSchema {
     key: string;
     value: Dependency;
   };
+  assetCategories: {
+    key: string;
+    value: AssetCategory;
+  };
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
@@ -55,6 +59,9 @@ export const initDB = () => {
         if (!db.objectStoreNames.contains('dependencies')) {
           db.createObjectStore('dependencies', { keyPath: 'id' });
         }
+        if (!db.objectStoreNames.contains('assetCategories')) {
+          db.createObjectStore('assetCategories', { keyPath: 'id' });
+        }
       },
     });
   }
@@ -69,6 +76,7 @@ export const getAppData = async () => {
   const programmes = await db.getAll('programmes');
   const strategies = await db.getAll('strategies');
   const dependencies = await db.getAll('dependencies');
+  const assetCategories = await db.getAll('assetCategories');
 
   return {
     assets,
@@ -77,6 +85,7 @@ export const getAppData = async () => {
     programmes,
     strategies,
     dependencies,
+    assetCategories,
   };
 };
 
@@ -87,9 +96,10 @@ export const saveAppData = async (data: {
   programmes: Programme[];
   strategies: Strategy[];
   dependencies: Dependency[];
+  assetCategories: AssetCategory[];
 }) => {
   const db = await initDB();
-  const tx = db.transaction(['assets', 'initiatives', 'milestones', 'programmes', 'strategies', 'dependencies'], 'readwrite');
+  const tx = db.transaction(['assets', 'initiatives', 'milestones', 'programmes', 'strategies', 'dependencies', 'assetCategories'], 'readwrite');
 
   await Promise.all([
     tx.objectStore('assets').clear(),
@@ -98,6 +108,7 @@ export const saveAppData = async (data: {
     tx.objectStore('programmes').clear(),
     tx.objectStore('strategies').clear(),
     tx.objectStore('dependencies').clear(),
+    tx.objectStore('assetCategories').clear(),
   ]);
 
   await Promise.all([
@@ -107,6 +118,7 @@ export const saveAppData = async (data: {
     ...data.programmes.map(item => tx.objectStore('programmes').add(item)),
     ...data.strategies.map(item => tx.objectStore('strategies').add(item)),
     ...data.dependencies.map(item => tx.objectStore('dependencies').add(item)),
+    ...data.assetCategories.map(item => tx.objectStore('assetCategories').add(item)),
   ]);
 
   await tx.done;
