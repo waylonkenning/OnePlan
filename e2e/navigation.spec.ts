@@ -46,9 +46,9 @@ test.describe('Navigation & State Management', () => {
   });
 
   test('Default Data Initialization', async ({ page }) => {
-    // The beforeEach block already clears the DB, so reloading initialized the defaults.
     // Check if defaults exist
     await page.getByRole('button', { name: 'Data Manager' }).click();
-    await expect(page.locator('table tbody tr')).toHaveCount(5); // Initiatives length from data.ts is 5
+    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    await expect(realRows).toHaveCount(5); // Initiatives length from data.ts is 5
   });
 });

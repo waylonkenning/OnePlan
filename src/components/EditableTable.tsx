@@ -33,15 +33,37 @@ export function EditableTable<T extends { [key: string]: any }>({
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [csvText, setCsvText] = useState('');
 
+  // Number of empty rows to show at the bottom
+  const GHOST_ROWS_COUNT = 20;
+
   useEffect(() => {
     setRows(data);
   }, [data]);
 
-  const handleChange = (index: number, key: keyof T, value: any) => {
-    const newRows = [...rows];
-    newRows[index] = { ...newRows[index], [key]: value };
-    setRows(newRows);
-    onUpdate(newRows);
+  const handleChange = (index: number, key: keyof T, value: any, isGhost: boolean = false) => {
+    if (isGhost) {
+        // Convert ghost row to real row
+        const newRow: any = {};
+        newRow[idField] = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        
+        columns.forEach(col => {
+            if (col.key !== idField) {
+                newRow[col.key] = col.type === 'number' ? 0 : '';
+            }
+        });
+
+        // Set the specific value that triggered the change
+        newRow[key] = value;
+
+        const updatedRows = [...rows, newRow];
+        setRows(updatedRows);
+        onUpdate(updatedRows);
+    } else {
+        const newRows = [...rows];
+        newRows[index] = { ...newRows[index], [key]: value };
+        setRows(newRows);
+        onUpdate(newRows);
+    }
   };
 
   const handleAdd = () => {
@@ -175,6 +197,7 @@ export function EditableTable<T extends { [key: string]: any }>({
             </tr>
           </thead>
           <tbody>
+            {/* Real Data Rows */}
             {rows.map((row, rowIndex) => (
               <tr key={String(row[idField])} className="hover:bg-slate-50 group">
                 {columns.map(col => (
@@ -182,7 +205,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                     {col.type === 'select' ? (
                       <select
                         value={String(row[col.key] || '')}
-                        onChange={(e) => handleChange(rowIndex, col.key, e.target.value)}
+                        onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
                         className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none"
                       >
                         <option value="">Select...</option>
@@ -195,7 +218,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                              <div className={cn("w-4 h-4 rounded-full mr-2 border border-slate-200", String(row[col.key]))} />
                              <select
                                 value={String(row[col.key] || '')}
-                                onChange={(e) => handleChange(rowIndex, col.key, e.target.value)}
+                                onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
                                 className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
                             >
                                 <option value="">Select Color...</option>
@@ -212,7 +235,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                       <input
                         type={col.type}
                         value={col.type === 'number' ? Number(row[col.key]) : String(row[col.key] || '')}
-                        onChange={(e) => handleChange(rowIndex, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value)}
+                        onChange={(e) => handleChange(rowIndex, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, false)}
                         placeholder={col.placeholder}
                         className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none"
                       />
@@ -230,13 +253,57 @@ export function EditableTable<T extends { [key: string]: any }>({
                 </td>
               </tr>
             ))}
-            {rows.length === 0 && (
-                <tr>
-                    <td colSpan={columns.length + 1} className="p-8 text-center text-slate-400 italic">
-                        No data. Click "Add Row" or "Paste CSV" to start.
-                    </td>
-                </tr>
-            )}
+
+            {/* Ghost (Empty) Rows */}
+            {Array.from({ length: GHOST_ROWS_COUNT }).map((_, i) => (
+              <tr key={`ghost-${i}`} className="hover:bg-slate-50 group">
+                {columns.map(col => (
+                  <td key={`ghost-${i}-${String(col.key)}`} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
+                    {col.type === 'select' ? (
+                      <select
+                        value=""
+                        onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
+                        className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none italic text-slate-400"
+                      >
+                        <option value="">(New row...)</option>
+                        {col.options?.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    ) : col.type === 'color' ? (
+                        <div className="flex items-center px-2">
+                             <div className="w-4 h-4 rounded-full mr-2 border border-slate-100 bg-slate-50" />
+                             <select
+                                value=""
+                                onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
+                                className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs italic text-slate-400"
+                            >
+                                <option value="">Select Color...</option>
+                                <option value="bg-blue-500">Blue</option>
+                                <option value="bg-emerald-500">Emerald</option>
+                                <option value="bg-amber-500">Amber</option>
+                                <option value="bg-rose-500">Rose</option>
+                                <option value="bg-purple-500">Purple</option>
+                                <option value="bg-indigo-500">Indigo</option>
+                                <option value="bg-slate-500">Slate</option>
+                            </select>
+                        </div>
+                    ) : (
+                      <input
+                        type={col.type}
+                        value=""
+                        onChange={(e) => handleChange(rows.length + i, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, true)}
+                        placeholder="(New row...)"
+                        className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none italic text-slate-400"
+                      />
+                    )}
+                  </td>
+                ))}
+                <td className="border-b border-slate-100 p-1 text-center">
+                  <div className="w-6 h-6" /> {/* Placeholder for alignment */}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
