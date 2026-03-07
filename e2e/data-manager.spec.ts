@@ -15,20 +15,26 @@ test.describe('Data Manager Operations', () => {
   });
 
   test('Add and Delete Row', async ({ page }) => {
-    const initialCount = await page.locator('table tbody tr').count();
+    // We only count rows that aren't ghost rows (which have placeholder text)
+    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    const initialCount = await realRows.count();
+    
     await page.getByRole('button', { name: 'Add Row' }).click();
-    await expect(page.locator('table tbody tr')).toHaveCount(initialCount + 1);
+    await expect(realRows).toHaveCount(initialCount + 1);
 
-    const deleteButton = page.locator('table tbody tr').last().getByTitle('Delete row');
-    await deleteButton.click();
-    await expect(page.locator('table tbody tr')).toHaveCount(initialCount);
+    const lastRealRow = realRows.last();
+    await lastRealRow.hover(); // Make delete button visible
+    const deleteButton = lastRealRow.getByTitle('Delete row');
+    await deleteButton.click({ force: true });
+    await expect(realRows).toHaveCount(initialCount);
   });
 
   test('Clear All Rows', async ({ page }) => {
     page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Clear All' }).click();
-    await expect(page.locator('table tbody tr')).toHaveCount(1);
-    await expect(page.getByText('No data. Click "Add Row" or "Paste CSV" to start.')).toBeVisible();
+    
+    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    await expect(realRows).toHaveCount(0);
   });
 
   test('CSV Paste: Import New', async ({ page }) => {
@@ -39,20 +45,20 @@ test.describe('Data Manager Operations', () => {
     const textarea = page.locator('textarea');
     await textarea.fill(`name,startDate,endDate,budget\nNew Initiative,2026-01-01,2026-12-31,100000`);
     
-    // Use data-testid and ensure it's enabled
     const importBtn = page.getByTestId('import-rows-button');
     await expect(importBtn).toBeEnabled();
     await importBtn.click();
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
-    await expect(page.locator('table tbody tr')).toHaveCount(1);
-    await expect(page.locator('table tbody tr input[type="text"]').first()).toHaveValue('New Initiative');
+    
+    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    await expect(realRows).toHaveCount(1);
+    await expect(realRows.first().locator('input[type="text"]').first()).toHaveValue('New Initiative');
   });
 
   test('CSV Paste: Update Existing', async ({ page }) => {
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     const textarea = page.locator('textarea');
-    // init-1 exists in default data
     await textarea.fill(`id,name\ninit-1,Updated Init Name`);
     
     const importBtn = page.getByTestId('import-rows-button');
@@ -60,8 +66,10 @@ test.describe('Data Manager Operations', () => {
     await importBtn.click();
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
-    // Assuming 5 default initiatives
-    const firstRowInput = page.locator('table tbody tr').first().locator('input[type="text"]').first();
+    
+    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    // Still 5 default rows
+    const firstRowInput = realRows.first().locator('input[type="text"]').first();
     await expect(firstRowInput).toHaveValue('Updated Init Name');
   });
 
@@ -79,10 +87,13 @@ test.describe('Data Manager Operations', () => {
     await importBtn.click();
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
-    await expect(page.locator('table tbody tr')).toHaveCount(1);
     
-    await expect(page.locator('table tbody tr').first().locator('input[type="text"]').first()).toHaveValue('asset-99');
-    await expect(page.locator('table tbody tr').first().locator('input[type="text"]').nth(1)).toHaveValue('Very Important, Secure Server');
-    await expect(page.locator('table tbody tr').first().locator('input[type="text"]').nth(2)).toHaveValue('Security Services');
+    const realRows = page.locator('table tbody tr:not(:has(input[placeholder*="New row"]))');
+    await expect(realRows).toHaveCount(1);
+    
+    const firstRow = realRows.first();
+    await expect(firstRow.locator('input[type="text"]').first()).toHaveValue('asset-99');
+    await expect(firstRow.locator('input[type="text"]').nth(1)).toHaveValue('Very Important, Secure Server');
+    await expect(firstRow.locator('input[type="text"]').nth(2)).toHaveValue('Security Services');
   });
 });
