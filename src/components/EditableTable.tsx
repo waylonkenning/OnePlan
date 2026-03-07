@@ -33,8 +33,8 @@ export function EditableTable<T extends { [key: string]: any }>({
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [csvText, setCsvText] = useState('');
 
-  // Number of empty rows to show at the bottom
-  const GHOST_ROWS_COUNT = 20;
+  // Only one blank row that spawns another when edited
+  const GHOST_ROWS_COUNT = 1;
 
   useEffect(() => {
     setRows(data);

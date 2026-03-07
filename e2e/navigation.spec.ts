@@ -50,5 +50,8 @@ test.describe('Navigation & State Management', () => {
     await page.getByRole('button', { name: 'Data Manager' }).click();
     const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(5); // Initiatives length from data.ts is 5
+    
+    // Total rows = 5 defaults + 1 blank row
+    await expect(page.locator('table tbody tr')).toHaveCount(6);
   });
 });
