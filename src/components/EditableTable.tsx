@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, ClipboardPaste, X, Check } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Trash2, ClipboardPaste, X, Check, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export interface Option {
@@ -32,6 +32,7 @@ export function EditableTable<T extends { [key: string]: any }>({
   const [rows, setRows] = useState<T[]>(data);
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [csvText, setCsvText] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
 
   // Only one blank row that spawns another when edited
   const GHOST_ROWS_COUNT = 1;
@@ -39,6 +40,48 @@ export function EditableTable<T extends { [key: string]: any }>({
   useEffect(() => {
     setRows(data);
   }, [data]);
+
+  const sortedRows = useMemo(() => {
+    if (!sortConfig) return rows;
+
+    return [...rows].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if (aValue === bValue) return 0;
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+
+      const column = columns.find(c => c.key === sortConfig.key);
+      
+      if (column?.type === 'number') {
+        const aNum = parseFloat(aValue as any) || 0;
+        const bNum = parseFloat(bValue as any) || 0;
+        return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
+      }
+
+      // Default string comparison for everything else (text, date, select)
+      const aString = String(aValue).toLowerCase();
+      const bString = String(bValue).toLowerCase();
+
+      if (sortConfig.direction === 'asc') {
+        return aString.localeCompare(bString);
+      } else {
+        return bString.localeCompare(aString);
+      }
+    });
+  }, [rows, sortConfig, columns]);
+
+  const handleSort = (key: keyof T) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig && sortConfig.key === key && sortConfig.direction === 'desc') {
+        setSortConfig(null);
+        return;
+    }
+    setSortConfig({ key, direction });
+  };
 
   const handleChange = (index: number, key: keyof T, value: any, isGhost: boolean = false) => {
     if (isGhost) {
@@ -189,8 +232,20 @@ export function EditableTable<T extends { [key: string]: any }>({
           <thead className="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 shadow-sm">
             <tr>
               {columns.map(col => (
-                <th key={String(col.key)} className="px-4 py-3 font-medium border-b border-r border-slate-200 last:border-r-0 whitespace-nowrap" style={{ width: col.width }}>
-                  {col.label}
+                <th 
+                    key={String(col.key)} 
+                    onClick={() => handleSort(col.key)}
+                    className="px-4 py-3 font-medium border-b border-r border-slate-200 last:border-r-0 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition-colors group/header" 
+                    style={{ width: col.width }}
+                >
+                  <div className="flex items-center gap-2">
+                    {col.label}
+                    {sortConfig?.key === col.key ? (
+                        sortConfig.direction === 'asc' ? <ArrowUp size={14} className="text-blue-500" /> : <ArrowDown size={14} className="text-blue-500" />
+                    ) : (
+                        <ArrowUpDown size={14} className="text-slate-300 opacity-0 group-hover/header:opacity-100" />
+                    )}
+                  </div>
                 </th>
               ))}
               <th className="px-4 py-3 border-b border-slate-200 w-10"></th>
@@ -198,61 +253,66 @@ export function EditableTable<T extends { [key: string]: any }>({
           </thead>
           <tbody>
             {/* Real Data Rows */}
-            {rows.map((row, rowIndex) => (
-              <tr key={String(row[idField])} data-real="true" className="hover:bg-slate-50 group">
-                {columns.map(col => (
-                  <td key={`${String(row[idField])}-${String(col.key)}`} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
-                    {col.type === 'select' ? (
-                      <select
-                        value={String(row[col.key] || '')}
-                        onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
-                        className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none"
-                      >
-                        <option value="">Select...</option>
-                        {col.options?.map(opt => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    ) : col.type === 'color' ? (
-                        <div className="flex items-center px-2">
-                             <div className={cn("w-4 h-4 rounded-full mr-2 border border-slate-200", String(row[col.key]))} />
-                             <select
-                                value={String(row[col.key] || '')}
-                                onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
-                                className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
-                            >
-                                <option value="">Select Color...</option>
-                                <option value="bg-blue-500">Blue</option>
-                                <option value="bg-emerald-500">Emerald</option>
-                                <option value="bg-amber-500">Amber</option>
-                                <option value="bg-rose-500">Rose</option>
-                                <option value="bg-purple-500">Purple</option>
-                                <option value="bg-indigo-500">Indigo</option>
-                                <option value="bg-slate-500">Slate</option>
-                            </select>
-                        </div>
-                    ) : (
-                      <input
-                        type={col.type}
-                        value={col.type === 'number' ? Number(row[col.key]) : String(row[col.key] || '')}
-                        onChange={(e) => handleChange(rowIndex, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, false)}
-                        placeholder={col.placeholder}
-                        className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none"
-                      />
-                    )}
+            {sortedRows.map((row) => {
+              // Find the original index in the 'rows' state for handleChange
+              const rowIndex = rows.findIndex(r => r[idField] === row[idField]);
+              
+              return (
+                <tr key={String(row[idField])} data-real="true" className="hover:bg-slate-50 group">
+                  {columns.map(col => (
+                    <td key={`${String(row[idField])}-${String(col.key)}`} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
+                      {col.type === 'select' ? (
+                        <select
+                          value={String(row[col.key] || '')}
+                          onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
+                          className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none"
+                        >
+                          <option value="">Select...</option>
+                          {col.options?.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      ) : col.type === 'color' ? (
+                          <div className="flex items-center px-2">
+                               <div className={cn("w-4 h-4 rounded-full mr-2 border border-slate-200", String(row[col.key]))} />
+                               <select
+                                  value={String(row[col.key] || '')}
+                                  onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
+                                  className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
+                              >
+                                  <option value="">Select Color...</option>
+                                  <option value="bg-blue-500">Blue</option>
+                                  <option value="bg-emerald-500">Emerald</option>
+                                  <option value="bg-amber-500">Amber</option>
+                                  <option value="bg-rose-500">Rose</option>
+                                  <option value="bg-purple-500">Purple</option>
+                                  <option value="bg-indigo-500">Indigo</option>
+                                  <option value="bg-slate-500">Slate</option>
+                              </select>
+                          </div>
+                      ) : (
+                        <input
+                          type={col.type}
+                          value={col.type === 'number' ? Number(row[col.key]) : String(row[col.key] || '')}
+                          onChange={(e) => handleChange(rowIndex, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, false)}
+                          placeholder={col.placeholder}
+                          className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none"
+                        />
+                      )}
+                    </td>
+                  ))}
+                  <td className="border-b border-slate-100 p-1 text-center">
+                    <button
+                      onClick={() => handleDelete(rowIndex)}
+                      className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors opacity-0 group-hover:opacity-100"
+                      title="Delete row"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </td>
-                ))}
-                <td className="border-b border-slate-100 p-1 text-center">
-                  <button
-                    onClick={() => handleDelete(rowIndex)}
-                    className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors opacity-0 group-hover:opacity-100"
-                    title="Delete row"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
+                </tr>
+              );
+            })}
 
             {/* Blank (Empty) Rows for quick entry */}
             {Array.from({ length: GHOST_ROWS_COUNT }).map((_, i) => (
