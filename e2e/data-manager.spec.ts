@@ -69,8 +69,8 @@ test.describe('Data Manager Operations', () => {
   test('CSV Paste: Update Existing', async ({ page }) => {
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     const textarea = page.locator('textarea');
-    // init-1 exists in default data
-    await textarea.fill(`id,name\ninit-1,Updated Init Name`);
+    // i-ciam-passkey exists in default data
+    await textarea.fill(`id,name,assetId,startDate,endDate,budget\ni-ciam-passkey,Updated Init Name,a-ciam,2026-01-01,2026-06-30,350000`);
 
     await page.waitForTimeout(1000);
     const importBtn = page.getByTestId('import-rows-button');
@@ -80,8 +80,9 @@ test.describe('Data Manager Operations', () => {
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
 
     const realRows = page.locator('table tbody tr[data-real="true"]');
-    const firstRowInput = realRows.first().locator('input[type="text"]').first();
-    await expect(firstRowInput).toHaveValue('Updated Init Name');
+    // After update, we need to find the row that has our new name
+    const updatedRowInput = page.locator('table tbody tr[data-real="true"] input[value="Updated Init Name"]');
+    await expect(updatedRowInput).toBeVisible();
   });
 
   test('CSV Paste: Multi-word & Quoted Values', async ({ page }) => {
@@ -92,7 +93,7 @@ test.describe('Data Manager Operations', () => {
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Asset columns: id, name, categoryId
     const textarea = page.locator('textarea');
-    await textarea.fill(`id,name,categoryId\nasset-99,"Very Important, Secure Server",cat-1`);
+    await textarea.fill(`id,name,categoryId\nasset-99,"Very Important, Secure Server",cat-iam`);
 
     await page.waitForTimeout(1000);
     const importBtn = page.getByTestId('import-rows-button');
@@ -108,6 +109,6 @@ test.describe('Data Manager Operations', () => {
     // ID is now hidden, so the first visible input is the name
     await expect(firstRow.locator('input[type="text"]').first()).toHaveValue('Very Important, Secure Server');
     // Category is now a select
-    await expect(firstRow.locator('select')).toHaveValue('cat-1');
+    await expect(firstRow.locator('select')).toHaveValue('cat-iam');
   });
 });

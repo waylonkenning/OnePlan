@@ -8,15 +8,15 @@ import { Timeline } from './components/Timeline';
 import { DataControls } from './components/DataControls';
 import { DataManager } from './components/DataManager';
 import {
-  assets as initialAssets,
-  initiatives as initialInitiatives,
-  milestones as initialMilestones,
-  programmes as initialProgrammes,
-  strategies as initialStrategies,
-  dependencies as initialDependencies,
-  assetCategories as initialAssetCategories,
-  defaultTimelineSettings
-} from './data';
+  demoAssets as initialAssets,
+  demoInitiatives as initialInitiatives,
+  demoMilestones as initialMilestones,
+  demoProgrammes as initialProgrammes,
+  demoStrategies as initialStrategies,
+  demoDependencies as initialDependencies,
+  demoAssetCategories as initialAssetCategories,
+  demoTimelineSettings as defaultTimelineSettings
+} from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
 import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2 } from 'lucide-react';
 

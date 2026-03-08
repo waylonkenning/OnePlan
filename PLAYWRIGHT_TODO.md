@@ -18,7 +18,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **View Switching:** Verify that clicking "Visualiser" and "Data Manager" correctly swaps the main view and retains current data.
 - [x] **Data Persistence (IndexedDB):**
     - [x] Load the app, make a change (e.g., rename an initiative), refresh the page, and verify the change persists.
-    - [x] Verify that if the database is empty, the default data from `data.ts` is correctly initialized.
+    - [x] Verify that if the database is empty, the default data from `demoData.ts` is correctly initialized.
 
 ## 2. Data Manager (EditableTable)
 - [x] **Tab Switching:** Verify all tabs (Initiatives, Assets, Programmes, Strategies, Milestones) display correctly with their respective counts.
@@ -57,7 +57,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Dependency Labels:** Display dependency type along the connection arrows.
 - [ ] **Drag-and-Drop Reordering:**
     - [ ] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
-    - [x] **Asset Reordering:** Drag an asset within its category and verify it moves correctly.
+    - [x] Asset Reordering: Drag an asset within its category and verify it moves correctly.
 - [x] **Conflict Detection:** Create two initiatives on the same asset that overlap in time and verify the red "Conflict Detected" marker appears at the start of the overlap.
 - [x] **Milestones:** Verify milestones are rendered at the correct horizontal position based on their date.
 

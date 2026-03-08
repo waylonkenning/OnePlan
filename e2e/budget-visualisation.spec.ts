@@ -7,8 +7,8 @@ test.describe('Budget Visualisation', () => {
     });
 
     test('can toggle budget visualisation to bar-height', async ({ page }) => {
-        // Find an initiative bar - init-2 (Enterprise CIAM) has 800k budget
-        const initiativeBar = page.locator('div[data-initiative-id="init-2"]');
+        // Find an initiative bar - i-ciam-sso (SSO Consolidation) has 600k budget
+        const initiativeBar = page.locator('div[data-initiative-id="i-ciam-sso"]');
         await expect(initiativeBar).toBeVisible();
 
         const initialBox = await initiativeBar.boundingBox();
@@ -28,11 +28,11 @@ test.describe('Budget Visualisation', () => {
         // Change the inline Budget select to label
         await page.locator('select#budgetVisualisation').selectOption('label');
 
-        // Find an initiative bar - init-2 has 800k budget
-        const initiativeBar = page.locator('div[data-initiative-id="init-2"]');
+        // Find an initiative bar - i-ciam-sso has 600k budget
+        const initiativeBar = page.locator('div[data-initiative-id="i-ciam-sso"]');
         await expect(initiativeBar).toBeVisible();
 
         // Check for budget label
-        await expect(initiativeBar).toContainText('$800k');
+        await expect(initiativeBar).toContainText('$600k');
     });
 });

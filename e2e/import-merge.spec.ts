@@ -10,15 +10,15 @@ test.describe('Import Preview & Merge', () => {
         // Generate a mock Excel file for the test
         const wb = XLSX.utils.book_new();
 
-        // We expect the default data to have 'Enterprise CIAM' (id: init-2) and others.
+        // We expect the default data to have 'SSO Consolidation' (id: init-2) and others.
         // Let's create an import file that Updates 'init-2' and adds a completely new one.
         const mockInitiatives = [
             {
                 id: 'init-2',
-                name: 'Enterprise CIAM v2', // Updated name
+                name: 'SSO Consolidation v2', // Updated name
                 programmeId: 'prog-2',
                 strategyId: 'strat-3',
-                assetId: 'asset-1',
+                assetId: 'a-ciam',
                 startDate: '2027-01-01',
                 endDate: '2027-12-31',
                 budget: 900000 // Updated budget
@@ -28,7 +28,7 @@ test.describe('Import Preview & Merge', () => {
                 name: 'Brand New Initiative',
                 programmeId: 'prog-1',
                 strategyId: 'strat-1',
-                assetId: 'asset-2',
+                assetId: 'a-pam',
                 startDate: '2028-01-01',
                 endDate: '2028-06-30',
                 budget: 50000
@@ -81,16 +81,16 @@ test.describe('Import Preview & Merge', () => {
         // Verify Data Manager is updated
         // Search for the updated item
         const searchInput = page.getByPlaceholder('Search initiatives...');
-        await searchInput.fill('Enterprise CIAM v2');
+        await searchInput.fill('SSO Consolidation v2');
         await expect(initialRows).toHaveCount(1); // Mapped properly
 
         // Search for the new item
         await searchInput.fill('Brand New');
         await expect(initialRows).toHaveCount(1);
 
-        // Search for an old item that wasn't in the import file (e.g. 'Web Channel')
+        // Search for an old item that wasn't in the import file (e.g. 'Passkey')
         // It should STILL exist because we used Merge, not Overwrite.
-        await searchInput.fill('Web Channel');
+        await searchInput.fill('Passkey');
         await expect(initialRows).toHaveCount(1);
     });
 });

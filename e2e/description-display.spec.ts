@@ -8,7 +8,7 @@ test.describe('Description Display', () => {
 
     test('can edit description in initiative panel', async ({ page }) => {
         // Click an initiative to open the panel
-        const bar = page.locator('div[data-initiative-id="init-1"]');
+        const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await expect(bar).toBeVisible();
         await bar.click();
 
@@ -33,8 +33,8 @@ test.describe('Description Display', () => {
     });
 
     test('description appears in timeline bar tooltip', async ({ page }) => {
-        // First, add a description to init-1
-        const bar = page.locator('div[data-initiative-id="init-1"]');
+        // First, add a description to i-ciam-passkey
+        const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
 
         const panel = page.getByTestId('initiative-panel');
@@ -46,8 +46,8 @@ test.describe('Description Display', () => {
     });
 
     test('description toggle expands bar when turned on', async ({ page }) => {
-        // First add a description to init-1
-        const bar = page.locator('div[data-initiative-id="init-1"]');
+        // First add a description to i-ciam-passkey
+        const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
 
         const panel = page.getByTestId('initiative-panel');

@@ -7,12 +7,12 @@ test.describe('Intra-Asset Dependency Spacing', () => {
     });
 
     test('dynamically increases vertical gap between dependent initiatives in the same asset', async ({ page }) => {
-        // Find the "Local Authentication" asset in the CIAM category
+        // Find the "Local Authentication" asset in the Customer IAM (CIAM) category
         // In the default data, this has 2 overlapping initiatives: 
-        // "Web Channel Integration" and "Enterprise CIAM"
+        // "Passkey Rollout" and "SSO Consolidation"
         // And they have a dependency between them "blocks"
-        const c1 = page.getByText('Web Channel Integration');
-        const c2 = page.getByText('Enterprise CIAM');
+        const c1 = page.getByText('Passkey Rollout');
+        const c2 = page.getByText('SSO Consolidation');
 
         await expect(c1).toBeVisible();
         await expect(c2).toBeVisible();
