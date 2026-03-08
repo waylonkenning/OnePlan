@@ -7,16 +7,17 @@ import { useState, useEffect } from 'react';
 import { Timeline } from './components/Timeline';
 import { DataControls } from './components/DataControls';
 import { DataManager } from './components/DataManager';
-import { 
-  assets as initialAssets, 
-  initiatives as initialInitiatives, 
-  milestones as initialMilestones, 
+import {
+  assets as initialAssets,
+  initiatives as initialInitiatives,
+  milestones as initialMilestones,
   programmes as initialProgrammes,
   strategies as initialStrategies,
   dependencies as initialDependencies,
-  assetCategories as initialAssetCategories
+  assetCategories as initialAssetCategories,
+  defaultTimelineSettings
 } from './data';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from './types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
 import { LayoutGrid, Table, Loader2 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { getAppData, saveAppData } from './lib/db';
@@ -24,7 +25,7 @@ import { getAppData, saveAppData } from './lib/db';
 export default function App() {
   const [view, setView] = useState<'visualiser' | 'data'>('visualiser');
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [assets, setAssets] = useState<Asset[]>([]);
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -32,13 +33,14 @@ export default function App() {
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [assetCategories, setAssetCategories] = useState<AssetCategory[]>([]);
+  const [timelineSettings, setTimelineSettings] = useState<TimelineSettings>(defaultTimelineSettings);
 
   // Load data on mount
   useEffect(() => {
     const loadData = async () => {
       try {
         const dbData = await getAppData();
-        
+
         // If DB is empty (first run), use initial data and save it
         if (dbData.assets.length === 0 && dbData.initiatives.length === 0) {
           console.log('Initializing DB with default data...');
@@ -50,6 +52,7 @@ export default function App() {
             strategies: initialStrategies,
             dependencies: initialDependencies,
             assetCategories: initialAssetCategories,
+            timelineSettings: defaultTimelineSettings,
           };
           await saveAppData(defaults);
           setAssets(defaults.assets);
@@ -59,6 +62,7 @@ export default function App() {
           setStrategies(defaults.strategies);
           setDependencies(defaults.dependencies);
           setAssetCategories(defaults.assetCategories);
+          setTimelineSettings(defaults.timelineSettings);
         } else {
           console.log('Loaded data from DB');
           setAssets(dbData.assets);
@@ -68,6 +72,7 @@ export default function App() {
           setStrategies(dbData.strategies || []);
           setDependencies(dbData.dependencies || []);
           setAssetCategories(dbData.assetCategories || []);
+          setTimelineSettings(dbData.timelineSettings || defaultTimelineSettings);
         }
       } catch (error) {
         console.error('Failed to load data from DB:', error);
@@ -79,6 +84,7 @@ export default function App() {
         setStrategies(initialStrategies);
         setDependencies(initialDependencies);
         setAssetCategories(initialAssetCategories);
+        setTimelineSettings(defaultTimelineSettings);
       } finally {
         setIsLoading(false);
       }
@@ -95,6 +101,7 @@ export default function App() {
     strategies: Strategy[];
     dependencies: Dependency[];
     assetCategories: AssetCategory[];
+    timelineSettings: TimelineSettings;
   }) => {
     // Update state immediately for UI responsiveness
     setAssets(data.assets);
@@ -104,6 +111,7 @@ export default function App() {
     setStrategies(data.strategies);
     setDependencies(data.dependencies);
     setAssetCategories(data.assetCategories);
+    setTimelineSettings(data.timelineSettings);
 
     // Persist to DB
     try {
@@ -134,14 +142,14 @@ export default function App() {
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">OnePlan</h1>
             <p className="text-slate-500">Strategic roadmap and conflict detection for IT assets</p>
           </div>
-          
+
           <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm self-start">
             <button
               onClick={() => setView('visualiser')}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
-                view === 'visualiser' 
-                  ? "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200" 
+                view === 'visualiser'
+                  ? "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200"
                   : "text-slate-600 hover:bg-slate-50"
               )}
             >
@@ -152,8 +160,8 @@ export default function App() {
               onClick={() => setView('data')}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
-                view === 'data' 
-                  ? "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200" 
+                view === 'data'
+                  ? "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200"
                   : "text-slate-600 hover:bg-slate-50"
               )}
             >
@@ -163,16 +171,16 @@ export default function App() {
           </div>
         </div>
 
-        <DataControls 
-          data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories }}
+        <DataControls
+          data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
           onImport={handleUpdate}
           timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
         />
       </header>
-      
+
       <main className="flex-1 min-h-0">
         {view === 'visualiser' ? (
-          <Timeline 
+          <Timeline
             assets={assets}
             initiatives={initiatives}
             milestones={milestones}
@@ -180,6 +188,7 @@ export default function App() {
             strategies={strategies}
             dependencies={dependencies}
             assetCategories={assetCategories}
+            settings={timelineSettings}
             onUpdateInitiative={(updatedInit) => {
               const updatedInitiatives = initiatives.map(i => i.id === updatedInit.id ? updatedInit : i);
               handleUpdate({
@@ -190,6 +199,7 @@ export default function App() {
                 strategies,
                 dependencies,
                 assetCategories,
+                timelineSettings,
               });
             }}
             onUpdateAssets={(updatedAssets) => {
@@ -201,6 +211,7 @@ export default function App() {
                 strategies,
                 dependencies,
                 assetCategories,
+                timelineSettings,
               });
             }}
             onUpdateDependencies={(updatedDependencies) => {
@@ -212,6 +223,7 @@ export default function App() {
                 strategies,
                 dependencies: updatedDependencies,
                 assetCategories,
+                timelineSettings,
               });
             }}
             onUpdateMilestone={(updatedMilestone) => {
@@ -224,12 +236,13 @@ export default function App() {
                 strategies,
                 dependencies,
                 assetCategories,
+                timelineSettings,
               });
             }}
           />
         ) : (
-          <DataManager 
-            data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories }}
+          <DataManager
+            data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
             onUpdate={handleUpdate}
           />
         )}

@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, Palette } from 'lucide-react';
@@ -12,6 +12,7 @@ interface TimelineProps {
   strategies: Strategy[];
   dependencies: Dependency[];
   assetCategories: AssetCategory[];
+  settings: TimelineSettings;
   onUpdateInitiative?: (initiative: Initiative) => void;
   onUpdateAssets?: (assets: Asset[]) => void;
   onUpdateDependencies?: (dependencies: Dependency[]) => void;
@@ -19,27 +20,25 @@ interface TimelineProps {
 }
 
 const CELL_WIDTH = 200; // Width of one quarter column
-const START_YEAR = 2026;
-const YEARS_TO_SHOW = 3;
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
   const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialDate: string } | null>(null);
-  const [drawingDependency, setDrawingDependency] = useState<{ 
-    sourceId: string; 
-    startX: number; 
-    startY: number; 
-    currentX: number; 
+  const [drawingDependency, setDrawingDependency] = useState<{
+    sourceId: string;
+    startX: number;
+    startY: number;
+    currentX: number;
     currentY: number;
   } | null>(null);
   const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
   const [draggingAssetId, setDraggingAssetId] = useState<string | null>(null);
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
-  
+
   const [initiativePositions, setInitiativePositions] = useState<Map<string, { x: number; y: number; width: number; height: number }>>(new Map());
-  
+
   const timelineRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -92,7 +91,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       if (draggingAsset && draggingAsset.categoryId === targetAsset.categoryId) {
         const oldIndex = assets.findIndex(a => a.id === draggingAssetId);
         const newIndex = assets.findIndex(a => a.id === targetAsset.id);
-        
+
         if (oldIndex !== -1 && newIndex !== -1) {
           onUpdateAssets(reorder(assets, oldIndex, newIndex));
         }
@@ -107,8 +106,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   // Generate time columns (Quarters)
   const timeColumns = useMemo<{ date: Date; label: string; year: number; quarter: number }[]>(() => {
     const cols: { date: Date; label: string; year: number; quarter: number }[] = [];
-    let currentDate = startOfYear(new Date(START_YEAR, 0, 1));
-    for (let i = 0; i < YEARS_TO_SHOW * 4; i++) {
+    let currentDate = startOfYear(new Date(settings.startYear, 0, 1));
+    for (let i = 0; i < settings.yearsToShow * 4; i++) {
       cols.push({
         date: currentDate,
         label: `Q${getQuarter(currentDate)} ${getYear(currentDate)}`,
@@ -118,7 +117,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       currentDate = addQuarters(currentDate, 1);
     }
     return cols;
-  }, []);
+  }, [settings.startYear, settings.yearsToShow]);
 
   const startDate = timeColumns[0].date;
   const endDate = addQuarters(timeColumns[timeColumns.length - 1].date, 1);
@@ -161,12 +160,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     // If we click on the edge, handleResizeStart will be called via its own onMouseDown
     // which has e.stopPropagation(). So here we handle move or dependency draw.
     console.log('MouseDown on initiative:', init.id, e.clientX, e.clientY);
-    setMoving({ 
-      id: init.id, 
-      initialX: e.clientX, 
+    setMoving({
+      id: init.id,
+      initialX: e.clientX,
       initialY: e.clientY,
-      initialStart: init.startDate, 
-      initialEnd: init.endDate 
+      initialStart: init.startDate,
+      initialEnd: init.endDate
     });
   };
 
@@ -174,9 +173,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     e.stopPropagation();
     e.preventDefault();
     setMovingMilestone({
-        id: mile.id,
-        initialX: e.clientX,
-        initialDate: mile.date
+      id: mile.id,
+      initialX: e.clientX,
+      initialDate: mile.date
     });
   };
 
@@ -191,7 +190,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
   useEffect(() => {
     if (!movingMilestone) {
-        setLocalMilestones(milestones);
+      setLocalMilestones(milestones);
     }
   }, [milestones, movingMilestone]);
 
@@ -200,12 +199,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       if (resizing) {
         const deltaX = e.clientX - resizing.initialX;
         const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
-        
+
         const initiative = localInitiatives.find(i => i.id === resizing.id);
         if (!initiative) return;
 
         const newDate = format(addDays(parseISO(resizing.initialDate), deltaDays), 'yyyy-MM-dd');
-        
+
         const updatedInitiatives = localInitiatives.map(i => {
           if (i.id === resizing.id) {
             const updated = { ...i };
@@ -218,67 +217,67 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           }
           return i;
         });
-        
+
         setLocalInitiatives(updatedInitiatives);
       } else if (moving) {
         const deltaX = e.clientX - moving.initialX;
         const deltaY = e.clientY - moving.initialY;
-        
+
         // If we moved vertically more than 30px, switch to drawing dependency
         if (!drawingDependency && Math.abs(deltaY) > 30) {
-            const sourcePos = initiativePositions.get(moving.id);
-            if (sourcePos && containerRef.current) {
-                const containerRect = containerRef.current.getBoundingClientRect();
-                const startX = 256 + ((sourcePos.x + sourcePos.width/2) / 100) * totalWidth;
-                const startY = sourcePos.y + sourcePos.height/2;
-                
-                setDrawingDependency({
-                    sourceId: moving.id,
-                    startX,
-                    startY,
-                    currentX: e.clientX - containerRect.left,
-                    currentY: e.clientY - containerRect.top
-                });
-                setMoving(null);
-                return;
-            }
+          const sourcePos = initiativePositions.get(moving.id);
+          if (sourcePos && containerRef.current) {
+            const containerRect = containerRef.current.getBoundingClientRect();
+            const startX = 256 + ((sourcePos.x + sourcePos.width / 2) / 100) * totalWidth;
+            const startY = sourcePos.y + sourcePos.height / 2;
+
+            setDrawingDependency({
+              sourceId: moving.id,
+              startX,
+              startY,
+              currentX: e.clientX - containerRect.left,
+              currentY: e.clientY - containerRect.top
+            });
+            setMoving(null);
+            return;
+          }
         }
 
         // Only update dates if we moved horizontally more than 5px
         if (Math.abs(deltaX) > 5) {
-            const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
-            const updatedInitiatives = localInitiatives.map(i => {
-              if (i.id === moving.id) {
-                return {
-                  ...i,
-                  startDate: format(addDays(parseISO(moving.initialStart), deltaDays), 'yyyy-MM-dd'),
-                  endDate: format(addDays(parseISO(moving.initialEnd), deltaDays), 'yyyy-MM-dd'),
-                };
-              }
-              return i;
-            });
-            setLocalInitiatives(updatedInitiatives);
+          const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
+          const updatedInitiatives = localInitiatives.map(i => {
+            if (i.id === moving.id) {
+              return {
+                ...i,
+                startDate: format(addDays(parseISO(moving.initialStart), deltaDays), 'yyyy-MM-dd'),
+                endDate: format(addDays(parseISO(moving.initialEnd), deltaDays), 'yyyy-MM-dd'),
+              };
+            }
+            return i;
+          });
+          setLocalInitiatives(updatedInitiatives);
         }
       } else if (movingMilestone) {
         const deltaX = e.clientX - movingMilestone.initialX;
         const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
         const newDate = format(addDays(parseISO(movingMilestone.initialDate), deltaDays), 'yyyy-MM-dd');
-        
+
         const updatedMilestones = localMilestones.map(m => {
-            if (m.id === movingMilestone.id) {
-                return { ...m, date: newDate };
-            }
-            return m;
+          if (m.id === movingMilestone.id) {
+            return { ...m, date: newDate };
+          }
+          return m;
         });
         setLocalMilestones(updatedMilestones);
       } else if (drawingDependency) {
         if (containerRef.current) {
-            const containerRect = containerRef.current.getBoundingClientRect();
-            setDrawingDependency({
-                ...drawingDependency,
-                currentX: e.clientX - containerRect.left,
-                currentY: e.clientY - containerRect.top
-            });
+          const containerRect = containerRef.current.getBoundingClientRect();
+          setDrawingDependency({
+            ...drawingDependency,
+            currentX: e.clientX - containerRect.left,
+            currentY: e.clientY - containerRect.top
+          });
         }
       }
     };
@@ -298,15 +297,15 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         const targetElement = document.elementFromPoint(e.clientX, e.clientY);
         const initiativeEl = targetElement?.closest('[data-initiative-id]');
         const targetId = initiativeEl?.getAttribute('data-initiative-id');
-        
+
         if (targetId && targetId !== drawingDependency.sourceId) {
-            const newDependency: Dependency = {
-                id: `dep-${Date.now()}`,
-                sourceId: drawingDependency.sourceId,
-                targetId: targetId,
-                type: 'blocks'
-            };
-            onUpdateDependencies([...dependencies, newDependency]);
+          const newDependency: Dependency = {
+            id: `dep-${Date.now()}`,
+            sourceId: drawingDependency.sourceId,
+            targetId: targetId,
+            type: 'blocks'
+          };
+          onUpdateDependencies([...dependencies, newDependency]);
         }
       }
       setResizing(null);
@@ -320,7 +319,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     }
-    
+
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
@@ -366,7 +365,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       const width = getWidth(init.startDate, init.endDate);
       const right = left + width;
       const height = BAR_HEIGHT;
-      
+
       let top = ROW_PADDING;
       let collision = true;
       const candidateTops = [ROW_PADDING];
@@ -392,8 +391,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       }
 
       if (collision) {
-         const maxBottom = Math.max(ROW_PADDING, ...placedRects.map(r => r.bottom));
-         top = maxBottom + BAR_GAP;
+        const maxBottom = Math.max(ROW_PADDING, ...placedRects.map(r => r.bottom));
+        top = maxBottom + BAR_GAP;
       }
 
       items.push({ init, top, height, left, width });
@@ -408,29 +407,29 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   useEffect(() => {
     const positions = new Map<string, { x: number; y: number; width: number; height: number }>();
     let currentY = 0;
-    
+
     // We need to mirror the rendering loop to calculate Y offsets
     // This is slightly complex because of the scrollable area
     // For now, we'll use a simplified version or use refs
     // Let's use a simpler approach: the dependency renderer already uses initiativePositions
     // which were previously calculated. We need to populate it.
-    
+
     sortedCategoryIds.forEach(catId => {
-        currentY += 26; // category header height
-        const categoryAssets = assetsByCategory[catId];
-        categoryAssets.forEach(asset => {
-            const assetInitiatives = initiatives.filter(i => i.assetId === asset.id);
-            const { items, height } = layoutAsset(assetInitiatives);
-            items.forEach(item => {
-                positions.set(item.init.id, {
-                    x: item.left,
-                    y: currentY + item.top,
-                    width: item.width,
-                    height: item.height
-                });
-            });
-            currentY += height;
+      currentY += 26; // category header height
+      const categoryAssets = assetsByCategory[catId];
+      categoryAssets.forEach(asset => {
+        const assetInitiatives = initiatives.filter(i => i.assetId === asset.id);
+        const { items, height } = layoutAsset(assetInitiatives);
+        items.forEach(item => {
+          positions.set(item.init.id, {
+            x: item.left,
+            y: currentY + item.top,
+            width: item.width,
+            height: item.height
+          });
         });
+        currentY += height;
+      });
     });
     setInitiativePositions(positions);
   }, [initiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory]);
@@ -444,8 +443,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         const a = assetInitiatives[i];
         const b = assetInitiatives[j];
         if (a.startDate <= b.endDate && a.endDate >= b.startDate) {
-           const conflictStart = a.startDate > b.startDate ? a.startDate : b.startDate;
-           points.push(conflictStart);
+          const conflictStart = a.startDate > b.startDate ? a.startDate : b.startDate;
+          points.push(conflictStart);
         }
       }
     }
@@ -458,58 +457,58 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
   return (
     <div id="timeline-visualiser" ref={timelineRef} className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-      
+
       {/* Legend & Controls Bar */}
       <div className="flex-shrink-0 border-b border-slate-200 bg-white p-3 flex flex-wrap gap-x-6 gap-y-3 items-center text-sm overflow-x-auto">
-          <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
-            <button 
-              onClick={() => setColorBy('programme')}
-              className={cn(
-                "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
-                colorBy === 'programme' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-              )}
-            >
-              <Palette size={14} />
-              By Programme
-            </button>
-            <button 
-              onClick={() => setColorBy('strategy')}
-              className={cn(
-                "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
-                colorBy === 'strategy' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-              )}
-            >
-              <Palette size={14} />
-              By Strategy
-            </button>
-          </div>
+        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
+          <button
+            onClick={() => setColorBy('programme')}
+            className={cn(
+              "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
+              colorBy === 'programme' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            )}
+          >
+            <Palette size={14} />
+            By Programme
+          </button>
+          <button
+            onClick={() => setColorBy('strategy')}
+            className={cn(
+              "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
+              colorBy === 'strategy' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            )}
+          >
+            <Palette size={14} />
+            By Strategy
+          </button>
+        </div>
 
-          <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+        <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
-          <div className="flex gap-4 items-center">
-            <div className="font-semibold text-slate-700 whitespace-nowrap">
-              {colorBy === 'programme' ? 'Programmes:' : 'Strategies:'}
-            </div>
-            {(colorBy === 'programme' ? programmes : strategies).map(item => (
-                <div key={item.id} className="flex items-center gap-2 whitespace-nowrap">
-                    <div className={cn("w-3 h-3 rounded-full", item.color)} />
-                    <span className="text-slate-600">{item.name}</span>
-                </div>
-            ))}
+        <div className="flex gap-4 items-center">
+          <div className="font-semibold text-slate-700 whitespace-nowrap">
+            {colorBy === 'programme' ? 'Programmes:' : 'Strategies:'}
           </div>
+          {(colorBy === 'programme' ? programmes : strategies).map(item => (
+            <div key={item.id} className="flex items-center gap-2 whitespace-nowrap">
+              <div className={cn("w-3 h-3 rounded-full", item.color)} />
+              <span className="text-slate-600">{item.name}</span>
+            </div>
+          ))}
+        </div>
 
-          <div className="ml-auto flex items-center gap-4">
-            <div className="flex items-center gap-2 whitespace-nowrap">
-                <div className="w-6 h-px bg-blue-500 relative">
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[3px] border-y-transparent border-l-[5px] border-l-blue-500" />
-                </div>
-                <span className="text-slate-600">Dependency</span>
+        <div className="ml-auto flex items-center gap-4">
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <div className="w-6 h-px bg-blue-500 relative">
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[3px] border-y-transparent border-l-[5px] border-l-blue-500" />
             </div>
-            <div className="flex items-center gap-2 whitespace-nowrap">
-                <AlertTriangle size={14} className="text-red-500" />
-                <span className="text-slate-600">Conflict</span>
-            </div>
+            <span className="text-slate-600">Dependency</span>
           </div>
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <AlertTriangle size={14} className="text-red-500" />
+            <span className="text-slate-600">Conflict</span>
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 overflow-auto scroll-smooth">
@@ -520,8 +519,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             </div>
             <div className="flex" style={{ width: totalWidth }}>
               {timeColumns.map((col, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
+                  data-testid={`timeline-col-${col.year}-q${col.quarter}`}
                   className={cn(
                     "flex-shrink-0 border-r border-slate-100 p-2 text-center text-sm font-medium text-slate-600 bg-white flex flex-col justify-center",
                     col.quarter === 1 && "border-l-2 border-l-slate-300"
@@ -536,17 +536,17 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           </div>
 
           {isCurrentTimeVisible && (
-             <div 
-               className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
-               style={{ left: `calc(16rem + ${currentPos}%)` }}
-             >
-               <div className="absolute top-0 -translate-y-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] px-1 rounded">Now</div>
-             </div>
+            <div
+              className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
+              style={{ left: `calc(16rem + ${currentPos}%)` }}
+            >
+              <div className="absolute top-0 -translate-y-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] px-1 rounded">Now</div>
+            </div>
           )}
 
           <div className="flex flex-col relative" ref={containerRef}>
-            <svg 
-              className="absolute inset-0 z-10 pointer-events-none" 
+            <svg
+              className="absolute inset-0 z-10 pointer-events-none"
               style={{ width: totalWidth + 256, height: '100%' }}
             >
               <defs>
@@ -568,19 +568,19 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 let labelX, labelY;
 
                 if (sEndX >= tStartX && 256 + (source.x / 100) * totalWidth <= 256 + ((target.x + target.width) / 100) * totalWidth) {
-                    const overlapX = (Math.max(256 + (source.x / 100) * totalWidth, tStartX) + Math.min(sEndX, 256 + ((target.x + target.width) / 100) * totalWidth)) / 2;
-                    const startY = source.y < target.y ? source.y + source.height : source.y;
-                    const endY = source.y < target.y ? target.y : target.y + target.height;
-                    path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
-                    labelX = overlapX + 5;
-                    labelY = (startY + endY) / 2;
+                  const overlapX = (Math.max(256 + (source.x / 100) * totalWidth, tStartX) + Math.min(sEndX, 256 + ((target.x + target.width) / 100) * totalWidth)) / 2;
+                  const startY = source.y < target.y ? source.y + source.height : source.y;
+                  const endY = source.y < target.y ? target.y : target.y + target.height;
+                  path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
+                  labelX = overlapX + 5;
+                  labelY = (startY + endY) / 2;
                 } else {
-                    const midX = (sEndX + tStartX) / 2;
-                    path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
-                    labelX = midX;
-                    labelY = (sMidY + tMidY) / 2;
+                  const midX = (sEndX + tStartX) / 2;
+                  path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
+                  labelX = midX;
+                  labelY = (sMidY + tMidY) / 2;
                 }
-                
+
                 return (
                   <React.Fragment key={dep.id}>
                     <path
@@ -607,7 +607,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   </React.Fragment>
                 );
               })}
-              
+
               {/* Live drawing arrow */}
               {drawingDependency && (
                 <path
@@ -628,7 +628,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               const categoryAssets = assetsByCategory[catId];
               return (
                 <div key={catId} onDragOver={(e) => handleCategoryDragOver(e, catId)}>
-                  <div 
+                  <div
                     draggable
                     onDragStart={(e) => handleCategoryDragStart(e, catId)}
                     onDragEnd={handleCategoryDragEnd}
@@ -638,7 +638,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     )}
                   >
                     <div className="p-0.5 hover:bg-slate-200 rounded text-slate-400">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                     </div>
                     {categoryName}
                   </div>
@@ -648,31 +648,31 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     const assetMilestones = milestones.filter(m => m.assetId === asset.id);
                     const conflictPoints = getConflictPoints(asset.id);
                     const { items: layoutItems, height: rowHeight } = layoutAsset(assetInitiatives);
-return (
-  <div 
-    key={asset.id} 
-    className={cn(
-      "flex border-b border-slate-200 hover:bg-slate-50 transition-colors group relative",
-      draggingAssetId === asset.id && "opacity-50"
-    )}
-    onDragOver={(e) => handleAssetDragOver(e, asset)}
-  >
-    {/* Asset Name Sidebar (Sticky Left) */}
-    <div 
-        draggable
-        onDragStart={(e) => handleAssetDragStart(e, asset.id)}
-        onDragEnd={handleAssetDragEnd}
-        className="sticky left-0 w-64 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-20 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center cursor-grab active:cursor-grabbing"
-        style={{ height: rowHeight }}
-    >
-      <div className="flex items-center gap-2">
-        <div className="p-0.5 hover:bg-slate-100 rounded text-slate-300 group-hover:text-slate-400">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
-        </div>
-        <div className="font-semibold text-slate-800">{asset.name}</div>
-      </div>
-      <div className="text-xs text-slate-400 mt-1 ml-4">{assetInitiatives.length} Initiatives</div>
-    </div>
+                    return (
+                      <div
+                        key={asset.id}
+                        className={cn(
+                          "flex border-b border-slate-200 hover:bg-slate-50 transition-colors group relative",
+                          draggingAssetId === asset.id && "opacity-50"
+                        )}
+                        onDragOver={(e) => handleAssetDragOver(e, asset)}
+                      >
+                        {/* Asset Name Sidebar (Sticky Left) */}
+                        <div
+                          draggable
+                          onDragStart={(e) => handleAssetDragStart(e, asset.id)}
+                          onDragEnd={handleAssetDragEnd}
+                          className="sticky left-0 w-64 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-20 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center cursor-grab active:cursor-grabbing"
+                          style={{ height: rowHeight }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="p-0.5 hover:bg-slate-100 rounded text-slate-300 group-hover:text-slate-400">
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
+                            </div>
+                            <div className="font-semibold text-slate-800">{asset.name}</div>
+                          </div>
+                          <div className="text-xs text-slate-400 mt-1 ml-4">{assetInitiatives.length} Initiatives</div>
+                        </div>
 
 
                         <div className="relative flex-shrink-0" style={{ width: totalWidth, height: rowHeight }}>
@@ -712,23 +712,23 @@ return (
                           })}
 
                           {conflictPoints.map((date, idx) => {
-                             const pos = getPosition(date);
-                             if (pos < 0 || pos > 100) return null;
-                             return (
+                            const pos = getPosition(date);
+                            if (pos < 0 || pos > 100) return null;
+                            return (
                               <div key={`conflict-${idx}`} className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-30 pointer-events-none" style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}>
                                 <div className="absolute top-0 bottom-0 w-0.5 border-l-2 border-dotted border-red-500/60" />
                                 <div className="relative p-1.5 rounded-full shadow-md border-2 border-white bg-red-500 text-white animate-pulse pointer-events-auto">
-                                    <AlertTriangle size={16} fill="currentColor" />
+                                  <AlertTriangle size={16} fill="currentColor" />
                                 </div>
                               </div>
-                             );
+                            );
                           })}
 
                           {assetMilestones.map(mile => {
-                             const currentMile = localMilestones.find(m => m.id === mile.id) || mile;
-                             const pos = getPosition(currentMile.date);
-                             if (pos < 0 || pos > 100) return null;
-                             return (
+                            const currentMile = localMilestones.find(m => m.id === mile.id) || mile;
+                            const pos = getPosition(currentMile.date);
+                            if (pos < 0 || pos > 100) return null;
+                            return (
                               <div
                                 key={mile.id}
                                 onMouseDown={(e) => handleMilestoneMouseDown(e, mile)}
@@ -737,22 +737,22 @@ return (
                               >
                                 <div className="absolute top-0 bottom-0 w-px border-l border-dashed border-slate-400/50 group-hover/marker:border-slate-600" />
                                 <div className={cn(
-                                    "relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110",
-                                    mile.type === 'critical' ? "bg-red-100 text-red-600" : 
+                                  "relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110",
+                                  mile.type === 'critical' ? "bg-red-100 text-red-600" :
                                     mile.type === 'warning' ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
                                 )}>
-                                    {mile.type === 'critical' ? <Star size={16} fill="currentColor" /> : <Info size={16} />}
+                                  {mile.type === 'critical' ? <Star size={16} fill="currentColor" /> : <Info size={16} />}
                                 </div>
                                 <div className="absolute left-full ml-2 bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-200 shadow-sm opacity-0 group-hover/marker:opacity-100 transition-opacity whitespace-nowrap z-40 pointer-events-none">
-                                    <div className="text-[10px] font-bold text-slate-800 leading-none">{mile.name}</div>
-                                    <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(currentMile.date), 'MMM yyyy')}</div>
+                                  <div className="text-[10px] font-bold text-slate-800 leading-none">{mile.name}</div>
+                                  <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(currentMile.date), 'MMM yyyy')}</div>
                                 </div>
                                 {/* Always visible label */}
                                 <div className="absolute top-full mt-1 bg-white/40 px-1 rounded text-[9px] font-semibold text-slate-700 whitespace-nowrap pointer-events-none">
-                                    {mile.name}
+                                  {mile.name}
                                 </div>
                               </div>
-                             );
+                            );
                           })}
                         </div>
                       </div>

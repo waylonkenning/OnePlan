@@ -52,8 +52,13 @@ export interface Asset {
 }
 
 export interface TimeColumn {
-  id: string;
+  date: Date;
   label: string;
   year: number;
-  quarter: number; // 1-4
+  quarter: number;
+}
+
+export interface TimelineSettings {
+  startYear: number;
+  yearsToShow: number;
 }

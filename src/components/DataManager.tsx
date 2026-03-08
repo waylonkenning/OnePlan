@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
 import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree } from 'lucide-react';
@@ -13,6 +13,7 @@ interface DataManagerProps {
     strategies: Strategy[];
     dependencies: Dependency[];
     assetCategories: AssetCategory[];
+    timelineSettings: TimelineSettings;
   };
   onUpdate: (data: {
     assets: Asset[];
@@ -22,6 +23,7 @@ interface DataManagerProps {
     strategies: Strategy[];
     dependencies: Dependency[];
     assetCategories: AssetCategory[];
+    timelineSettings: TimelineSettings;
   }) => void;
 }
 
@@ -77,21 +79,25 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
     { key: 'name', label: 'Milestone Name', type: 'text', width: '30%' },
     { key: 'assetId', label: 'Asset', type: 'select', options: assetOptions, width: '20%' },
     { key: 'date', label: 'Date', type: 'date', width: '20%' },
-    { key: 'type', label: 'Type', type: 'select', options: [
-      { value: 'info', label: 'Info' },
-      { value: 'warning', label: 'Warning' },
-      { value: 'critical', label: 'Critical' }
-    ], width: '20%' },
+    {
+      key: 'type', label: 'Type', type: 'select', options: [
+        { value: 'info', label: 'Info' },
+        { value: 'warning', label: 'Warning' },
+        { value: 'critical', label: 'Critical' }
+      ], width: '20%'
+    },
   ];
 
   const dependencyColumns: Column<Dependency>[] = [
     { key: 'sourceId', label: 'Dependent Initiative', type: 'select', options: initiativeOptions, width: '35%' },
     { key: 'targetId', label: 'Depends On', type: 'select', options: initiativeOptions, width: '35%' },
-    { key: 'type', label: 'Dependency Type', type: 'select', options: [
-      { value: 'blocks', label: 'Blocks' },
-      { value: 'requires', label: 'Requires' },
-      { value: 'related', label: 'Related' }
-    ], width: '20%' },
+    {
+      key: 'type', label: 'Dependency Type', type: 'select', options: [
+        { value: 'blocks', label: 'Blocks' },
+        { value: 'requires', label: 'Requires' },
+        { value: 'related', label: 'Related' }
+      ], width: '20%'
+    },
   ];
 
   const tabs = [
@@ -113,8 +119,8 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             onClick={() => setActiveTab(tab.id as Tab)}
             className={cn(
               "flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
-              activeTab === tab.id 
-                ? "border-blue-500 text-blue-600 bg-blue-50" 
+              activeTab === tab.id
+                ? "border-blue-500 text-blue-600 bg-blue-50"
                 : "border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             )}
           >
@@ -129,57 +135,57 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
 
       <div className="flex-1 p-6 overflow-hidden">
         {activeTab === 'initiatives' && (
-          <EditableTable 
-            data={data.initiatives} 
-            columns={initiativeColumns} 
+          <EditableTable
+            data={data.initiatives}
+            columns={initiativeColumns}
             onUpdate={(newData) => updateData('initiatives', newData)}
             idField="id"
           />
         )}
         {activeTab === 'dependencies' && (
-          <EditableTable 
-            data={data.dependencies} 
-            columns={dependencyColumns} 
+          <EditableTable
+            data={data.dependencies}
+            columns={dependencyColumns}
             onUpdate={(newData) => updateData('dependencies', newData)}
             idField="id"
           />
         )}
         {activeTab === 'assets' && (
-          <EditableTable 
-            data={data.assets} 
-            columns={assetColumns} 
+          <EditableTable
+            data={data.assets}
+            columns={assetColumns}
             onUpdate={(newData) => updateData('assets', newData)}
             idField="id"
           />
         )}
         {activeTab === 'assetCategories' && (
-          <EditableTable 
-            data={data.assetCategories} 
-            columns={categoryColumns} 
+          <EditableTable
+            data={data.assetCategories}
+            columns={categoryColumns}
             onUpdate={(newData) => updateData('assetCategories', newData)}
             idField="id"
           />
         )}
         {activeTab === 'programmes' && (
-          <EditableTable 
-            data={data.programmes} 
-            columns={programmeColumns} 
+          <EditableTable
+            data={data.programmes}
+            columns={programmeColumns}
             onUpdate={(newData) => updateData('programmes', newData)}
             idField="id"
           />
         )}
         {activeTab === 'strategies' && (
-          <EditableTable 
-            data={data.strategies} 
-            columns={strategyColumns} 
+          <EditableTable
+            data={data.strategies}
+            columns={strategyColumns}
             onUpdate={(newData) => updateData('strategies', newData)}
             idField="id"
           />
         )}
         {activeTab === 'milestones' && (
-          <EditableTable 
-            data={data.milestones} 
-            columns={milestoneColumns} 
+          <EditableTable
+            data={data.milestones}
+            columns={milestoneColumns}
             onUpdate={(newData) => updateData('milestones', newData)}
             idField="id"
           />
