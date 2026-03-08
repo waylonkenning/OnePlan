@@ -1,0 +1,1365 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - heading "OnePlan" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - button "Visualiser" [ref=e7]:
+        - img [ref=e8]
+        - text: Visualiser
+      - button "Data Manager" [ref=e13]:
+        - img [ref=e14]
+        - text: Data Manager
+    - generic [ref=e16]:
+      - img [ref=e17]
+      - searchbox "Search initiatives..." [ref=e20]
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - text: Start
+        - spinbutton "Start" [ref=e23]: "2026"
+      - generic [ref=e24]:
+        - text: Years
+        - spinbutton "Years" [ref=e25]: "3"
+      - generic [ref=e26]:
+        - text: Budget
+        - combobox "Budget" [ref=e27]:
+          - option "Off" [selected]
+          - option "Bar Height"
+          - option "Label"
+      - generic [ref=e28]:
+        - text: Desc
+        - combobox "Desc" [ref=e29]:
+          - option "Off" [selected]
+          - option "On"
+      - generic [ref=e30]:
+        - text: Empty Rows
+        - combobox "Empty Rows" [ref=e31]:
+          - option "Show" [selected]
+          - option "Hide"
+      - generic [ref=e32]:
+        - text: Snap
+        - combobox "Snap" [ref=e33]:
+          - option "Off" [selected]
+          - option "Month"
+    - generic [ref=e34]:
+      - button "Undo" [ref=e35]:
+        - img [ref=e36]
+      - button "Redo" [disabled] [ref=e40]:
+        - img [ref=e41]
+    - generic [ref=e44]:
+      - button "PDF" [disabled] [ref=e45]:
+        - img [ref=e46]
+        - text: PDF
+      - button "Export" [ref=e49]:
+        - img [ref=e50]
+        - text: Export
+      - button "Import" [ref=e53]:
+        - img [ref=e54]
+        - text: Import
+  - main [ref=e57]:
+    - generic [ref=e58]:
+      - generic [ref=e59]:
+        - button "Initiatives 24" [ref=e60]:
+          - img [ref=e61]
+          - text: Initiatives
+          - generic [ref=e65]: "24"
+        - button "Dependencies 10" [ref=e66]:
+          - img [ref=e67]
+          - text: Dependencies
+          - generic [ref=e70]: "10"
+        - button "Assets 16" [ref=e71]:
+          - img [ref=e72]
+          - text: Assets
+          - generic [ref=e76]: "16"
+        - button "Categories 6" [ref=e77]:
+          - img [ref=e78]
+          - text: Categories
+          - generic [ref=e83]: "6"
+        - button "Programmes 6" [ref=e84]:
+          - img [ref=e85]
+          - text: Programmes
+          - generic [ref=e87]: "6"
+        - button "Strategies 6" [ref=e88]:
+          - img [ref=e89]
+          - text: Strategies
+          - generic [ref=e93]: "6"
+        - button "Milestones 8" [ref=e94]:
+          - img [ref=e95]
+          - text: Milestones
+          - generic [ref=e97]: "8"
+      - generic [ref=e99]:
+        - table [ref=e101]:
+          - rowgroup [ref=e102]:
+            - row "Initiative Name Asset Programme Strategy Start Date End Date Budget ($)" [ref=e103]:
+              - columnheader "Initiative Name" [ref=e104] [cursor=pointer]:
+                - generic [ref=e105]:
+                  - text: Initiative Name
+                  - img [ref=e106]
+              - columnheader "Asset" [ref=e109] [cursor=pointer]:
+                - generic [ref=e110]:
+                  - text: Asset
+                  - img [ref=e111]
+              - columnheader "Programme" [ref=e114] [cursor=pointer]:
+                - generic [ref=e115]:
+                  - text: Programme
+                  - img [ref=e116]
+              - columnheader "Strategy" [ref=e119] [cursor=pointer]:
+                - generic [ref=e120]:
+                  - text: Strategy
+                  - img [ref=e121]
+              - columnheader "Start Date" [ref=e124] [cursor=pointer]:
+                - generic [ref=e125]:
+                  - text: Start Date
+                  - img [ref=e126]
+              - columnheader "End Date" [ref=e129] [cursor=pointer]:
+                - generic [ref=e130]:
+                  - text: End Date
+                  - img [ref=e131]
+              - columnheader "Budget ($)" [ref=e134] [cursor=pointer]:
+                - generic [ref=e135]:
+                  - text: Budget ($)
+                  - img [ref=e136]
+              - columnheader [ref=e139]
+          - rowgroup [ref=e140]:
+            - row "Passkey Rollout Customer IAM (CIAM) Digital Transformation Zero Trust 2026-01-01 2026-06-30 350000" [ref=e141]:
+              - cell "Passkey Rollout" [ref=e142]:
+                - textbox [ref=e143]: Passkey Rollout
+              - cell "Customer IAM (CIAM)" [ref=e144]:
+                - combobox [ref=e145]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)" [selected]
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Digital Transformation" [ref=e146]:
+                - combobox [ref=e147]:
+                  - option "Select..."
+                  - option "Digital Transformation" [selected]
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Zero Trust" [ref=e148]:
+                - combobox [ref=e149]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust" [selected]
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-01-01" [ref=e150]:
+                - textbox [ref=e151]: 2026-01-01
+              - cell "2026-06-30" [ref=e152]:
+                - textbox [ref=e153]: 2026-06-30
+              - cell "350000" [ref=e154]:
+                - spinbutton [ref=e155]: "350000"
+              - cell [ref=e156]:
+                - button "Delete row" [ref=e157]:
+                  - img [ref=e158]
+            - row "SSO Consolidation Customer IAM (CIAM) Digital Transformation Customer First 2026-07-01 2027-03-31 600000" [ref=e161]:
+              - cell "SSO Consolidation" [ref=e162]:
+                - textbox [ref=e163]: SSO Consolidation
+              - cell "Customer IAM (CIAM)" [ref=e164]:
+                - combobox [ref=e165]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)" [selected]
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Digital Transformation" [ref=e166]:
+                - combobox [ref=e167]:
+                  - option "Select..."
+                  - option "Digital Transformation" [selected]
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Customer First" [ref=e168]:
+                - combobox [ref=e169]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First" [selected]
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-07-01" [ref=e170]:
+                - textbox [ref=e171]: 2026-07-01
+              - cell "2027-03-31" [ref=e172]:
+                - textbox [ref=e173]: 2027-03-31
+              - cell "600000" [ref=e174]:
+                - spinbutton [ref=e175]: "600000"
+              - cell [ref=e176]:
+                - button "Delete row" [ref=e177]:
+                  - img [ref=e178]
+            - row "Zero Trust Network Access Employee IAM Tech Modernisation Zero Trust 2026-04-01 2027-01-31 800000" [ref=e181]:
+              - cell "Zero Trust Network Access" [ref=e182]:
+                - textbox [ref=e183]: Zero Trust Network Access
+              - cell "Employee IAM" [ref=e184]:
+                - combobox [ref=e185]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM" [selected]
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Tech Modernisation" [ref=e186]:
+                - combobox [ref=e187]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation" [selected]
+                  - option "Data & Analytics"
+              - cell "Zero Trust" [ref=e188]:
+                - combobox [ref=e189]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust" [selected]
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-04-01" [ref=e190]:
+                - textbox [ref=e191]: 2026-04-01
+              - cell "2027-01-31" [ref=e192]:
+                - textbox [ref=e193]: 2027-01-31
+              - cell "800000" [ref=e194]:
+                - spinbutton [ref=e195]: "800000"
+              - cell [ref=e196]:
+                - button "Delete row" [ref=e197]:
+                  - img [ref=e198]
+            - row "Secrets Vault Migration Privileged Access Mgmt Cloud Migration Cloud First 2026-03-01 2026-09-30 250000" [ref=e201]:
+              - cell "Secrets Vault Migration" [ref=e202]:
+                - textbox [ref=e203]: Secrets Vault Migration
+              - cell "Privileged Access Mgmt" [ref=e204]:
+                - combobox [ref=e205]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt" [selected]
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Cloud Migration" [ref=e206]:
+                - combobox [ref=e207]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration" [selected]
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Cloud First" [ref=e208]:
+                - combobox [ref=e209]:
+                  - option "Select..."
+                  - option "Cloud First" [selected]
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-03-01" [ref=e210]:
+                - textbox [ref=e211]: 2026-03-01
+              - cell "2026-09-30" [ref=e212]:
+                - textbox [ref=e213]: 2026-09-30
+              - cell "250000" [ref=e214]:
+                - spinbutton [ref=e215]: "250000"
+              - cell [ref=e216]:
+                - button "Delete row" [ref=e217]:
+                  - img [ref=e218]
+            - row "Real-Time Ingestion Enterprise Data Lake Data & Analytics Data-Driven Decisions 2026-01-01 2026-09-30 1200000" [ref=e221]:
+              - cell "Real-Time Ingestion" [ref=e222]:
+                - textbox [ref=e223]: Real-Time Ingestion
+              - cell "Enterprise Data Lake" [ref=e224]:
+                - combobox [ref=e225]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake" [selected]
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Data & Analytics" [ref=e226]:
+                - combobox [ref=e227]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics" [selected]
+              - cell "Data-Driven Decisions" [ref=e228]:
+                - combobox [ref=e229]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions" [selected]
+                  - option "Regulatory Compliance"
+              - cell "2026-01-01" [ref=e230]:
+                - textbox [ref=e231]: 2026-01-01
+              - cell "2026-09-30" [ref=e232]:
+                - textbox [ref=e233]: 2026-09-30
+              - cell "1200000" [ref=e234]:
+                - spinbutton [ref=e235]: "1200000"
+              - cell [ref=e236]:
+                - button "Delete row" [ref=e237]:
+                  - img [ref=e238]
+            - row "Data Governance Framework Enterprise Data Lake Regulatory Programme Regulatory Compliance 2026-10-01 2027-06-30 500000" [ref=e241]:
+              - cell "Data Governance Framework" [ref=e242]:
+                - textbox [ref=e243]: Data Governance Framework
+              - cell "Enterprise Data Lake" [ref=e244]:
+                - combobox [ref=e245]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake" [selected]
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Regulatory Programme" [ref=e246]:
+                - combobox [ref=e247]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme" [selected]
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Regulatory Compliance" [ref=e248]:
+                - combobox [ref=e249]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance" [selected]
+              - cell "2026-10-01" [ref=e250]:
+                - textbox [ref=e251]: 2026-10-01
+              - cell "2027-06-30" [ref=e252]:
+                - textbox [ref=e253]: 2027-06-30
+              - cell "500000" [ref=e254]:
+                - spinbutton [ref=e255]: "500000"
+              - cell [ref=e256]:
+                - button "Delete row" [ref=e257]:
+                  - img [ref=e258]
+            - row "Snowflake Migration Data Warehouse Cloud Migration Cloud First 2026-04-01 2027-03-31 2000000" [ref=e261]:
+              - cell "Snowflake Migration" [ref=e262]:
+                - textbox [ref=e263]: Snowflake Migration
+              - cell "Data Warehouse" [ref=e264]:
+                - combobox [ref=e265]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse" [selected]
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Cloud Migration" [ref=e266]:
+                - combobox [ref=e267]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration" [selected]
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Cloud First" [ref=e268]:
+                - combobox [ref=e269]:
+                  - option "Select..."
+                  - option "Cloud First" [selected]
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-04-01" [ref=e270]:
+                - textbox [ref=e271]: 2026-04-01
+              - cell "2027-03-31" [ref=e272]:
+                - textbox [ref=e273]: 2027-03-31
+              - cell "2000000" [ref=e274]:
+                - spinbutton [ref=e275]: "2000000"
+              - cell [ref=e276]:
+                - button "Delete row" [ref=e277]:
+                  - img [ref=e278]
+            - row "Golden Customer Record Master Data Mgmt Customer Experience Data-Driven Decisions 2026-06-01 2027-03-31 750000" [ref=e281]:
+              - cell "Golden Customer Record" [ref=e282]:
+                - textbox [ref=e283]: Golden Customer Record
+              - cell "Master Data Mgmt" [ref=e284]:
+                - combobox [ref=e285]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt" [selected]
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Customer Experience" [ref=e286]:
+                - combobox [ref=e287]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience" [selected]
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Data-Driven Decisions" [ref=e288]:
+                - combobox [ref=e289]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions" [selected]
+                  - option "Regulatory Compliance"
+              - cell "2026-06-01" [ref=e290]:
+                - textbox [ref=e291]: 2026-06-01
+              - cell "2027-03-31" [ref=e292]:
+                - textbox [ref=e293]: 2027-03-31
+              - cell "750000" [ref=e294]:
+                - spinbutton [ref=e295]: "750000"
+              - cell [ref=e296]:
+                - button "Delete row" [ref=e297]:
+                  - img [ref=e298]
+            - row "Web Platform Redesign Internet Banking Customer Experience Customer First 2026-01-01 2026-12-31 3000000" [ref=e301]:
+              - cell "Web Platform Redesign" [ref=e302]:
+                - textbox [ref=e303]: Web Platform Redesign
+              - cell "Internet Banking" [ref=e304]:
+                - combobox [ref=e305]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking" [selected]
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Customer Experience" [ref=e306]:
+                - combobox [ref=e307]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience" [selected]
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Customer First" [ref=e308]:
+                - combobox [ref=e309]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First" [selected]
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-01-01" [ref=e310]:
+                - textbox [ref=e311]: 2026-01-01
+              - cell "2026-12-31" [ref=e312]:
+                - textbox [ref=e313]: 2026-12-31
+              - cell "3000000" [ref=e314]:
+                - spinbutton [ref=e315]: "3000000"
+              - cell [ref=e316]:
+                - button "Delete row" [ref=e317]:
+                  - img [ref=e318]
+            - row "WCAG 2.2 AA Compliance Internet Banking Regulatory Programme Regulatory Compliance 2027-01-01 2027-06-30 400000" [ref=e321]:
+              - cell "WCAG 2.2 AA Compliance" [ref=e322]:
+                - textbox [ref=e323]: WCAG 2.2 AA Compliance
+              - cell "Internet Banking" [ref=e324]:
+                - combobox [ref=e325]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking" [selected]
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Regulatory Programme" [ref=e326]:
+                - combobox [ref=e327]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme" [selected]
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Regulatory Compliance" [ref=e328]:
+                - combobox [ref=e329]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance" [selected]
+              - cell "2027-01-01" [ref=e330]:
+                - textbox [ref=e331]: 2027-01-01
+              - cell "2027-06-30" [ref=e332]:
+                - textbox [ref=e333]: 2027-06-30
+              - cell "400000" [ref=e334]:
+                - spinbutton [ref=e335]: "400000"
+              - cell [ref=e336]:
+                - button "Delete row" [ref=e337]:
+                  - img [ref=e338]
+            - row "React Native Rewrite Mobile Banking App Digital Transformation Customer First 2026-03-01 2027-06-30 4500000" [ref=e341]:
+              - cell "React Native Rewrite" [ref=e342]:
+                - textbox [ref=e343]: React Native Rewrite
+              - cell "Mobile Banking App" [ref=e344]:
+                - combobox [ref=e345]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App" [selected]
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Digital Transformation" [ref=e346]:
+                - combobox [ref=e347]:
+                  - option "Select..."
+                  - option "Digital Transformation" [selected]
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Customer First" [ref=e348]:
+                - combobox [ref=e349]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First" [selected]
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-03-01" [ref=e350]:
+                - textbox [ref=e351]: 2026-03-01
+              - cell "2027-06-30" [ref=e352]:
+                - textbox [ref=e353]: 2027-06-30
+              - cell "4500000" [ref=e354]:
+                - spinbutton [ref=e355]: "4500000"
+              - cell [ref=e356]:
+                - button "Delete row" [ref=e357]:
+                  - img [ref=e358]
+            - row "AI-Powered IVR Contact Centre Platform Customer Experience Data-Driven Decisions 2026-07-01 2027-03-31 900000" [ref=e361]:
+              - cell "AI-Powered IVR" [ref=e362]:
+                - textbox [ref=e363]: AI-Powered IVR
+              - cell "Contact Centre Platform" [ref=e364]:
+                - combobox [ref=e365]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform" [selected]
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Customer Experience" [ref=e366]:
+                - combobox [ref=e367]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience" [selected]
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Data-Driven Decisions" [ref=e368]:
+                - combobox [ref=e369]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions" [selected]
+                  - option "Regulatory Compliance"
+              - cell "2026-07-01" [ref=e370]:
+                - textbox [ref=e371]: 2026-07-01
+              - cell "2027-03-31" [ref=e372]:
+                - textbox [ref=e373]: 2027-03-31
+              - cell "900000" [ref=e374]:
+                - spinbutton [ref=e375]: "900000"
+              - cell [ref=e376]:
+                - button "Delete row" [ref=e377]:
+                  - img [ref=e378]
+            - row "ISO 20022 Migration Core Ledger Regulatory Programme Regulatory Compliance 2026-01-01 2027-06-30 5000000" [ref=e381]:
+              - cell "ISO 20022 Migration" [ref=e382]:
+                - textbox [ref=e383]: ISO 20022 Migration
+              - cell "Core Ledger" [ref=e384]:
+                - combobox [ref=e385]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger" [selected]
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Regulatory Programme" [ref=e386]:
+                - combobox [ref=e387]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme" [selected]
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Regulatory Compliance" [ref=e388]:
+                - combobox [ref=e389]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance" [selected]
+              - cell "2026-01-01" [ref=e390]:
+                - textbox [ref=e391]: 2026-01-01
+              - cell "2027-06-30" [ref=e392]:
+                - textbox [ref=e393]: 2027-06-30
+              - cell "5000000" [ref=e394]:
+                - spinbutton [ref=e395]: "5000000"
+              - cell [ref=e396]:
+                - button "Delete row" [ref=e397]:
+                  - img [ref=e398]
+            - row "Core Banking API Layer Core Ledger Tech Modernisation API-Led Architecture 2027-01-01 2027-12-31 2500000" [ref=e401]:
+              - cell "Core Banking API Layer" [ref=e402]:
+                - textbox [ref=e403]: Core Banking API Layer
+              - cell "Core Ledger" [ref=e404]:
+                - combobox [ref=e405]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger" [selected]
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Tech Modernisation" [ref=e406]:
+                - combobox [ref=e407]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation" [selected]
+                  - option "Data & Analytics"
+              - cell "API-Led Architecture" [ref=e408]:
+                - combobox [ref=e409]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture" [selected]
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2027-01-01" [ref=e410]:
+                - textbox [ref=e411]: 2027-01-01
+              - cell "2027-12-31" [ref=e412]:
+                - textbox [ref=e413]: 2027-12-31
+              - cell "2500000" [ref=e414]:
+                - spinbutton [ref=e415]: "2500000"
+              - cell [ref=e416]:
+                - button "Delete row" [ref=e417]:
+                  - img [ref=e418]
+            - row "Real-Time Payments Gateway Payments Engine Digital Transformation API-Led Architecture 2026-04-01 2027-03-31 1800000" [ref=e421]:
+              - cell "Real-Time Payments Gateway" [ref=e422]:
+                - textbox [ref=e423]: Real-Time Payments Gateway
+              - cell "Payments Engine" [ref=e424]:
+                - combobox [ref=e425]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine" [selected]
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Digital Transformation" [ref=e426]:
+                - combobox [ref=e427]:
+                  - option "Select..."
+                  - option "Digital Transformation" [selected]
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "API-Led Architecture" [ref=e428]:
+                - combobox [ref=e429]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture" [selected]
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-04-01" [ref=e430]:
+                - textbox [ref=e431]: 2026-04-01
+              - cell "2027-03-31" [ref=e432]:
+                - textbox [ref=e433]: 2027-03-31
+              - cell "1800000" [ref=e434]:
+                - spinbutton [ref=e435]: "1800000"
+              - cell [ref=e436]:
+                - button "Delete row" [ref=e437]:
+                  - img [ref=e438]
+            - row "Transaction Fraud ML Payments Engine Data & Analytics Data-Driven Decisions 2026-10-01 2027-06-30 700000" [ref=e441]:
+              - cell "Transaction Fraud ML" [ref=e442]:
+                - textbox [ref=e443]: Transaction Fraud ML
+              - cell "Payments Engine" [ref=e444]:
+                - combobox [ref=e445]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine" [selected]
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Data & Analytics" [ref=e446]:
+                - combobox [ref=e447]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics" [selected]
+              - cell "Data-Driven Decisions" [ref=e448]:
+                - combobox [ref=e449]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions" [selected]
+                  - option "Regulatory Compliance"
+              - cell "2026-10-01" [ref=e450]:
+                - textbox [ref=e451]: 2026-10-01
+              - cell "2027-06-30" [ref=e452]:
+                - textbox [ref=e453]: 2027-06-30
+              - cell "700000" [ref=e454]:
+                - spinbutton [ref=e455]: "700000"
+              - cell [ref=e456]:
+                - button "Delete row" [ref=e457]:
+                  - img [ref=e458]
+            - row "Automated Decisioning Lending Platform Digital Transformation Data-Driven Decisions 2026-06-01 2027-03-31 1100000" [ref=e461]:
+              - cell "Automated Decisioning" [ref=e462]:
+                - textbox [ref=e463]: Automated Decisioning
+              - cell "Lending Platform" [ref=e464]:
+                - combobox [ref=e465]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform" [selected]
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Digital Transformation" [ref=e466]:
+                - combobox [ref=e467]:
+                  - option "Select..."
+                  - option "Digital Transformation" [selected]
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Data-Driven Decisions" [ref=e468]:
+                - combobox [ref=e469]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions" [selected]
+                  - option "Regulatory Compliance"
+              - cell "2026-06-01" [ref=e470]:
+                - textbox [ref=e471]: 2026-06-01
+              - cell "2027-03-31" [ref=e472]:
+                - textbox [ref=e473]: 2027-03-31
+              - cell "1100000" [ref=e474]:
+                - spinbutton [ref=e475]: "1100000"
+              - cell [ref=e476]:
+                - button "Delete row" [ref=e477]:
+                  - img [ref=e478]
+            - row "Multi-Region K8s Kubernetes Platform Cloud Migration Cloud First 2026-01-01 2026-09-30 1500000" [ref=e481]:
+              - cell "Multi-Region K8s" [ref=e482]:
+                - textbox [ref=e483]: Multi-Region K8s
+              - cell "Kubernetes Platform" [ref=e484]:
+                - combobox [ref=e485]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform" [selected]
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Cloud Migration" [ref=e486]:
+                - combobox [ref=e487]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration" [selected]
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Cloud First" [ref=e488]:
+                - combobox [ref=e489]:
+                  - option "Select..."
+                  - option "Cloud First" [selected]
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-01-01" [ref=e490]:
+                - textbox [ref=e491]: 2026-01-01
+              - cell "2026-09-30" [ref=e492]:
+                - textbox [ref=e493]: 2026-09-30
+              - cell "1500000" [ref=e494]:
+                - spinbutton [ref=e495]: "1500000"
+              - cell [ref=e496]:
+                - button "Delete row" [ref=e497]:
+                  - img [ref=e498]
+            - row "Service Mesh Rollout Kubernetes Platform Tech Modernisation API-Led Architecture 2026-10-01 2027-06-30 600000" [ref=e501]:
+              - cell "Service Mesh Rollout" [ref=e502]:
+                - textbox [ref=e503]: Service Mesh Rollout
+              - cell "Kubernetes Platform" [ref=e504]:
+                - combobox [ref=e505]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform" [selected]
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Tech Modernisation" [ref=e506]:
+                - combobox [ref=e507]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation" [selected]
+                  - option "Data & Analytics"
+              - cell "API-Led Architecture" [ref=e508]:
+                - combobox [ref=e509]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture" [selected]
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-10-01" [ref=e510]:
+                - textbox [ref=e511]: 2026-10-01
+              - cell "2027-06-30" [ref=e512]:
+                - textbox [ref=e513]: 2027-06-30
+              - cell "600000" [ref=e514]:
+                - spinbutton [ref=e515]: "600000"
+              - cell [ref=e516]:
+                - button "Delete row" [ref=e517]:
+                  - img [ref=e518]
+            - row "OpenTelemetry Adoption Observability Stack Cloud Migration Cloud First 2026-04-01 2026-12-31 400000" [ref=e521]:
+              - cell "OpenTelemetry Adoption" [ref=e522]:
+                - textbox [ref=e523]: OpenTelemetry Adoption
+              - cell "Observability Stack" [ref=e524]:
+                - combobox [ref=e525]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack" [selected]
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Cloud Migration" [ref=e526]:
+                - combobox [ref=e527]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration" [selected]
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Cloud First" [ref=e528]:
+                - combobox [ref=e529]:
+                  - option "Select..."
+                  - option "Cloud First" [selected]
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-04-01" [ref=e530]:
+                - textbox [ref=e531]: 2026-04-01
+              - cell "2026-12-31" [ref=e532]:
+                - textbox [ref=e533]: 2026-12-31
+              - cell "400000" [ref=e534]:
+                - spinbutton [ref=e535]: "400000"
+              - cell [ref=e536]:
+                - button "Delete row" [ref=e537]:
+                  - img [ref=e538]
+            - row "API Gateway v2 Migration API Gateway Tech Modernisation API-Led Architecture 2026-01-01 2026-06-30 350000" [ref=e541]:
+              - cell "API Gateway v2 Migration" [ref=e542]:
+                - textbox [ref=e543]: API Gateway v2 Migration
+              - cell "API Gateway" [ref=e544]:
+                - combobox [ref=e545]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway" [selected]
+                  - option "Enterprise Service Bus"
+              - cell "Tech Modernisation" [ref=e546]:
+                - combobox [ref=e547]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation" [selected]
+                  - option "Data & Analytics"
+              - cell "API-Led Architecture" [ref=e548]:
+                - combobox [ref=e549]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture" [selected]
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-01-01" [ref=e550]:
+                - textbox [ref=e551]: 2026-01-01
+              - cell "2026-06-30" [ref=e552]:
+                - textbox [ref=e553]: 2026-06-30
+              - cell "350000" [ref=e554]:
+                - spinbutton [ref=e555]: "350000"
+              - cell [ref=e556]:
+                - button "Delete row" [ref=e557]:
+                  - img [ref=e558]
+            - row "Developer Portal Launch API Gateway Digital Transformation API-Led Architecture 2026-07-01 2027-01-31 300000" [ref=e561]:
+              - cell "Developer Portal Launch" [ref=e562]:
+                - textbox [ref=e563]: Developer Portal Launch
+              - cell "API Gateway" [ref=e564]:
+                - combobox [ref=e565]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway" [selected]
+                  - option "Enterprise Service Bus"
+              - cell "Digital Transformation" [ref=e566]:
+                - combobox [ref=e567]:
+                  - option "Select..."
+                  - option "Digital Transformation" [selected]
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "API-Led Architecture" [ref=e568]:
+                - combobox [ref=e569]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture" [selected]
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2026-07-01" [ref=e570]:
+                - textbox [ref=e571]: 2026-07-01
+              - cell "2027-01-31" [ref=e572]:
+                - textbox [ref=e573]: 2027-01-31
+              - cell "300000" [ref=e574]:
+                - spinbutton [ref=e575]: "300000"
+              - cell [ref=e576]:
+                - button "Delete row" [ref=e577]:
+                  - img [ref=e578]
+            - row "ESB Decommission Enterprise Service Bus Tech Modernisation API-Led Architecture 2027-01-01 2028-06-30 1200000" [ref=e581]:
+              - cell "ESB Decommission" [ref=e582]:
+                - textbox [ref=e583]: ESB Decommission
+              - cell "Enterprise Service Bus" [ref=e584]:
+                - combobox [ref=e585]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus" [selected]
+              - cell "Tech Modernisation" [ref=e586]:
+                - combobox [ref=e587]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation" [selected]
+                  - option "Data & Analytics"
+              - cell "API-Led Architecture" [ref=e588]:
+                - combobox [ref=e589]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture" [selected]
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell "2027-01-01" [ref=e590]:
+                - textbox [ref=e591]: 2027-01-01
+              - cell "2028-06-30" [ref=e592]:
+                - textbox [ref=e593]: 2028-06-30
+              - cell "1200000" [ref=e594]:
+                - spinbutton [ref=e595]: "1200000"
+              - cell [ref=e596]:
+                - button "Delete row" [ref=e597]:
+                  - img [ref=e598]
+            - row "Open Banking Origination Lending Platform Regulatory Programme Regulatory Compliance 2027-04-01 2028-03-31 900000" [ref=e601]:
+              - cell "Open Banking Origination" [ref=e602]:
+                - textbox [ref=e603]: Open Banking Origination
+              - cell "Lending Platform" [ref=e604]:
+                - combobox [ref=e605]:
+                  - option "Select..."
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform" [selected]
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell "Regulatory Programme" [ref=e606]:
+                - combobox [ref=e607]:
+                  - option "Select..."
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme" [selected]
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell "Regulatory Compliance" [ref=e608]:
+                - combobox [ref=e609]:
+                  - option "Select..."
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance" [selected]
+              - cell "2027-04-01" [ref=e610]:
+                - textbox [ref=e611]: 2027-04-01
+              - cell "2028-03-31" [ref=e612]:
+                - textbox [ref=e613]: 2028-03-31
+              - cell "900000" [ref=e614]:
+                - spinbutton [ref=e615]: "900000"
+              - cell [ref=e616]:
+                - button "Delete row" [ref=e617]:
+                  - img [ref=e618]
+            - row [ref=e621]:
+              - cell [ref=e622]:
+                - textbox [ref=e623]
+              - cell [ref=e624]:
+                - combobox [ref=e625]:
+                  - option [selected]
+                  - option "Customer IAM (CIAM)"
+                  - option "Employee IAM"
+                  - option "Privileged Access Mgmt"
+                  - option "Enterprise Data Lake"
+                  - option "Data Warehouse"
+                  - option "Master Data Mgmt"
+                  - option "Internet Banking"
+                  - option "Mobile Banking App"
+                  - option "Contact Centre Platform"
+                  - option "Core Ledger"
+                  - option "Payments Engine"
+                  - option "Lending Platform"
+                  - option "Kubernetes Platform"
+                  - option "Observability Stack"
+                  - option "API Gateway"
+                  - option "Enterprise Service Bus"
+              - cell [ref=e626]:
+                - combobox [ref=e627]:
+                  - option [selected]
+                  - option "Digital Transformation"
+                  - option "Regulatory Programme"
+                  - option "Cloud Migration"
+                  - option "Customer Experience"
+                  - option "Tech Modernisation"
+                  - option "Data & Analytics"
+              - cell [ref=e628]:
+                - combobox [ref=e629]:
+                  - option [selected]
+                  - option "Cloud First"
+                  - option "Customer First"
+                  - option "Zero Trust"
+                  - option "API-Led Architecture"
+                  - option "Data-Driven Decisions"
+                  - option "Regulatory Compliance"
+              - cell [ref=e630]:
+                - textbox [ref=e631]
+              - cell [ref=e632]:
+                - textbox [ref=e633]
+              - cell [ref=e634]:
+                - spinbutton [ref=e635]
+              - cell [ref=e636]
+        - generic [ref=e638]:
+          - button "Add Row" [ref=e639]:
+            - img [ref=e640]
+            - text: Add Row
+          - button "Paste CSV" [ref=e641]:
+            - img [ref=e642]
+            - text: Paste CSV
+          - button "Delete all rows for this table" [ref=e648]:
+            - img [ref=e649]
+            - text: Delete all rows for this table
+      - generic [ref=e652]:
+        - button "Reset - delete all data" [ref=e653]:
+          - img [ref=e654]
+          - text: Reset - delete all data
+        - button "Reset - use demo data" [active] [ref=e657]:
+          - img [ref=e658]
+          - text: Reset - use demo data
+```

@@ -498,6 +498,16 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     });
 
     const contentHeight = Math.max(MIN_ROW_HEIGHT, ...placedRects.map(r => r.bottom)) + ROW_PADDING;
+
+    // Vertically center the content within the row
+    if (items.length > 0) {
+      const contentTop = Math.min(...items.map(i => i.top));
+      const contentBottom = Math.max(...items.map(i => i.top + i.height));
+      const contentSpan = contentBottom - contentTop;
+      const offset = (contentHeight - contentSpan) / 2 - contentTop;
+      items.forEach(item => { item.top += offset; });
+    }
+
     return { items, height: contentHeight };
   };
 
@@ -692,14 +702,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     labelX = overlapX + 5;
                     labelY = (startY + endY) / 2;
                   } else {
-                    // Bars don't overlap — direct L-path through the channel between bars
-                    // Corner is placed close to source end for tight routing
-                    const gap = tStartX - sEndX;
-                    const cornerX = sEndX + Math.max(10, Math.min(gap * 0.4, 30));
-                    path = `M ${sEndX} ${sMidY} L ${cornerX} ${sMidY} L ${cornerX} ${tMidY} L ${tStartX} ${tMidY}`;
-                    // Place label in the channel between bars
-                    labelX = cornerX + 5;
-                    labelY = (sMidY + tMidY) / 2;
+                    // Bars don't overlap — U-shape routing BELOW both bars
+                    // Down from source bottom, across underneath, back up to target bottom
+                    const swoopY = Math.max(sBottom, tBottom) + 28;
+                    path = `M ${sEndX} ${sMidY} L ${sEndX} ${swoopY} L ${tStartX} ${swoopY} L ${tStartX} ${tMidY}`;
+                    labelX = (sEndX + tStartX) / 2;
+                    labelY = swoopY - 4;
                   }
                 } else {
                   // === CROSS-ASSET ROUTING ===
