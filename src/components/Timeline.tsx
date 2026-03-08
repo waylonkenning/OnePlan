@@ -658,6 +658,11 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 const target = initiativePositions.get(dep.targetId);
                 if (!source || !target) return null;
 
+                // Determine if same asset
+                const sourceInit = initiatives.find(i => i.id === dep.sourceId);
+                const targetInit = initiatives.find(i => i.id === dep.targetId);
+                const sameAsset = sourceInit && targetInit && sourceInit.assetId === targetInit.assetId;
+
                 const sStartX = 256 + (source.x / 100) * totalWidth;
                 const sEndX = 256 + ((source.x + source.width) / 100) * totalWidth;
                 const tStartX = 256 + (target.x / 100) * totalWidth;
@@ -672,44 +677,51 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                 // Check if bars overlap horizontally
                 const barsOverlap = sStartX < tEndX && tStartX < sEndX;
-                // Check if bars are on the same Y row (within a small tolerance)
-                const sameRow = Math.abs(source.y - target.y) < 5;
-                // Gap between source end and target start
-                const gap = tStartX - sEndX;
 
-                if (barsOverlap && !sameRow) {
-                  // CASE 1: Bars overlap horizontally but are on different rows
-                  // Draw a vertical line at the overlap midpoint
-                  const overlapLeft = Math.max(sStartX, tStartX);
-                  const overlapRight = Math.min(sEndX, tEndX);
-                  const overlapX = (overlapLeft + overlapRight) / 2;
-                  const startY = source.y < target.y ? sBottom : source.y;
-                  const endY = source.y < target.y ? target.y : tBottom;
-                  path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
-                  labelX = overlapX + 5;
-                  labelY = (startY + endY) / 2;
-                } else if (sameRow && gap < 60) {
-                  // CASE 2: Same row + adjacent or very close
-                  // Route BELOW both bars with a swooping path for visibility
-                  const swoopY = Math.max(sBottom, tBottom) + 20;
-                  const exitX = sEndX;
-                  const enterX = tStartX;
-                  path = `M ${exitX} ${sMidY} L ${exitX} ${swoopY} L ${enterX} ${swoopY} L ${enterX} ${tMidY}`;
-                  labelX = (exitX + enterX) / 2;
-                  labelY = swoopY - 4;
-                } else if (!sameRow && gap < 60) {
-                  // CASE 3: Different rows, adjacent or close
-                  // Route with an L-shape: go down from source end, then across to target start
-                  const cornerX = sEndX + 10;
-                  path = `M ${sEndX} ${sMidY} L ${cornerX} ${sMidY} L ${cornerX} ${tMidY} L ${tStartX} ${tMidY}`;
-                  labelX = cornerX + 5;
-                  labelY = (sMidY + tMidY) / 2;
+                if (sameAsset) {
+                  // === SAME-ASSET ROUTING ===
+                  // These bars are in the same asset row (possibly stacked vertically by intra-asset spacing)
+                  if (barsOverlap) {
+                    // Bars overlap horizontally — vertical line through the overlap midpoint
+                    const overlapLeft = Math.max(sStartX, tStartX);
+                    const overlapRight = Math.min(sEndX, tEndX);
+                    const overlapX = (overlapLeft + overlapRight) / 2;
+                    const startY = source.y < target.y ? sBottom : source.y;
+                    const endY = source.y < target.y ? target.y : tBottom;
+                    path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
+                    labelX = overlapX + 5;
+                    labelY = (startY + endY) / 2;
+                  } else {
+                    // Bars don't overlap — direct L-path through the channel between bars
+                    // Corner is placed close to source end for tight routing
+                    const gap = tStartX - sEndX;
+                    const cornerX = sEndX + Math.max(10, Math.min(gap * 0.4, 30));
+                    path = `M ${sEndX} ${sMidY} L ${cornerX} ${sMidY} L ${cornerX} ${tMidY} L ${tStartX} ${tMidY}`;
+                    // Place label in the channel between bars
+                    labelX = cornerX + 5;
+                    labelY = (sMidY + tMidY) / 2;
+                  }
                 } else {
-                  // CASE 4: Well-separated bars — classic L-shape routing
-                  const midX = (sEndX + tStartX) / 2;
-                  path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
-                  labelX = midX;
-                  labelY = Math.min(sMidY, tMidY) - 8;
+                  // === CROSS-ASSET ROUTING ===
+                  // Bars are in different asset rows — need to cross vertically
+                  if (barsOverlap) {
+                    // Overlapping horizontally — vertical line at overlap midpoint
+                    const overlapLeft = Math.max(sStartX, tStartX);
+                    const overlapRight = Math.min(sEndX, tEndX);
+                    const overlapX = (overlapLeft + overlapRight) / 2;
+                    const startY = source.y < target.y ? sBottom : source.y;
+                    const endY = source.y < target.y ? target.y : tBottom;
+                    path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
+                    labelX = overlapX + 5;
+                    labelY = (startY + endY) / 2;
+                  } else {
+                    // Not overlapping — consistent L-shape: exit source, travel vertically, enter target
+                    // Corner placed just past source end (not at midpoint) for consistency
+                    const cornerX = sEndX + 15;
+                    path = `M ${sEndX} ${sMidY} L ${cornerX} ${sMidY} L ${cornerX} ${tMidY} L ${tStartX} ${tMidY}`;
+                    labelX = cornerX + 5;
+                    labelY = (sMidY + tMidY) / 2;
+                  }
                 }
 
                 return (
@@ -730,7 +742,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       fontSize="9"
                       fontWeight="bold"
                       className="select-none pointer-events-none"
-                      textAnchor="middle"
+                      textAnchor="start"
+                      dy="3"
                       style={{ filter: 'drop-shadow(0px 0px 3px white) drop-shadow(0px 0px 3px white)' }}
                     >
                       {dep.type}
