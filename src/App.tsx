@@ -294,6 +294,18 @@ export default function App() {
             assetCategories={assetCategories}
             settings={timelineSettings}
             searchQuery={searchQuery}
+            onAddInitiative={(newInit) => {
+              handleUpdate({
+                assets,
+                initiatives: [...initiatives, newInit],
+                milestones,
+                programmes,
+                strategies,
+                dependencies,
+                assetCategories,
+                timelineSettings,
+              });
+            }}
             onUpdateInitiative={(updatedInit) => {
               const updatedInitiatives = initiatives.map(i => i.id === updatedInit.id ? updatedInit : i);
               handleUpdate({
