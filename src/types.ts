@@ -61,4 +61,5 @@ export interface TimeColumn {
 export interface TimelineSettings {
   startYear: number;
   yearsToShow: number;
+  budgetVisualisation: 'off' | 'bar-height' | 'label';
 }

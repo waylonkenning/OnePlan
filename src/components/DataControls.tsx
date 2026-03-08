@@ -33,7 +33,8 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
   const [showSettings, setShowSettings] = useState(false);
   const [localSettings, setLocalSettings] = useState({
     startYear: data.timelineSettings?.startYear?.toString() || '2026',
-    yearsToShow: data.timelineSettings?.yearsToShow?.toString() || '3'
+    yearsToShow: data.timelineSettings?.yearsToShow?.toString() || '3',
+    budgetVisualisation: data.timelineSettings?.budgetVisualisation || 'off'
   });
   const [importPreviewData, setImportPreviewData] = useState<Partial<typeof data> | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -86,6 +87,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       timelineSettings: {
         startYear: parseInt(localSettings.startYear.toString()) || new Date().getFullYear(),
         yearsToShow: parseInt(localSettings.yearsToShow.toString()) || 3,
+        budgetVisualisation: localSettings.budgetVisualisation as 'off' | 'bar-height' | 'label',
       },
     });
     setShowSettings(false);
@@ -189,6 +191,22 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
                 onChange={(e) => setLocalSettings(prev => ({ ...prev, yearsToShow: e.target.value }))}
                 className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+
+            <div>
+              <label htmlFor="budgetVisualisation" className="block text-sm font-medium text-slate-700 mb-1">
+                Budget Visualisation
+              </label>
+              <select
+                id="budgetVisualisation"
+                value={localSettings.budgetVisualisation}
+                onChange={(e) => setLocalSettings(prev => ({ ...prev, budgetVisualisation: e.target.value as any }))}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="off">Off</option>
+                <option value="bar-height">Bar Height</option>
+                <option value="label">Right-aligned Label</option>
+              </select>
             </div>
 
             <button

@@ -420,7 +420,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       const left = getPosition(init.startDate);
       const width = getWidth(init.startDate, init.endDate);
       const right = left + width;
-      const height = BAR_HEIGHT;
+
+      let height = BAR_HEIGHT;
+      if (settings.budgetVisualisation === 'bar-height' && init.budget) {
+        // Simple scaling: 44px base + 1px per $15k, max 120px
+        height = Math.min(120, BAR_HEIGHT + (init.budget / 15000));
+      }
 
       let top = ROW_PADDING;
       let collision = true;
@@ -781,8 +786,21 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                               >
                                 <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'start', init.startDate); }} />
                                 <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'end', init.endDate); }} />
-                                <div draggable="false" className="font-bold text-[11px] leading-tight drop-shadow-md line-clamp-2">{init.name}</div>
-                                {subtitle && width > 5 && <div draggable="false" className="text-[9px] opacity-90 truncate drop-shadow-md mt-0.5">{subtitle}</div>}
+
+                                <div className="flex items-start justify-between gap-2 overflow-hidden h-full py-1">
+                                  <div className="flex flex-col min-w-0 flex-1">
+                                    <div draggable="false" className="font-bold text-[11px] leading-tight drop-shadow-md line-clamp-2">{init.name}</div>
+                                    {subtitle && width > 5 && <div draggable="false" className="text-[9px] opacity-90 truncate drop-shadow-md mt-0.5">{subtitle}</div>}
+                                  </div>
+
+                                  {settings.budgetVisualisation === 'label' && init.budget > 0 && (
+                                    <div className="flex-shrink-0 text-[10px] font-bold bg-white/20 px-1 rounded backdrop-blur-[2px] self-center">
+                                      ${init.budget >= 1000000
+                                        ? `${(init.budget / 1000000).toFixed(1)}m`
+                                        : `${Math.round(init.budget / 1000)}k`}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             );
                           })}
