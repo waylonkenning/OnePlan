@@ -25,11 +25,12 @@ interface DataManagerProps {
     assetCategories: AssetCategory[];
     timelineSettings: TimelineSettings;
   }) => void;
+  searchQuery?: string;
 }
 
 type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'programmes' | 'strategies' | 'milestones';
 
-export function DataManager({ data, onUpdate }: DataManagerProps) {
+export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>('initiatives');
 
   const updateData = (key: keyof typeof data, newData: any[]) => {
@@ -140,6 +141,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             columns={initiativeColumns}
             onUpdate={(newData) => updateData('initiatives', newData)}
             idField="id"
+            searchQuery={searchQuery}
           />
         )}
         {activeTab === 'dependencies' && (
@@ -148,6 +150,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             columns={dependencyColumns}
             onUpdate={(newData) => updateData('dependencies', newData)}
             idField="id"
+            searchQuery={searchQuery}
           />
         )}
         {activeTab === 'assets' && (
@@ -156,6 +159,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             columns={assetColumns}
             onUpdate={(newData) => updateData('assets', newData)}
             idField="id"
+            searchQuery={searchQuery}
           />
         )}
         {activeTab === 'assetCategories' && (
@@ -164,6 +168,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             columns={categoryColumns}
             onUpdate={(newData) => updateData('assetCategories', newData)}
             idField="id"
+            searchQuery={searchQuery}
           />
         )}
         {activeTab === 'programmes' && (
@@ -172,6 +177,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             columns={programmeColumns}
             onUpdate={(newData) => updateData('programmes', newData)}
             idField="id"
+            searchQuery={searchQuery}
           />
         )}
         {activeTab === 'strategies' && (
@@ -180,6 +186,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             columns={strategyColumns}
             onUpdate={(newData) => updateData('strategies', newData)}
             idField="id"
+            searchQuery={searchQuery}
           />
         )}
         {activeTab === 'milestones' && (
@@ -188,6 +195,7 @@ export function DataManager({ data, onUpdate }: DataManagerProps) {
             columns={milestoneColumns}
             onUpdate={(newData) => updateData('milestones', newData)}
             idField="id"
+            searchQuery={searchQuery}
           />
         )}
       </div>

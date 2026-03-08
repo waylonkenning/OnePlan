@@ -18,7 +18,7 @@ import {
   defaultTimelineSettings
 } from './data';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2 } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search } from 'lucide-react';
 import { cn } from './lib/utils';
 import { getAppData, saveAppData } from './lib/db';
 
@@ -34,6 +34,8 @@ export default function App() {
   const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [assetCategories, setAssetCategories] = useState<AssetCategory[]>([]);
   const [timelineSettings, setTimelineSettings] = useState<TimelineSettings>(defaultTimelineSettings);
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Load data on mount
   useEffect(() => {
@@ -169,6 +171,17 @@ export default function App() {
               Data Manager
             </button>
           </div>
+
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input
+              type="search"
+              placeholder="Search initiatives..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+            />
+          </div>
         </div>
 
         <DataControls
@@ -189,6 +202,7 @@ export default function App() {
             dependencies={dependencies}
             assetCategories={assetCategories}
             settings={timelineSettings}
+            searchQuery={searchQuery}
             onUpdateInitiative={(updatedInit) => {
               const updatedInitiatives = initiatives.map(i => i.id === updatedInit.id ? updatedInit : i);
               handleUpdate({
@@ -244,6 +258,7 @@ export default function App() {
           <DataManager
             data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
             onUpdate={handleUpdate}
+            searchQuery={searchQuery}
           />
         )}
       </main>

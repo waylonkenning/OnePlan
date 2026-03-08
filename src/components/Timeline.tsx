@@ -18,11 +18,12 @@ interface TimelineProps {
   onUpdateAssets?: (assets: Asset[]) => void;
   onUpdateDependencies?: (dependencies: Dependency[]) => void;
   onUpdateMilestone?: (milestone: Milestone) => void;
+  searchQuery?: string;
 }
 
 const CELL_WIDTH = 200; // Width of one quarter column
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, searchQuery }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
   const isDraggingRef = useRef(false);
@@ -58,16 +59,42 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     });
   }, [assetCategories]);
 
+  const filteredInitiatives = useMemo(() => {
+    if (!searchQuery) return initiatives;
+    const query = searchQuery.toLowerCase();
+    return initiatives.filter(init => {
+      const matchName = init.name.toLowerCase().includes(query);
+      const matchDesc = init.description?.toLowerCase().includes(query);
+
+      const asset = assets.find(a => a.id === init.assetId);
+      const matchAsset = asset?.name.toLowerCase().includes(query);
+
+      const programme = programmes.find(p => p.id === init.programmeId);
+      const matchProg = programme?.name.toLowerCase().includes(query);
+
+      const strategy = strategies.find(s => s.id === init.strategyId);
+      const matchStrat = strategy?.name.toLowerCase().includes(query);
+
+      return matchName || matchDesc || matchAsset || matchProg || matchStrat;
+    });
+  }, [initiatives, searchQuery, assets, programmes, strategies]);
+
   // Group assets by category ID
   const assetsByCategory = useMemo<Record<string, Asset[]>>(() => {
     const grouped: Record<string, Asset[]> = {};
     assets.forEach(a => {
+      // Hide assets with no matching initiatives when searching
+      if (searchQuery) {
+        const hasMatchingInitiative = filteredInitiatives.some(i => i.assetId === a.id);
+        if (!hasMatchingInitiative) return;
+      }
+
       const catId = a.categoryId || 'uncategorized';
       if (!grouped[catId]) grouped[catId] = [];
       grouped[catId].push(a);
     });
     return grouped;
-  }, [assets]);
+  }, [assets, searchQuery, filteredInitiatives]);
 
   const sortedCategoryIds = useMemo(() => {
     const categoryIds = Object.keys(assetsByCategory);
@@ -182,14 +209,14 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     });
   };
 
-  const [localInitiatives, setLocalInitiatives] = useState<Initiative[]>(initiatives);
+  const [localInitiatives, setLocalInitiatives] = useState<Initiative[]>(filteredInitiatives);
   const [localMilestones, setLocalMilestones] = useState<Milestone[]>(milestones);
 
   useEffect(() => {
     if (!resizing && !moving) {
-      setLocalInitiatives(initiatives);
+      setLocalInitiatives(filteredInitiatives);
     }
-  }, [initiatives, resizing, moving]);
+  }, [filteredInitiatives, resizing, moving]);
 
   useEffect(() => {
     if (!movingMilestone) {
