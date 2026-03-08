@@ -4,6 +4,7 @@ export const defaultTimelineSettings: TimelineSettings = {
   startYear: 2026,
   yearsToShow: 3,
   budgetVisualisation: 'off',
+  descriptionDisplay: 'off',
 };
 
 export const assetCategories: AssetCategory[] = [

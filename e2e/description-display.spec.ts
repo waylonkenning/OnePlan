@@ -44,4 +44,30 @@ test.describe('Description Display', () => {
         // Now check the title attribute on the bar includes the description
         await expect(bar).toHaveAttribute('title', /My tooltip description/);
     });
+
+    test('description toggle expands bar when turned on', async ({ page }) => {
+        // First add a description to init-1
+        const bar = page.locator('div[data-initiative-id="init-1"]');
+        await bar.click();
+
+        const panel = page.getByTestId('initiative-panel');
+        await panel.getByLabel('Description').fill('A long description that should cause the bar to expand vertically to show the full text.');
+        await panel.getByRole('button', { name: 'Save Changes' }).click();
+
+        // Get initial bar height with description display off
+        const initialBox = await bar.boundingBox();
+        const initialHeight = initialBox?.height || 0;
+
+        // Turn on the Desc toggle
+        await page.locator('select#descriptionDisplay').selectOption('on');
+
+        // The bar should now be taller
+        await expect.poll(async () => {
+            const box = await bar.boundingBox();
+            return box?.height || 0;
+        }).toBeGreaterThan(initialHeight);
+
+        // The description text should be visible in the bar
+        await expect(bar).toContainText('A long description');
+    });
 });
