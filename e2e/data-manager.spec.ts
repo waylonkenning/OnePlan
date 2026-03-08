@@ -18,9 +18,12 @@ test.describe('Data Manager Operations', () => {
     // Real rows have data-real="true" attribute
     const realRows = page.locator('table tbody tr[data-real="true"]');
     const initialCount = await realRows.count();
-    
+
     await page.getByRole('button', { name: 'Add Row' }).click();
     await expect(realRows).toHaveCount(initialCount + 1);
+
+    // Accept cascade confirmation dialog
+    page.on('dialog', dialog => dialog.accept());
 
     const lastRealRow = realRows.last();
     await lastRealRow.hover(); // Make delete button visible
@@ -32,10 +35,10 @@ test.describe('Data Manager Operations', () => {
   test('Clear All Rows', async ({ page }) => {
     page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Clear All' }).click();
-    
+
     const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(0);
-    
+
     // Total rows should be exactly 1 (the single blank row)
     await expect(page.locator('table tbody tr')).toHaveCount(1);
   });
@@ -48,16 +51,16 @@ test.describe('Data Manager Operations', () => {
     // Use the correct column order from DataManager.tsx: name, assetId, programmeId, strategyId, startDate, endDate, budget
     const textarea = page.locator('textarea');
     await textarea.fill(`name,startDate,endDate,budget\nNew Initiative,2026-01-01,2026-12-31,100000`);
-    
+
     // Give state a moment to sync and button to enable
     await page.waitForTimeout(1000);
-    
+
     const importBtn = page.getByTestId('import-rows-button');
     await expect(importBtn).toBeEnabled({ timeout: 5000 });
     await importBtn.click();
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
-    
+
     const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(1);
     await expect(realRows.first().locator('input[type="text"]').first()).toHaveValue('New Initiative');
@@ -68,14 +71,14 @@ test.describe('Data Manager Operations', () => {
     const textarea = page.locator('textarea');
     // init-1 exists in default data
     await textarea.fill(`id,name\ninit-1,Updated Init Name`);
-    
+
     await page.waitForTimeout(1000);
     const importBtn = page.getByTestId('import-rows-button');
     await expect(importBtn).toBeEnabled({ timeout: 5000 });
     await importBtn.click();
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
-    
+
     const realRows = page.locator('table tbody tr[data-real="true"]');
     const firstRowInput = realRows.first().locator('input[type="text"]').first();
     await expect(firstRowInput).toHaveValue('Updated Init Name');
@@ -90,17 +93,17 @@ test.describe('Data Manager Operations', () => {
     // Asset columns: id, name, categoryId
     const textarea = page.locator('textarea');
     await textarea.fill(`id,name,categoryId\nasset-99,"Very Important, Secure Server",cat-1`);
-    
+
     await page.waitForTimeout(1000);
     const importBtn = page.getByTestId('import-rows-button');
     await expect(importBtn).toBeEnabled({ timeout: 5000 });
     await importBtn.click();
 
     await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
-    
+
     const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(1);
-    
+
     const firstRow = realRows.first();
     // ID is now hidden, so the first visible input is the name
     await expect(firstRow.locator('input[type="text"]').first()).toHaveValue('Very Important, Secure Server');

@@ -40,6 +40,118 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
     });
   };
 
+  // Cascading delete handlers
+  const handleDeleteAsset = (asset: Asset): boolean => {
+    const affectedInits = data.initiatives.filter(i => i.assetId === asset.id);
+    const affectedMiles = data.milestones.filter(m => m.assetId === asset.id);
+    const affectedInitIds = new Set(affectedInits.map(i => i.id));
+    const affectedDeps = data.dependencies.filter(d => affectedInitIds.has(d.sourceId) || affectedInitIds.has(d.targetId));
+
+    const parts = [];
+    if (affectedInits.length) parts.push(`${affectedInits.length} initiative(s)`);
+    if (affectedMiles.length) parts.push(`${affectedMiles.length} milestone(s)`);
+    if (affectedDeps.length) parts.push(`${affectedDeps.length} dependency(ies)`);
+    const msg = parts.length
+      ? `Deleting "${asset.name}" will also remove ${parts.join(', ')}. Continue?`
+      : `Delete "${asset.name}"?`;
+
+    if (!window.confirm(msg)) return true;
+
+    onUpdate({
+      ...data,
+      assets: data.assets.filter(a => a.id !== asset.id),
+      initiatives: data.initiatives.filter(i => i.assetId !== asset.id),
+      milestones: data.milestones.filter(m => m.assetId !== asset.id),
+      dependencies: data.dependencies.filter(d => !affectedInitIds.has(d.sourceId) && !affectedInitIds.has(d.targetId)),
+    });
+    return true;
+  };
+
+  const handleDeleteProgramme = (prog: Programme): boolean => {
+    const affectedInits = data.initiatives.filter(i => i.programmeId === prog.id);
+    const affectedInitIds = new Set(affectedInits.map(i => i.id));
+    const affectedDeps = data.dependencies.filter(d => affectedInitIds.has(d.sourceId) || affectedInitIds.has(d.targetId));
+
+    const parts = [];
+    if (affectedInits.length) parts.push(`${affectedInits.length} initiative(s)`);
+    if (affectedDeps.length) parts.push(`${affectedDeps.length} dependency(ies)`);
+    const msg = parts.length
+      ? `Deleting "${prog.name}" will also remove ${parts.join(', ')}. Continue?`
+      : `Delete "${prog.name}"?`;
+
+    if (!window.confirm(msg)) return true;
+
+    onUpdate({
+      ...data,
+      programmes: data.programmes.filter(p => p.id !== prog.id),
+      initiatives: data.initiatives.filter(i => i.programmeId !== prog.id),
+      dependencies: data.dependencies.filter(d => !affectedInitIds.has(d.sourceId) && !affectedInitIds.has(d.targetId)),
+    });
+    return true;
+  };
+
+  const handleDeleteStrategy = (strat: Strategy): boolean => {
+    const affected = data.initiatives.filter(i => i.strategyId === strat.id);
+    const msg = affected.length
+      ? `Deleting "${strat.name}" will clear the strategy on ${affected.length} initiative(s). Continue?`
+      : `Delete "${strat.name}"?`;
+
+    if (!window.confirm(msg)) return true;
+
+    onUpdate({
+      ...data,
+      strategies: data.strategies.filter(s => s.id !== strat.id),
+      initiatives: data.initiatives.map(i => i.strategyId === strat.id ? { ...i, strategyId: undefined } : i),
+    });
+    return true;
+  };
+
+  const handleDeleteInitiative = (init: Initiative): boolean => {
+    const affectedDeps = data.dependencies.filter(d => d.sourceId === init.id || d.targetId === init.id);
+    const msg = affectedDeps.length
+      ? `Deleting "${init.name}" will also remove ${affectedDeps.length} dependency(ies). Continue?`
+      : `Delete "${init.name}"?`;
+
+    if (!window.confirm(msg)) return true;
+
+    onUpdate({
+      ...data,
+      initiatives: data.initiatives.filter(i => i.id !== init.id),
+      dependencies: data.dependencies.filter(d => d.sourceId !== init.id && d.targetId !== init.id),
+    });
+    return true;
+  };
+
+  const handleDeleteCategory = (cat: AssetCategory): boolean => {
+    const affectedAssets = data.assets.filter(a => a.categoryId === cat.id);
+    const affectedAssetIds = new Set(affectedAssets.map(a => a.id));
+    const affectedInits = data.initiatives.filter(i => affectedAssetIds.has(i.assetId));
+    const affectedInitIds = new Set(affectedInits.map(i => i.id));
+    const affectedMiles = data.milestones.filter(m => affectedAssetIds.has(m.assetId));
+    const affectedDeps = data.dependencies.filter(d => affectedInitIds.has(d.sourceId) || affectedInitIds.has(d.targetId));
+
+    const parts = [];
+    if (affectedAssets.length) parts.push(`${affectedAssets.length} asset(s)`);
+    if (affectedInits.length) parts.push(`${affectedInits.length} initiative(s)`);
+    if (affectedMiles.length) parts.push(`${affectedMiles.length} milestone(s)`);
+    if (affectedDeps.length) parts.push(`${affectedDeps.length} dependency(ies)`);
+    const msg = parts.length
+      ? `Deleting "${cat.name}" will also remove ${parts.join(', ')}. Continue?`
+      : `Delete "${cat.name}"?`;
+
+    if (!window.confirm(msg)) return true;
+
+    onUpdate({
+      ...data,
+      assetCategories: data.assetCategories.filter(c => c.id !== cat.id),
+      assets: data.assets.filter(a => a.categoryId !== cat.id),
+      initiatives: data.initiatives.filter(i => !affectedAssetIds.has(i.assetId)),
+      milestones: data.milestones.filter(m => !affectedAssetIds.has(m.assetId)),
+      dependencies: data.dependencies.filter(d => !affectedInitIds.has(d.sourceId) && !affectedInitIds.has(d.targetId)),
+    });
+    return true;
+  };
+
   const assetOptions = data.assets.map(a => ({ value: a.id, label: a.name }));
   const programmeOptions = data.programmes.map(p => ({ value: p.id, label: p.name }));
   const strategyOptions = data.strategies.map(s => ({ value: s.id, label: s.name }));
@@ -140,6 +252,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
             data={data.initiatives}
             columns={initiativeColumns}
             onUpdate={(newData) => updateData('initiatives', newData)}
+            onDelete={handleDeleteInitiative}
             idField="id"
             searchQuery={searchQuery}
           />
@@ -158,6 +271,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
             data={data.assets}
             columns={assetColumns}
             onUpdate={(newData) => updateData('assets', newData)}
+            onDelete={handleDeleteAsset}
             idField="id"
             searchQuery={searchQuery}
           />
@@ -167,6 +281,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
             data={data.assetCategories}
             columns={categoryColumns}
             onUpdate={(newData) => updateData('assetCategories', newData)}
+            onDelete={handleDeleteCategory}
             idField="id"
             searchQuery={searchQuery}
           />
@@ -176,6 +291,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
             data={data.programmes}
             columns={programmeColumns}
             onUpdate={(newData) => updateData('programmes', newData)}
+            onDelete={handleDeleteProgramme}
             idField="id"
             searchQuery={searchQuery}
           />
@@ -185,6 +301,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
             data={data.strategies}
             columns={strategyColumns}
             onUpdate={(newData) => updateData('strategies', newData)}
+            onDelete={handleDeleteStrategy}
             idField="id"
             searchQuery={searchQuery}
           />
