@@ -426,6 +426,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     const items: { init: Initiative; top: number; height: number; left: number; width: number }[] = [];
     const placedRects: { start: number; end: number; top: number; bottom: number }[] = [];
 
+    // Check if there are dependencies between initiatives in this specific asset
+    const hasIntraAssetDependencies = dependencies.some(dep =>
+      assetInitiatives.some(i => i.id === dep.sourceId) &&
+      assetInitiatives.some(i => i.id === dep.targetId)
+    );
+    const dynamicGap = hasIntraAssetDependencies ? 32 : BAR_GAP;
+
     sorted.forEach(init => {
       const left = getPosition(init.startDate);
       const width = getWidth(init.startDate, init.endDate);
@@ -449,7 +456,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       let top = ROW_PADDING;
       let collision = true;
       const candidateTops = [ROW_PADDING];
-      placedRects.forEach(r => candidateTops.push(r.bottom + BAR_GAP));
+      placedRects.forEach(r => candidateTops.push(r.bottom + dynamicGap));
       candidateTops.sort((a, b) => a - b);
 
       for (const candidateTop of candidateTops) {
@@ -472,7 +479,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
       if (collision) {
         const maxBottom = Math.max(ROW_PADDING, ...placedRects.map(r => r.bottom));
-        top = maxBottom + BAR_GAP;
+        top = maxBottom + dynamicGap;
       }
 
       items.push({ init, top, height, left, width });
