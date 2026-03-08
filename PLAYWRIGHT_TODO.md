@@ -22,6 +22,12 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Quoted Values:** Verify quoted CSV values containing commas are handled correctly.
 
 ## 3. Visualiser (Timeline)
+- [x] **Timeline Configuration:**
+    - [x] Configure the timeline start year and duration via the Settings modal.
+    - [x] Verify that timeline settings are persisted and correctly change the visible columns.
+- [x] **Initiative Panel:**
+    - [x] Click on an initiative in the timeline to open the edit panel.
+    - [x] Modify initiative details and save, verifying changes persist and update the UI.
 - [x] **Coloring Logic:**
     - [x] **Toggle Color Mode:** Switch between "By Programme" and "By Strategy" and verify initiative bar colors change according to the legend.
     - [x] **Legend Sync:** Verify the legend updates its labels and colors when the mode is toggled.
