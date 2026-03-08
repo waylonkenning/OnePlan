@@ -502,7 +502,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       });
     });
     setInitiativePositions(positions);
-  }, [initiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory]);
+  }, [initiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory, settings]);
 
 
   const getConflictPoints = (assetId: string) => {
@@ -616,6 +616,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
           <div className="flex flex-col relative" ref={containerRef}>
             <svg
+              data-testid="dependencies-svg"
               className="absolute inset-0 z-10 pointer-events-none"
               style={{ width: totalWidth + 256, height: '100%' }}
             >
