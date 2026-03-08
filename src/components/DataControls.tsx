@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Download, Upload, FileSpreadsheet, FileText, Settings, X, AlertCircle, Check } from 'lucide-react';
+import { Upload, FileSpreadsheet, FileText, AlertCircle, Check } from 'lucide-react';
 import { exportToExcel, importFromExcel } from '../lib/excel';
 import { exportToPDF } from '../lib/pdf';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
@@ -30,12 +30,6 @@ interface DataControlsProps {
 
 export function DataControls({ data, onImport, timelineId }: DataControlsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [localSettings, setLocalSettings] = useState({
-    startYear: data.timelineSettings?.startYear?.toString() || '2026',
-    yearsToShow: data.timelineSettings?.yearsToShow?.toString() || '3',
-    budgetVisualisation: data.timelineSettings?.budgetVisualisation || 'off'
-  });
   const [importPreviewData, setImportPreviewData] = useState<Partial<typeof data> | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
 
@@ -78,19 +72,6 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  };
-
-  const handleSaveSettings = () => {
-    console.log('handleSaveSettings called with:', localSettings);
-    onImport({
-      ...data,
-      timelineSettings: {
-        startYear: parseInt(localSettings.startYear.toString()) || new Date().getFullYear(),
-        yearsToShow: parseInt(localSettings.yearsToShow.toString()) || 3,
-        budgetVisualisation: localSettings.budgetVisualisation as 'off' | 'bar-height' | 'label',
-      },
-    });
-    setShowSettings(false);
   };
 
   const handleOverwriteImport = () => {
@@ -144,83 +125,6 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
 
   return (
     <div className="flex items-center gap-1.5 relative">
-      <button
-        onClick={() => setShowSettings(!showSettings)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
-        title="Timeline Settings"
-      >
-        <Settings size={14} />
-        Settings
-      </button>
-
-      {showSettings && (
-        <div className="absolute top-10 right-0 w-64 bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-slate-800">Timeline Settings</h3>
-            <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600">
-              <X size={16} />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="startYear" className="block text-sm font-medium text-slate-700 mb-1">
-                Start Year
-              </label>
-              <input
-                id="startYear"
-                type="number"
-                min="2000"
-                max="2100"
-                value={localSettings.startYear}
-                onChange={(e) => setLocalSettings(prev => ({ ...prev, startYear: e.target.value }))}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="yearsToShow" className="block text-sm font-medium text-slate-700 mb-1">
-                Years to Show
-              </label>
-              <input
-                id="yearsToShow"
-                type="number"
-                min="1"
-                max="20"
-                value={localSettings.yearsToShow}
-                onChange={(e) => setLocalSettings(prev => ({ ...prev, yearsToShow: e.target.value }))}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="budgetVisualisation" className="block text-sm font-medium text-slate-700 mb-1">
-                Budget Visualisation
-              </label>
-              <select
-                id="budgetVisualisation"
-                value={localSettings.budgetVisualisation}
-                onChange={(e) => setLocalSettings(prev => ({ ...prev, budgetVisualisation: e.target.value as any }))}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="off">Off</option>
-                <option value="bar-height">Bar Height</option>
-                <option value="label">Right-aligned Label</option>
-              </select>
-            </div>
-
-            <button
-              onClick={handleSaveSettings}
-              className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors"
-            >
-              Save Settings
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="h-4 w-px bg-slate-200" />
-
       <button
         onClick={handleExportPDF}
         className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"

@@ -251,6 +251,68 @@ export default function App() {
           />
         </div>
 
+        <div className="w-px h-6 bg-slate-200" />
+
+        {/* Inline Timeline Settings */}
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-1.5 text-xs text-slate-500">
+            Start
+            <input
+              type="number"
+              min="2000"
+              max="2100"
+              value={timelineSettings.startYear}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
+                if (val >= 2000 && val <= 2100) {
+                  handleUpdate({
+                    assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                    timelineSettings: { ...timelineSettings, startYear: val },
+                  });
+                }
+              }}
+              className="w-16 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </label>
+          <label className="flex items-center gap-1.5 text-xs text-slate-500">
+            Years
+            <input
+              type="number"
+              min="1"
+              max="20"
+              value={timelineSettings.yearsToShow}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
+                if (val >= 1 && val <= 20) {
+                  handleUpdate({
+                    assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                    timelineSettings: { ...timelineSettings, yearsToShow: val },
+                  });
+                }
+              }}
+              className="w-12 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </label>
+          <label className="flex items-center gap-1.5 text-xs text-slate-500">
+            Budget
+            <select
+              id="budgetVisualisation"
+              value={timelineSettings.budgetVisualisation || 'off'}
+              onChange={(e) => {
+                handleUpdate({
+                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                  timelineSettings: { ...timelineSettings, budgetVisualisation: e.target.value as 'off' | 'bar-height' | 'label' },
+                });
+              }}
+              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="off">Off</option>
+              <option value="bar-height">Bar Height</option>
+              <option value="label">Label</option>
+            </select>
+          </label>
+        </div>
+
         {/* Spacer pushes remaining items right */}
         <div className="flex-1" />
 
@@ -277,7 +339,7 @@ export default function App() {
 
         <div className="w-px h-6 bg-slate-200" />
 
-        {/* Data Controls (Settings, Export, Import) */}
+        {/* Data Controls (Export, Import only) */}
         <DataControls
           data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
           onImport={handleUpdate}
