@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Initiative, Asset, Programme, Strategy } from '../types';
 import { X, Save, Trash2 } from 'lucide-react';
+import { validateInitiative, ValidationErrors } from '../lib/validation';
 
 interface InitiativePanelProps {
     initiative: Initiative | null;
@@ -14,10 +15,12 @@ interface InitiativePanelProps {
 
 export function InitiativePanel({ initiative, assets, programmes, strategies, onClose, onSave, isOpen }: InitiativePanelProps) {
     const [formData, setFormData] = useState<Initiative | null>(null);
+    const [errors, setErrors] = useState<ValidationErrors>({});
 
     useEffect(() => {
         if (initiative) {
             setFormData({ ...initiative });
+            setErrors({});
         }
     }, [initiative]);
 
@@ -25,6 +28,12 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        const validationErrors = validateInitiative(formData, assets, programmes);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        setErrors({});
         onSave(formData);
     };
 
@@ -131,10 +140,11 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
                                     id="startDate"
                                     type="date"
                                     required
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${errors.startDate ? 'border-red-400' : 'border-slate-300'}`}
                                     value={formData.startDate}
-                                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                                    onChange={(e) => { setFormData({ ...formData, startDate: e.target.value }); setErrors(prev => { const { startDate, ...rest } = prev; return rest; }); }}
                                 />
+                                {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate}</p>}
                             </div>
                             <div>
                                 <label htmlFor="endDate" className="block text-sm font-medium text-slate-700 mb-1">
@@ -144,10 +154,11 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
                                     id="endDate"
                                     type="date"
                                     required
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${errors.endDate ? 'border-red-400' : 'border-slate-300'}`}
                                     value={formData.endDate}
-                                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                                    onChange={(e) => { setFormData({ ...formData, endDate: e.target.value }); setErrors(prev => { const { endDate, ...rest } = prev; return rest; }); }}
                                 />
+                                {errors.endDate && <p className="text-xs text-red-500 mt-1">{errors.endDate}</p>}
                             </div>
                         </div>
 
@@ -162,13 +173,13 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
                                 <input
                                     id="budget"
                                     type="number"
-                                    min="0"
                                     step="1000"
-                                    className="w-full pl-7 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                                    value={formData.budget || 0}
-                                    onChange={(e) => setFormData({ ...formData, budget: Number(e.target.value) })}
+                                    className={`w-full pl-7 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${errors.budget ? 'border-red-400' : 'border-slate-300'}`}
+                                    value={formData.budget ?? ''}
+                                    onChange={(e) => { const val = e.target.value === '' ? 0 : Number(e.target.value); setFormData({ ...formData, budget: val }); setErrors(prev => { const { budget, ...rest } = prev; return rest; }); }}
                                 />
                             </div>
+                            {errors.budget && <p className="text-xs text-red-500 mt-1">{errors.budget}</p>}
                         </div>
 
                         <div>
