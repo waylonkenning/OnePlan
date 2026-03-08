@@ -24,7 +24,7 @@ test.describe('Undo/Redo Functionality', () => {
 
         // Initial value check
         const initialValue = await nameInput.inputValue();
-        if (initialValue !== 'Web Channel Integration' && initialValue !== 'Enterprise CIAM') {
+        if (initialValue !== 'Passkey Rollout' && initialValue !== 'SSO Consolidation') {
             console.warn('Initial value was not expected. Found:', initialValue);
         }
 

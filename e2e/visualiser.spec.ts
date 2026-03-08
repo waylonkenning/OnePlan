@@ -38,7 +38,7 @@ test.describe('Visualiser (Timeline)', () => {
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Ensure significant overlap within 2026-2028 range
     const textarea = page.locator('textarea');
-    await textarea.fill(`id,name,assetId,startDate,endDate,budget\nconf-1,Conflict A,asset-1,2026-04-01,2026-12-31,100\nconf-2,Conflict B,asset-1,2026-04-01,2026-12-31,100`);
+    await textarea.fill(`id,name,assetId,startDate,endDate,budget\nconf-1,Conflict A,a-ciam,2026-04-01,2026-12-31,100\nconf-2,Conflict B,a-ciam,2026-04-01,2026-12-31,100`);
 
     await page.waitForTimeout(1000);
     const importBtn = page.getByRole('button', { name: 'Import Rows' });
@@ -59,7 +59,7 @@ test.describe('Visualiser (Timeline)', () => {
   });
 
   test('Milestones Render Correctly', async ({ page }) => {
-    // Check if default milestone 'Review Investment' is rendered
+    // Check if default milestone 'DR Failover Test' is rendered
     // Warning is amber (bg-amber-100)
     await expect(page.locator('.bg-amber-100').first()).toBeVisible();
   });
@@ -68,7 +68,7 @@ test.describe('Visualiser (Timeline)', () => {
     await page.waitForSelector('#timeline-visualiser');
 
     // Find the first initiative bar
-    const initiative = page.locator('div[title*="Web Channel Integration"]').first();
+    const initiative = page.locator('div[title*="Passkey Rollout"]').first();
 
     // Get initial position and width
     const initialBox = await initiative.boundingBox();
@@ -98,7 +98,7 @@ test.describe('Visualiser (Timeline)', () => {
     // Refresh and check if the width is still larger (persisted)
     await page.reload();
     await page.waitForSelector('#timeline-visualiser');
-    const persistedInitiative = page.locator('div[title*="Web Channel Integration"]').first();
+    const persistedInitiative = page.locator('div[title*="Passkey Rollout"]').first();
     const persistedBox = await persistedInitiative.boundingBox();
     expect(persistedBox!.width).toBeGreaterThan(initialBox.width + 20);
   });

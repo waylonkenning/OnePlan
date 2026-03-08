@@ -7,7 +7,7 @@ test.describe('Resize Initiative Edit Panel', () => {
     });
 
     test('resizing initiative does not open the edit panel', async ({ page }) => {
-        const init = page.getByText('Web Channel Integration');
+        const init = page.getByText('Passkey Rollout');
         await expect(init).toBeVisible();
 
         const box = await init.boundingBox();
@@ -26,7 +26,7 @@ test.describe('Resize Initiative Edit Panel', () => {
     });
 
     test('normal click opens the edit panel', async ({ page }) => {
-        const init = page.getByText('Web Channel Integration');
+        const init = page.getByText('Passkey Rollout');
         await expect(init).toBeVisible();
 
         const box = await init.boundingBox();

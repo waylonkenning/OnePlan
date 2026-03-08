@@ -7,7 +7,7 @@ test.describe('Initiative Interaction Features', () => {
   });
 
   test('Move Initiative horizontally should update dates and persist', async ({ page }) => {
-    const initiative = page.locator('div[title*="Web Channel Integration"]').first();
+    const initiative = page.locator('div[title*="Passkey Rollout"]').first();
     const initialBox = await initiative.boundingBox();
     if (!initialBox) throw new Error("Could not find initiative");
 
@@ -31,15 +31,15 @@ test.describe('Initiative Interaction Features', () => {
     // Verify persistence
     await page.reload();
     await page.waitForSelector('#timeline-visualiser');
-    const persistedBox = await page.locator('div[title*="Web Channel Integration"]').first().boundingBox();
+    const persistedBox = await page.locator('div[title*="Passkey Rollout"]').first().boundingBox();
     expect(persistedBox!.x).toBeGreaterThan(initialBox.x + 50);
   });
 
   test('Draw relationship by dragging vertically between initiatives', async ({ page }) => {
-    // init-1: Web Channel Integration (Asset CIAM)
-    // init-3: Physical Accept (Asset Digital Credentials)
-    const sourceInit = page.locator('div[title*="Web Channel Integration"]').first();
-    const targetInit = page.locator('div[title*="Physical Accept"]').first();
+    // i-ciam-passkey: Passkey Rollout (Asset Customer IAM (CIAM))
+    // i-ciam-sso: SSO Consolidation (Asset Customer IAM (CIAM))
+    const sourceInit = page.locator('div[title*="Passkey Rollout"]').first();
+    const targetInit = page.locator('div[title*="SSO Consolidation"]').first();
 
     const sourceBox = await sourceInit.boundingBox();
     const targetBox = await targetInit.boundingBox();

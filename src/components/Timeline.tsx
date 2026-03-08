@@ -435,7 +435,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const layoutAsset = (assetInitiatives: Initiative[]) => {
     const sorted = [...assetInitiatives].sort((a, b) => a.startDate.localeCompare(b.startDate));
     const items: { init: Initiative; top: number; height: number; left: number; width: number }[] = [];
-    const placedRects: { start: number; end: number; top: number; bottom: number }[] = [];
+    const placedRects: { id: string; start: number; end: number; top: number; bottom: number }[] = [];
 
     // Check if there are dependencies between initiatives in this specific asset
     const hasIntraAssetDependencies = dependencies.some(dep =>
@@ -474,7 +474,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         const candidateBottom = candidateTop + height;
         let overlaps = false;
         for (const rect of placedRects) {
-          const xOverlap = !(rect.end <= left || rect.start >= right);
+          // If there's a dependency, we treat it as an overlap to force separate rows
+          const hasDep = dependencies.some(d =>
+            (d.sourceId === init.id && d.targetId === rect.id) ||
+            (d.sourceId === rect.id && d.targetId === init.id)
+          );
+
+          const xOverlap = hasDep || !(rect.end <= left || rect.start >= right);
           const yOverlap = !(rect.bottom <= candidateTop || rect.top >= candidateBottom);
           if (xOverlap && yOverlap) {
             overlaps = true;
@@ -494,7 +500,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       }
 
       items.push({ init, top, height, left, width });
-      placedRects.push({ start: left, end: right, top, bottom: top + height });
+      placedRects.push({ id: init.id, start: left, end: right, top, bottom: top + height });
     });
 
     const contentHeight = Math.max(MIN_ROW_HEIGHT, ...placedRects.map(r => r.bottom)) + ROW_PADDING;

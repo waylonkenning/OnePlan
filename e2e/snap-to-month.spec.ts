@@ -7,7 +7,7 @@ test.describe('Snap to Month Setting', () => {
     });
 
     test('snaps start date to start of month when moving initiative', async ({ page }) => {
-        const init = page.getByText('Web Channel Integration');
+        const init = page.getByText('Passkey Rollout');
         await expect(init).toBeVisible();
 
         // Ensure snap is off first
@@ -17,10 +17,12 @@ test.describe('Snap to Month Setting', () => {
         expect(box1).not.toBeNull();
 
         // Drag slightly to the right with snap off
-        await page.mouse.move(box1!.x + box1!.width / 2, box1!.y + box1!.height / 2);
+        await init.hover();
         await page.mouse.down();
-        await page.mouse.move(box1!.x + box1!.width / 2 + 15, box1!.y + box1!.height / 2); // Less than a month (approx 5 days)
+        await page.waitForTimeout(150);
+        await page.mouse.move(box1!.x + box1!.width / 2 + 100, box1!.y + box1!.height / 2, { steps: 20 }); 
         await page.mouse.up();
+        await page.waitForTimeout(500);
 
         const box2 = await init.boundingBox();
 
@@ -31,10 +33,12 @@ test.describe('Snap to Month Setting', () => {
         await page.getByLabel('Snap').selectOption('month');
 
         // Drag it a little bit more to the right, it should either snap back to start of month or jump to next month
-        await page.mouse.move(box2!.x + box2!.width / 2, box2!.y + box2!.height / 2);
+        await init.hover();
         await page.mouse.down();
-        await page.mouse.move(box2!.x + box2!.width / 2 + 20, box2!.y + box2!.height / 2);
+        await page.waitForTimeout(150);
+        await page.mouse.move(box2!.x + box2!.width / 2 + 150, box2!.y + box2!.height / 2, { steps: 20 });
         await page.mouse.up();
+        await page.waitForTimeout(500);
 
         // Double click to open edit panel and check the exact date
         await init.dblclick();

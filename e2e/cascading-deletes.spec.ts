@@ -17,17 +17,17 @@ test.describe('Cascading Deletes', () => {
         await page.getByRole('button', { name: 'Initiatives' }).click();
         const initialInitCount = await page.locator('table tbody tr').count();
 
-        // Go back to Assets and delete CIAM (asset-1), which has 2 initiatives
+        // Go back to Assets and delete Customer IAM (CIAM) (a-ciam), which has 2 initiatives
         await page.getByRole('button', { name: 'Assets' }).click();
 
         // Accept the cascading confirmation dialog
         page.on('dialog', dialog => dialog.accept());
 
-        // Click the delete button on the first asset row (CIAM)
+        // Click the delete button on the first asset row (Customer IAM (CIAM))
         await page.locator('table tbody tr').first().getByRole('button', { name: 'Delete row' }).click();
 
         // Check that the asset is removed
-        await expect(page.locator('table tbody tr').first()).not.toContainText('CIAM');
+        await expect(page.locator('table tbody tr').first()).not.toContainText('Customer IAM (CIAM)');
 
         // Check that associated initiatives were also removed
         await page.getByRole('button', { name: 'Initiatives' }).click();
