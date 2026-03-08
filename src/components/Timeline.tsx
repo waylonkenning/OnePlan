@@ -708,14 +708,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     labelX = overlapX + 5;
                     labelY = (startY + endY) / 2;
                   } else {
-                    // Bars don't overlap — U-shape routing WITHIN the row padding if possible
-                    // Exit from the end of source and enter at the start of target
-                    // Use a more compact swoop that stays closer to the bars
-                    const gap = 12;
-                    const swoopY = Math.max(sBottom, tBottom) + gap;
-                    path = `M ${sEndX} ${sMidY} L ${sEndX + 10} ${sMidY} L ${sEndX + 10} ${swoopY} L ${tStartX - 10} ${swoopY} L ${tStartX - 10} ${tMidY} L ${tStartX} ${tMidY}`;
-                    labelX = (sEndX + tStartX) / 2;
-                    labelY = swoopY - 4;
+                    // Bars don't overlap — use a simple stepped path (L-shape/S-shape)
+                    // Exit source middle-right, travel to midpoint between them, 
+                    // then vertically to target row, then horizontally to target middle-left.
+                    const midX = (sEndX + tStartX) / 2;
+                    path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
+                    labelX = midX + 5;
+                    labelY = (sMidY + tMidY) / 2;
                   }
                 } else {
                   // === CROSS-ASSET ROUTING ===
