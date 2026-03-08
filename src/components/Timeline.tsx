@@ -421,11 +421,20 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       const width = getWidth(init.startDate, init.endDate);
       const right = left + width;
 
-      let height = BAR_HEIGHT;
+      let budgetHeight = BAR_HEIGHT;
       if (settings.budgetVisualisation === 'bar-height' && init.budget) {
         // Simple scaling: 44px base + 1px per $15k, max 120px
-        height = Math.min(120, BAR_HEIGHT + (init.budget / 15000));
+        budgetHeight = Math.min(120, BAR_HEIGHT + (init.budget / 15000));
       }
+
+      let descHeight = BAR_HEIGHT;
+      if (settings.descriptionDisplay === 'on' && init.description) {
+        // Estimate: ~40 chars per line at text-[9px], 12px per line, plus base 28px for name/subtitle
+        const lines = Math.ceil(init.description.length / 40);
+        descHeight = Math.max(BAR_HEIGHT, 28 + lines * 14 + 8);
+      }
+
+      const height = Math.max(budgetHeight, descHeight, BAR_HEIGHT);
 
       let top = ROW_PADDING;
       let collision = true;
@@ -791,6 +800,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                   <div className="flex flex-col min-w-0 flex-1">
                                     <div draggable="false" className="font-bold text-[11px] leading-tight drop-shadow-md line-clamp-2">{init.name}</div>
                                     {subtitle && width > 5 && <div draggable="false" className="text-[9px] opacity-90 truncate drop-shadow-md mt-0.5">{subtitle}</div>}
+                                    {settings.descriptionDisplay === 'on' && init.description && (
+                                      <div draggable="false" className="text-[9px] opacity-80 drop-shadow-md mt-1 whitespace-pre-wrap break-words">{init.description}</div>
+                                    )}
                                   </div>
 
                                   {settings.budgetVisualisation === 'label' && init.budget > 0 && (
