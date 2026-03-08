@@ -18,7 +18,18 @@ import {
   defaultTimelineSettings
 } from './data';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2 } from 'lucide-react';
+
+type AppState = {
+  assets: Asset[];
+  initiatives: Initiative[];
+  milestones: Milestone[];
+  programmes: Programme[];
+  strategies: Strategy[];
+  dependencies: Dependency[];
+  assetCategories: AssetCategory[];
+  timelineSettings: TimelineSettings;
+};
 import { cn } from './lib/utils';
 import { getAppData, saveAppData } from './lib/db';
 
@@ -35,7 +46,14 @@ export default function App() {
   const [assetCategories, setAssetCategories] = useState<AssetCategory[]>([]);
   const [timelineSettings, setTimelineSettings] = useState<TimelineSettings>(defaultTimelineSettings);
 
+  const [undoStack, setUndoStack] = useState<AppState[]>([]);
+  const [redoStack, setRedoStack] = useState<AppState[]>([]);
+
   const [searchQuery, setSearchQuery] = useState('');
+
+  const getCurrentState = (): AppState => ({
+    assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings
+  });
 
   // Load data on mount
   useEffect(() => {
@@ -95,16 +113,15 @@ export default function App() {
     loadData();
   }, []);
 
-  const handleUpdate = async (data: {
-    assets: Asset[];
-    initiatives: Initiative[];
-    milestones: Milestone[];
-    programmes: Programme[];
-    strategies: Strategy[];
-    dependencies: Dependency[];
-    assetCategories: AssetCategory[];
-    timelineSettings: TimelineSettings;
-  }) => {
+  const handleUpdate = async (data: AppState, skipHistory = false) => {
+    if (!skipHistory) {
+      setUndoStack(prev => {
+        const newStack = [...prev, getCurrentState()];
+        if (newStack.length > 10) return newStack.slice(newStack.length - 10);
+        return newStack;
+      });
+      setRedoStack([]);
+    }
     // Update state immediately for UI responsiveness
     setAssets(data.assets);
     setInitiatives(data.initiatives);
@@ -124,6 +141,56 @@ export default function App() {
       alert('Failed to save changes to local storage.');
     }
   };
+
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+    const previousState = undoStack[undoStack.length - 1];
+
+    setRedoStack(prev => {
+      const newStack = [...prev, getCurrentState()];
+      if (newStack.length > 10) return newStack.slice(newStack.length - 10);
+      return newStack;
+    });
+    setUndoStack(prev => prev.slice(0, -1));
+
+    handleUpdate(previousState, true);
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length === 0) return;
+    const nextState = redoStack[redoStack.length - 1];
+
+    setUndoStack(prev => {
+      const newStack = [...prev, getCurrentState()];
+      if (newStack.length > 10) return newStack.slice(newStack.length - 10);
+      return newStack;
+    });
+    setRedoStack(prev => prev.slice(0, -1));
+
+    handleUpdate(nextState, true);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input or textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key === 'z') {
+          e.preventDefault();
+          handleUndo();
+        } else if (e.key === 'Z' || (e.key === 'z' && e.shiftKey)) {
+          e.preventDefault();
+          handleRedo();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undoStack, redoStack, assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings]);
 
   if (isLoading) {
     return (
@@ -184,11 +251,35 @@ export default function App() {
           </div>
         </div>
 
-        <DataControls
-          data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
-          onImport={handleUpdate}
-          timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
-        />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center bg-white rounded-lg border border-slate-200 shadow-sm p-1">
+            <button
+              onClick={handleUndo}
+              disabled={undoStack.length === 0}
+              className="p-1.5 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors"
+              title="Undo"
+            >
+              <Undo2 size={16} />
+            </button>
+            <div className="w-px h-4 bg-slate-200 mx-1" />
+            <button
+              onClick={handleRedo}
+              disabled={redoStack.length === 0}
+              className="p-1.5 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors"
+              title="Redo"
+            >
+              <Redo2 size={16} />
+            </button>
+          </div>
+
+          <div className="w-px h-6 bg-slate-200 mx-2" />
+
+          <DataControls
+            data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
+            onImport={handleUpdate}
+            timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
+          />
+        </div>
       </header>
 
       <main className="flex-1 min-h-0">
