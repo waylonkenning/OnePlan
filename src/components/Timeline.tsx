@@ -695,10 +695,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 const barsOverlap = sStartX < tEndX && tStartX < sEndX;
 
                 if (sameAsset) {
-                  // === SAME-ASSET ROUTING ===
-                  // These bars are in the same asset row (stacked vertically by intra-asset spacing)
+                  // ... (existing sameAsset logic remains same)
                   if (barsOverlap) {
-                    // Bars overlap horizontally — vertical line through the overlap midpoint
                     const overlapLeft = Math.max(sStartX, tStartX);
                     const overlapRight = Math.min(sEndX, tEndX);
                     const overlapX = (overlapLeft + overlapRight) / 2;
@@ -708,12 +706,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     labelX = overlapX + 5;
                     labelY = (startY + endY) / 2;
                   } else {
-                    // Bars don't overlap — check if they are very close horizontally
                     const horizontalGap = Math.abs(tStartX - sEndX);
-                    
                     if (horizontalGap < 40) {
-                      // Very close horizontally — use a vertical connection from bottom to top
-                      // or vice versa depending on vertical order
                       const x = (sEndX + tStartX) / 2;
                       const startY = source.y < target.y ? sBottom : source.y;
                       const endY = source.y < target.y ? target.y : tBottom;
@@ -721,7 +715,6 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       labelX = x + 5;
                       labelY = (startY + endY) / 2;
                     } else {
-                      // Simple stepped path (S-shape) for larger horizontal gaps
                       const midX = (sEndX + tStartX) / 2;
                       path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
                       labelX = midX + 5;
@@ -732,14 +725,27 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   // === CROSS-ASSET ROUTING ===
                   // Bars are in different asset rows — need to cross vertically
                   if (barsOverlap) {
-                    // Overlapping horizontally — vertical line at overlap midpoint
-                    const overlapLeft = Math.max(sStartX, tStartX);
-                    const overlapRight = Math.min(sEndX, tEndX);
-                    const overlapX = (overlapLeft + overlapRight) / 2;
+                    // Overlapping horizontally — prefer connecting from the end of source 
+                    // if it falls within the target's range, otherwise use midpoint
+                    const useSourceEnd = sEndX >= tStartX && sEndX <= tEndX;
+                    const useTargetStart = tStartX >= sStartX && tStartX <= sEndX;
+                    
+                    let x: number;
+                    if (useSourceEnd && !useTargetStart) x = sEndX;
+                    else if (useTargetStart && !useSourceEnd) x = tStartX;
+                    else if (useSourceEnd && useTargetStart) {
+                        // Both are within each other's range, pick source end for "edge" feeling
+                        x = sEndX;
+                    } else {
+                        const overlapLeft = Math.max(sStartX, tStartX);
+                        const overlapRight = Math.min(sEndX, tEndX);
+                        x = (overlapLeft + overlapRight) / 2;
+                    }
+
                     const startY = source.y < target.y ? sBottom : source.y;
                     const endY = source.y < target.y ? target.y : tBottom;
-                    path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
-                    labelX = overlapX + 5;
+                    path = `M ${x} ${startY} L ${x} ${endY}`;
+                    labelX = x + 5;
                     labelY = (startY + endY) / 2;
                   } else {
                     // Not overlapping — consistent L-shape: exit source, travel vertically, enter target
