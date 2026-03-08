@@ -63,4 +63,5 @@ export interface TimelineSettings {
   yearsToShow: number;
   budgetVisualisation: 'off' | 'bar-height' | 'label';
   descriptionDisplay: 'off' | 'on';
+  emptyRowDisplay: 'show' | 'hide';
 }

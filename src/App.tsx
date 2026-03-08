@@ -328,6 +328,23 @@ export default function App() {
               <option value="on">On</option>
             </select>
           </label>
+          <label className="flex items-center gap-1.5 text-xs text-slate-500 ml-2">
+            Empty Rows
+            <select
+              id="emptyRowDisplay"
+              value={timelineSettings.emptyRowDisplay || 'show'}
+              onChange={(e) => {
+                handleUpdate({
+                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                  timelineSettings: { ...timelineSettings, emptyRowDisplay: e.target.value as 'show' | 'hide' },
+                });
+              }}
+              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="show">Show</option>
+              <option value="hide">Hide</option>
+            </select>
+          </label>
         </div>
 
         {/* Spacer pushes remaining items right */}
