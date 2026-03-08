@@ -2,7 +2,7 @@ import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
-import { AlertTriangle, Star, Info, Palette, ChevronRight, Settings, Grid, Calendar, Target } from 'lucide-react';
+import { AlertTriangle, Star, Info, Palette, ChevronRight, ChevronDown, Settings, Grid, Calendar, Target } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
 
 interface TimelineProps {
@@ -41,6 +41,16 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
   const [draggingAssetId, setDraggingAssetId] = useState<string | null>(null);
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+
+  const toggleCategory = (catId: string) => {
+    setCollapsedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(catId)) next.delete(catId);
+      else next.add(catId);
+      return next;
+    });
+  };
 
   const [creatingInitiativeParams, setCreatingInitiativeParams] = useState<{ assetId: string, startDate: string, endDate: string } | null>(null);
 
@@ -696,7 +706,19 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             {sortedCategoryIds.map((catId) => {
               const category = assetCategories.find(c => c.id === catId);
               const categoryName = category?.name || 'Uncategorized';
-              const categoryAssets = assetsByCategory[catId];
+              const isCollapsed = collapsedCategories.has(catId);
+
+              // Filter assets for this category based on empty row settings
+              let categoryAssets = assetsByCategory[catId] || [];
+              if (settings.emptyRowDisplay === 'hide') {
+                categoryAssets = categoryAssets.filter(asset =>
+                  localInitiatives.some(i => i.assetId === asset.id)
+                );
+              }
+
+              // If the category is totally empty (or all assets hidden), don't render the category at all
+              if (categoryAssets.length === 0) return null;
+
               return (
                 <div key={catId} onDragOver={(e) => handleCategoryDragOver(e, catId)}>
                   <div
@@ -704,17 +726,26 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     onDragStart={(e) => handleCategoryDragStart(e, catId)}
                     onDragEnd={handleCategoryDragEnd}
                     className={cn(
-                      "sticky left-0 z-20 bg-slate-100 px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 w-full flex items-center gap-2 cursor-grab active:cursor-grabbing",
+                      "sticky left-0 z-20 bg-slate-100 px-4 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 w-full flex items-center gap-2 cursor-grab active:cursor-grabbing",
                       draggingCategory === catId && "opacity-50"
                     )}
                   >
                     <div className="p-0.5 hover:bg-slate-200 rounded text-slate-400">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                     </div>
-                    {categoryName}
+                    <button
+                      onClick={() => toggleCategory(catId)}
+                      className="flex items-center gap-1.5 hover:text-slate-700 focus:outline-none"
+                    >
+                      {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                      {categoryName}
+                      <span className="text-[10px] font-medium text-slate-400 tracking-normal normal-case">
+                        ({categoryAssets.length} asset{categoryAssets.length !== 1 ? 's' : ''})
+                      </span>
+                    </button>
                   </div>
 
-                  {categoryAssets.map(asset => {
+                  {!isCollapsed && categoryAssets.map(asset => {
                     const assetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
                     const assetMilestones = milestones.filter(m => m.assetId === asset.id);
                     const conflictPoints = getConflictPoints(asset.id);
