@@ -658,26 +658,58 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 const target = initiativePositions.get(dep.targetId);
                 if (!source || !target) return null;
 
+                const sStartX = 256 + (source.x / 100) * totalWidth;
                 const sEndX = 256 + ((source.x + source.width) / 100) * totalWidth;
                 const tStartX = 256 + (target.x / 100) * totalWidth;
+                const tEndX = 256 + ((target.x + target.width) / 100) * totalWidth;
                 const sMidY = source.y + source.height / 2;
                 const tMidY = target.y + target.height / 2;
+                const sBottom = source.y + source.height;
+                const tBottom = target.y + target.height;
 
-                let path;
-                let labelX, labelY;
+                let path: string;
+                let labelX: number, labelY: number;
 
-                if (sEndX >= tStartX && 256 + (source.x / 100) * totalWidth <= 256 + ((target.x + target.width) / 100) * totalWidth) {
-                  const overlapX = (Math.max(256 + (source.x / 100) * totalWidth, tStartX) + Math.min(sEndX, 256 + ((target.x + target.width) / 100) * totalWidth)) / 2;
-                  const startY = source.y < target.y ? source.y + source.height : source.y;
-                  const endY = source.y < target.y ? target.y : target.y + target.height;
-                  path = `M ${overlapX} ${startY} L ${overlapX} ${endY} `;
+                // Check if bars overlap horizontally
+                const barsOverlap = sStartX < tEndX && tStartX < sEndX;
+                // Check if bars are on the same Y row (within a small tolerance)
+                const sameRow = Math.abs(source.y - target.y) < 5;
+                // Gap between source end and target start
+                const gap = tStartX - sEndX;
+
+                if (barsOverlap && !sameRow) {
+                  // CASE 1: Bars overlap horizontally but are on different rows
+                  // Draw a vertical line at the overlap midpoint
+                  const overlapLeft = Math.max(sStartX, tStartX);
+                  const overlapRight = Math.min(sEndX, tEndX);
+                  const overlapX = (overlapLeft + overlapRight) / 2;
+                  const startY = source.y < target.y ? sBottom : source.y;
+                  const endY = source.y < target.y ? target.y : tBottom;
+                  path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
                   labelX = overlapX + 5;
                   labelY = (startY + endY) / 2;
-                } else {
-                  const midX = (sEndX + tStartX) / 2;
-                  path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY} `;
-                  labelX = midX;
+                } else if (sameRow && gap < 60) {
+                  // CASE 2: Same row + adjacent or very close
+                  // Route BELOW both bars with a swooping path for visibility
+                  const swoopY = Math.max(sBottom, tBottom) + 20;
+                  const exitX = sEndX;
+                  const enterX = tStartX;
+                  path = `M ${exitX} ${sMidY} L ${exitX} ${swoopY} L ${enterX} ${swoopY} L ${enterX} ${tMidY}`;
+                  labelX = (exitX + enterX) / 2;
+                  labelY = swoopY - 4;
+                } else if (!sameRow && gap < 60) {
+                  // CASE 3: Different rows, adjacent or close
+                  // Route with an L-shape: go down from source end, then across to target start
+                  const cornerX = sEndX + 10;
+                  path = `M ${sEndX} ${sMidY} L ${cornerX} ${sMidY} L ${cornerX} ${tMidY} L ${tStartX} ${tMidY}`;
+                  labelX = cornerX + 5;
                   labelY = (sMidY + tMidY) / 2;
+                } else {
+                  // CASE 4: Well-separated bars — classic L-shape routing
+                  const midX = (sEndX + tStartX) / 2;
+                  path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
+                  labelX = midX;
+                  labelY = Math.min(sMidY, tMidY) - 8;
                 }
 
                 return (
@@ -688,7 +720,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       strokeWidth="2"
                       fill="none"
                       markerEnd="url(#arrowhead)"
-                      opacity="0.6"
+                      opacity="0.7"
                       strokeDasharray={dep.type === 'related' ? "4 2" : ""}
                     />
                     <text
@@ -699,7 +731,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       fontWeight="bold"
                       className="select-none pointer-events-none"
                       textAnchor="middle"
-                      style={{ filter: 'drop-shadow(0px 0px 2px white)' }}
+                      style={{ filter: 'drop-shadow(0px 0px 3px white) drop-shadow(0px 0px 3px white)' }}
                     >
                       {dep.type}
                     </text>
