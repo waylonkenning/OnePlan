@@ -31,7 +31,10 @@ interface DataControlsProps {
 export function DataControls({ data, onImport, timelineId }: DataControlsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [localSettings, setLocalSettings] = useState(data.timelineSettings || { startYear: 2026, yearsToShow: 3 });
+  const [localSettings, setLocalSettings] = useState({
+    startYear: data.timelineSettings?.startYear?.toString() || '2026',
+    yearsToShow: data.timelineSettings?.yearsToShow?.toString() || '3'
+  });
 
   const handleExportExcel = () => {
     exportToExcel(data);
@@ -84,9 +87,13 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
   };
 
   const handleSaveSettings = () => {
+    console.log('handleSaveSettings called with:', localSettings);
     onImport({
       ...data,
-      timelineSettings: localSettings,
+      timelineSettings: {
+        startYear: parseInt(localSettings.startYear.toString()) || new Date().getFullYear(),
+        yearsToShow: parseInt(localSettings.yearsToShow.toString()) || 3,
+      },
     });
     setShowSettings(false);
   };
@@ -122,7 +129,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
                 min="2000"
                 max="2100"
                 value={localSettings.startYear}
-                onChange={(e) => setLocalSettings(prev => ({ ...prev, startYear: parseInt(e.target.value) || new Date().getFullYear() }))}
+                onChange={(e) => setLocalSettings(prev => ({ ...prev, startYear: e.target.value }))}
                 className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -137,7 +144,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
                 min="1"
                 max="20"
                 value={localSettings.yearsToShow}
-                onChange={(e) => setLocalSettings(prev => ({ ...prev, yearsToShow: parseInt(e.target.value) || 1 }))}
+                onChange={(e) => setLocalSettings(prev => ({ ...prev, yearsToShow: e.target.value }))}
                 className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
