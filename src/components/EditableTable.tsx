@@ -21,13 +21,15 @@ interface EditableTableProps<T> {
   columns: Column<T>[];
   onUpdate: (newData: T[]) => void;
   idField: keyof T;
+  searchQuery?: string;
 }
 
-export function EditableTable<T extends { [key: string]: any }>({ 
-  data, 
-  columns, 
+export function EditableTable<T extends { [key: string]: any }>({
+  data,
+  columns,
   onUpdate,
-  idField 
+  idField,
+  searchQuery
 }: EditableTableProps<T>) {
   const [rows, setRows] = useState<T[]>(data);
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
@@ -42,9 +44,27 @@ export function EditableTable<T extends { [key: string]: any }>({
   }, [data]);
 
   const sortedRows = useMemo(() => {
-    if (!sortConfig) return rows;
+    let filteredData = rows;
 
-    return [...rows].sort((a, b) => {
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filteredData = rows.filter(row => {
+        return columns.some(col => {
+          const val = row[col.key];
+          if (val === null || val === undefined) return false;
+
+          if (col.type === 'select' && col.options) {
+            const opt = col.options.find(o => String(o.value) === String(val));
+            return opt?.label.toLowerCase().includes(q) || String(val).toLowerCase().includes(q);
+          }
+          return String(val).toLowerCase().includes(q);
+        });
+      });
+    }
+
+    if (!sortConfig) return filteredData;
+
+    return [...filteredData].sort((a, b) => {
       const aValue = a[sortConfig.key];
       const bValue = b[sortConfig.key];
 
@@ -53,7 +73,7 @@ export function EditableTable<T extends { [key: string]: any }>({
       if (bValue === null || bValue === undefined) return -1;
 
       const column = columns.find(c => c.key === sortConfig.key);
-      
+
       if (column?.type === 'number') {
         const aNum = parseFloat(aValue as any) || 0;
         const bNum = parseFloat(bValue as any) || 0;
@@ -70,49 +90,49 @@ export function EditableTable<T extends { [key: string]: any }>({
         return bString.localeCompare(aString);
       }
     });
-  }, [rows, sortConfig, columns]);
+  }, [rows, sortConfig, columns, searchQuery]);
 
   const handleSort = (key: keyof T) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     } else if (sortConfig && sortConfig.key === key && sortConfig.direction === 'desc') {
-        setSortConfig(null);
-        return;
+      setSortConfig(null);
+      return;
     }
     setSortConfig({ key, direction });
   };
 
   const handleChange = (index: number, key: keyof T, value: any, isGhost: boolean = false) => {
     if (isGhost) {
-        // Convert ghost row to real row
-        const newRow: any = {};
-        newRow[idField] = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-        
-        columns.forEach(col => {
-            if (col.key !== idField) {
-                newRow[col.key] = col.type === 'number' ? 0 : '';
-            }
-        });
+      // Convert ghost row to real row
+      const newRow: any = {};
+      newRow[idField] = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-        // Set the specific value that triggered the change
-        newRow[key] = value;
+      columns.forEach(col => {
+        if (col.key !== idField) {
+          newRow[col.key] = col.type === 'number' ? 0 : '';
+        }
+      });
 
-        const updatedRows = [...rows, newRow];
-        setRows(updatedRows);
-        onUpdate(updatedRows);
+      // Set the specific value that triggered the change
+      newRow[key] = value;
+
+      const updatedRows = [...rows, newRow];
+      setRows(updatedRows);
+      onUpdate(updatedRows);
     } else {
-        const newRows = [...rows];
-        newRows[index] = { ...newRows[index], [key]: value };
-        setRows(newRows);
-        onUpdate(newRows);
+      const newRows = [...rows];
+      newRows[index] = { ...newRows[index], [key]: value };
+      setRows(newRows);
+      onUpdate(newRows);
     }
   };
 
   const handleAdd = () => {
     const newRow: any = {};
     newRow[idField] = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    
+
     columns.forEach(col => {
       if (col.key !== idField) {
         newRow[col.key] = col.type === 'number' ? 0 : '';
@@ -148,26 +168,26 @@ export function EditableTable<T extends { [key: string]: any }>({
     // 1. Detect headers and create mapping
     if (lines.length > 0) {
       const firstLineValues = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().toLowerCase().replace(/^"|"$/g, ''));
-      
+
       const colLabels = columns.map(c => c.label.toLowerCase());
       const colKeys = columns.map(c => String(c.key).toLowerCase());
-      
+
       // Check if it looks like a header row
-      const matches = firstLineValues.filter(v => 
+      const matches = firstLineValues.filter(v =>
         v === 'id' || colLabels.includes(v) || colKeys.includes(v)
       ).length;
-      
+
       if (matches >= 1) {
         hasHeader = true;
         headerMapping = firstLineValues.map(val => {
           if (val === 'id' || val === String(idField).toLowerCase()) return idField;
-          
+
           const colByKey = columns.find(c => String(c.key).toLowerCase() === val);
           if (colByKey) return colByKey.key;
-          
+
           const colByLabel = columns.find(c => c.label.toLowerCase() === val);
           if (colByLabel) return colByLabel.key;
-          
+
           return null;
         });
       }
@@ -181,9 +201,9 @@ export function EditableTable<T extends { [key: string]: any }>({
 
       const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
         .map(v => v.trim().replace(/^"|"$/g, ''));
-      
+
       const rowData: any = {};
-      
+
       if (hasHeader) {
         // Map values according to header position
         headerMapping.forEach((key, valIdx) => {
@@ -232,18 +252,18 @@ export function EditableTable<T extends { [key: string]: any }>({
           <thead className="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 shadow-sm">
             <tr>
               {columns.map(col => (
-                <th 
-                    key={String(col.key)} 
-                    onClick={() => handleSort(col.key)}
-                    className="px-4 py-3 font-medium border-b border-r border-slate-200 last:border-r-0 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition-colors group/header" 
-                    style={{ width: col.width }}
+                <th
+                  key={String(col.key)}
+                  onClick={() => handleSort(col.key)}
+                  className="px-4 py-3 font-medium border-b border-r border-slate-200 last:border-r-0 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition-colors group/header"
+                  style={{ width: col.width }}
                 >
                   <div className="flex items-center gap-2">
                     {col.label}
                     {sortConfig?.key === col.key ? (
-                        sortConfig.direction === 'asc' ? <ArrowUp size={14} className="text-blue-500" /> : <ArrowDown size={14} className="text-blue-500" />
+                      sortConfig.direction === 'asc' ? <ArrowUp size={14} className="text-blue-500" /> : <ArrowDown size={14} className="text-blue-500" />
                     ) : (
-                        <ArrowUpDown size={14} className="text-slate-300 opacity-0 group-hover/header:opacity-100" />
+                      <ArrowUpDown size={14} className="text-slate-300 opacity-0 group-hover/header:opacity-100" />
                     )}
                   </div>
                 </th>
@@ -256,7 +276,7 @@ export function EditableTable<T extends { [key: string]: any }>({
             {sortedRows.map((row) => {
               // Find the original index in the 'rows' state for handleChange
               const rowIndex = rows.findIndex(r => r[idField] === row[idField]);
-              
+
               return (
                 <tr key={String(row[idField])} data-real="true" className="hover:bg-slate-50 group">
                   {columns.map(col => (
@@ -273,23 +293,23 @@ export function EditableTable<T extends { [key: string]: any }>({
                           ))}
                         </select>
                       ) : col.type === 'color' ? (
-                          <div className="flex items-center px-2">
-                               <div className={cn("w-4 h-4 rounded-full mr-2 border border-slate-200", String(row[col.key]))} />
-                               <select
-                                  value={String(row[col.key] || '')}
-                                  onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
-                                  className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
-                              >
-                                  <option value="">Select Color...</option>
-                                  <option value="bg-blue-500">Blue</option>
-                                  <option value="bg-emerald-500">Emerald</option>
-                                  <option value="bg-amber-500">Amber</option>
-                                  <option value="bg-rose-500">Rose</option>
-                                  <option value="bg-purple-500">Purple</option>
-                                  <option value="bg-indigo-500">Indigo</option>
-                                  <option value="bg-slate-500">Slate</option>
-                              </select>
-                          </div>
+                        <div className="flex items-center px-2">
+                          <div className={cn("w-4 h-4 rounded-full mr-2 border border-slate-200", String(row[col.key]))} />
+                          <select
+                            value={String(row[col.key] || '')}
+                            onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
+                            className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
+                          >
+                            <option value="">Select Color...</option>
+                            <option value="bg-blue-500">Blue</option>
+                            <option value="bg-emerald-500">Emerald</option>
+                            <option value="bg-amber-500">Amber</option>
+                            <option value="bg-rose-500">Rose</option>
+                            <option value="bg-purple-500">Purple</option>
+                            <option value="bg-indigo-500">Indigo</option>
+                            <option value="bg-slate-500">Slate</option>
+                          </select>
+                        </div>
                       ) : (
                         <input
                           type={col.type}
@@ -331,23 +351,23 @@ export function EditableTable<T extends { [key: string]: any }>({
                         ))}
                       </select>
                     ) : col.type === 'color' ? (
-                        <div className="flex items-center px-2">
-                             <div className="w-4 h-4 rounded-full mr-2 border border-slate-100 bg-slate-50" />
-                             <select
-                                value=""
-                                onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
-                                className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
-                            >
-                                <option value=""></option>
-                                <option value="bg-blue-500">Blue</option>
-                                <option value="bg-emerald-500">Emerald</option>
-                                <option value="bg-amber-500">Amber</option>
-                                <option value="bg-rose-500">Rose</option>
-                                <option value="bg-purple-500">Purple</option>
-                                <option value="bg-indigo-500">Indigo</option>
-                                <option value="bg-slate-500">Slate</option>
-                            </select>
-                        </div>
+                      <div className="flex items-center px-2">
+                        <div className="w-4 h-4 rounded-full mr-2 border border-slate-100 bg-slate-50" />
+                        <select
+                          value=""
+                          onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
+                          className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
+                        >
+                          <option value=""></option>
+                          <option value="bg-blue-500">Blue</option>
+                          <option value="bg-emerald-500">Emerald</option>
+                          <option value="bg-amber-500">Amber</option>
+                          <option value="bg-rose-500">Rose</option>
+                          <option value="bg-purple-500">Purple</option>
+                          <option value="bg-indigo-500">Indigo</option>
+                          <option value="bg-slate-500">Slate</option>
+                        </select>
+                      </div>
                     ) : (
                       <input
                         type={col.type}

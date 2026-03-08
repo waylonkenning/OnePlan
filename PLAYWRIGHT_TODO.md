@@ -3,6 +3,8 @@
 This document outlines the critical functionality of **OnePlan** that should be covered by automated end-to-end tests using Playwright.
 
 ## 1. Navigation & State Management
+- [x] **Global Search & Filter:** 
+    - [x] Verify that searching filters both the Visualiser timeline and the Data Manager tables simultaneously.
 - [x] **View Switching:** Verify that clicking "Visualiser" and "Data Manager" correctly swaps the main view and retains current data.
 - [x] **Data Persistence (IndexedDB):**
     - [x] Load the app, make a change (e.g., rename an initiative), refresh the page, and verify the change persists.
