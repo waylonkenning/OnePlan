@@ -696,7 +696,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                 if (sameAsset) {
                   // === SAME-ASSET ROUTING ===
-                  // These bars are in the same asset row (possibly stacked vertically by intra-asset spacing)
+                  // These bars are in the same asset row (stacked vertically by intra-asset spacing)
                   if (barsOverlap) {
                     // Bars overlap horizontally — vertical line through the overlap midpoint
                     const overlapLeft = Math.max(sStartX, tStartX);
@@ -708,10 +708,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     labelX = overlapX + 5;
                     labelY = (startY + endY) / 2;
                   } else {
-                    // Bars don't overlap — U-shape routing BELOW both bars
-                    // Down from source bottom, across underneath, back up to target bottom
-                    const swoopY = Math.max(sBottom, tBottom) + 28;
-                    path = `M ${sEndX} ${sMidY} L ${sEndX} ${swoopY} L ${tStartX} ${swoopY} L ${tStartX} ${tMidY}`;
+                    // Bars don't overlap — U-shape routing WITHIN the row padding if possible
+                    // Exit from the end of source and enter at the start of target
+                    // Use a more compact swoop that stays closer to the bars
+                    const gap = 12;
+                    const swoopY = Math.max(sBottom, tBottom) + gap;
+                    path = `M ${sEndX} ${sMidY} L ${sEndX + 10} ${sMidY} L ${sEndX + 10} ${swoopY} L ${tStartX - 10} ${swoopY} L ${tStartX - 10} ${tMidY} L ${tStartX} ${tMidY}`;
                     labelX = (sEndX + tStartX) / 2;
                     labelY = swoopY - 4;
                   }
@@ -756,7 +758,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       fontSize="9"
                       fontWeight="bold"
                       className="select-none pointer-events-none"
-                      textAnchor="start"
+                      textAnchor="middle"
                       dy="3"
                       style={{ filter: 'drop-shadow(0px 0px 3px white) drop-shadow(0px 0px 3px white)' }}
                     >
