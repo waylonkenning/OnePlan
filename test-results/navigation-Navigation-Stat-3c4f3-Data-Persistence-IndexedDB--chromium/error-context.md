@@ -1,0 +1,337 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - heading "OnePlan" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - button "Visualiser" [ref=e7]:
+        - img [ref=e8]
+        - text: Visualiser
+      - button "Data Manager" [active] [ref=e13]:
+        - img [ref=e14]
+        - text: Data Manager
+    - generic [ref=e16]:
+      - img [ref=e17]
+      - searchbox "Search initiatives..." [ref=e20]
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - text: Start
+        - spinbutton "Start" [ref=e23]: "2026"
+      - generic [ref=e24]:
+        - text: Years
+        - spinbutton "Years" [ref=e25]: "3"
+      - generic [ref=e26]:
+        - text: Budget
+        - combobox "Budget" [ref=e27]:
+          - option "Off" [selected]
+          - option "Bar Height"
+          - option "Label"
+      - generic [ref=e28]:
+        - text: Desc
+        - combobox "Desc" [ref=e29]:
+          - option "Off" [selected]
+          - option "On"
+      - generic [ref=e30]:
+        - text: Empty Rows
+        - combobox "Empty Rows" [ref=e31]:
+          - option "Show" [selected]
+          - option "Hide"
+      - generic [ref=e32]:
+        - text: Snap
+        - combobox "Snap" [ref=e33]:
+          - option "Off" [selected]
+          - option "Month"
+    - generic [ref=e34]:
+      - button "Undo" [disabled] [ref=e35]:
+        - img [ref=e36]
+      - button "Redo" [disabled] [ref=e40]:
+        - img [ref=e41]
+    - generic [ref=e44]:
+      - button "PDF" [disabled] [ref=e45]:
+        - img [ref=e46]
+        - text: PDF
+      - button "Export" [ref=e49]:
+        - img [ref=e50]
+        - text: Export
+      - button "Import" [ref=e53]:
+        - img [ref=e54]
+        - text: Import
+  - main [ref=e57]:
+    - generic [ref=e58]:
+      - generic [ref=e59]:
+        - button "Initiatives 5" [ref=e60]:
+          - img [ref=e61]
+          - text: Initiatives
+          - generic [ref=e65]: "5"
+        - button "Dependencies 0" [ref=e66]:
+          - img [ref=e67]
+          - text: Dependencies
+          - generic [ref=e70]: "0"
+        - button "Assets 5" [ref=e71]:
+          - img [ref=e72]
+          - text: Assets
+          - generic [ref=e76]: "5"
+        - button "Categories 2" [ref=e77]:
+          - img [ref=e78]
+          - text: Categories
+          - generic [ref=e83]: "2"
+        - button "Programmes 4" [ref=e84]:
+          - img [ref=e85]
+          - text: Programmes
+          - generic [ref=e87]: "4"
+        - button "Strategies 4" [ref=e88]:
+          - img [ref=e89]
+          - text: Strategies
+          - generic [ref=e93]: "4"
+        - button "Milestones 2" [ref=e94]:
+          - img [ref=e95]
+          - text: Milestones
+          - generic [ref=e97]: "2"
+      - generic [ref=e99]:
+        - table [ref=e101]:
+          - rowgroup [ref=e102]:
+            - row "Initiative Name Asset Programme Strategy Start Date End Date Budget ($)" [ref=e103]:
+              - columnheader "Initiative Name" [ref=e104] [cursor=pointer]:
+                - generic [ref=e105]:
+                  - text: Initiative Name
+                  - img [ref=e106]
+              - columnheader "Asset" [ref=e109] [cursor=pointer]:
+                - generic [ref=e110]:
+                  - text: Asset
+                  - img [ref=e111]
+              - columnheader "Programme" [ref=e114] [cursor=pointer]:
+                - generic [ref=e115]:
+                  - text: Programme
+                  - img [ref=e116]
+              - columnheader "Strategy" [ref=e119] [cursor=pointer]:
+                - generic [ref=e120]:
+                  - text: Strategy
+                  - img [ref=e121]
+              - columnheader "Start Date" [ref=e124] [cursor=pointer]:
+                - generic [ref=e125]:
+                  - text: Start Date
+                  - img [ref=e126]
+              - columnheader "End Date" [ref=e129] [cursor=pointer]:
+                - generic [ref=e130]:
+                  - text: End Date
+                  - img [ref=e131]
+              - columnheader "Budget ($)" [ref=e134] [cursor=pointer]:
+                - generic [ref=e135]:
+                  - text: Budget ($)
+                  - img [ref=e136]
+              - columnheader [ref=e139]
+          - rowgroup [ref=e140]:
+            - row "Web Channel Integration CIAM SFTF Customer First 2026-04-01 2027-03-31 500000" [ref=e141]:
+              - cell "Web Channel Integration" [ref=e142]:
+                - textbox [ref=e143]: Web Channel Integration
+              - cell "CIAM" [ref=e144]:
+                - combobox [ref=e145]:
+                  - option "Select..."
+                  - option "CIAM" [selected]
+                  - option "PAM"
+                  - option "Digital Credentials"
+                  - option "Data Lake"
+                  - option "Warehouse"
+              - cell "SFTF" [ref=e146]:
+                - combobox [ref=e147]:
+                  - option "Select..."
+                  - option "SFTF" [selected]
+                  - option "ISART"
+                  - option "Regulator"
+                  - option "Tech Debt"
+              - cell "Customer First" [ref=e148]:
+                - combobox [ref=e149]:
+                  - option "Select..."
+                  - option "Customer First" [selected]
+                  - option "Operational Excellence"
+                  - option "Digital Innovation"
+                  - option "Regulatory Compliance"
+              - cell "2026-04-01" [ref=e150]:
+                - textbox [ref=e151]: 2026-04-01
+              - cell "2027-03-31" [ref=e152]:
+                - textbox [ref=e153]: 2027-03-31
+              - cell "500000" [ref=e154]:
+                - spinbutton [ref=e155]: "500000"
+              - cell [ref=e156]:
+                - button "Delete row" [ref=e157]:
+                  - img [ref=e158]
+            - row "Enterprise CIAM CIAM ISART Digital Innovation 2027-01-01 2027-12-31 800000" [ref=e161]:
+              - cell "Enterprise CIAM" [ref=e162]:
+                - textbox [ref=e163]: Enterprise CIAM
+              - cell "CIAM" [ref=e164]:
+                - combobox [ref=e165]:
+                  - option "Select..."
+                  - option "CIAM" [selected]
+                  - option "PAM"
+                  - option "Digital Credentials"
+                  - option "Data Lake"
+                  - option "Warehouse"
+              - cell "ISART" [ref=e166]:
+                - combobox [ref=e167]:
+                  - option "Select..."
+                  - option "SFTF"
+                  - option "ISART" [selected]
+                  - option "Regulator"
+                  - option "Tech Debt"
+              - cell "Digital Innovation" [ref=e168]:
+                - combobox [ref=e169]:
+                  - option "Select..."
+                  - option "Customer First"
+                  - option "Operational Excellence"
+                  - option "Digital Innovation" [selected]
+                  - option "Regulatory Compliance"
+              - cell "2027-01-01" [ref=e170]:
+                - textbox [ref=e171]: 2027-01-01
+              - cell "2027-12-31" [ref=e172]:
+                - textbox [ref=e173]: 2027-12-31
+              - cell "800000" [ref=e174]:
+                - spinbutton [ref=e175]: "800000"
+              - cell [ref=e176]:
+                - button "Delete row" [ref=e177]:
+                  - img [ref=e178]
+            - row "Physical Accept Digital Credentials SFTF Customer First 2026-01-01 2026-06-30 200000" [ref=e181]:
+              - cell "Physical Accept" [ref=e182]:
+                - textbox [ref=e183]: Physical Accept
+              - cell "Digital Credentials" [ref=e184]:
+                - combobox [ref=e185]:
+                  - option "Select..."
+                  - option "CIAM"
+                  - option "PAM"
+                  - option "Digital Credentials" [selected]
+                  - option "Data Lake"
+                  - option "Warehouse"
+              - cell "SFTF" [ref=e186]:
+                - combobox [ref=e187]:
+                  - option "Select..."
+                  - option "SFTF" [selected]
+                  - option "ISART"
+                  - option "Regulator"
+                  - option "Tech Debt"
+              - cell "Customer First" [ref=e188]:
+                - combobox [ref=e189]:
+                  - option "Select..."
+                  - option "Customer First" [selected]
+                  - option "Operational Excellence"
+                  - option "Digital Innovation"
+                  - option "Regulatory Compliance"
+              - cell "2026-01-01" [ref=e190]:
+                - textbox [ref=e191]: 2026-01-01
+              - cell "2026-06-30" [ref=e192]:
+                - textbox [ref=e193]: 2026-06-30
+              - cell "200000" [ref=e194]:
+                - spinbutton [ref=e195]: "200000"
+              - cell [ref=e196]:
+                - button "Delete row" [ref=e197]:
+                  - img [ref=e198]
+            - row "Digital Accept Digital Credentials SFTF Customer First 2026-07-01 2026-12-31 300000" [ref=e201]:
+              - cell "Digital Accept" [ref=e202]:
+                - textbox [ref=e203]: Digital Accept
+              - cell "Digital Credentials" [ref=e204]:
+                - combobox [ref=e205]:
+                  - option "Select..."
+                  - option "CIAM"
+                  - option "PAM"
+                  - option "Digital Credentials" [selected]
+                  - option "Data Lake"
+                  - option "Warehouse"
+              - cell "SFTF" [ref=e206]:
+                - combobox [ref=e207]:
+                  - option "Select..."
+                  - option "SFTF" [selected]
+                  - option "ISART"
+                  - option "Regulator"
+                  - option "Tech Debt"
+              - cell "Customer First" [ref=e208]:
+                - combobox [ref=e209]:
+                  - option "Select..."
+                  - option "Customer First" [selected]
+                  - option "Operational Excellence"
+                  - option "Digital Innovation"
+                  - option "Regulatory Compliance"
+              - cell "2026-07-01" [ref=e210]:
+                - textbox [ref=e211]: 2026-07-01
+              - cell "2026-12-31" [ref=e212]:
+                - textbox [ref=e213]: 2026-12-31
+              - cell "300000" [ref=e214]:
+                - spinbutton [ref=e215]: "300000"
+              - cell [ref=e216]:
+                - button "Delete row" [ref=e217]:
+                  - img [ref=e218]
+            - row "Legacy Migration Warehouse Tech Debt Operational Excellence 2026-06-01 2027-06-01 450000" [ref=e221]:
+              - cell "Legacy Migration" [ref=e222]:
+                - textbox [ref=e223]: Legacy Migration
+              - cell "Warehouse" [ref=e224]:
+                - combobox [ref=e225]:
+                  - option "Select..."
+                  - option "CIAM"
+                  - option "PAM"
+                  - option "Digital Credentials"
+                  - option "Data Lake"
+                  - option "Warehouse" [selected]
+              - cell "Tech Debt" [ref=e226]:
+                - combobox [ref=e227]:
+                  - option "Select..."
+                  - option "SFTF"
+                  - option "ISART"
+                  - option "Regulator"
+                  - option "Tech Debt" [selected]
+              - cell "Operational Excellence" [ref=e228]:
+                - combobox [ref=e229]:
+                  - option "Select..."
+                  - option "Customer First"
+                  - option "Operational Excellence" [selected]
+                  - option "Digital Innovation"
+                  - option "Regulatory Compliance"
+              - cell "2026-06-01" [ref=e230]:
+                - textbox [ref=e231]: 2026-06-01
+              - cell "2027-06-01" [ref=e232]:
+                - textbox [ref=e233]: 2027-06-01
+              - cell "450000" [ref=e234]:
+                - spinbutton [ref=e235]: "450000"
+              - cell [ref=e236]:
+                - button "Delete row" [ref=e237]:
+                  - img [ref=e238]
+            - row [ref=e241]:
+              - cell [ref=e242]:
+                - textbox [ref=e243]
+              - cell [ref=e244]:
+                - combobox [ref=e245]:
+                  - option [selected]
+                  - option "CIAM"
+                  - option "PAM"
+                  - option "Digital Credentials"
+                  - option "Data Lake"
+                  - option "Warehouse"
+              - cell [ref=e246]:
+                - combobox [ref=e247]:
+                  - option [selected]
+                  - option "SFTF"
+                  - option "ISART"
+                  - option "Regulator"
+                  - option "Tech Debt"
+              - cell [ref=e248]:
+                - combobox [ref=e249]:
+                  - option [selected]
+                  - option "Customer First"
+                  - option "Operational Excellence"
+                  - option "Digital Innovation"
+                  - option "Regulatory Compliance"
+              - cell [ref=e250]:
+                - textbox [ref=e251]
+              - cell [ref=e252]:
+                - textbox [ref=e253]
+              - cell [ref=e254]:
+                - spinbutton [ref=e255]
+              - cell [ref=e256]
+        - generic [ref=e258]:
+          - button "Add Row" [ref=e259]:
+            - img [ref=e260]
+            - text: Add Row
+          - button "Paste CSV" [ref=e261]:
+            - img [ref=e262]
+            - text: Paste CSV
+          - button "Clear All" [ref=e268]:
+            - img [ref=e269]
+            - text: Clear All
+```

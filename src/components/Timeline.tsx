@@ -258,6 +258,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     const handleMouseMove = (e: MouseEvent) => {
       if (resizing) {
         const deltaX = e.clientX - resizing.initialX;
+        if (Math.abs(deltaX) > 3) {
+          isDraggingRef.current = true;
+        }
         const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
 
         const initiative = localInitiatives.find(i => i.id === resizing.id);
