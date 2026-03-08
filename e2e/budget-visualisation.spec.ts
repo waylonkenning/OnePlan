@@ -4,7 +4,7 @@ test.describe('Budget Visualisation', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
         // Ensure we are in Visualiser mode
-        await expect(page.locator('button:has-text("Visualiser")')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Visualiser' })).toBeVisible();
     });
 
     test('can toggle budget visualisation to bar-height', async ({ page }) => {
@@ -16,7 +16,7 @@ test.describe('Budget Visualisation', () => {
         const initialHeight = initialBox?.height || 0;
 
         // Open settings
-        await page.getByRole('button', { name: 'Timeline Settings' }).click();
+        await page.getByRole('button', { name: 'Settings' }).click();
 
         // Change toggle to Bar Height
         await page.locator('select#budgetVisualisation').selectOption('bar-height');
@@ -31,7 +31,7 @@ test.describe('Budget Visualisation', () => {
 
     test('can toggle budget visualisation to label', async ({ page }) => {
         // Open settings
-        await page.getByRole('button', { name: 'Timeline Settings' }).click();
+        await page.getByRole('button', { name: 'Settings' }).click();
 
         // Change toggle to Label
         await page.locator('select#budgetVisualisation').selectOption('label');

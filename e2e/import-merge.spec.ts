@@ -63,7 +63,7 @@ test.describe('Import Preview & Merge', () => {
 
         // Trigger Import
         const fileChooserPromise = page.waitForEvent('filechooser');
-        await page.getByRole('button', { name: 'Import Excel' }).click();
+        await page.getByRole('button', { name: 'Import' }).click();
         const fileChooser = await fileChooserPromise;
         await fileChooser.setFiles(mockFilePath);
 

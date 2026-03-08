@@ -205,81 +205,84 @@ export default function App() {
 
   return (
     <div className="h-screen w-full bg-slate-100 p-6 flex flex-col">
-      <header className="mb-6 flex-shrink-0 flex justify-between items-start">
-        <div className="flex flex-col gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">OnePlan</h1>
-            <p className="text-slate-500">Strategic roadmap and conflict detection for IT assets</p>
-          </div>
+      <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-2 flex items-center gap-3">
+        {/* Logo */}
+        <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">OnePlan</h1>
 
-          <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm self-start">
-            <button
-              onClick={() => setView('visualiser')}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
-                view === 'visualiser'
-                  ? "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200"
-                  : "text-slate-600 hover:bg-slate-50"
-              )}
-            >
-              <LayoutGrid size={16} />
-              Visualiser
-            </button>
-            <button
-              onClick={() => setView('data')}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
-                view === 'data'
-                  ? "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200"
-                  : "text-slate-600 hover:bg-slate-50"
-              )}
-            >
-              <Table size={16} />
-              Data Manager
-            </button>
-          </div>
+        <div className="w-px h-6 bg-slate-200" />
 
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <input
-              type="search"
-              placeholder="Search initiatives..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
-            />
-          </div>
+        {/* View Toggle */}
+        <div className="flex bg-slate-100 rounded-lg p-0.5 border border-slate-200">
+          <button
+            onClick={() => setView('visualiser')}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+              view === 'visualiser'
+                ? "bg-white text-blue-700 shadow-sm ring-1 ring-blue-200"
+                : "text-slate-600 hover:text-slate-800"
+            )}
+          >
+            <LayoutGrid size={14} />
+            Visualiser
+          </button>
+          <button
+            onClick={() => setView('data')}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+              view === 'data'
+                ? "bg-white text-blue-700 shadow-sm ring-1 ring-blue-200"
+                : "text-slate-600 hover:text-slate-800"
+            )}
+          >
+            <Table size={14} />
+            Data Manager
+          </button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center bg-white rounded-lg border border-slate-200 shadow-sm p-1">
-            <button
-              onClick={handleUndo}
-              disabled={undoStack.length === 0}
-              className="p-1.5 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors"
-              title="Undo"
-            >
-              <Undo2 size={16} />
-            </button>
-            <div className="w-px h-4 bg-slate-200 mx-1" />
-            <button
-              onClick={handleRedo}
-              disabled={redoStack.length === 0}
-              className="p-1.5 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors"
-              title="Redo"
-            >
-              <Redo2 size={16} />
-            </button>
-          </div>
-
-          <div className="w-px h-6 bg-slate-200 mx-2" />
-
-          <DataControls
-            data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
-            onImport={handleUpdate}
-            timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
+        {/* Search */}
+        <div className="relative w-48">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+          <input
+            type="search"
+            placeholder="Search initiatives..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
+
+        {/* Spacer pushes remaining items right */}
+        <div className="flex-1" />
+
+        {/* Undo/Redo */}
+        <div className="flex items-center bg-slate-50 rounded-lg border border-slate-200 p-0.5">
+          <button
+            onClick={handleUndo}
+            disabled={undoStack.length === 0}
+            className="p-1.5 text-slate-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed rounded-md transition-colors"
+            title="Undo"
+          >
+            <Undo2 size={14} />
+          </button>
+          <div className="w-px h-3.5 bg-slate-200" />
+          <button
+            onClick={handleRedo}
+            disabled={redoStack.length === 0}
+            className="p-1.5 text-slate-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed rounded-md transition-colors"
+            title="Redo"
+          >
+            <Redo2 size={14} />
+          </button>
+        </div>
+
+        <div className="w-px h-6 bg-slate-200" />
+
+        {/* Data Controls (Settings, Export, Import) */}
+        <DataControls
+          data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
+          onImport={handleUpdate}
+          timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
+        />
       </header>
 
       <main className="flex-1 min-h-0">

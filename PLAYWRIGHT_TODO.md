@@ -6,6 +6,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Timeline Click Creation:**
     - [x] Verify double-clicking an empty space opens the creation panel.
     - [x] Verify asset and start date are pre-filled based on click coordinates.
+- [x] **Budget Visualisation:**
+    - [x] Verify bar height mode increases height for items with budget.
+    - [x] Verify label mode displays concise budget text.
 - [x] **Undo & Redo Functionality:**
     - [x] Verify buttons handle UI state reversions correctly.
     - [x] Verify Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z shortcuts work.

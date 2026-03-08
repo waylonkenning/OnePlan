@@ -143,18 +143,18 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
   };
 
   return (
-    <div className="flex items-center gap-2 relative">
+    <div className="flex items-center gap-1.5 relative">
       <button
         onClick={() => setShowSettings(!showSettings)}
-        className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
         title="Timeline Settings"
       >
-        <Settings size={16} />
-        Timeline Settings
+        <Settings size={14} />
+        Settings
       </button>
 
       {showSettings && (
-        <div className="absolute top-12 left-0 w-64 bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4">
+        <div className="absolute top-10 right-0 w-64 bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-semibold text-slate-800">Timeline Settings</h3>
             <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600">
@@ -219,36 +219,34 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
         </div>
       )}
 
-      <div className="h-6 w-px bg-slate-200 mx-1" />
+      <div className="h-4 w-px bg-slate-200" />
 
       <button
         onClick={handleExportPDF}
-        className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
         title="Download roadmap as PDF"
         disabled={!timelineId}
       >
-        <FileText size={16} />
-        Export PDF
+        <FileText size={14} />
+        PDF
       </button>
-
-      <div className="h-6 w-px bg-slate-200 mx-1" />
 
       <button
         onClick={handleExportExcel}
-        className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
         title="Download current data as Excel"
       >
-        <FileSpreadsheet size={16} />
-        Export Excel
+        <FileSpreadsheet size={14} />
+        Export
       </button>
 
       <button
         onClick={handleImportClick}
-        className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
         title="Upload Excel file to update data"
       >
-        <Upload size={16} />
-        Import Excel
+        <Upload size={14} />
+        Import
       </button>
 
       <input

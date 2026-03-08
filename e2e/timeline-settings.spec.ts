@@ -31,7 +31,7 @@ test.describe('Timeline Settings', () => {
     await expect(page.getByTestId('timeline-col-2029-q1')).toHaveCount(0);
 
     // Open Data Controls / Settings (We'll add a 'Timeline Settings' button)
-    const settingsButton = page.getByRole('button', { name: 'Timeline Settings' });
+    const settingsButton = page.getByRole('button', { name: 'Settings' });
     await expect(settingsButton).toBeVisible();
     await settingsButton.click();
 
