@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
-import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid } from 'date-fns';
+import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, Palette, ChevronRight, ChevronDown, Settings, Grid, Calendar, Target } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
@@ -263,7 +263,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         const initiative = localInitiatives.find(i => i.id === resizing.id);
         if (!initiative) return;
 
-        const newDate = format(addDays(parseISO(resizing.initialDate), deltaDays), 'yyyy-MM-dd');
+        const rawNewDate = addDays(parseISO(resizing.initialDate), deltaDays);
+        const snappedDate = settings.snapToPeriod === 'month' && resizing.edge === 'start' ? startOfMonth(rawNewDate) : rawNewDate;
+        const newDate = format(snappedDate, 'yyyy-MM-dd');
 
         const updatedInitiatives = localInitiatives.map(i => {
           if (i.id === resizing.id) {
@@ -314,10 +316,14 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
           const updatedInitiatives = localInitiatives.map(i => {
             if (i.id === moving.id) {
+              const rawStart = addDays(parseISO(moving.initialStart), deltaDays);
+              const snappedStart = settings.snapToPeriod === 'month' ? startOfMonth(rawStart) : rawStart;
+              const actualDeltaDays = differenceInDays(snappedStart, parseISO(moving.initialStart));
+
               return {
                 ...i,
-                startDate: format(addDays(parseISO(moving.initialStart), deltaDays), 'yyyy-MM-dd'),
-                endDate: format(addDays(parseISO(moving.initialEnd), deltaDays), 'yyyy-MM-dd'),
+                startDate: format(snappedStart, 'yyyy-MM-dd'),
+                endDate: format(addDays(parseISO(moving.initialEnd), actualDeltaDays), 'yyyy-MM-dd'),
               };
             }
             return i;
@@ -327,7 +333,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       } else if (movingMilestone) {
         const deltaX = e.clientX - movingMilestone.initialX;
         const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
-        const newDate = format(addDays(parseISO(movingMilestone.initialDate), deltaDays), 'yyyy-MM-dd');
+        const rawNewDate = addDays(parseISO(movingMilestone.initialDate), deltaDays);
+        const snappedDate = settings.snapToPeriod === 'month' ? startOfMonth(rawNewDate) : rawNewDate;
+        const newDate = format(snappedDate, 'yyyy-MM-dd');
 
         const updatedMilestones = localMilestones.map(m => {
           if (m.id === movingMilestone.id) {

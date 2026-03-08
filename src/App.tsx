@@ -92,7 +92,7 @@ export default function App() {
           setStrategies(dbData.strategies || []);
           setDependencies(dbData.dependencies || []);
           setAssetCategories(dbData.assetCategories || []);
-          setTimelineSettings(dbData.timelineSettings || defaultTimelineSettings);
+          setTimelineSettings({ ...defaultTimelineSettings, ...(dbData.timelineSettings || {}) });
         }
       } catch (error) {
         console.error('Failed to load data from DB:', error);
@@ -343,6 +343,23 @@ export default function App() {
             >
               <option value="show">Show</option>
               <option value="hide">Hide</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-1.5 text-xs text-slate-500 ml-2">
+            Snap
+            <select
+              id="snapToPeriod"
+              value={timelineSettings.snapToPeriod || 'off'}
+              onChange={(e) => {
+                handleUpdate({
+                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                  timelineSettings: { ...timelineSettings, snapToPeriod: e.target.value as 'off' | 'month' },
+                });
+              }}
+              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="off">Off</option>
+              <option value="month">Month</option>
             </select>
           </label>
         </div>

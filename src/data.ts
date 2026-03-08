@@ -5,6 +5,8 @@ export const defaultTimelineSettings: TimelineSettings = {
   yearsToShow: 3,
   budgetVisualisation: 'off',
   descriptionDisplay: 'off',
+  emptyRowDisplay: 'show',
+  snapToPeriod: 'off',
 };
 
 export const assetCategories: AssetCategory[] = [
