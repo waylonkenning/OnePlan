@@ -413,7 +413,7 @@ export function EditableTable<T extends { [key: string]: any }>({
             className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 border border-red-100 rounded-lg hover:bg-red-50 hover:border-red-200 transition-all shadow-sm font-medium text-sm"
           >
             <Trash2 size={16} />
-            Clear All
+            Delete all rows for this table
           </button>
         </div>
       </div>

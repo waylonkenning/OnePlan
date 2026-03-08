@@ -34,7 +34,7 @@ test.describe('Data Manager Operations', () => {
 
   test('Clear All Rows', async ({ page }) => {
     page.on('dialog', dialog => dialog.accept());
-    await page.getByRole('button', { name: 'Clear All' }).click();
+    await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
 
     const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(0);
@@ -45,7 +45,7 @@ test.describe('Data Manager Operations', () => {
 
   test('CSV Paste: Import New', async ({ page }) => {
     page.on('dialog', dialog => dialog.accept());
-    await page.getByRole('button', { name: 'Clear All' }).click();
+    await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Use the correct column order from DataManager.tsx: name, assetId, programmeId, strategyId, startDate, endDate, budget
@@ -87,7 +87,7 @@ test.describe('Data Manager Operations', () => {
   test('CSV Paste: Multi-word & Quoted Values', async ({ page }) => {
     await page.getByRole('button', { name: 'Assets' }).click();
     page.on('dialog', dialog => dialog.accept());
-    await page.getByRole('button', { name: 'Clear All' }).click();
+    await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Asset columns: id, name, categoryId
