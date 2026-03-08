@@ -53,7 +53,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
 
 ## 4. Data Controls (Import/Export)
 - [x] **Excel Export:** Trigger "Export Excel" and verify a `.xlsx` file is generated containing all sheets (Initiatives, Assets, Programmes, Strategies, Milestones).
-- [ ] **Excel Import:** Upload a valid Excel file and verify it completely overwrites the current local state.
+- [x] **Excel Import:** Upload a valid Excel file and verify the Import Preview modal appears.
+    - [x] **Merge Data:** Verify that clicking 'Merge Data' updates existing items, adds new items, and retains existing unreferenced items.
+    - [x] **Overwrite All Data:** Verify backwards compatibility where 'Overwrite All Data' completely replaces the application state.
 - [x] **PDF Export:** Trigger "Export PDF" while in Visualiser view and verify a PDF file is generated (checking for reasonable file size/optimization).
 
 ## 5. Edge Cases & Safety
