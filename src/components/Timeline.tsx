@@ -708,13 +708,25 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     labelX = overlapX + 5;
                     labelY = (startY + endY) / 2;
                   } else {
-                    // Bars don't overlap — use a simple stepped path (L-shape/S-shape)
-                    // Exit source middle-right, travel to midpoint between them, 
-                    // then vertically to target row, then horizontally to target middle-left.
-                    const midX = (sEndX + tStartX) / 2;
-                    path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
-                    labelX = midX + 5;
-                    labelY = (sMidY + tMidY) / 2;
+                    // Bars don't overlap — check if they are very close horizontally
+                    const horizontalGap = Math.abs(tStartX - sEndX);
+                    
+                    if (horizontalGap < 40) {
+                      // Very close horizontally — use a vertical connection from bottom to top
+                      // or vice versa depending on vertical order
+                      const x = (sEndX + tStartX) / 2;
+                      const startY = source.y < target.y ? sBottom : source.y;
+                      const endY = source.y < target.y ? target.y : tBottom;
+                      path = `M ${x} ${startY} L ${x} ${endY}`;
+                      labelX = x + 5;
+                      labelY = (startY + endY) / 2;
+                    } else {
+                      // Simple stepped path (S-shape) for larger horizontal gaps
+                      const midX = (sEndX + tStartX) / 2;
+                      path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
+                      labelX = midX + 5;
+                      labelY = (sMidY + tMidY) / 2;
+                    }
                   }
                 } else {
                   // === CROSS-ASSET ROUTING ===
