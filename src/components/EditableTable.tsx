@@ -20,6 +20,7 @@ interface EditableTableProps<T> {
   data: T[];
   columns: Column<T>[];
   onUpdate: (newData: T[]) => void;
+  onDelete?: (deletedRow: T) => boolean; // If returns true, delete was handled externally
   idField: keyof T;
   searchQuery?: string;
 }
@@ -28,6 +29,7 @@ export function EditableTable<T extends { [key: string]: any }>({
   data,
   columns,
   onUpdate,
+  onDelete,
   idField,
   searchQuery
 }: EditableTableProps<T>) {
@@ -145,6 +147,10 @@ export function EditableTable<T extends { [key: string]: any }>({
   };
 
   const handleDelete = (index: number) => {
+    const row = rows[index];
+    if (onDelete && onDelete(row)) {
+      return; // External handler took care of it
+    }
     const newRows = rows.filter((_, i) => i !== index);
     setRows(newRows);
     onUpdate(newRows);
