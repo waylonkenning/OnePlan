@@ -21,54 +21,26 @@ test.describe('Timeline Settings', () => {
     await expect(page.locator('#timeline-visualiser')).toBeVisible();
 
     // Verify default state: 2026 to 2028
-    const columns = page.locator('#timeline-visualiser .flex-shrink-0.border-r');
-    // First column year label
-    await expect(columns.locator('.text-xs').first()).toHaveText('2026');
-    // We expect 3 years * 4 quarters = 12 column headers + 1 for 'IT Asset'
-    // But depending on the exact DOM structure we might have exactly 12 time column divs
-    // We can check that 2029 is NOT visible by default
     await expect(page.getByTestId('timeline-col-2024-q1')).toHaveCount(0);
     await expect(page.getByTestId('timeline-col-2029-q1')).toHaveCount(0);
 
-    // Open Data Controls / Settings (We'll add a 'Timeline Settings' button)
-    const settingsButton = page.getByRole('button', { name: 'Settings' });
-    await expect(settingsButton).toBeVisible();
-    await settingsButton.click();
-
-    // Verify popover/modal appears with inputs
-    const startYearInput = page.getByLabel('Start Year');
-    const durationInput = page.getByLabel('Years to Show');
+    // Settings are now inline in the header — find by label
+    const startYearInput = page.getByLabel('Start');
+    const yearsInput = page.getByLabel('Years');
 
     // Check default values
     await expect(startYearInput).toHaveValue('2026');
-    await expect(durationInput).toHaveValue('3');
+    await expect(yearsInput).toHaveValue('3');
 
+    // Change settings — they apply immediately, no Save button needed
     await startYearInput.fill('2024');
-    await durationInput.fill('5');
+    await yearsInput.fill('5');
 
-    const html = await page.content();
-    console.log("HTML before save:", html.substring(0, 500) + "...");
-
-
-    // Click outside to close or submit if there's a button
-    // (We'll implement a 'Save' button in the popover)
-    await page.evaluate(() => {
-      const buttons = Array.from(document.querySelectorAll('button'));
-      const saveBtn = buttons.find(b => b.textContent?.includes('Save Settings'));
-      if (saveBtn) saveBtn.click();
-    });
-
-    // Wait for a brief moment for state changes
+    // Wait for state update
     await page.waitForTimeout(500);
 
-    const htmlAfter = await page.content();
-    console.log("HTML after save contains 2024:", htmlAfter.includes("2024"));
-    console.log("HTML after save contains timeline-col-2024-q1:", htmlAfter.includes("timeline-col-2024-q1"));
-
     // Verify the timeline has updated
-    // 2024 should now be visible
     await expect(page.getByTestId('timeline-col-2024-q1')).toBeVisible();
-    // 2028 should still be visible (2024, 25, 26, 27, 28 = 5 years)
     await expect(page.getByTestId('timeline-col-2028-q4')).toBeVisible();
 
     // Verify persistence across reload
