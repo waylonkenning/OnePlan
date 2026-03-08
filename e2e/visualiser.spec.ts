@@ -21,7 +21,7 @@ test.describe('Visualiser (Timeline)', () => {
     // Click By Strategy
     await byStratBtn.click();
     await expect(byStratBtn).toHaveClass(/bg-white text-indigo-600/);
-    
+
     // Check if legend updated (e.g. 'Customer First' is a strategy name)
     await expect(page.getByText('Strategies:').first()).toBeVisible();
     await expect(page.getByText('Customer First').first()).toBeVisible();
@@ -30,16 +30,16 @@ test.describe('Visualiser (Timeline)', () => {
   test('Conflict Detection', async ({ page }) => {
     // Navigate to data manager to create a conflict
     await page.getByRole('button', { name: 'Data Manager' }).click();
-    
+
     // Clear initiatives and add two overlapping ones on the same asset
     page.on('dialog', dialog => dialog.accept());
-    await page.getByRole('button', { name: 'Clear All' }).click();
+    await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Ensure significant overlap within 2026-2028 range
     const textarea = page.locator('textarea');
     await textarea.fill(`id,name,assetId,startDate,endDate,budget\nconf-1,Conflict A,asset-1,2026-04-01,2026-12-31,100\nconf-2,Conflict B,asset-1,2026-04-01,2026-12-31,100`);
-    
+
     await page.waitForTimeout(1000);
     const importBtn = page.getByRole('button', { name: 'Import Rows' });
     await expect(importBtn).toBeEnabled();
@@ -69,7 +69,7 @@ test.describe('Visualiser (Timeline)', () => {
 
     // Find the first initiative bar
     const initiative = page.locator('div[title*="Web Channel Integration"]').first();
-    
+
     // Get initial position and width
     const initialBox = await initiative.boundingBox();
     if (!initialBox) throw new Error("Could not find bounding box");
@@ -77,7 +77,7 @@ test.describe('Visualiser (Timeline)', () => {
     // The handles are absolute positioned divs at left and right
     // Target the right handle specifically
     const rightHandle = initiative.locator('.cursor-ew-resize').nth(1);
-    
+
     await rightHandle.hover();
     const handleBox = await rightHandle.boundingBox();
     if (!handleBox) throw new Error("Could not find handle box");

@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
-import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree } from 'lucide-react';
+import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree, Trash2, RotateCcw } from 'lucide-react';
+import {
+  demoAssets, demoInitiatives, demoMilestones, demoProgrammes, demoStrategies,
+  demoDependencies, demoAssetCategories, demoTimelineSettings
+} from '../demoData';
 
 interface DataManagerProps {
   data: {
@@ -315,6 +319,49 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
             searchQuery={searchQuery}
           />
         )}
+      </div>
+
+      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-slate-200">
+        <button
+          onClick={() => {
+            if (window.confirm('This will permanently delete ALL data across every table (Initiatives, Assets, Programmes, etc.). This cannot be undone. Continue?')) {
+              onUpdate({
+                ...data,
+                assets: [],
+                initiatives: [],
+                milestones: [],
+                programmes: [],
+                strategies: [],
+                dependencies: [],
+                assetCategories: [],
+              });
+            }
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-all shadow-sm font-medium text-sm"
+        >
+          <Trash2 size={16} />
+          Reset - delete all data
+        </button>
+        <button
+          onClick={() => {
+            if (window.confirm('This will replace ALL current data with a comprehensive demo dataset for a large corporate IT organisation. Your existing data will be lost. Continue?')) {
+              onUpdate({
+                assets: demoAssets,
+                initiatives: demoInitiatives,
+                milestones: demoMilestones,
+                programmes: demoProgrammes,
+                strategies: demoStrategies,
+                dependencies: demoDependencies,
+                assetCategories: demoAssetCategories,
+                timelineSettings: demoTimelineSettings,
+              });
+            }
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all shadow-sm font-medium text-sm"
+        >
+          <RotateCcw size={16} />
+          Reset - use demo data
+        </button>
       </div>
     </div>
   );
