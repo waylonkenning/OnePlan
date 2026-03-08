@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
-import { AlertTriangle, Star, Info, Palette } from 'lucide-react';
+import { AlertTriangle, Star, Info, Palette, ChevronRight, Settings, Grid, Calendar, Target } from 'lucide-react';
+import { InitiativePanel } from './InitiativePanel';
 
 interface TimelineProps {
   assets: Asset[];
@@ -23,6 +24,8 @@ const CELL_WIDTH = 200; // Width of one quarter column
 
 export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
+  const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
+  const isDraggingRef = useRef(false);
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
   const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialDate: string } | null>(null);
@@ -110,7 +113,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     for (let i = 0; i < settings.yearsToShow * 4; i++) {
       cols.push({
         date: currentDate,
-        label: `Q${getQuarter(currentDate)} ${getYear(currentDate)}`,
+        label: `Q${getQuarter(currentDate)} ${getYear(currentDate)} `,
         year: getYear(currentDate),
         quarter: getQuarter(currentDate),
       });
@@ -223,6 +226,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         const deltaX = e.clientX - moving.initialX;
         const deltaY = e.clientY - moving.initialY;
 
+        // Mark as dragging if coordinates moved more than a few pixels
+        if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+          isDraggingRef.current = true; // Assuming isDraggingRef is defined elsewhere
+        }
+        e.preventDefault();
+
         // If we moved vertically more than 30px, switch to drawing dependency
         if (!drawingDependency && Math.abs(deltaY) > 30) {
           const sourcePos = initiativePositions.get(moving.id);
@@ -300,7 +309,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
         if (targetId && targetId !== drawingDependency.sourceId) {
           const newDependency: Dependency = {
-            id: `dep-${Date.now()}`,
+            id: `dep - ${Date.now()} `,
             sourceId: drawingDependency.sourceId,
             targetId: targetId,
             type: 'blocks'
@@ -538,7 +547,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           {isCurrentTimeVisible && (
             <div
               className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
-              style={{ left: `calc(16rem + ${currentPos}%)` }}
+              style={{ left: `calc(16rem + ${currentPos} %)` }}
             >
               <div className="absolute top-0 -translate-y-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] px-1 rounded">Now</div>
             </div>
@@ -571,12 +580,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   const overlapX = (Math.max(256 + (source.x / 100) * totalWidth, tStartX) + Math.min(sEndX, 256 + ((target.x + target.width) / 100) * totalWidth)) / 2;
                   const startY = source.y < target.y ? source.y + source.height : source.y;
                   const endY = source.y < target.y ? target.y : target.y + target.height;
-                  path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
+                  path = `M ${overlapX} ${startY} L ${overlapX} ${endY} `;
                   labelX = overlapX + 5;
                   labelY = (startY + endY) / 2;
                 } else {
                   const midX = (sEndX + tStartX) / 2;
-                  path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
+                  path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY} `;
                   labelX = midX;
                   labelY = (sMidY + tMidY) / 2;
                 }
@@ -611,7 +620,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               {/* Live drawing arrow */}
               {drawingDependency && (
                 <path
-                  d={`M ${drawingDependency.startX} ${drawingDependency.startY} L ${drawingDependency.currentX} ${drawingDependency.currentY}`}
+                  d={`M ${drawingDependency.startX} ${drawingDependency.startY} L ${drawingDependency.currentX} ${drawingDependency.currentY} `}
                   stroke="#3b82f6"
                   strokeWidth="3"
                   fill="none"
@@ -694,8 +703,24 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                               <div
                                 key={init.id}
                                 data-initiative-id={init.id}
-                                onMouseDown={(e) => handleMouseDown(e, init)}
-                                draggable="false"
+                                onMouseDown={(e) => {
+                                  isDraggingRef.current = false;
+                                  setMoving({
+                                    id: init.id,
+                                    initialX: e.clientX,
+                                    initialY: e.clientY,
+                                    initialStart: init.startDate,
+                                    initialEnd: init.endDate
+                                  });
+                                }}
+                                onClick={(e) => {
+                                  // Prevent clicking if we just finished a drag
+                                  if (isDraggingRef.current) {
+                                    isDraggingRef.current = false;
+                                    return;
+                                  }
+                                  setSelectedInitiativeId(init.id);
+                                }}
                                 className={cn(
                                   "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 text-white overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
                                   colorClass
@@ -764,6 +789,19 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           </div>
         </div>
       </div>
+
+      <InitiativePanel
+        isOpen={selectedInitiativeId !== null}
+        onClose={() => setSelectedInitiativeId(null)}
+        initiative={initiatives.find(i => i.id === selectedInitiativeId) || null}
+        assets={assets}
+        programmes={programmes}
+        strategies={strategies}
+        onSave={(updatedInitiative) => {
+          if (onUpdateInitiative) onUpdateInitiative(updatedInitiative);
+          setSelectedInitiativeId(null);
+        }}
+      />
     </div>
   );
 }

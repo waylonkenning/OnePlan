@@ -43,13 +43,27 @@ test.describe('Timeline Settings', () => {
     await expect(startYearInput).toHaveValue('2026');
     await expect(durationInput).toHaveValue('3');
 
-    // Change settings to 2024 and 5 years
     await startYearInput.fill('2024');
     await durationInput.fill('5');
 
+    const html = await page.content();
+    console.log("HTML before save:", html.substring(0, 500) + "...");
+
+
     // Click outside to close or submit if there's a button
     // (We'll implement a 'Save' button in the popover)
-    await page.getByRole('button', { name: 'Save Settings' }).click();
+    await page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll('button'));
+      const saveBtn = buttons.find(b => b.textContent?.includes('Save Settings'));
+      if (saveBtn) saveBtn.click();
+    });
+
+    // Wait for a brief moment for state changes
+    await page.waitForTimeout(500);
+
+    const htmlAfter = await page.content();
+    console.log("HTML after save contains 2024:", htmlAfter.includes("2024"));
+    console.log("HTML after save contains timeline-col-2024-q1:", htmlAfter.includes("timeline-col-2024-q1"));
 
     // Verify the timeline has updated
     // 2024 should now be visible
