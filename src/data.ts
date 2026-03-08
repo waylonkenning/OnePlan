@@ -1,4 +1,9 @@
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from './types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
+
+export const defaultTimelineSettings: TimelineSettings = {
+  startYear: 2026,
+  yearsToShow: 3,
+};
 
 export const assetCategories: AssetCategory[] = [
   { id: 'cat-1', name: 'Identity Assets', order: 1 },

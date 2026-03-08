@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 
 interface ITMapDB extends DBSchema {
   assets: {
@@ -30,10 +30,14 @@ interface ITMapDB extends DBSchema {
     key: string;
     value: AssetCategory;
   };
+  settings: {
+    key: string;
+    value: TimelineSettings;
+  };
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
@@ -44,23 +48,20 @@ export const initDB = () => {
         if (!db.objectStoreNames.contains('assets')) {
           db.createObjectStore('assets', { keyPath: 'id' });
         }
-        if (!db.objectStoreNames.contains('initiatives')) {
+        if (oldVersion < 2 && !db.objectStoreNames.contains('initiatives')) {
           db.createObjectStore('initiatives', { keyPath: 'id' });
         }
-        if (!db.objectStoreNames.contains('milestones')) {
+        if (oldVersion < 3 && !db.objectStoreNames.contains('milestones')) {
           db.createObjectStore('milestones', { keyPath: 'id' });
         }
-        if (!db.objectStoreNames.contains('programmes')) {
+        if (oldVersion < 4 && !db.objectStoreNames.contains('programmes')) {
           db.createObjectStore('programmes', { keyPath: 'id' });
-        }
-        if (!db.objectStoreNames.contains('strategies')) {
           db.createObjectStore('strategies', { keyPath: 'id' });
-        }
-        if (!db.objectStoreNames.contains('dependencies')) {
           db.createObjectStore('dependencies', { keyPath: 'id' });
-        }
-        if (!db.objectStoreNames.contains('assetCategories')) {
           db.createObjectStore('assetCategories', { keyPath: 'id' });
+        }
+        if (oldVersion < 5 && !db.objectStoreNames.contains('settings')) {
+          db.createObjectStore('settings');
         }
       },
     });
@@ -78,6 +79,13 @@ export const getAppData = async () => {
   const dependencies = await db.getAll('dependencies');
   const assetCategories = await db.getAll('assetCategories');
 
+  // Settings is not a standard list of entities, it's just one config object
+  let settingsFromDb = null;
+  if (db.objectStoreNames.contains('settings')) {
+    settingsFromDb = await db.get('settings', 'timelineSettings');
+  }
+  const timelineSettings = settingsFromDb || { startYear: 2026, yearsToShow: 3 };
+
   return {
     assets,
     initiatives,
@@ -86,6 +94,7 @@ export const getAppData = async () => {
     strategies,
     dependencies,
     assetCategories,
+    timelineSettings,
   };
 };
 
@@ -97,11 +106,18 @@ export const saveAppData = async (data: {
   strategies: Strategy[];
   dependencies: Dependency[];
   assetCategories: AssetCategory[];
+  timelineSettings: TimelineSettings;
 }) => {
   const db = await initDB();
-  const tx = db.transaction(['assets', 'initiatives', 'milestones', 'programmes', 'strategies', 'dependencies', 'assetCategories'], 'readwrite');
+  const stores: ("assets" | "initiatives" | "milestones" | "programmes" | "strategies" | "dependencies" | "assetCategories" | "settings")[] = [
+    'assets', 'initiatives', 'milestones', 'programmes', 'strategies', 'dependencies', 'assetCategories'
+  ];
+  if (db.objectStoreNames.contains('settings')) {
+    stores.push('settings');
+  }
+  const tx = db.transaction(stores, 'readwrite');
 
-  await Promise.all([
+  const clearPromises = [
     tx.objectStore('assets').clear(),
     tx.objectStore('initiatives').clear(),
     tx.objectStore('milestones').clear(),
@@ -109,9 +125,13 @@ export const saveAppData = async (data: {
     tx.objectStore('strategies').clear(),
     tx.objectStore('dependencies').clear(),
     tx.objectStore('assetCategories').clear(),
-  ]);
+  ];
+  if (db.objectStoreNames.contains('settings')) {
+    clearPromises.push(tx.objectStore('settings').clear());
+  }
+  await Promise.all(clearPromises);
 
-  await Promise.all([
+  const addPromises = [
     ...data.assets.map(item => tx.objectStore('assets').add(item)),
     ...data.initiatives.map(item => tx.objectStore('initiatives').add(item)),
     ...data.milestones.map(item => tx.objectStore('milestones').add(item)),
@@ -119,7 +139,11 @@ export const saveAppData = async (data: {
     ...data.strategies.map(item => tx.objectStore('strategies').add(item)),
     ...data.dependencies.map(item => tx.objectStore('dependencies').add(item)),
     ...data.assetCategories.map(item => tx.objectStore('assetCategories').add(item)),
-  ]);
+  ];
+  if (db.objectStoreNames.contains('settings')) {
+    addPromises.push(tx.objectStore('settings').put(data.timelineSettings, 'timelineSettings'));
+  }
+  await Promise.all(addPromises);
 
   await tx.done;
 };
