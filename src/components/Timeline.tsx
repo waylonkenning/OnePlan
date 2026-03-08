@@ -748,11 +748,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     labelX = x + 5;
                     labelY = (startY + endY) / 2;
                   } else {
-                    // Not overlapping — consistent L-shape: exit source, travel vertically, enter target
-                    // Corner placed just past source end (not at midpoint) for consistency
-                    const cornerX = sEndX + 15;
-                    path = `M ${sEndX} ${sMidY} L ${cornerX} ${sMidY} L ${cornerX} ${tMidY} L ${tStartX} ${tMidY}`;
-                    labelX = cornerX + 5;
+                    // Not overlapping — use a stepped S-curve that travels vertically 
+                    // between the source and target rows to avoid crossing them.
+                    const midX = (sEndX + tStartX) / 2;
+                    
+                    // Route from source mid-point, out to midX, down/up to target mid-point, in to target
+                    path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
+                    labelX = midX + 5;
                     labelY = (sMidY + tMidY) / 2;
                   }
                 }
