@@ -15,6 +15,7 @@ interface TimelineProps {
   assetCategories: AssetCategory[];
   settings: TimelineSettings;
   onUpdateInitiative?: (initiative: Initiative) => void;
+  onAddInitiative?: (initiative: Initiative) => void;
   onUpdateAssets?: (assets: Asset[]) => void;
   onUpdateDependencies?: (dependencies: Dependency[]) => void;
   onUpdateMilestone?: (milestone: Milestone) => void;
@@ -23,7 +24,7 @@ interface TimelineProps {
 
 const CELL_WIDTH = 200; // Width of one quarter column
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, searchQuery }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onAddInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, searchQuery }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
   const isDraggingRef = useRef(false);
@@ -40,6 +41,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
   const [draggingAssetId, setDraggingAssetId] = useState<string | null>(null);
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
+
+  const [creatingInitiativeParams, setCreatingInitiativeParams] = useState<{ assetId: string, startDate: string, endDate: string } | null>(null);
 
   const [initiativePositions, setInitiativePositions] = useState<Map<string, { x: number; y: number; width: number; height: number }>>(new Map());
 
@@ -178,6 +181,23 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     } catch (e) {
       return 0.5;
     }
+  };
+
+  const handleRowDoubleClick = (e: React.MouseEvent, assetId: string) => {
+    // Avoid triggering if clicking on an existing initiative or milestone
+    if ((e.target as HTMLElement).closest('[data-initiative-id]') || (e.target as HTMLElement).closest('[data-milestone-id]')) return;
+
+    const offsetX = e.nativeEvent.offsetX;
+    const percentage = (offsetX / totalWidth) * 100;
+    const daysFromStart = Math.round((percentage / 100) * totalDays);
+    const calculatedStartDate = format(addDays(startDate, daysFromStart), 'yyyy-MM-dd');
+    const calculatedEndDate = format(addDays(startDate, daysFromStart + 90), 'yyyy-MM-dd'); // 90 days default duration
+
+    setCreatingInitiativeParams({
+      assetId,
+      startDate: calculatedStartDate,
+      endDate: calculatedEndDate
+    });
   };
 
   const handleResizeStart = (e: React.MouseEvent, id: string, edge: 'start' | 'end', initialDate: string) => {
@@ -711,7 +731,11 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                         </div>
 
 
-                        <div className="relative flex-shrink-0" style={{ width: totalWidth, height: rowHeight }}>
+                        <div
+                          className="relative flex-shrink-0"
+                          style={{ width: totalWidth, height: rowHeight }}
+                          onDoubleClick={(e) => handleRowDoubleClick(e, asset.id)}
+                        >
                           <div className="absolute inset-0 flex pointer-events-none">
                             {timeColumns.map((col, idx) => (
                               <div key={idx} className={cn("border-r border-slate-100 h-full", col.quarter === 1 && "border-l-2 border-l-slate-200")} style={{ width: CELL_WIDTH }} />
@@ -818,15 +842,39 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       </div>
 
       <InitiativePanel
-        isOpen={selectedInitiativeId !== null}
-        onClose={() => setSelectedInitiativeId(null)}
-        initiative={initiatives.find(i => i.id === selectedInitiativeId) || null}
+        isOpen={selectedInitiativeId !== null || creatingInitiativeParams !== null}
+        onClose={() => {
+          setSelectedInitiativeId(null);
+          setCreatingInitiativeParams(null);
+        }}
+        initiative={
+          selectedInitiativeId
+            ? initiatives.find(i => i.id === selectedInitiativeId) || null
+            : creatingInitiativeParams
+              ? {
+                id: `init-new-${Date.now()}`,
+                name: '',
+                description: '',
+                assetId: creatingInitiativeParams.assetId,
+                programmeId: programmes[0]?.id || '',
+                strategyId: strategies[0]?.id || '',
+                startDate: creatingInitiativeParams.startDate,
+                endDate: creatingInitiativeParams.endDate,
+                budget: 0,
+              }
+              : null
+        }
         assets={assets}
         programmes={programmes}
         strategies={strategies}
-        onSave={(updatedInitiative) => {
-          if (onUpdateInitiative) onUpdateInitiative(updatedInitiative);
+        onSave={(initiative) => {
+          if (selectedInitiativeId) {
+            if (onUpdateInitiative) onUpdateInitiative(initiative);
+          } else {
+            if (onAddInitiative) onAddInitiative(initiative);
+          }
           setSelectedInitiativeId(null);
+          setCreatingInitiativeParams(null);
         }}
       />
     </div>

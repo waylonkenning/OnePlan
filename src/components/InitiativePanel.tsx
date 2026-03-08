@@ -42,7 +42,9 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
         >
             <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
                 <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50 flex-shrink-0">
-                    <h2 className="text-lg font-semibold text-slate-800">Edit Initiative</h2>
+                    <h2 className="text-lg font-semibold text-slate-800">
+                        {formData.id.includes('new') ? 'Create Initiative' : 'Edit Initiative'}
+                    </h2>
                     <button
                         onClick={onClose}
                         className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-md transition-colors"
