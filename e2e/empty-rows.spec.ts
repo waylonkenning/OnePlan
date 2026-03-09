@@ -28,4 +28,27 @@ test.describe('Data Entry with Empty Rows', () => {
     const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(25);
   });
+
+  test('Should not lose focus when typing in a blank row', async ({ page }) => {
+    const nameInput = page.getByTestId('ghost-input-name');
+
+    // Type "server" character by character
+    await nameInput.click();
+    await page.keyboard.type('server');
+
+    // Verify value is still in the same input and focus wasn't lost
+    await expect(nameInput).toHaveValue('server');
+    
+    // Trigger blur to save (this is when the row actually spawns)
+    await nameInput.blur();
+
+    // Give it a tiny moment to process state
+    await page.waitForTimeout(100);
+
+    // Verify it became a real row by its value
+    await expect(page.locator('input[value="server"]')).toBeVisible();
+
+    // Verify the ghost input is now empty again for next entry
+    await expect(nameInput).toHaveValue('');
+  });
 });
