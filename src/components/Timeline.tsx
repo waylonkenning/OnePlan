@@ -694,55 +694,28 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 // Check if bars overlap horizontally
                 const barsOverlap = sStartX < tEndX && tStartX < sEndX;
 
-                // For "straight connectors", we use direct point-to-point lines
-                // between the most logical connection points.
-                if (sameAsset) {
-                  if (barsOverlap) {
-                    // Overlapping same-asset bars — prefer connecting from the end of source 
-                    // if it falls within the target's range, otherwise use midpoint.
-                    // This creates a cleaner "straight" vertical line at the logical boundary.
-                    const useSourceEnd = sEndX >= tStartX && sEndX <= tEndX;
-                    const useTargetStart = tStartX >= sStartX && tStartX <= sEndX;
-                    
-                    let x: number;
-                    if (useSourceEnd) x = sEndX;
-                    else if (useTargetStart) x = tStartX;
-                    else x = (Math.max(sStartX, tStartX) + Math.min(sEndX, tEndX)) / 2;
+                // Orthogonal Shortest Path Routing
+                if (barsOverlap) {
+                  // Horizontal overlap exists - use a straight vertical line at the overlap midpoint.
+                  // This is the "shortest path" between the two nearest edges (top and bottom).
+                  const overlapLeft = Math.max(sStartX, tStartX);
+                  const overlapRight = Math.min(sEndX, tEndX);
+                  const x = (overlapLeft + overlapRight) / 2;
 
-                    const startY = source.y < target.y ? sBottom : source.y;
-                    const endY = source.y < target.y ? target.y : tBottom;
-                    path = `M ${x} ${startY} L ${x} ${endY}`;
-                    labelX = x + 5;
-                    labelY = (startY + endY) / 2;
-                  } else {
-                    // Direct diagonal from end of source to start of target
-                    path = `M ${sEndX} ${sMidY} L ${tStartX} ${tMidY}`;
-                    labelX = (sEndX + tStartX) / 2;
-                    labelY = (sMidY + tMidY) / 2;
-                  }
+                  const startY = source.y < target.y ? sBottom : source.y;
+                  const endY = source.y < target.y ? target.y : tBottom;
+                  
+                  path = `M ${x} ${startY} L ${x} ${endY}`;
+                  labelX = x;
+                  labelY = (startY + endY) / 2;
                 } else {
-                  // CROSS-ASSET
-                  if (barsOverlap) {
-                    // Use the "edge" logic we implemented, but keep it a single straight line
-                    const useSourceEnd = sEndX >= tStartX && sEndX <= tEndX;
-                    const useTargetStart = tStartX >= sStartX && tStartX <= sEndX;
-                    
-                    let x: number;
-                    if (useSourceEnd) x = sEndX;
-                    else if (useTargetStart) x = tStartX;
-                    else x = (Math.max(sStartX, tStartX) + Math.min(sEndX, tEndX)) / 2;
-
-                    const startY = source.y < target.y ? sBottom : source.y;
-                    const endY = source.y < target.y ? target.y : tBottom;
-                    path = `M ${x} ${startY} L ${x} ${endY}`;
-                    labelX = x + 5;
-                    labelY = (startY + endY) / 2;
-                  } else {
-                    // Direct diagonal from end of source to start of target
-                    path = `M ${sEndX} ${sMidY} L ${tStartX} ${tMidY}`;
-                    labelX = (sEndX + tStartX) / 2;
-                    labelY = (sMidY + tMidY) / 2;
-                  }
+                  // No horizontal overlap - use a stepped S-curve connecting the inner edges.
+                  // Travels vertically at the midpoint of the gap to avoid crossing unrelated bars.
+                  const midX = (sEndX + tStartX) / 2;
+                  
+                  path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
+                  labelX = midX;
+                  labelY = (sMidY + tMidY) / 2;
                 }
 
                 return (
@@ -764,7 +737,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       fontWeight="bold"
                       className="select-none pointer-events-none"
                       textAnchor="middle"
-                      dy="3"
+                      dy="-4"
                       style={{ filter: 'drop-shadow(0px 0px 3px white) drop-shadow(0px 0px 3px white)' }}
                     >
                       {dep.type}
