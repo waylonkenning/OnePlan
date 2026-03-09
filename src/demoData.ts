@@ -153,29 +153,6 @@ export const demoInitiatives: Initiative[] = [
         assetId: 'a-pay', startDate: '2026-10-01', endDate: '2027-06-30', budget: 700000,
         description: 'Deploy ML models for real-time fraud scoring on all payment channels.',
     },
-    // Lending Platform
-    {
-        id: 'i-lend-auto', name: 'Automated Decisioning', programmeId: 'prog-dtp', strategyId: 'strat-data',
-        assetId: 'a-lend', startDate: '2026-06-01', endDate: '2027-03-31', budget: 1100000,
-        description: 'Replace manual credit assessment with automated risk-scoring engine.',
-    },
-    // Kubernetes Platform
-    {
-        id: 'i-k8s-multi', name: 'Multi-Region K8s', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'a-k8s', startDate: '2026-01-01', endDate: '2026-09-30', budget: 1500000,
-        description: 'Extend Kubernetes platform to a second AWS region for DR.',
-    },
-    {
-        id: 'i-k8s-mesh', name: 'Service Mesh Rollout', programmeId: 'prog-mod', strategyId: 'strat-api',
-        assetId: 'a-k8s', startDate: '2026-10-01', endDate: '2027-06-30', budget: 600000,
-        description: 'Deploy Istio service mesh for mTLS, traffic management and observability.',
-    },
-    // Observability
-    {
-        id: 'i-obs-otel', name: 'OpenTelemetry Adoption', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'a-obs', startDate: '2026-04-01', endDate: '2026-12-31', budget: 400000,
-        description: 'Standardise distributed tracing with OpenTelemetry across all microservices.',
-    },
     // API Gateway
     {
         id: 'i-apigw-v2', name: 'API Gateway v2 Migration', programmeId: 'prog-mod', strategyId: 'strat-api',
@@ -195,10 +172,27 @@ export const demoInitiatives: Initiative[] = [
     },
     // Lending
     {
+        id: 'i-lend-auto', name: 'Automated Decisioning', programmeId: 'prog-mod', strategyId: 'strat-data',
+        assetId: 'a-lend', startDate: '2026-06-01', endDate: '2027-03-31', budget: 1500000,
+        description: 'New real-time credit scoring engine based on cloud-native decisioning platform.',
+    },
+    {
         id: 'i-lend-open', name: 'Open Banking Origination', programmeId: 'prog-reg', strategyId: 'strat-reg',
         assetId: 'a-lend', startDate: '2027-04-01', endDate: '2028-03-31', budget: 900000,
         description: 'Integrate CDR/Open Banking data into loan origination for richer affordability checks.',
     },
+    {
+        id: 'i-placeholder-1',
+        name: 'Future Strategy',
+        programmeId: 'prog-dtp',
+        strategyId: 'strat-cloud',
+        assetId: 'a-k8s',
+        startDate: '2028-01-01',
+        endDate: '2028-12-31',
+        budget: 0,
+        description: 'Placeholder for future cloud-native workloads.',
+        isPlaceholder: true
+    }
 ];
 
 export const demoDependencies: Dependency[] = [

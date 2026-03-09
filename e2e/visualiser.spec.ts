@@ -85,7 +85,9 @@ test.describe('Visualiser (Timeline)', () => {
     // Drag from center of handle
     await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
     await page.mouse.down();
-    await page.mouse.move(handleBox.x + 200, handleBox.y + handleBox.height / 2);
+    await page.waitForTimeout(100);
+    await page.mouse.move(handleBox.x + 100, handleBox.y + handleBox.height / 2, { steps: 25 });
+    await page.waitForTimeout(100);
     await page.mouse.up();
 
     // Wait for state to settle
@@ -93,13 +95,14 @@ test.describe('Visualiser (Timeline)', () => {
 
     // Width should be larger now
     const newBox = await initiative.boundingBox();
-    expect(newBox!.width).toBeGreaterThan(initialBox.width + 20);
+    expect(newBox!.width).toBeGreaterThan(initialBox.width + 50);
 
     // Refresh and check if the width is still larger (persisted)
     await page.reload();
     await page.waitForSelector('#timeline-visualiser');
+    await page.waitForTimeout(1000);
     const persistedInitiative = page.locator('div[title*="Passkey Rollout"]').first();
     const persistedBox = await persistedInitiative.boundingBox();
-    expect(persistedBox!.width).toBeGreaterThan(initialBox.width + 20);
+    expect(persistedBox!.width).toBeGreaterThan(initialBox.width + 50);
   });
 });

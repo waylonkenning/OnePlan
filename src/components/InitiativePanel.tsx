@@ -196,6 +196,19 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
                             />
                         </div>
 
+                        <div className="flex items-center gap-2 py-2">
+                            <input
+                                id="isPlaceholder"
+                                type="checkbox"
+                                className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                                checked={formData.isPlaceholder || false}
+                                onChange={(e) => setFormData({ ...formData, isPlaceholder: e.target.checked })}
+                            />
+                            <label htmlFor="isPlaceholder" className="text-sm font-medium text-slate-700 cursor-pointer">
+                                Is Placeholder (No initiative)
+                            </label>
+                        </div>
+
                         <div className="pt-4 border-t border-slate-200 mt-6">
                             <p className="text-xs text-slate-500">ID: {formData.id}</p>
                         </div>

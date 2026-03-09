@@ -170,6 +170,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
     { key: 'startDate', label: 'Start Date', type: 'date', width: '10%' },
     { key: 'endDate', label: 'End Date', type: 'date', width: '10%' },
     { key: 'budget', label: 'Budget ($)', type: 'number', width: '10%' },
+    { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '5%' },
   ];
 
   const assetColumns: Column<Asset>[] = [
