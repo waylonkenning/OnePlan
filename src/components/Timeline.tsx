@@ -698,14 +698,21 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 // between the most logical connection points.
                 if (sameAsset) {
                   if (barsOverlap) {
-                    // Still use vertical for overlapping same-asset bars as it's the cleanest "straight" line
-                    const overlapLeft = Math.max(sStartX, tStartX);
-                    const overlapRight = Math.min(sEndX, tEndX);
-                    const overlapX = (overlapLeft + overlapRight) / 2;
+                    // Overlapping same-asset bars — prefer connecting from the end of source 
+                    // if it falls within the target's range, otherwise use midpoint.
+                    // This creates a cleaner "straight" vertical line at the logical boundary.
+                    const useSourceEnd = sEndX >= tStartX && sEndX <= tEndX;
+                    const useTargetStart = tStartX >= sStartX && tStartX <= sEndX;
+                    
+                    let x: number;
+                    if (useSourceEnd) x = sEndX;
+                    else if (useTargetStart) x = tStartX;
+                    else x = (Math.max(sStartX, tStartX) + Math.min(sEndX, tEndX)) / 2;
+
                     const startY = source.y < target.y ? sBottom : source.y;
                     const endY = source.y < target.y ? target.y : tBottom;
-                    path = `M ${overlapX} ${startY} L ${overlapX} ${endY}`;
-                    labelX = overlapX + 5;
+                    path = `M ${x} ${startY} L ${x} ${endY}`;
+                    labelX = x + 5;
                     labelY = (startY + endY) / 2;
                   } else {
                     // Direct diagonal from end of source to start of target
