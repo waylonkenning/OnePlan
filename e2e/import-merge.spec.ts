@@ -10,11 +10,11 @@ test.describe('Import Preview & Merge', () => {
         // Generate a mock Excel file for the test
         const wb = XLSX.utils.book_new();
 
-        // We expect the default data to have 'SSO Consolidation' (id: init-2) and others.
-        // Let's create an import file that Updates 'init-2' and adds a completely new one.
+        // We expect the default data to have 'SSO Consolidation' (id: i-ciam-sso) and others.
+        // Let's create an import file that Updates 'i-ciam-sso' and adds a completely new one.
         const mockInitiatives = [
             {
-                id: 'init-2',
+                id: 'i-ciam-sso',
                 name: 'SSO Consolidation v2', // Updated name
                 programmeId: 'prog-2',
                 strategyId: 'strat-3',
@@ -82,15 +82,15 @@ test.describe('Import Preview & Merge', () => {
         // Search for the updated item
         const searchInput = page.getByPlaceholder('Search initiatives...');
         await searchInput.fill('SSO Consolidation v2');
-        await expect(initialRows).toHaveCount(1); // Mapped properly
+        await expect(page.locator('tbody tr[data-real="true"]')).toHaveCount(1); // Mapped properly
 
         // Search for the new item
-        await searchInput.fill('Brand New');
-        await expect(initialRows).toHaveCount(1);
+        await searchInput.fill('Brand New Initiative');
+        await expect(page.locator('tbody tr[data-real="true"]')).toHaveCount(1);
 
         // Search for an old item that wasn't in the import file (e.g. 'Passkey')
         // It should STILL exist because we used Merge, not Overwrite.
-        await searchInput.fill('Passkey');
-        await expect(initialRows).toHaveCount(1);
+        await searchInput.fill('Passkey Rollout');
+        await expect(page.locator('tbody tr[data-real="true"]')).toHaveCount(1);
     });
 });

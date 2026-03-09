@@ -43,7 +43,7 @@ test.describe('Timeline Settings', () => {
     await expect(page.getByTestId('timeline-col-2024-q1')).toBeVisible();
     await expect(page.getByTestId('timeline-col-2028-q4')).toBeVisible();
 
-    // Verify persistence across reload
+    // Verify it persisted
     await page.reload();
     await expect(page.locator('#timeline-visualiser')).toBeVisible();
     await expect(page.getByTestId('timeline-col-2024-q1')).toBeVisible();

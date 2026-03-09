@@ -9,10 +9,10 @@ test.describe('Data Manager Reset Buttons', () => {
 
     test('Delete all rows for this table clears only the active tab', async ({ page }) => {
         // We are on the Initiatives tab by default
-        // Confirm there are rows visible (24 initiative rows + 1 ghost row = 25)
+        // Confirm there are rows visible (22 initiative rows + 1 ghost row = 23)
         const rows = page.locator('table tbody tr');
         const initCount = await rows.count();
-        expect(initCount).toBe(25); // At least one data row + ghost row
+        expect(initCount).toBe(23); // At least one data row + ghost row
 
         // Accept the upcoming confirmation dialog
         page.once('dialog', dialog => dialog.accept());
@@ -47,9 +47,9 @@ test.describe('Data Manager Reset Buttons', () => {
         page.once('dialog', dialog => dialog.accept());
         await page.getByRole('button', { name: 'Reset - use demo data' }).click();
 
-        // Initiatives should have many rows now (25 initiatives + ghost row = 26)
+        // Initiatives should have many rows now (22 initiatives + ghost row = 23)
         const initRows = page.locator('table tbody tr');
         const count = await initRows.count();
-        expect(count).toBe(25);
+        expect(count).toBe(23);
     });
 });

@@ -896,26 +896,42 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                   setSelectedInitiativeId(init.id);
                                 }}
                                 className={cn(
-                                  "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 text-white overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
-                                  colorClass
+                                  "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
+                                  init.isPlaceholder 
+                                    ? "bg-transparent border-red-500 border-dashed border-2 text-red-600 opacity-70" 
+                                    : cn("text-white border-white/20", colorClass)
                                 )}
                                 style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
-                                title={`${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}${init.description ? `\n${init.description}` : ''}`}
+                                title={`${init.isPlaceholder ? '[Placeholder] ' : ''}${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}${init.description ? `\n${init.description}` : ''}`}
                               >
                                 <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'start', init.startDate); }} />
                                 <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'end', init.endDate); }} />
 
                                 <div className="flex items-start justify-between gap-2 overflow-hidden h-full py-1">
                                   <div className="flex flex-col min-w-0 flex-1">
-                                    <div draggable="false" className="font-bold text-[11px] leading-tight drop-shadow-md line-clamp-2">{init.name}</div>
-                                    {subtitle && width > 5 && <div draggable="false" className="text-[9px] opacity-90 truncate drop-shadow-md mt-0.5">{subtitle}</div>}
+                                    <div draggable="false" className={cn(
+                                      "font-bold text-[11px] leading-tight line-clamp-2",
+                                      !init.isPlaceholder && "drop-shadow-md"
+                                    )}>{init.name}</div>
+                                    {subtitle && width > 5 && (
+                                      <div draggable="false" className={cn(
+                                        "text-[9px] opacity-90 truncate mt-0.5",
+                                        !init.isPlaceholder && "drop-shadow-md"
+                                      )}>{subtitle}</div>
+                                    )}
                                     {settings.descriptionDisplay === 'on' && init.description && (
-                                      <div draggable="false" className="text-[9px] opacity-80 drop-shadow-md mt-1 whitespace-pre-wrap break-words">{init.description}</div>
+                                      <div draggable="false" className={cn(
+                                        "text-[9px] opacity-80 mt-1 whitespace-pre-wrap break-words",
+                                        !init.isPlaceholder && "drop-shadow-md"
+                                      )}>{init.description}</div>
                                     )}
                                   </div>
 
                                   {settings.budgetVisualisation === 'label' && init.budget > 0 && (
-                                    <div className="flex-shrink-0 text-[10px] font-bold bg-white/20 px-1 rounded backdrop-blur-[2px] self-center">
+                                    <div className={cn(
+                                      "flex-shrink-0 text-[10px] font-bold px-1 rounded backdrop-blur-[2px] self-center",
+                                      init.isPlaceholder ? "bg-red-50 text-red-600 border border-red-200" : "bg-white/20 text-white"
+                                    )}>
                                       ${init.budget >= 1000000
                                         ? `${(init.budget / 1000000).toFixed(1)}m`
                                         : `${Math.round(init.budget / 1000)}k`}

@@ -28,6 +28,7 @@ export interface Initiative {
   endDate: string;   // YYYY-MM-DD
   budget: number;    // Represents height
   description?: string;
+  isPlaceholder?: boolean;
 }
 
 export interface Dependency {

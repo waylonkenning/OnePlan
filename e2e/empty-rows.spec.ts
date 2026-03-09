@@ -7,26 +7,26 @@ test.describe('Data Entry with Empty Rows', () => {
   });
 
   test('Should show one blank row and spawn another when typed in', async ({ page }) => {
-    // There should be default data (24 rows) plus exactly one blank row initially
+    // There should be default data (22 rows) plus exactly one blank row initially
     const allRows = page.locator('table tbody tr');
-    // Initially 24 real + 1 blank = 25
-    await expect(allRows).toHaveCount(25);
+    // Initially 22 real + 1 blank = 23
+    await expect(allRows).toHaveCount(23);
 
-    // Find the blank row (index 24)
-    const blankRow = allRows.nth(24);
+    // Find the blank row (index 22)
+    const blankRow = allRows.nth(22);
     const nameInput = blankRow.locator('input[type="text"]').first();
     
     await nameInput.fill('Dynamic Row Spawning');
     await nameInput.blur(); // Trigger conversion to real row
 
-    // Now there should be 25 real rows + 1 new blank row = 26 total
-    await expect(allRows).toHaveCount(26);
+    // Now there should be 23 real rows + 1 new blank row = 24 total
+    await expect(allRows).toHaveCount(24);
     
     // Verify persistence of the entered row
     await page.reload();
     await page.getByRole('button', { name: 'Data Manager' }).click();
     const realRows = page.locator('table tbody tr[data-real="true"]');
-    await expect(realRows).toHaveCount(25);
+    await expect(realRows).toHaveCount(23);
   });
 
   test('Should not lose focus when typing in a blank row', async ({ page }) => {

@@ -48,7 +48,7 @@ test.describe('Search and Filter', () => {
         // Clear search
         await searchInput.clear();
 
-        // Both should be back in Data Manager (Total of 24 default initiatives + 1 ghost)
-        await expect(rows).toHaveCount(25);
+        // Both should be back in Data Manager (Total of 22 default initiatives + 1 ghost)
+        await expect(rows).toHaveCount(23);
     });
 });

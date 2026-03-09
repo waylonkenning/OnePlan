@@ -17,22 +17,25 @@ test.describe('Initiative Interaction Features', () => {
 
     await page.mouse.move(centerX, centerY);
     await page.mouse.down();
-    await page.mouse.move(centerX + 150, centerY, { steps: 10 }); // Move right with steps
+    await page.waitForTimeout(200);
+    await page.mouse.move(centerX + 200, centerY, { steps: 50 }); // Move right by 200px
+    await page.waitForTimeout(200);
     await page.mouse.up();
 
-    // Give it a moment to settle
-    await page.waitForTimeout(500);
+    // Add 1000ms timeout before verification
+    await page.waitForTimeout(1000);
 
     // Verify position changed
     const newBox = await initiative.boundingBox();
-    expect(newBox!.x).toBeGreaterThan(initialBox.x + 50);
+    expect(newBox!.x).toBeGreaterThan(initialBox.x + 100);
     expect(Math.abs(newBox!.width - initialBox.width)).toBeLessThan(5); // Duration should stay roughly same
 
     // Verify persistence
     await page.reload();
     await page.waitForSelector('#timeline-visualiser');
+    await page.waitForTimeout(1000);
     const persistedBox = await page.locator('div[title*="Passkey Rollout"]').first().boundingBox();
-    expect(persistedBox!.x).toBeGreaterThan(initialBox.x + 50);
+    expect(persistedBox!.x).toBeGreaterThan(initialBox.x + 100);
   });
 
   test('Draw relationship by dragging vertically between initiatives', async ({ page }) => {
@@ -51,16 +54,10 @@ test.describe('Initiative Interaction Features', () => {
     await page.mouse.down();
     
     // Drag to target
-    // We need to move vertically enough to trigger the "relationship" mode instead of "move" mode
-    // Let's move to target center
     await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 10 });
-    
-    // An arrow should be visible during drag (svg path)
-    // Actually we'll check for the final dependency line after mouse up
     await page.mouse.up();
 
     // Check if a dependency line exists in the SVG
-    // Dependency lines are paths with marker-end="url(#arrowhead)"
     const dependencyLine = page.locator('svg path[marker-end="url(#arrowhead)"]');
     await expect(dependencyLine.first()).toBeAttached();
   });

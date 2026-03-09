@@ -31,10 +31,13 @@ test.describe('Navigation & State Management', () => {
     // Wait for the data table to load
     await page.waitForSelector('table');
     
-    // Change an initiative name
-    // Assuming the first input is the initiative name
-    const firstInput = page.locator('table tbody tr').first().locator('input[type="text"]').first();
+    // Sort by name to have a predictable first row
+    await page.getByText('Initiative Name', { exact: true }).click();
+
+    // Change an initiative name in the first REAL row
+    const firstInput = page.locator('table tbody tr[data-real="true"]').first().getByTestId('real-input-name');
     await firstInput.fill('A Renamed Initiative');
+    await firstInput.blur(); // Ensure it saves
 
     // Reload page
     await page.reload();
@@ -49,9 +52,9 @@ test.describe('Navigation & State Management', () => {
     // Check if defaults exist
     await page.getByRole('button', { name: 'Data Manager' }).click();
     const realRows = page.locator('table tbody tr[data-real="true"]');
-    await expect(realRows).toHaveCount(24); // Initiatives length from data.ts is 24
+    await expect(realRows).toHaveCount(22); // Initiatives length from data.ts is 22
     
-    // Total rows = 24 defaults + 1 blank row
-    await expect(page.locator('table tbody tr')).toHaveCount(25);
+    // Total rows = 22 defaults + 1 blank row
+    await expect(page.locator('table tbody tr')).toHaveCount(23);
   });
 });

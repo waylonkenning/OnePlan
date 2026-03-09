@@ -10,7 +10,7 @@ export interface Option {
 export interface Column<T> {
   key: keyof T;
   label: string;
-  type: 'text' | 'number' | 'date' | 'select' | 'color';
+  type: 'text' | 'number' | 'date' | 'select' | 'color' | 'boolean';
   options?: Option[]; // For select type
   placeholder?: string;
   width?: string;
@@ -129,6 +129,10 @@ export function EditableTable<T extends { [key: string]: any }>({
       setRows(newRows);
       onUpdate(newRows);
     }
+  };
+
+  const handleCheckboxChange = (index: number, key: keyof T, checked: boolean, isGhost: boolean = false) => {
+    handleChange(index, key, checked, isGhost);
   };
 
   const handleAdd = () => {
@@ -316,6 +320,15 @@ export function EditableTable<T extends { [key: string]: any }>({
                             <option value="bg-slate-500">Slate</option>
                           </select>
                         </div>
+                      ) : col.type === 'boolean' ? (
+                        <div className="flex items-center justify-center h-full">
+                          <input
+                            type="checkbox"
+                            checked={!!row[col.key]}
+                            onChange={(e) => handleCheckboxChange(rowIndex, col.key, e.target.checked, false)}
+                            className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                          />
+                        </div>
                       ) : (
                         <input
                           type={col.type}
@@ -376,11 +389,20 @@ export function EditableTable<T extends { [key: string]: any }>({
                           <option value="bg-indigo-500">Indigo</option>
                           <option value="bg-slate-500">Slate</option>
                         </select>
-                      </div>
-                    ) : (
-                      <input
-                        type={col.type}
-                        defaultValue=""
+                        </div>
+                        ) : col.type === 'boolean' ? (
+                        <div className="flex items-center justify-center h-full">
+                        <input
+                          type="checkbox"
+                          checked={false}
+                          onChange={(e) => handleCheckboxChange(rows.length + i, col.key, e.target.checked, true)}
+                          className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                          data-testid={`ghost-checkbox-${String(col.key)}`}
+                        />
+                        </div>
+                        ) : (
+                        <input
+                        type={col.type}                        defaultValue=""
                         onBlur={(e) => {
                           if (e.target.value) {
                             handleChange(rows.length + i, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, true);
