@@ -1,54 +1,64 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Data Entry with Empty Rows', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: 'Data Manager' }).click();
-  });
-
   test('Should show one blank row and spawn another when typed in', async ({ page }) => {
-    // There should be default data (22 rows) plus exactly one blank row initially
-    const allRows = page.locator('table tbody tr');
-    // Initially 22 real + 1 blank = 23
-    await expect(allRows).toHaveCount(23);
+    await page.goto('/');
+    await page.waitForTimeout(1000);
+    await page.click('[data-testid="nav-data-manager"]');
+    await page.waitForSelector('table tbody', { timeout: 10000 });
 
-    // Find the blank row (index 22)
-    const blankRow = allRows.nth(22);
+    const allRows = page.locator('table tbody tr');
+    const initialCount = await allRows.count();
+    
+    const blankRow = allRows.last();
     const nameInput = blankRow.locator('input[type="text"]').first();
     
     await nameInput.fill('Dynamic Row Spawning');
-    await nameInput.blur(); // Trigger conversion to real row
+    await page.waitForTimeout(1000);
 
-    // Now there should be 23 real rows + 1 new blank row = 24 total
-    await expect(allRows).toHaveCount(24);
+    await expect(allRows).toHaveCount(initialCount + 1);
     
-    // Verify persistence of the entered row
     await page.reload();
-    await page.getByRole('button', { name: 'Data Manager' }).click();
-    const realRows = page.locator('table tbody tr[data-real="true"]');
-    await expect(realRows).toHaveCount(23);
+    await page.waitForTimeout(1000);
+    await page.click('[data-testid="nav-data-manager"]');
+    await page.waitForSelector('table tbody', { timeout: 10000 });
+    await expect(page.locator('table tbody')).toContainText('Dynamic Row Spawning');
   });
 
   test('Should not lose focus when typing in a blank row', async ({ page }) => {
-    const nameInput = page.getByTestId('ghost-input-name');
+    await page.goto('/');
+    await page.waitForTimeout(1000);
+    await page.click('[data-testid="nav-data-manager"]');
+    await page.waitForSelector('table tbody', { timeout: 10000 });
 
-    // Type "server" character by character
+    const nameInput = page.locator('input[data-testid="ghost-input-name"]');
     await nameInput.click();
     await page.keyboard.type('server');
 
-    // Verify value is still in the same input and focus wasn't lost
-    await expect(nameInput).toHaveValue('server');
+    const realInput = page.locator('tr[data-real="true"] input[value="server"]');
+    await expect(realInput).toBeFocused();
+    await expect(realInput).toHaveValue('server');
+  });
+
+  test('Should maintain focus in current row when tabbing across a new row', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(1000);
+    await page.click('[data-testid="nav-data-manager"]');
+    await page.waitForSelector('table tbody', { timeout: 10000 });
+
+    const nameInput = page.locator('input[data-testid="ghost-input-name"]');
+    await nameInput.click();
+    await nameInput.fill('Tabbing Test');
     
-    // Trigger blur to save (this is when the row actually spawns)
-    await nameInput.blur();
+    await page.keyboard.press('Tab');
+    await page.waitForTimeout(1000);
 
-    // Give it a tiny moment to process state
-    await page.waitForTimeout(100);
+    const realRow = page.locator('tr[data-real="true"]').filter({ hasText: 'Tabbing Test' });
+    await expect(realRow).toBeVisible();
 
-    // Verify it became a real row by its value
-    await expect(page.locator('input[value="server"]')).toBeVisible();
-
-    // Verify the ghost input is now empty again for next entry
-    await expect(nameInput).toHaveValue('');
+    const focusedElement = page.locator(':focus');
+    const focusedRow = focusedElement.locator('xpath=./ancestor::tr');
+    await expect(focusedRow).toHaveAttribute('data-real', 'true');
+    await expect(focusedRow).toContainText('Tabbing Test');
   });
 });

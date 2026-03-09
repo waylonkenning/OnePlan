@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Plus, Trash2, ClipboardPaste, X, Check, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -37,6 +37,7 @@ export function EditableTable<T extends { [key: string]: any }>({
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [csvText, setCsvText] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
+  const [pendingFocus, setPendingFocus] = useState<{ id: string; key: keyof T } | null>(null);
 
   // Only one blank row that spawns another when edited
   const GHOST_ROWS_COUNT = 1;
@@ -44,6 +45,24 @@ export function EditableTable<T extends { [key: string]: any }>({
   useEffect(() => {
     setRows(data);
   }, [data]);
+
+  // Handle focusing the new row after it's been added to the real rows
+  useEffect(() => {
+    if (pendingFocus) {
+      const timer = setTimeout(() => {
+        const input = document.querySelector(`tr[data-id="${pendingFocus.id}"] [data-key="${String(pendingFocus.key)}"] input, tr[data-id="${pendingFocus.id}"] [data-key="${String(pendingFocus.key)}"] select`) as HTMLElement;
+        if (input) {
+          input.focus();
+          if (input instanceof HTMLInputElement && (input.type === 'text' || input.type === 'search' || input.type === 'date' || input.type === 'number')) {
+            const val = input.value;
+            input.setSelectionRange(val.length, val.length);
+          }
+        }
+        setPendingFocus(null);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [rows, pendingFocus]);
 
   const sortedRows = useMemo(() => {
     let filteredData = rows;
@@ -82,7 +101,6 @@ export function EditableTable<T extends { [key: string]: any }>({
         return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
       }
 
-      // Default string comparison for everything else (text, date, select)
       const aString = String(aValue).toLowerCase();
       const bString = String(bValue).toLowerCase();
 
@@ -107,22 +125,23 @@ export function EditableTable<T extends { [key: string]: any }>({
 
   const handleChange = (index: number, key: keyof T, value: any, isGhost: boolean = false) => {
     if (isGhost) {
-      // Convert ghost row to real row
+      const newId = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const newRow: any = {};
-      newRow[idField] = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      newRow[idField] = newId;
 
       columns.forEach(col => {
         if (col.key !== idField) {
-          newRow[col.key] = col.type === 'number' ? 0 : '';
+          newRow[col.key] = col.type === 'number' ? 0 : (col.type === 'boolean' ? false : '');
         }
       });
 
-      // Set the specific value that triggered the change
       newRow[key] = value;
 
       const updatedRows = [...rows, newRow];
       setRows(updatedRows);
       onUpdate(updatedRows);
+      
+      setPendingFocus({ id: newId, key });
     } else {
       const newRows = [...rows];
       newRows[index] = { ...newRows[index], [key]: value };
@@ -135,13 +154,24 @@ export function EditableTable<T extends { [key: string]: any }>({
     handleChange(index, key, checked, isGhost);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, colIndex: number, isGhost: boolean) => {
+    if (isGhost && e.key === 'Tab' && !e.shiftKey) {
+      const target = e.target as HTMLInputElement;
+      if (target.value || target.type === 'checkbox') {
+        // Let the browser handle the TAB, our pendingFocus logic will redirect it to the right place
+        // in the real row if needed.
+      }
+    }
+  };
+
   const handleAdd = () => {
+    const newId = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const newRow: any = {};
-    newRow[idField] = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    newRow[idField] = newId;
 
     columns.forEach(col => {
       if (col.key !== idField) {
-        newRow[col.key] = col.type === 'number' ? 0 : '';
+        newRow[col.key] = col.type === 'number' ? 0 : (col.type === 'boolean' ? false : '');
       }
     });
 
@@ -153,7 +183,7 @@ export function EditableTable<T extends { [key: string]: any }>({
   const handleDelete = (index: number) => {
     const row = rows[index];
     if (onDelete && onDelete(row)) {
-      return; // External handler took care of it
+      return;
     }
     const newRows = rows.filter((_, i) => i !== index);
     setRows(newRows);
@@ -175,14 +205,11 @@ export function EditableTable<T extends { [key: string]: any }>({
     let hasHeader = false;
     let headerMapping: (keyof T | null)[] = [];
 
-    // 1. Detect headers and create mapping
     if (lines.length > 0) {
       const firstLineValues = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().toLowerCase().replace(/^"|"$/g, ''));
-
       const colLabels = columns.map(c => c.label.toLowerCase());
       const colKeys = columns.map(c => String(c.key).toLowerCase());
 
-      // Check if it looks like a header row
       const matches = firstLineValues.filter(v =>
         v === 'id' || colLabels.includes(v) || colKeys.includes(v)
       ).length;
@@ -191,13 +218,10 @@ export function EditableTable<T extends { [key: string]: any }>({
         hasHeader = true;
         headerMapping = firstLineValues.map(val => {
           if (val === 'id' || val === String(idField).toLowerCase()) return idField;
-
           const colByKey = columns.find(c => String(c.key).toLowerCase() === val);
           if (colByKey) return colByKey.key;
-
           const colByLabel = columns.find(c => c.label.toLowerCase() === val);
           if (colByLabel) return colByLabel.key;
-
           return null;
         });
       }
@@ -209,35 +233,32 @@ export function EditableTable<T extends { [key: string]: any }>({
       const line = lines[i].trim();
       if (!line) continue;
 
-      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-        .map(v => v.trim().replace(/^"|"$/g, ''));
-
+      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
       const rowData: any = {};
 
       if (hasHeader) {
-        // Map values according to header position
         headerMapping.forEach((key, valIdx) => {
           if (key && valIdx < values.length) {
             let value: any = values[valIdx];
             const col = columns.find(c => c.key === key);
             if (col?.type === 'number') value = parseFloat(value) || 0;
+            if (col?.type === 'boolean') value = value.toLowerCase() === 'true' || value === '1';
             rowData[key] = value;
           }
         });
       } else {
-        // Legacy positional mapping
         columns.forEach((col, colIdx) => {
           if (colIdx < values.length) {
             let value: any = values[colIdx];
             if (col.type === 'number') value = parseFloat(value) || 0;
+            if (col.type === 'boolean') value = value.toLowerCase() === 'true' || value === '1';
             rowData[col.key] = value;
           } else if (rowData[col.key] === undefined) {
-            rowData[col.key] = col.type === 'number' ? 0 : '';
+            rowData[col.key] = col.type === 'number' ? 0 : (col.type === 'boolean' ? false : '');
           }
         });
       }
 
-      // ID Management
       const targetId = rowData[idField] || `csv-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
       rowData[idField] = targetId;
 
@@ -282,15 +303,12 @@ export function EditableTable<T extends { [key: string]: any }>({
             </tr>
           </thead>
           <tbody>
-            {/* Real Data Rows */}
             {sortedRows.map((row) => {
-              // Find the original index in the 'rows' state for handleChange
               const rowIndex = rows.findIndex(r => r[idField] === row[idField]);
-
               return (
-                <tr key={String(row[idField])} data-real="true" className="hover:bg-slate-50 group">
-                  {columns.map(col => (
-                    <td key={`${String(row[idField])}-${String(col.key)}`} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
+                <tr key={String(row[idField])} data-real="true" data-id={String(row[idField])} className="hover:bg-slate-50 group">
+                  {columns.map((col, colIndex) => (
+                    <td key={`${String(row[idField])}-${String(col.key)}`} data-key={String(col.key)} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
                       {col.type === 'select' ? (
                         <select
                           value={String(row[col.key] || '')}
@@ -354,15 +372,15 @@ export function EditableTable<T extends { [key: string]: any }>({
               );
             })}
 
-            {/* Blank (Empty) Rows for quick entry */}
             {Array.from({ length: GHOST_ROWS_COUNT }).map((_, i) => (
               <tr key={`blank-${i}`} className="hover:bg-slate-50 group">
-                {columns.map(col => (
-                  <td key={`blank-${i}-${String(col.key)}`} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
+                {columns.map((col, colIndex) => (
+                  <td key={`blank-${i}-${String(col.key)}`} data-key={String(col.key)} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
                     {col.type === 'select' ? (
                       <select
                         value=""
                         onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
+                        onKeyDown={(e) => handleKeyDown(e, colIndex, true)}
                         className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none"
                         data-testid={`ghost-select-${String(col.key)}`}
                       >
@@ -377,6 +395,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                         <select
                           value=""
                           onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
+                          onKeyDown={(e) => handleKeyDown(e, colIndex, true)}
                           className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
                           data-testid={`ghost-color-${String(col.key)}`}
                         >
@@ -389,24 +408,27 @@ export function EditableTable<T extends { [key: string]: any }>({
                           <option value="bg-indigo-500">Indigo</option>
                           <option value="bg-slate-500">Slate</option>
                         </select>
-                        </div>
-                        ) : col.type === 'boolean' ? (
-                        <div className="flex items-center justify-center h-full">
+                      </div>
+                    ) : col.type === 'boolean' ? (
+                      <div className="flex items-center justify-center h-full">
                         <input
                           type="checkbox"
                           checked={false}
                           onChange={(e) => handleCheckboxChange(rows.length + i, col.key, e.target.checked, true)}
+                          onKeyDown={(e) => handleKeyDown(e, colIndex, true)}
                           className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
                           data-testid={`ghost-checkbox-${String(col.key)}`}
                         />
-                        </div>
-                        ) : (
-                        <input
-                        type={col.type}                        defaultValue=""
+                      </div>
+                    ) : (
+                      <input
+                        type={col.type}
+                        defaultValue=""
+                        onKeyDown={(e) => handleKeyDown(e, colIndex, true)}
                         onBlur={(e) => {
                           if (e.target.value) {
                             handleChange(rows.length + i, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, true);
-                            e.target.value = ""; // Reset ghost input after spawning
+                            e.target.value = "";
                           }
                         }}
                         placeholder={col.placeholder}
