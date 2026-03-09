@@ -694,9 +694,11 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 // Check if bars overlap horizontally
                 const barsOverlap = sStartX < tEndX && tStartX < sEndX;
 
+                // For "straight connectors", we use direct point-to-point lines
+                // between the most logical connection points.
                 if (sameAsset) {
-                  // ... (existing sameAsset logic remains same)
                   if (barsOverlap) {
+                    // Still use vertical for overlapping same-asset bars as it's the cleanest "straight" line
                     const overlapLeft = Math.max(sStartX, tStartX);
                     const overlapRight = Math.min(sEndX, tEndX);
                     const overlapX = (overlapLeft + overlapRight) / 2;
@@ -706,41 +708,22 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     labelX = overlapX + 5;
                     labelY = (startY + endY) / 2;
                   } else {
-                    const horizontalGap = Math.abs(tStartX - sEndX);
-                    if (horizontalGap < 40) {
-                      const x = (sEndX + tStartX) / 2;
-                      const startY = source.y < target.y ? sBottom : source.y;
-                      const endY = source.y < target.y ? target.y : tBottom;
-                      path = `M ${x} ${startY} L ${x} ${endY}`;
-                      labelX = x + 5;
-                      labelY = (startY + endY) / 2;
-                    } else {
-                      const midX = (sEndX + tStartX) / 2;
-                      path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
-                      labelX = midX + 5;
-                      labelY = (sMidY + tMidY) / 2;
-                    }
+                    // Direct diagonal from end of source to start of target
+                    path = `M ${sEndX} ${sMidY} L ${tStartX} ${tMidY}`;
+                    labelX = (sEndX + tStartX) / 2;
+                    labelY = (sMidY + tMidY) / 2;
                   }
                 } else {
-                  // === CROSS-ASSET ROUTING ===
-                  // Bars are in different asset rows — need to cross vertically
+                  // CROSS-ASSET
                   if (barsOverlap) {
-                    // Overlapping horizontally — prefer connecting from the end of source 
-                    // if it falls within the target's range, otherwise use midpoint
+                    // Use the "edge" logic we implemented, but keep it a single straight line
                     const useSourceEnd = sEndX >= tStartX && sEndX <= tEndX;
                     const useTargetStart = tStartX >= sStartX && tStartX <= sEndX;
                     
                     let x: number;
-                    if (useSourceEnd && !useTargetStart) x = sEndX;
-                    else if (useTargetStart && !useSourceEnd) x = tStartX;
-                    else if (useSourceEnd && useTargetStart) {
-                        // Both are within each other's range, pick source end for "edge" feeling
-                        x = sEndX;
-                    } else {
-                        const overlapLeft = Math.max(sStartX, tStartX);
-                        const overlapRight = Math.min(sEndX, tEndX);
-                        x = (overlapLeft + overlapRight) / 2;
-                    }
+                    if (useSourceEnd) x = sEndX;
+                    else if (useTargetStart) x = tStartX;
+                    else x = (Math.max(sStartX, tStartX) + Math.min(sEndX, tEndX)) / 2;
 
                     const startY = source.y < target.y ? sBottom : source.y;
                     const endY = source.y < target.y ? target.y : tBottom;
@@ -748,13 +731,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     labelX = x + 5;
                     labelY = (startY + endY) / 2;
                   } else {
-                    // Not overlapping — use a stepped S-curve that travels vertically 
-                    // between the source and target rows to avoid crossing them.
-                    const midX = (sEndX + tStartX) / 2;
-                    
-                    // Route from source mid-point, out to midX, down/up to target mid-point, in to target
-                    path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
-                    labelX = midX + 5;
+                    // Direct diagonal from end of source to start of target
+                    path = `M ${sEndX} ${sMidY} L ${tStartX} ${tMidY}`;
+                    labelX = (sEndX + tStartX) / 2;
                     labelY = (sMidY + tMidY) / 2;
                   }
                 }
