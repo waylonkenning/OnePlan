@@ -709,11 +709,21 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   labelX = x;
                   labelY = (startY + endY) / 2;
                 } else {
-                  // No horizontal overlap - use a stepped S-curve connecting the inner edges.
-                  // Travels vertically at the midpoint of the gap to avoid crossing unrelated bars.
-                  const midX = (sEndX + tStartX) / 2;
+                  // No horizontal overlap - identify nearest horizontal edges
+                  const isSourceLeft = sEndX <= tStartX;
                   
-                  path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX} ${tMidY}`;
+                  let x1: number, x2: number;
+                  if (isSourceLeft) {
+                    x1 = sEndX;
+                    x2 = tStartX;
+                  } else {
+                    x1 = sStartX;
+                    x2 = tEndX;
+                  }
+                  
+                  // Travels vertically at the midpoint of the gap to avoid crossing unrelated bars.
+                  const midX = (x1 + x2) / 2;
+                  path = `M ${x1} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${x2} ${tMidY}`;
                   labelX = midX;
                   labelY = (sMidY + tMidY) / 2;
                 }

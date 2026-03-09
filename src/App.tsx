@@ -215,8 +215,9 @@ export default function App() {
         <div className="flex bg-slate-100 rounded-lg p-0.5 border border-slate-200">
           <button
             onClick={() => setView('visualiser')}
+            data-testid="nav-visualiser"
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer",
               view === 'visualiser'
                 ? "bg-white text-blue-700 shadow-sm ring-1 ring-blue-200"
                 : "text-slate-600 hover:text-slate-800"
@@ -227,8 +228,9 @@ export default function App() {
           </button>
           <button
             onClick={() => setView('data')}
+            data-testid="nav-data-manager"
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer",
               view === 'data'
                 ? "bg-white text-blue-700 shadow-sm ring-1 ring-blue-200"
                 : "text-slate-600 hover:text-slate-800"
