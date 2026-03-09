@@ -323,6 +323,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                           onChange={(e) => handleChange(rowIndex, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, false)}
                           placeholder={col.placeholder}
                           className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none"
+                          data-testid={`real-input-${String(col.key)}`}
                         />
                       )}
                     </td>
@@ -350,6 +351,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                         value=""
                         onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
                         className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none"
+                        data-testid={`ghost-select-${String(col.key)}`}
                       >
                         <option value=""></option>
                         {col.options?.map(opt => (
@@ -363,6 +365,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                           value=""
                           onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
                           className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
+                          data-testid={`ghost-color-${String(col.key)}`}
                         >
                           <option value=""></option>
                           <option value="bg-blue-500">Blue</option>
@@ -377,9 +380,16 @@ export function EditableTable<T extends { [key: string]: any }>({
                     ) : (
                       <input
                         type={col.type}
-                        value=""
-                        onChange={(e) => handleChange(rows.length + i, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, true)}
+                        defaultValue=""
+                        onBlur={(e) => {
+                          if (e.target.value) {
+                            handleChange(rows.length + i, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, true);
+                            e.target.value = ""; // Reset ghost input after spawning
+                          }
+                        }}
+                        placeholder={col.placeholder}
                         className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none"
+                        data-testid={`ghost-input-${String(col.key)}`}
                       />
                     )}
                   </td>
