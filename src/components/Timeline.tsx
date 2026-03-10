@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
-import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth } from 'date-fns';
+import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth, endOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, Palette, ChevronRight, ChevronDown, Settings, Grid, Calendar, Target } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
@@ -22,7 +22,7 @@ interface TimelineProps {
   searchQuery?: string;
 }
 
-const CELL_WIDTH = 200; // Width of one quarter column
+const SIDEBAR_WIDTH = 256; // 16rem in pixels
 
 export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onAddInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, searchQuery }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
@@ -41,13 +41,19 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
   const [draggingAssetId, setDraggingAssetId] = useState<string | null>(null);
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
-  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(() => {
+    try {
+      const saved = sessionStorage.getItem('oneplan-collapsed-categories');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch { return new Set(); }
+  });
 
   const toggleCategory = (catId: string) => {
     setCollapsedCategories(prev => {
       const next = new Set(prev);
       if (next.has(catId)) next.delete(catId);
       else next.add(catId);
+      sessionStorage.setItem('oneplan-collapsed-categories', JSON.stringify([...next]));
       return next;
     });
   };
@@ -146,26 +152,116 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     setDraggingAssetId(null);
   };
 
-  // Generate time columns (Quarters)
-  const timeColumns = useMemo<{ date: Date; label: string; year: number; quarter: number }[]>(() => {
-    const cols: { date: Date; label: string; year: number; quarter: number }[] = [];
-    let currentDate = startOfYear(new Date(settings.startYear, 0, 1));
-    for (let i = 0; i < settings.yearsToShow * 4; i++) {
-      cols.push({
-        date: currentDate,
-        label: `Q${getQuarter(currentDate)} ${getYear(currentDate)} `,
-        year: getYear(currentDate),
-        quarter: getQuarter(currentDate),
-      });
-      currentDate = addQuarters(currentDate, 1);
+  // Container width for dynamic column sizing
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(1200);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width - SIDEBAR_WIDTH);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Local state for dragging operations
+  const [localInitiatives, setLocalInitiatives] = useState<Initiative[]>(filteredInitiatives);
+  const [localMilestones, setLocalMilestones] = useState<Milestone[]>(milestones);
+
+  useEffect(() => {
+    if (!resizing && !moving) {
+      setLocalInitiatives(filteredInitiatives);
+    }
+  }, [filteredInitiatives, resizing, moving]);
+
+  useEffect(() => {
+    if (!movingMilestone) {
+      setLocalMilestones(milestones);
+    }
+  }, [milestones, movingMilestone]);
+
+  // Generate time columns based on monthsToShow and latest data point
+  const timeColumns = useMemo<{ date: Date; endDate: Date; label: string; sublabel: string }[]>(() => {
+    const cols: { date: Date; endDate: Date; label: string; sublabel: string }[] = [];
+    const ms = settings.monthsToShow || 36;
+    const timelineStart = startOfYear(new Date(settings.startYear, 0, 1));
+
+    // Find the latest end date among all initiatives and milestones to ensure the grid covers it
+    let maxEndDate = timelineStart;
+    if (localInitiatives.length > 0 || milestones.length > 0) {
+      const initDates = localInitiatives.map(i => new Date(i.endDate).getTime());
+      const mileDates = milestones.map(m => new Date(m.date).getTime());
+      const maxTime = Math.max(...initDates, ...mileDates, timelineStart.getTime());
+      maxEndDate = new Date(maxTime);
+    }
+
+    // minTimelineEnd ensures we AT LEAST render the requested duration (3/6/12/24/36 months)
+    const minTimelineEnd = addMonths(timelineStart, ms);
+    const timelineEnd = maxEndDate > minTimelineEnd ? maxEndDate : minTimelineEnd;
+
+    if (ms === 3) {
+      // Weekly columns
+      let d = timelineStart;
+      let i = 0;
+      while (d < timelineEnd || i < 12) { // Guarantee at least 12 columns
+        cols.push({ date: d, endDate: addWeeks(d, 1), label: format(d, 'dd MMM'), sublabel: `Wk ${i + 1}` });
+        d = addWeeks(d, 1);
+        i++;
+      }
+    } else if (ms === 6) {
+      // Half-month columns
+      let i = 0;
+      let d = timelineStart;
+      while (d < timelineEnd || i < 12) {
+        const monthIdx = Math.floor(i / 2);
+        const isSecondHalf = i % 2 === 1;
+        const monthStart = addMonths(timelineStart, monthIdx);
+        const currentD = isSecondHalf ? addDays(monthStart, 15) : monthStart;
+        const nextD = isSecondHalf ? addMonths(timelineStart, monthIdx + 1) : addDays(monthStart, 15);
+        cols.push({ date: currentD, endDate: nextD, label: format(currentD, 'MMM yyyy'), sublabel: isSecondHalf ? '16-end' : '1-15' });
+        d = nextD;
+        i++;
+      }
+    } else if (ms === 12) {
+      // Monthly columns
+      let d = timelineStart;
+      let i = 0;
+      while (d < timelineEnd || i < 12) {
+        cols.push({ date: d, endDate: addMonths(d, 1), label: format(d, 'yyyy'), sublabel: format(d, 'MMM') });
+        d = addMonths(d, 1);
+        i++;
+      }
+    } else if (ms === 24) {
+      // Quarterly columns
+      let d = timelineStart;
+      let i = 0;
+      while (d < timelineEnd || i < 8) {
+        cols.push({ date: d, endDate: addQuarters(d, 1), label: `${getYear(d)}`, sublabel: `Q${getQuarter(d)}` });
+        d = addQuarters(d, 1);
+        i++;
+      }
+    } else {
+      // 36 months = Quarterly columns
+      let d = timelineStart;
+      let i = 0;
+      while (d < timelineEnd || i < 12) {
+        cols.push({ date: d, endDate: addQuarters(d, 1), label: `${getYear(d)}`, sublabel: `Q${getQuarter(d)}` });
+        d = addQuarters(d, 1);
+        i++;
+      }
     }
     return cols;
-  }, [settings.startYear, settings.yearsToShow]);
+  }, [settings.startYear, settings.monthsToShow, localInitiatives, milestones]);
 
   const startDate = timeColumns[0].date;
-  const endDate = addQuarters(timeColumns[timeColumns.length - 1].date, 1);
+  const endDate = timeColumns[timeColumns.length - 1].endDate;
   const totalDays = differenceInDays(endDate, startDate);
-  const totalWidth = timeColumns.length * CELL_WIDTH;
+  const totalWidth = Math.max(containerWidth, timeColumns.length * 80); // Min 80px per column
+  const columnWidth = totalWidth / timeColumns.length;
 
   // Helper to get position and width
   const getPosition = (dateStr: string) => {
@@ -239,20 +335,6 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     });
   };
 
-  const [localInitiatives, setLocalInitiatives] = useState<Initiative[]>(filteredInitiatives);
-  const [localMilestones, setLocalMilestones] = useState<Milestone[]>(milestones);
-
-  useEffect(() => {
-    if (!resizing && !moving) {
-      setLocalInitiatives(filteredInitiatives);
-    }
-  }, [filteredInitiatives, resizing, moving]);
-
-  useEffect(() => {
-    if (!movingMilestone) {
-      setLocalMilestones(milestones);
-    }
-  }, [milestones, movingMilestone]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -267,7 +349,10 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         if (!initiative) return;
 
         const rawNewDate = addDays(parseISO(resizing.initialDate), deltaDays);
-        const snappedDate = settings.snapToPeriod === 'month' && resizing.edge === 'start' ? startOfMonth(rawNewDate) : rawNewDate;
+        let snappedDate = rawNewDate;
+        if (settings.snapToPeriod === 'month') {
+          snappedDate = resizing.edge === 'start' ? startOfMonth(rawNewDate) : lastDayOfMonth(rawNewDate);
+        }
         const newDate = format(snappedDate, 'yyyy-MM-dd');
 
         const updatedInitiatives = localInitiatives.map(i => {
@@ -322,11 +407,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               const rawStart = addDays(parseISO(moving.initialStart), deltaDays);
               const snappedStart = settings.snapToPeriod === 'month' ? startOfMonth(rawStart) : rawStart;
               const actualDeltaDays = differenceInDays(snappedStart, parseISO(moving.initialStart));
+              const rawEnd = addDays(parseISO(moving.initialEnd), actualDeltaDays);
+              const snappedEnd = settings.snapToPeriod === 'month' ? lastDayOfMonth(rawEnd) : rawEnd;
 
               return {
                 ...i,
                 startDate: format(snappedStart, 'yyyy-MM-dd'),
-                endDate: format(addDays(parseISO(moving.initialEnd), actualDeltaDays), 'yyyy-MM-dd'),
+                endDate: format(snappedEnd, 'yyyy-MM-dd'),
               };
             }
             return i;
@@ -457,9 +544,16 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
       let descHeight = BAR_HEIGHT;
       if (settings.descriptionDisplay === 'on' && init.description) {
-        // Estimate: ~40 chars per line at text-[9px], 12px per line, plus base 28px for name/subtitle
-        const lines = Math.ceil(init.description.length / 40);
-        descHeight = Math.max(BAR_HEIGHT, 28 + lines * 14 + 8);
+        // Calculate exact height needed: py-1 (8px) + name (14px) + subtitle (16px) + desc spacing (8px)
+        const hasSubtitle = init.programmeId || init.strategyId;
+        const baseHeight = hasSubtitle ? 46 : 30;
+
+        // Estimate characters per line based on bar width (approx 4 chars per % of width)
+        const charsPerLine = Math.max(20, Math.floor(width * 4));
+        const lines = Math.ceil(init.description.length / charsPerLine);
+        const clampedLines = Math.min(3, lines); // We use line-clamp-3
+
+        descHeight = Math.max(BAR_HEIGHT, baseHeight + clampedLines * 12 + 4); // 12px per line + 4px buffer
       }
 
       const height = Math.max(budgetHeight, descHeight, BAR_HEIGHT);
@@ -625,8 +719,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto scroll-smooth">
-        <div className="relative min-w-max">
+      <div className="flex-1 overflow-auto scroll-smooth" ref={scrollContainerRef}>
+        <div className="relative">
           <div className="flex sticky top-0 z-30 bg-white shadow-sm border-b border-slate-200">
             <div className="sticky left-0 w-64 flex-shrink-0 p-4 font-bold text-slate-700 border-r border-slate-200 bg-slate-50 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
               IT Asset
@@ -635,15 +729,15 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               {timeColumns.map((col, idx) => (
                 <div
                   key={idx}
-                  data-testid={`timeline-col-${col.year}-q${col.quarter}`}
+                  data-testid={`timeline-col-${idx}`}
                   className={cn(
                     "flex-shrink-0 border-r border-slate-100 p-2 text-center text-sm font-medium text-slate-600 bg-white flex flex-col justify-center",
-                    col.quarter === 1 && "border-l-2 border-l-slate-300"
+                    idx === 0 && "border-l-2 border-l-slate-300"
                   )}
-                  style={{ width: CELL_WIDTH }}
+                  style={{ width: columnWidth }}
                 >
-                  <div className="text-xs text-slate-400 uppercase tracking-wider">{col.year}</div>
-                  <div>Q{col.quarter}</div>
+                  <div className="text-xs text-slate-400 uppercase tracking-wider">{col.label}</div>
+                  <div>{col.sublabel}</div>
                 </div>
               ))}
             </div>
@@ -704,14 +798,14 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                   const startY = source.y < target.y ? sBottom : source.y;
                   const endY = source.y < target.y ? target.y : tBottom;
-                  
+
                   path = `M ${x} ${startY} L ${x} ${endY}`;
                   labelX = x;
                   labelY = (startY + endY) / 2;
                 } else {
                   // No horizontal overlap - identify nearest horizontal edges
                   const isSourceLeft = sEndX <= tStartX;
-                  
+
                   let x1: number, x2: number;
                   if (isSourceLeft) {
                     x1 = sEndX;
@@ -720,7 +814,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     x1 = sStartX;
                     x2 = tEndX;
                   }
-                  
+
                   // Travels vertically at the midpoint of the gap to avoid crossing unrelated bars.
                   const midX = (x1 + x2) / 2;
                   path = `M ${x1} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${x2} ${tMidY}`;
@@ -728,8 +822,22 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   labelY = (sMidY + tMidY) / 2;
                 }
 
+                const cycleType = () => {
+                  if (!onUpdateDependencies) return;
+                  const types: Dependency['type'][] = ['blocks', 'requires', 'related'];
+                  const idx = types.indexOf(dep.type);
+                  const nextType = types[(idx + 1) % types.length];
+                  onUpdateDependencies(dependencies.map(d => d.id === dep.id ? { ...d, type: nextType } : d));
+                };
+
                 return (
-                  <React.Fragment key={dep.id}>
+                  <g key={dep.id} onClick={cycleType} className="cursor-pointer" style={{ pointerEvents: 'all' }}>
+                    <path
+                      d={path}
+                      stroke="transparent"
+                      strokeWidth="12"
+                      fill="none"
+                    />
                     <path
                       d={path}
                       stroke="#3b82f6"
@@ -745,14 +853,14 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       fill="#3b82f6"
                       fontSize="9"
                       fontWeight="bold"
-                      className="select-none pointer-events-none"
+                      className="select-none"
                       textAnchor="middle"
                       dy="-4"
                       style={{ filter: 'drop-shadow(0px 0px 3px white) drop-shadow(0px 0px 3px white)' }}
                     >
                       {dep.type}
                     </text>
-                  </React.Fragment>
+                  </g>
                 );
               })}
 
@@ -766,6 +874,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   markerEnd="url(#arrowhead)"
                   opacity="0.8"
                   strokeDasharray="5 5"
+                  style={{ pointerEvents: 'none' }}
                 />
               )}
             </svg>
@@ -793,23 +902,26 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     onDragStart={(e) => handleCategoryDragStart(e, catId)}
                     onDragEnd={handleCategoryDragEnd}
                     className={cn(
-                      "sticky left-0 z-20 bg-slate-100 px-4 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 w-full flex items-center gap-2 cursor-grab active:cursor-grabbing",
+                      "flex z-20 bg-slate-100 border-y border-slate-200 w-max cursor-grab active:cursor-grabbing",
                       draggingCategory === catId && "opacity-50"
                     )}
                   >
-                    <div className="p-0.5 hover:bg-slate-200 rounded text-slate-400">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
+                    <div className="sticky left-0 w-64 flex-shrink-0 px-4 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 bg-slate-100 z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                      <div className="p-0.5 hover:bg-slate-200 rounded text-slate-400">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
+                      </div>
+                      <button
+                        onClick={() => toggleCategory(catId)}
+                        className="flex items-center gap-1.5 hover:text-slate-700 focus:outline-none"
+                      >
+                        {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                        {categoryName}
+                        <span className="text-[10px] font-medium text-slate-400 tracking-normal normal-case">
+                          ({categoryAssets.length} asset{categoryAssets.length !== 1 ? 's' : ''})
+                        </span>
+                      </button>
                     </div>
-                    <button
-                      onClick={() => toggleCategory(catId)}
-                      className="flex items-center gap-1.5 hover:text-slate-700 focus:outline-none"
-                    >
-                      {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
-                      {categoryName}
-                      <span className="text-[10px] font-medium text-slate-400 tracking-normal normal-case">
-                        ({categoryAssets.length} asset{categoryAssets.length !== 1 ? 's' : ''})
-                      </span>
-                    </button>
+                    <div className="flex-shrink-0" style={{ width: totalWidth }} />
                   </div>
 
                   {!isCollapsed && categoryAssets.map(asset => {
@@ -851,7 +963,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                         >
                           <div className="absolute inset-0 flex pointer-events-none">
                             {timeColumns.map((col, idx) => (
-                              <div key={idx} className={cn("border-r border-slate-100 h-full", col.quarter === 1 && "border-l-2 border-l-slate-200")} style={{ width: CELL_WIDTH }} />
+                              <div key={idx} className={cn("border-r border-slate-100 h-full", idx === 0 && "border-l-2 border-l-slate-200")} style={{ width: columnWidth }} />
                             ))}
                           </div>
 
@@ -887,8 +999,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                 }}
                                 className={cn(
                                   "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
-                                  init.isPlaceholder 
-                                    ? "bg-transparent border-red-500 border-dashed border-2 text-red-600 opacity-70" 
+                                  init.isPlaceholder
+                                    ? "bg-transparent border-red-500 border-dashed border-2 text-red-600 opacity-70"
                                     : cn("text-white border-white/20", colorClass)
                                 )}
                                 style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
@@ -905,15 +1017,17 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                     )}>{init.name}</div>
                                     {subtitle && width > 5 && (
                                       <div draggable="false" className={cn(
-                                        "text-[9px] opacity-90 truncate mt-0.5",
+                                        "text-[9px] italic opacity-70 truncate mt-0.5",
                                         !init.isPlaceholder && "drop-shadow-md"
                                       )}>{subtitle}</div>
                                     )}
                                     {settings.descriptionDisplay === 'on' && init.description && (
-                                      <div draggable="false" className={cn(
-                                        "text-[9px] opacity-80 mt-1 whitespace-pre-wrap break-words",
-                                        !init.isPlaceholder && "drop-shadow-md"
-                                      )}>{init.description}</div>
+                                      width > 8 ? (
+                                        <div draggable="false" className={cn(
+                                          "text-[9px] leading-[12px] opacity-90 mt-1 pt-1 border-t border-white/30 whitespace-pre-wrap break-words line-clamp-3",
+                                          !init.isPlaceholder && "drop-shadow-md"
+                                        )}>{init.description}</div>
+                                      ) : null
                                     )}
                                   </div>
 
@@ -953,7 +1067,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                               <div
                                 key={mile.id}
                                 onMouseDown={(e) => handleMilestoneMouseDown(e, mile)}
-                                className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-20 cursor-grab active:cursor-grabbing"
+                                className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-0 cursor-grab active:cursor-grabbing"
                                 style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
                               >
                                 <div className="absolute top-0 bottom-0 w-px border-l border-dashed border-slate-400/50 group-hover/marker:border-slate-600" />
@@ -964,13 +1078,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                 )}>
                                   {mile.type === 'critical' ? <Star size={16} fill="currentColor" /> : <Info size={16} />}
                                 </div>
-                                <div className="absolute left-full ml-2 bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-200 shadow-sm opacity-0 group-hover/marker:opacity-100 transition-opacity whitespace-nowrap z-40 pointer-events-none">
+                                <div className="absolute left-full ml-2 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-200 shadow-sm whitespace-nowrap z-40 pointer-events-none">
                                   <div className="text-[10px] font-bold text-slate-800 leading-none">{mile.name}</div>
                                   <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(currentMile.date), 'MMM yyyy')}</div>
-                                </div>
-                                {/* Always visible label */}
-                                <div className="absolute top-full mt-1 bg-white/40 px-1 rounded text-[9px] font-semibold text-slate-700 whitespace-nowrap pointer-events-none">
-                                  {mile.name}
                                 </div>
                               </div>
                             );

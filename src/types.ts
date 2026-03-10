@@ -61,7 +61,7 @@ export interface TimeColumn {
 
 export interface TimelineSettings {
   startYear: number;
-  yearsToShow: number;
+  monthsToShow: 3 | 6 | 12 | 24 | 36;
   budgetVisualisation: 'label' | 'bar-height' | 'off';
   descriptionDisplay: 'on' | 'off';
   emptyRowDisplay: 'show' | 'hide';

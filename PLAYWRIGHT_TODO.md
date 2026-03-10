@@ -37,6 +37,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Timeline Configuration:**
     - [x] Configure the timeline start year and duration via the Settings modal.
     - [x] Verify that timeline settings are persisted and correctly change the visible columns.
+    - [x] Verify dynamic timeline scaling: if an initiative extends beyond the selected "Months" duration, columns automatically extend to fit.
 - [x] **Initiative Panel:**
     - [x] Click on an initiative in the timeline to open the edit panel.
     - [x] Modify initiative details and save, verifying changes persist and update the UI.
@@ -55,6 +56,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Visualization Labels:**
     - [x] **Milestone Labels:** Display milestone names as text next to icons.
     - [x] **Dependency Labels:** Display dependency type along the connection arrows.
+    - [x] **Category Labels:** Verify that the category row labels remain sticky and visible when scrolling horizontally.
 - [ ] **Drag-and-Drop Reordering:**
     - [ ] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
     - [x] Asset Reordering: Drag an asset within its category and verify it moves correctly.

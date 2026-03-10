@@ -2,7 +2,7 @@ import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCat
 
 export const demoTimelineSettings: TimelineSettings = {
     startYear: 2026,
-    yearsToShow: 3,
+    monthsToShow: 36,
     budgetVisualisation: 'off',
     descriptionDisplay: 'off',
     emptyRowDisplay: 'show',

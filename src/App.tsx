@@ -277,23 +277,23 @@ export default function App() {
             />
           </label>
           <label className="flex items-center gap-1.5 text-xs text-slate-500">
-            Years
-            <input
-              type="number"
-              min="1"
-              max="20"
-              value={timelineSettings.yearsToShow}
+            Months
+            <select
+              value={timelineSettings.monthsToShow || 36}
               onChange={(e) => {
-                const val = parseInt(e.target.value);
-                if (val >= 1 && val <= 20) {
-                  handleUpdate({
-                    assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                    timelineSettings: { ...timelineSettings, yearsToShow: val },
-                  });
-                }
+                handleUpdate({
+                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                  timelineSettings: { ...timelineSettings, monthsToShow: parseInt(e.target.value) as 3 | 6 | 12 | 24 | 36 },
+                });
               }}
-              className="w-12 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="3">3</option>
+              <option value="6">6</option>
+              <option value="12">12</option>
+              <option value="24">24</option>
+              <option value="36">36</option>
+            </select>
           </label>
           <label className="flex items-center gap-1.5 text-xs text-slate-500">
             Budget
