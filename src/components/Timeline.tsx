@@ -612,45 +612,40 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   };
 
   // Keep track of initiative positions for dependency drawing
+  // Keep track of initiative positions for dependency drawing by reading the actual DOM rects.
+  // This completely eliminates drift caused by borders, margins, or dynamic rendering.
   useEffect(() => {
-    const positions = new Map<string, { x: number; y: number; width: number; height: number; assetId: string }>();
-    let currentY = 0;
+    if (!containerRef.current) return;
 
-    sortedCategoryIds.forEach(catId => {
-      // Filter assets matching the render loop exactly
-      let categoryAssets = assetsByCategory[catId] || [];
-      if (settings.emptyRowDisplay === 'hide') {
-        categoryAssets = categoryAssets.filter(asset =>
-          localInitiatives.some(i => i.assetId === asset.id)
-        );
-      }
+    // We need to wait for the DOM to paint so we can read rects.
+    // A small timeout ensures the React render loop has painted the DOM nodes before we measure.
+    const timer = setTimeout(() => {
+      if (!containerRef.current) return;
+      const positions = new Map<string, { x: number; y: number; width: number; height: number; assetId?: string }>();
+      const containerRect = containerRef.current.getBoundingClientRect();
 
-      // If the category is totally empty (or all assets hidden), don't render it at all
-      if (categoryAssets.length === 0) return;
+      // Find every initiative block drawn in the DOM
+      const elements = containerRef.current.querySelectorAll('[data-initiative-id]');
 
-      currentY += 30; // 30px: Category Header DOM height (12px py + 16px text + 2px borders)
-
-      const isCollapsed = collapsedCategories.has(catId);
-      if (isCollapsed) return;
-
-      categoryAssets.forEach(asset => {
-        const assetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
-        const { items, height } = layoutAsset(assetInitiatives);
-
-        items.forEach(item => {
-          positions.set(item.init.id, {
-            x: item.left,
-            y: currentY + item.top,
-            width: item.width,
-            height: item.height,
-            assetId: asset.id
+      elements.forEach((el) => {
+        const initId = el.getAttribute('data-initiative-id');
+        if (initId) {
+          const rect = el.getBoundingClientRect();
+          positions.set(initId, {
+            // Calculate the true offset inside the relative container
+            x: rect.left - containerRect.left,
+            y: rect.top - containerRect.top,
+            width: rect.width,
+            height: rect.height,
           });
-        });
-        currentY += height + 1; // row height + 1px border-b
+        }
       });
-    });
-    setInitiativePositions(positions);
-  }, [localInitiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory, settings, collapsedCategories]);
+
+      setInitiativePositions(positions);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [localInitiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory, settings, collapsedCategories, dependencies]);
 
   const getConflictPoints = (assetId: string) => {
     const assetInitiatives = localInitiatives.filter(i => i.assetId === assetId);
@@ -782,10 +777,10 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 const targetInit = initiatives.find(i => i.id === dep.targetId);
                 const sameAsset = sourceInit && targetInit && sourceInit.assetId === targetInit.assetId;
 
-                const sStartX = 256 + (source.x / 100) * totalWidth;
-                const sEndX = 256 + ((source.x + source.width) / 100) * totalWidth;
-                const tStartX = 256 + (target.x / 100) * totalWidth;
-                const tEndX = 256 + ((target.x + target.width) / 100) * totalWidth;
+                const sStartX = source.x;
+                const sEndX = source.x + source.width;
+                const tStartX = target.x;
+                const tEndX = target.x + target.width;
                 const sMidY = source.y + source.height / 2;
                 const tMidY = target.y + target.height / 2;
                 const sBottom = source.y + source.height;
