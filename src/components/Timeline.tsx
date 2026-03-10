@@ -1022,7 +1022,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                   setSelectedInitiativeId(init.id);
                                 }}
                                 className={cn(
-                                  "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden transition-all hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
+                                  "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden transition hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
                                   init.isPlaceholder
                                     ? "bg-transparent border-red-500 border-dashed border-2 text-red-600 opacity-70"
                                     : cn("text-white border-white/20", colorClass)
