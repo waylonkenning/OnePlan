@@ -613,35 +613,44 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
   // Keep track of initiative positions for dependency drawing
   useEffect(() => {
-    const positions = new Map<string, { x: number; y: number; width: number; height: number }>();
+    const positions = new Map<string, { x: number; y: number; width: number; height: number; assetId: string }>();
     let currentY = 0;
 
-    // We need to mirror the rendering loop to calculate Y offsets
-    // This is slightly complex because of the scrollable area
-    // For now, we'll use a simplified version or use refs
-    // Let's use a simpler approach: the dependency renderer already uses initiativePositions
-    // which were previously calculated. We need to populate it.
-
     sortedCategoryIds.forEach(catId => {
-      currentY += 26; // category header height
-      const categoryAssets = assetsByCategory[catId];
+      // Filter assets matching the render loop exactly
+      let categoryAssets = assetsByCategory[catId] || [];
+      if (settings.emptyRowDisplay === 'hide') {
+        categoryAssets = categoryAssets.filter(asset =>
+          localInitiatives.some(i => i.assetId === asset.id)
+        );
+      }
+
+      // If the category is totally empty (or all assets hidden), don't render it at all
+      if (categoryAssets.length === 0) return;
+
+      currentY += 30; // 30px: Category Header DOM height (12px py + 16px text + 2px borders)
+
+      const isCollapsed = collapsedCategories.has(catId);
+      if (isCollapsed) return;
+
       categoryAssets.forEach(asset => {
-        const assetInitiatives = initiatives.filter(i => i.assetId === asset.id);
+        const assetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
         const { items, height } = layoutAsset(assetInitiatives);
+
         items.forEach(item => {
           positions.set(item.init.id, {
             x: item.left,
             y: currentY + item.top,
             width: item.width,
-            height: item.height
+            height: item.height,
+            assetId: asset.id
           });
         });
-        currentY += height;
+        currentY += height + 1; // row height + 1px border-b
       });
     });
     setInitiativePositions(positions);
-  }, [initiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory, settings]);
-
+  }, [localInitiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory, settings, collapsedCategories]);
 
   const getConflictPoints = (assetId: string) => {
     const assetInitiatives = localInitiatives.filter(i => i.assetId === assetId);
