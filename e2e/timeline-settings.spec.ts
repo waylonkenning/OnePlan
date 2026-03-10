@@ -20,33 +20,77 @@ test.describe('Timeline Settings', () => {
     // Wait for Visualiser to load
     await expect(page.locator('#timeline-visualiser')).toBeVisible();
 
-    // Verify default state: 2026 to 2028
-    await expect(page.getByTestId('timeline-col-2024-q1')).toHaveCount(0);
-    await expect(page.getByTestId('timeline-col-2029-q1')).toHaveCount(0);
-
     // Settings are now inline in the header — find by label
     const startYearInput = page.getByLabel('Start');
-    const yearsInput = page.getByLabel('Years');
+    const monthsSelect = page.getByLabel('Months');
 
     // Check default values
     await expect(startYearInput).toHaveValue('2026');
-    await expect(yearsInput).toHaveValue('3');
+    await expect(monthsSelect).toHaveValue('36');
 
-    // Change settings — they apply immediately, no Save button needed
+    // Verify we have 12 quarterly columns (36 months = 12 quarters)
+    await expect(page.getByTestId('timeline-col-0')).toBeVisible();
+    await expect(page.getByTestId('timeline-col-11')).toBeVisible();
+
+    // Change start year to 2024
     await startYearInput.fill('2024');
-    await yearsInput.fill('5');
-
-    // Wait for state update
     await page.waitForTimeout(500);
 
-    // Verify the timeline has updated
-    await expect(page.getByTestId('timeline-col-2024-q1')).toBeVisible();
-    await expect(page.getByTestId('timeline-col-2028-q4')).toBeVisible();
+    // Verify first column now starts at 2024
+    const firstCol = page.getByTestId('timeline-col-0');
+    await expect(firstCol).toContainText('2024');
 
-    // Verify it persisted
+    // Change to 12 months (should show monthly columns)
+    await monthsSelect.selectOption('12');
+    await page.waitForTimeout(500);
+
+    // Verify we have 12 monthly columns
+    await expect(page.getByTestId('timeline-col-0')).toBeVisible();
+    await expect(page.getByTestId('timeline-col-11')).toBeVisible();
+    // First column should show "Jan"
+    await expect(page.getByTestId('timeline-col-0')).toContainText('Jan');
+
+    // Verify it persisted after reload
     await page.reload();
     await expect(page.locator('#timeline-visualiser')).toBeVisible();
-    await expect(page.getByTestId('timeline-col-2024-q1')).toBeVisible();
-    await expect(page.getByTestId('timeline-col-2028-q4')).toBeVisible();
+    await expect(page.getByLabel('Months')).toHaveValue('12');
+    await expect(page.getByLabel('Start')).toHaveValue('2024');
+  });
+
+  test('timeline dynamically extends columns to fit out-of-bounds initiatives', async ({ page }) => {
+    await expect(page.locator('#timeline-visualiser')).toBeVisible();
+
+    // Set to 3 months (Weekly view, normally 12 columns max)
+    await page.getByLabel('Months').selectOption('3');
+    await page.waitForTimeout(500);
+
+    // Initial check: Since we have demo data that extends past 3 months (e.g. 2+ years of data),
+    // the timeline should ALREADY have way more than 12 columns generated.
+
+    // We can verify this by checking for a column index that would not exist in a strict 3-month view
+    // A 3 month view has 12 weeks. If it scaled dynamically, col-20 should exist.
+    const outOfBoundsCol = page.getByTestId('timeline-col-20');
+    await expect(outOfBoundsCol).toBeVisible();
+
+    // Additionally, verify that if we delete ALL rows, it shrinks back down to the 3 month default
+    await page.getByRole('button', { name: 'Data Manager' }).click();
+    page.on('dialog', dialog => dialog.accept());
+
+    // Delete initiatives
+    await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+
+    // Delete milestones
+    await page.getByRole('button', { name: 'Milestones' }).click();
+    await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+
+    // Go back to visualiser
+    await page.getByRole('button', { name: 'Visualiser' }).click();
+    await page.waitForSelector('#timeline-visualiser');
+
+    // Due to Calendar math, 3 months from Jan 1 equals ~13 weeks.
+    // So columns 0 through 12 are visible. We'll assert that column 20 is NO LONGER visible
+    // to prove the timeline bounds shrunk.
+    await expect(page.getByTestId('timeline-col-12')).toBeVisible();
+    await expect(page.getByTestId('timeline-col-20')).not.toBeVisible();
   });
 });
