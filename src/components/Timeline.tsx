@@ -720,7 +720,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       </div>
 
       <div className="flex-1 overflow-auto scroll-smooth" ref={scrollContainerRef}>
-        <div className="relative">
+        <div className="relative w-max min-w-full">
           <div className="flex sticky top-0 z-30 bg-white shadow-sm border-b border-slate-200">
             <div className="sticky left-0 w-64 flex-shrink-0 p-4 font-bold text-slate-700 border-r border-slate-200 bg-slate-50 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
               IT Asset
