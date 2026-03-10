@@ -647,20 +647,46 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     return () => clearTimeout(timer);
   }, [localInitiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory, settings, collapsedCategories, dependencies]);
 
+  const formatOverlapDuration = (days: number) => {
+    if (settings.monthsToShow <= 3) {
+      const weeks = Math.max(1, Math.round(days / 7));
+      return `${weeks} Week${weeks !== 1 ? 's' : ''}`;
+    } else if (settings.monthsToShow === 6) {
+      const halfMonths = Math.max(1, Math.round(days / 15.2));
+      return `${halfMonths} Half-month${halfMonths !== 1 ? 's' : ''}`;
+    } else if (settings.monthsToShow <= 12) {
+      const months = Math.max(1, Math.round(days / 30.4));
+      return `${months} Month${months !== 1 ? 's' : ''}`;
+    } else {
+      const quarters = Math.max(1, Math.round(days / 91));
+      return `${quarters} Quarter${quarters !== 1 ? 's' : ''}`;
+    }
+  };
+
   const getConflictPoints = (assetId: string) => {
     const assetInitiatives = localInitiatives.filter(i => i.assetId === assetId);
-    const points: string[] = [];
+    const conflictsMap = new Map<string, number>();
+
     for (let i = 0; i < assetInitiatives.length; i++) {
       for (let j = i + 1; j < assetInitiatives.length; j++) {
         const a = assetInitiatives[i];
         const b = assetInitiatives[j];
         if (a.startDate <= b.endDate && a.endDate >= b.startDate) {
           const conflictStart = a.startDate > b.startDate ? a.startDate : b.startDate;
-          points.push(conflictStart);
+          const conflictEnd = a.endDate < b.endDate ? a.endDate : b.endDate;
+
+          const start = new Date(conflictStart).getTime();
+          const end = new Date(conflictEnd).getTime();
+          const overlapDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+
+          const existingOverlap = conflictsMap.get(conflictStart) || 0;
+          if (overlapDays > existingOverlap) {
+            conflictsMap.set(conflictStart, overlapDays);
+          }
         }
       }
     }
-    return Array.from(new Set(points));
+    return Array.from(conflictsMap.entries()).map(([date, overlapDays]) => ({ date, overlapDays }));
   };
 
   const now = new Date();
@@ -1070,14 +1096,18 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                             );
                           })}
 
-                          {conflictPoints.map((date, idx) => {
-                            const pos = getPosition(date);
+                          {conflictPoints.map((conflict, idx) => {
+                            const pos = getPosition(conflict.date);
                             if (pos < 0 || pos > 100) return null;
                             return (
                               <div key={`conflict-${idx}`} className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-30 pointer-events-none" style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}>
                                 <div className="absolute top-0 bottom-0 w-0.5 border-l-2 border-dotted border-red-500/60" />
                                 <div className="relative p-1.5 rounded-full shadow-md border-2 border-white bg-red-500 text-white animate-pulse pointer-events-auto">
-                                  <AlertTriangle size={16} fill="currentColor" />
+                                  <AlertTriangle size={16} />
+                                </div>
+                                <div className="absolute left-full ml-2 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded border border-red-200 shadow-sm whitespace-nowrap z-40 pointer-events-none">
+                                  <div className="text-[10px] font-bold text-red-600 leading-none">Conflict Detected</div>
+                                  <div className="text-[8px] text-slate-500 mt-0.5">Overlaps by {formatOverlapDuration(conflict.overlapDays)}</div>
                                 </div>
                               </div>
                             );
