@@ -785,41 +785,50 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 let path: string;
                 let labelX: number, labelY: number;
 
-                // Check if bars overlap horizontally
-                const barsOverlap = sStartX < tEndX && tStartX < sEndX;
+                const gap = tStartX - sEndX;
+                const overlapLeft = Math.max(sStartX, tStartX);
+                const overlapRight = Math.min(sEndX, tEndX);
+                const overlapWidth = overlapRight - overlapLeft;
 
-                // Orthogonal Shortest Path Routing
-                if (barsOverlap) {
-                  // Horizontal overlap exists - use a straight vertical line at the overlap midpoint.
-                  // This is the "shortest path" between the two nearest edges (top and bottom).
-                  const overlapLeft = Math.max(sStartX, tStartX);
-                  const overlapRight = Math.min(sEndX, tEndX);
-                  const x = (overlapLeft + overlapRight) / 2;
-
-                  const startY = source.y < target.y ? sBottom : source.y;
-                  const endY = source.y < target.y ? target.y : tBottom;
-
-                  path = `M ${x} ${startY} L ${x} ${endY}`;
-                  labelX = x;
-                  labelY = (startY + endY) / 2;
-                } else {
-                  // No horizontal overlap - identify nearest horizontal edges
-                  const isSourceLeft = sEndX <= tStartX;
-
-                  let x1: number, x2: number;
-                  if (isSourceLeft) {
-                    x1 = sEndX;
-                    x2 = tStartX;
-                  } else {
-                    x1 = sStartX;
-                    x2 = tEndX;
-                  }
-
-                  // Travels vertically at the midpoint of the gap to avoid crossing unrelated bars.
-                  const midX = (x1 + x2) / 2;
-                  path = `M ${x1} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${x2} ${tMidY}`;
+                if (gap >= 20) {
+                  // State 1: Clear Horizontal Flow (exits right, enters left)
+                  const midX = sEndX + gap / 2;
+                  path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX - 6} ${tMidY}`;
                   labelX = midX;
                   labelY = (sMidY + tMidY) / 2;
+                } else if (tEndX <= sStartX + 20) {
+                  // State 2: Backwards Flow (exits left, enters right)
+                  const midX = tEndX + (sStartX - tEndX) / 2;
+                  path = `M ${sStartX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tEndX + 6} ${tMidY}`;
+                  labelX = midX;
+                  labelY = (sMidY + tMidY) / 2;
+                } else if (overlapWidth > 40) {
+                  // State 3: Significant Overlap (exits bottom/top, enters top/bottom)
+                  const midX = overlapLeft + overlapWidth / 2;
+                  if (sMidY < tMidY) {
+                    path = `M ${midX} ${sBottom} L ${midX} ${target.y - 6}`;
+                    labelX = midX;
+                    labelY = (sBottom + target.y) / 2;
+                  } else {
+                    path = `M ${midX} ${source.y} L ${midX} ${tBottom + 6}`;
+                    labelX = midX;
+                    labelY = (source.y + tBottom) / 2;
+                  }
+                } else {
+                  // State 4: Adjacent Proximity (Cramped Horizontal Gap)
+                  // Exit source right, drop down/up into the top/bottom of target.
+                  let dropX = tStartX + 30;
+                  if (dropX > tEndX - 10) dropX = tEndX - 10;
+
+                  if (sMidY < tMidY) {
+                    path = `M ${sEndX} ${sMidY} L ${dropX} ${sMidY} L ${dropX} ${target.y - 6}`;
+                    labelX = dropX;
+                    labelY = (sMidY + target.y) / 2;
+                  } else {
+                    path = `M ${sEndX} ${sMidY} L ${dropX} ${sMidY} L ${dropX} ${tBottom + 6}`;
+                    labelX = dropX;
+                    labelY = (sMidY + tBottom) / 2;
+                  }
                 }
 
                 const cycleType = () => {
@@ -831,11 +840,11 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 };
 
                 return (
-                  <g key={dep.id} onClick={cycleType} className="cursor-pointer" style={{ pointerEvents: 'all' }}>
+                  <g key={dep.id} onClick={cycleType} className="cursor-pointer group" style={{ pointerEvents: 'all' }}>
                     <path
                       d={path}
                       stroke="transparent"
-                      strokeWidth="12"
+                      strokeWidth="16"
                       fill="none"
                     />
                     <path
@@ -844,19 +853,30 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       strokeWidth="2"
                       fill="none"
                       markerEnd="url(#arrowhead)"
-                      opacity="0.7"
-                      strokeDasharray={dep.type === 'related' ? "4 2" : ""}
+                      opacity="0.8"
+                      strokeDasharray={dep.type === 'related' ? "4 2" : "none"}
+                      className="group-hover:stroke-blue-600 transition-colors"
+                    />
+                    <rect
+                      x={labelX - 25}
+                      y={labelY - 9}
+                      width="50"
+                      height="18"
+                      fill="#ffffff"
+                      rx="9"
+                      opacity="0.9"
+                      stroke="#bfdbfe"
+                      strokeWidth="1"
                     />
                     <text
                       x={labelX}
                       y={labelY}
-                      fill="#3b82f6"
+                      fill="#2563eb"
                       fontSize="9"
                       fontWeight="bold"
-                      className="select-none"
                       textAnchor="middle"
-                      dy="-4"
-                      style={{ filter: 'drop-shadow(0px 0px 3px white) drop-shadow(0px 0px 3px white)' }}
+                      dominantBaseline="central"
+                      className="select-none pointer-events-none"
                     >
                       {dep.type}
                     </text>
