@@ -38,6 +38,21 @@ export function EditableTable<T extends { [key: string]: any }>({
   const [csvText, setCsvText] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
   const [pendingFocus, setPendingFocus] = useState<{ id: string; key: keyof T } | null>(null);
+  const [activeColorPicker, setActiveColorPicker] = useState<{ rowId: string | number, colKey: keyof T } | null>(null);
+
+  // Predefined color palette (30 colors)
+  const COLORS = [
+    { value: 'bg-slate-500', name: 'Slate' }, { value: 'bg-gray-500', name: 'Gray' }, { value: 'bg-zinc-500', name: 'Zinc' },
+    { value: 'bg-red-400', name: 'Light Red' }, { value: 'bg-red-500', name: 'Red' }, { value: 'bg-red-600', name: 'Dark Red' },
+    { value: 'bg-orange-400', name: 'Light Orange' }, { value: 'bg-orange-500', name: 'Orange' }, { value: 'bg-orange-600', name: 'Dark Orange' },
+    { value: 'bg-amber-400', name: 'Light Amber' }, { value: 'bg-amber-500', name: 'Amber' }, { value: 'bg-amber-600', name: 'Dark Amber' },
+    { value: 'bg-emerald-400', name: 'Light Emerald' }, { value: 'bg-emerald-500', name: 'Emerald' }, { value: 'bg-emerald-600', name: 'Dark Emerald' },
+    { value: 'bg-cyan-400', name: 'Light Cyan' }, { value: 'bg-cyan-500', name: 'Cyan' }, { value: 'bg-cyan-600', name: 'Dark Cyan' },
+    { value: 'bg-blue-400', name: 'Light Blue' }, { value: 'bg-blue-500', name: 'Blue' }, { value: 'bg-blue-600', name: 'Dark Blue' },
+    { value: 'bg-indigo-400', name: 'Light Indigo' }, { value: 'bg-indigo-500', name: 'Indigo' }, { value: 'bg-indigo-600', name: 'Dark Indigo' },
+    { value: 'bg-violet-400', name: 'Light Violet' }, { value: 'bg-violet-500', name: 'Violet' }, { value: 'bg-violet-600', name: 'Dark Violet' },
+    { value: 'bg-rose-400', name: 'Light Rose' }, { value: 'bg-rose-500', name: 'Rose' }, { value: 'bg-rose-600', name: 'Dark Rose' },
+  ];
 
   // Only one blank row that spawns another when edited
   const GHOST_ROWS_COUNT = 1;
@@ -140,7 +155,7 @@ export function EditableTable<T extends { [key: string]: any }>({
       const updatedRows = [...rows, newRow];
       setRows(updatedRows);
       onUpdate(updatedRows);
-      
+
       setPendingFocus({ id: newId, key });
     } else {
       const newRows = [...rows];
@@ -321,22 +336,46 @@ export function EditableTable<T extends { [key: string]: any }>({
                           ))}
                         </select>
                       ) : col.type === 'color' ? (
-                        <div className="flex items-center px-2">
-                          <div className={cn("w-4 h-4 rounded-full mr-2 border border-slate-200", String(row[col.key]))} />
-                          <select
-                            value={String(row[col.key] || '')}
-                            onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
-                            className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
+                        <div className="relative flex items-center h-full w-full">
+                          <button
+                            type="button"
+                            onClick={() => setActiveColorPicker({ rowId: String(row[idField]), colKey: col.key })}
+                            className="flex items-center w-full h-full px-4 hover:bg-slate-100 transition-colors"
                           >
-                            <option value="">Select Color...</option>
-                            <option value="bg-blue-500">Blue</option>
-                            <option value="bg-emerald-500">Emerald</option>
-                            <option value="bg-amber-500">Amber</option>
-                            <option value="bg-rose-500">Rose</option>
-                            <option value="bg-purple-500">Purple</option>
-                            <option value="bg-indigo-500">Indigo</option>
-                            <option value="bg-slate-500">Slate</option>
-                          </select>
+                            <div className={cn("w-4 h-4 text-xs font-semibold rounded-full border border-slate-200 mr-2 flex-shrink-0", String(row[col.key]))} />
+                            <span className="text-sm truncate text-slate-700">
+                              {COLORS.find(c => c.value === String(row[col.key]))?.name || 'Select Color...'}
+                            </span>
+                          </button>
+
+                          {activeColorPicker?.rowId === String(row[idField]) && activeColorPicker?.colKey === col.key && (
+                            <>
+                              <div className="fixed inset-0 z-40" onClick={() => setActiveColorPicker(null)} />
+                              <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-xl border border-slate-200 z-50 w-64">
+                                <div className="text-xs font-semibold text-slate-500 mb-2 px-1">Select Color</div>
+                                <div className="grid grid-cols-6 gap-1">
+                                  {COLORS.map((colorOption) => (
+                                    <button
+                                      key={colorOption.value}
+                                      onClick={() => {
+                                        handleChange(rowIndex, col.key, colorOption.value, false);
+                                        setActiveColorPicker(null);
+                                      }}
+                                      title={colorOption.name}
+                                      className={cn(
+                                        "w-8 h-8 rounded-full border border-slate-200 hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 flex items-center justify-center",
+                                        colorOption.value
+                                      )}
+                                    >
+                                      {String(row[col.key]) === colorOption.value && (
+                                        <div className="w-2.5 h-2.5 bg-white rounded-full opacity-90" />
+                                      )}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          )}
                         </div>
                       ) : col.type === 'boolean' ? (
                         <div className="flex items-center justify-center h-full">
@@ -390,24 +429,40 @@ export function EditableTable<T extends { [key: string]: any }>({
                         ))}
                       </select>
                     ) : col.type === 'color' ? (
-                      <div className="flex items-center px-2">
-                        <div className="w-4 h-4 rounded-full mr-2 border border-slate-100 bg-slate-50" />
-                        <select
-                          value=""
-                          onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
-                          onKeyDown={(e) => handleKeyDown(e, colIndex, true)}
-                          className="w-full h-full py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none text-xs"
-                          data-testid={`ghost-color-${String(col.key)}`}
+                      <div className="relative flex items-center h-full w-full">
+                        <button
+                          type="button"
+                          onClick={() => setActiveColorPicker({ rowId: 'ghost', colKey: col.key })}
+                          className="flex items-center w-full h-full px-4 hover:bg-slate-100 transition-colors"
                         >
-                          <option value=""></option>
-                          <option value="bg-blue-500">Blue</option>
-                          <option value="bg-emerald-500">Emerald</option>
-                          <option value="bg-amber-500">Amber</option>
-                          <option value="bg-rose-500">Rose</option>
-                          <option value="bg-purple-500">Purple</option>
-                          <option value="bg-indigo-500">Indigo</option>
-                          <option value="bg-slate-500">Slate</option>
-                        </select>
+                          <div className="w-4 h-4 rounded-full mr-2 border border-slate-100 bg-slate-50 flex-shrink-0" />
+                          <span className="text-sm truncate text-slate-400">Select Color...</span>
+                        </button>
+
+                        {activeColorPicker?.rowId === 'ghost' && activeColorPicker?.colKey === col.key && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setActiveColorPicker(null)} />
+                            <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-xl border border-slate-200 z-50 w-64">
+                              <div className="text-xs font-semibold text-slate-500 mb-2 px-1">Select Color</div>
+                              <div className="grid grid-cols-6 gap-1">
+                                {COLORS.map((colorOption) => (
+                                  <button
+                                    key={colorOption.value}
+                                    onClick={() => {
+                                      handleChange(rows.length + i, col.key, colorOption.value, true);
+                                      setActiveColorPicker(null);
+                                    }}
+                                    title={colorOption.name}
+                                    className={cn(
+                                      "w-8 h-8 rounded-full border border-slate-200 hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center",
+                                      colorOption.value
+                                    )}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                     ) : col.type === 'boolean' ? (
                       <div className="flex items-center justify-center h-full">
