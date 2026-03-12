@@ -384,7 +384,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           const sourcePos = initiativePositions.get(moving.id);
           if (sourcePos && containerRef.current) {
             const containerRect = containerRef.current.getBoundingClientRect();
-            const startX = 256 + ((sourcePos.x + sourcePos.width / 2) / 100) * totalWidth;
+            const startX = sourcePos.x + sourcePos.width / 2;
             const startY = sourcePos.y + sourcePos.height / 2;
 
             setDrawingDependency({

@@ -51,6 +51,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Initiative Interaction:**
     - [x] **Horizontal Move:** Drag an initiative left or right to change start/end dates while maintaining duration.
     - [x] **Relationship Drawing:** Drag vertically from one initiative to another to create a dependency.
+        - [x] Verify the dashed arrow starts from the center of the source initiative.
 - [x] **Milestone Interaction:**
     - [x] **Horizontal Move:** Drag a milestone left or right to change its date.
 - [x] **Visualization Labels:**
