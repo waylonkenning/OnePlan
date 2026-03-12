@@ -58,6 +58,36 @@ test.describe('Visualiser (Timeline)', () => {
     await expect(page.locator('.bg-red-500.animate-pulse').first()).toBeVisible({ timeout: 15000 });
   });
 
+  test('Conflict markers layering', async ({ page }) => {
+    // Navigate to ensure we have a conflict (similar to above)
+    await page.getByRole('button', { name: 'Data Manager' }).click();
+    page.on('dialog', dialog => dialog.accept());
+    await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.getByRole('button', { name: 'Paste CSV' }).click();
+    const textarea = page.locator('textarea');
+    await textarea.fill(`id,name,assetId,startDate,endDate,budget\nconf-1,Conflict A,a-ciam,2026-04-01,2026-12-31,100\nconf-2,Conflict B,a-ciam,2026-04-01,2026-12-31,100`);
+    await page.waitForTimeout(500);
+    await page.getByRole('button', { name: 'Import Rows' }).click();
+    await page.getByRole('button', { name: 'Visualiser' }).click();
+    await page.waitForSelector('#timeline-visualiser');
+
+    // Find a conflict marker container (z-0)
+    const markerContainer = page.locator('div.z-0:has-text("Conflict Detected")').first();
+    await expect(markerContainer).toBeVisible({ timeout: 10000 });
+
+    // Get the z-index of the conflict marker
+    const markerZIndex = await markerContainer.evaluate(el => window.getComputedStyle(el).zIndex);
+    
+    // Find a sticky asset label (z-20)
+    const stickyLabel = page.locator('div.sticky.left-0.z-20').first();
+    await expect(stickyLabel).toBeVisible();
+    
+    const labelZIndex = await stickyLabel.evaluate(el => window.getComputedStyle(el).zIndex);
+
+    // Conflict marker (0) should be behind sticky label (20)
+    expect(parseInt(markerZIndex)).toBeLessThan(parseInt(labelZIndex));
+  });
+
   test('Milestones Render Correctly', async ({ page }) => {
     // Check if default milestone 'DR Failover Test' is rendered
     // Warning is amber (bg-amber-100)
