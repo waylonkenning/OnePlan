@@ -62,6 +62,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [ ] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
     - [x] Asset Reordering: Drag an asset within its category and verify it moves correctly.
 - [x] **Conflict Detection:** Create two initiatives on the same asset that overlap in time and verify the red "Conflict Detected" marker appears at the start of the overlap.
+    - [x] Verify that conflict markers appear behind sticky asset swimlane labels when scrolling.
 - [x] **Milestones:** Verify milestones are rendered at the correct horizontal position based on their date.
 
 ## 4. Data Controls (Import/Export)
