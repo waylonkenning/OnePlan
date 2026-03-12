@@ -664,6 +664,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   };
 
   const getConflictPoints = (assetId: string) => {
+    if (settings.conflictDetection === 'off') return [];
     const assetInitiatives = localInitiatives.filter(i => i.assetId === assetId);
     const conflictsMap = new Map<string, number>();
 

@@ -7,6 +7,7 @@ export const demoTimelineSettings: TimelineSettings = {
     descriptionDisplay: 'off',
     emptyRowDisplay: 'show',
     snapToPeriod: 'off',
+    conflictDetection: 'on',
 };
 
 export const demoAssetCategories: AssetCategory[] = [

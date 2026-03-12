@@ -364,6 +364,23 @@ export default function App() {
               <option value="month">Month</option>
             </select>
           </label>
+          <label className="flex items-center gap-1.5 text-xs text-slate-500 ml-2">
+            Conflict
+            <select
+              id="conflictDetection"
+              value={timelineSettings.conflictDetection || 'on'}
+              onChange={(e) => {
+                handleUpdate({
+                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                  timelineSettings: { ...timelineSettings, conflictDetection: e.target.value as 'off' | 'on' },
+                });
+              }}
+              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="on">On</option>
+              <option value="off">Off</option>
+            </select>
+          </label>
         </div>
 
         {/* Spacer pushes remaining items right */}
