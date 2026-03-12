@@ -66,4 +66,5 @@ export interface TimelineSettings {
   descriptionDisplay: 'on' | 'off';
   emptyRowDisplay: 'show' | 'hide';
   snapToPeriod: 'off' | 'month';
+  conflictDetection: 'on' | 'off';
 }
