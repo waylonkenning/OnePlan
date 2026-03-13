@@ -1,7 +1,7 @@
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
 
 export const demoTimelineSettings: TimelineSettings = {
-    startYear: 2026,
+    startDate: '2026-01-01',
     monthsToShow: 36,
     budgetVisualisation: 'off',
     descriptionDisplay: 'off',

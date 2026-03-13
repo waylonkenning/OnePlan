@@ -38,7 +38,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 
 ## 3. Visualiser (Timeline)
 - [x] **Timeline Configuration:**
-    - [x] Configure the timeline start year and duration via the Settings modal.
+    - [x] Configure the timeline start date and duration via the header settings.
     - [x] Verify that timeline settings are persisted and correctly change the visible columns.
     - [x] Verify dynamic timeline scaling: if an initiative extends beyond the selected "Months" duration, columns automatically extend to fit.
 - [x] **Initiative Panel:**
