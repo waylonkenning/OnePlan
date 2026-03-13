@@ -66,6 +66,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Category Labels:** Verify that the category row labels remain sticky and visible when scrolling horizontally.
     - [x] **Description Display:** Verify that descriptions are correctly rendered without being cut off at the bottom.
     - [x] Grouped Descriptions: Verify that collapsed groups show initiative names concatenated with " + ".
+    - [x] **Dynamic Swimlane Height:** Verify that swimlane height shrinks when groups are collapsed and expands when ungrouped.
 - [ ] **Drag-and-Drop Reordering:**
     - [ ] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
     - [x] Asset Reordering: Drag an asset within its category and verify it moves correctly.
