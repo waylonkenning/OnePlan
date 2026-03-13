@@ -218,6 +218,32 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
     },
   ];
 
+  const handleColumnResize = (tableId: Tab, columnKey: string, newWidth: string) => {
+    const updatedWidths = {
+      ...(data.timelineSettings.columnWidths || {}),
+      [tableId]: {
+        ...(data.timelineSettings.columnWidths?.[tableId] || {}),
+        [columnKey]: newWidth
+      }
+    };
+
+    onUpdate({
+      ...data,
+      timelineSettings: {
+        ...data.timelineSettings,
+        columnWidths: updatedWidths
+      }
+    });
+  };
+
+  const getColumnsWithWidths = <T extends { [key: string]: any }>(tabId: Tab, baseColumns: Column<T>[]): Column<T>[] => {
+    const savedWidths = data.timelineSettings.columnWidths?.[tabId] || {};
+    return baseColumns.map(col => ({
+      ...col,
+      width: savedWidths[String(col.key)] || col.width
+    }));
+  };
+
   const tabs = [
     { id: 'initiatives', label: 'Initiatives', icon: Layers, count: data.initiatives.length },
     { id: 'dependencies', label: 'Dependencies', icon: Link2, count: data.dependencies.length },
@@ -255,69 +281,83 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
         {activeTab === 'initiatives' && (
           <EditableTable
             data={data.initiatives}
-            columns={initiativeColumns}
+            columns={getColumnsWithWidths('initiatives', initiativeColumns)}
             onUpdate={(newData) => updateData('initiatives', newData)}
             onDelete={handleDeleteInitiative}
             idField="id"
             searchQuery={searchQuery}
+            tableId="initiatives"
+            onColumnResize={(key, width) => handleColumnResize('initiatives', key, width)}
           />
         )}
         {activeTab === 'dependencies' && (
           <EditableTable
             data={data.dependencies}
-            columns={dependencyColumns}
+            columns={getColumnsWithWidths('dependencies', dependencyColumns)}
             onUpdate={(newData) => updateData('dependencies', newData)}
             idField="id"
             searchQuery={searchQuery}
+            tableId="dependencies"
+            onColumnResize={(key, width) => handleColumnResize('dependencies', key, width)}
           />
         )}
         {activeTab === 'assets' && (
           <EditableTable
             data={data.assets}
-            columns={assetColumns}
+            columns={getColumnsWithWidths('assets', assetColumns)}
             onUpdate={(newData) => updateData('assets', newData)}
             onDelete={handleDeleteAsset}
             idField="id"
             searchQuery={searchQuery}
+            tableId="assets"
+            onColumnResize={(key, width) => handleColumnResize('assets', key, width)}
           />
         )}
         {activeTab === 'assetCategories' && (
           <EditableTable
             data={data.assetCategories}
-            columns={categoryColumns}
+            columns={getColumnsWithWidths('assetCategories', categoryColumns)}
             onUpdate={(newData) => updateData('assetCategories', newData)}
             onDelete={handleDeleteCategory}
             idField="id"
             searchQuery={searchQuery}
+            tableId="assetCategories"
+            onColumnResize={(key, width) => handleColumnResize('assetCategories', key, width)}
           />
         )}
         {activeTab === 'programmes' && (
           <EditableTable
             data={data.programmes}
-            columns={programmeColumns}
+            columns={getColumnsWithWidths('programmes', programmeColumns)}
             onUpdate={(newData) => updateData('programmes', newData)}
             onDelete={handleDeleteProgramme}
             idField="id"
             searchQuery={searchQuery}
+            tableId="programmes"
+            onColumnResize={(key, width) => handleColumnResize('programmes', key, width)}
           />
         )}
         {activeTab === 'strategies' && (
           <EditableTable
             data={data.strategies}
-            columns={strategyColumns}
+            columns={getColumnsWithWidths('strategies', strategyColumns)}
             onUpdate={(newData) => updateData('strategies', newData)}
             onDelete={handleDeleteStrategy}
             idField="id"
             searchQuery={searchQuery}
+            tableId="strategies"
+            onColumnResize={(key, width) => handleColumnResize('strategies', key, width)}
           />
         )}
         {activeTab === 'milestones' && (
           <EditableTable
             data={data.milestones}
-            columns={milestoneColumns}
+            columns={getColumnsWithWidths('milestones', milestoneColumns)}
             onUpdate={(newData) => updateData('milestones', newData)}
             idField="id"
             searchQuery={searchQuery}
+            tableId="milestones"
+            onColumnResize={(key, width) => handleColumnResize('milestones', key, width)}
           />
         )}
       </div>

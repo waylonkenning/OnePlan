@@ -23,6 +23,8 @@ interface EditableTableProps<T> {
   onDelete?: (deletedRow: T) => boolean; // If returns true, delete was handled externally
   idField: keyof T;
   searchQuery?: string;
+  tableId?: string;
+  onColumnResize?: (columnKey: string, newWidth: string) => void;
 }
 
 export function EditableTable<T extends { [key: string]: any }>({
@@ -31,7 +33,9 @@ export function EditableTable<T extends { [key: string]: any }>({
   onUpdate,
   onDelete,
   idField,
-  searchQuery
+  searchQuery,
+  tableId = 'default',
+  onColumnResize
 }: EditableTableProps<T>) {
   const [rows, setRows] = useState<T[]>(data);
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
@@ -39,6 +43,74 @@ export function EditableTable<T extends { [key: string]: any }>({
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
   const [pendingFocus, setPendingFocus] = useState<{ id: string; key: keyof T } | null>(null);
   const [activeColorPicker, setActiveColorPicker] = useState<{ rowId: string | number, colKey: keyof T } | null>(null);
+
+  // Column Resizing State
+  const [resizing, setResizing] = useState<{ key: string; startX: number; startWidth: number } | null>(null);
+  const tableRef = useRef<HTMLTableElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!resizing) return;
+      const dx = e.clientX - resizing.startX;
+      const newWidth = Math.max(50, resizing.startWidth + dx);
+      
+      const column = columns.find(c => String(c.key) === resizing.key);
+      if (column) {
+        column.width = `${newWidth}px`;
+        // Force re-render if needed, but since we're modifying the prop directly 
+        // and it's used in the style, we might need a local width state or just let the parent update.
+        // For now, let's trigger the parent update immediately or on mouseup.
+        if (tableRef.current) {
+          const th = tableRef.current.querySelector(`th[data-col-key="${resizing.key}"]`) as HTMLElement;
+          if (th) th.style.width = `${newWidth}px`;
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (resizing) {
+        const column = columns.find(c => String(c.key) === resizing.key);
+        if (column && onColumnResize) {
+          onColumnResize(resizing.key, column.width || '');
+        }
+        setResizing(null);
+      }
+    };
+
+    if (resizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [resizing, columns, onColumnResize]);
+
+  const handleResizeStart = (e: React.MouseEvent, key: string, currentWidth: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Parse current width
+    let width = 0;
+    if (currentWidth.endsWith('px')) {
+      width = parseInt(currentWidth);
+    } else if (currentWidth.endsWith('%')) {
+      // Convert % to px based on current offsetWidth
+      const th = (e.target as HTMLElement).closest('th');
+      width = th?.offsetWidth || 0;
+    } else {
+      const th = (e.target as HTMLElement).closest('th');
+      width = th?.offsetWidth || 0;
+    }
+
+    setResizing({
+      key,
+      startX: e.clientX,
+      startWidth: width
+    });
+  };
 
   // Predefined color palette (30 colors)
   const COLORS = [
@@ -294,17 +366,22 @@ export function EditableTable<T extends { [key: string]: any }>({
   return (
     <div className="flex flex-col h-full relative">
       <div className="flex-1 overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
-        <table className="w-full text-sm text-left border-collapse">
+        <table ref={tableRef} className="w-full text-sm text-left border-collapse table-fixed">
           <thead className="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 shadow-sm">
             <tr>
               {columns.map(col => (
                 <th
                   key={String(col.key)}
-                  onClick={() => handleSort(col.key)}
-                  className="px-4 py-3 font-medium border-b border-r border-slate-200 last:border-r-0 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition-colors group/header"
+                  data-col-key={String(col.key)}
+                  onClick={(e) => {
+                    // Don't sort if clicking the resize handle
+                    if ((e.target as HTMLElement).classList.contains('resize-handle')) return;
+                    handleSort(col.key);
+                  }}
+                  className="px-4 py-3 font-medium border-b border-r border-slate-200 last:border-r-0 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition-colors group/header relative"
                   style={{ width: col.width }}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 pr-2">
                     {col.label}
                     {sortConfig?.key === col.key ? (
                       sortConfig.direction === 'asc' ? <ArrowUp size={14} className="text-blue-500" /> : <ArrowDown size={14} className="text-blue-500" />
@@ -312,6 +389,13 @@ export function EditableTable<T extends { [key: string]: any }>({
                       <ArrowUpDown size={14} className="text-slate-300 opacity-0 group-hover/header:opacity-100" />
                     )}
                   </div>
+                  <div 
+                    className={cn(
+                      "resize-handle absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-400 z-20 transition-colors",
+                      resizing?.key === String(col.key) ? "bg-blue-500" : "bg-transparent"
+                    )}
+                    onMouseDown={(e) => handleResizeStart(e, String(col.key), col.width || '')}
+                  />
                 </th>
               ))}
               <th className="px-4 py-3 border-b border-slate-200 w-10"></th>

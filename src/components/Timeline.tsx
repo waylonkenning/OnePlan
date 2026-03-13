@@ -19,12 +19,13 @@ interface TimelineProps {
   onUpdateAssets?: (assets: Asset[]) => void;
   onUpdateDependencies?: (dependencies: Dependency[]) => void;
   onUpdateMilestone?: (milestone: Milestone) => void;
+  onDeleteInitiative?: (initiative: Initiative) => void;
   searchQuery?: string;
 }
 
 const SIDEBAR_WIDTH = 256; // 16rem in pixels
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onAddInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, searchQuery }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onAddInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, searchQuery }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
   const isDraggingRef = useRef(false);
@@ -1183,6 +1184,11 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           } else {
             if (onAddInitiative) onAddInitiative(initiative);
           }
+          setSelectedInitiativeId(null);
+          setCreatingInitiativeParams(null);
+        }}
+        onDelete={(initiative) => {
+          if (onDeleteInitiative) onDeleteInitiative(initiative);
           setSelectedInitiativeId(null);
           setCreatingInitiativeParams(null);
         }}

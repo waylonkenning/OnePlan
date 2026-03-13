@@ -19,6 +19,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Data Persistence (IndexedDB):**
     - [x] Load the app, make a change (e.g., rename an initiative), refresh the page, and verify the change persists.
     - [x] Verify that if the database is empty, the default data from `demoData.ts` is correctly initialized.
+- [x] **Column Resizing:**
+    - [x] Drag the boundary between column headers to resize.
+    - [x] Verify that resized column widths are persisted across page reloads.
 
 ## 2. Data Manager (EditableTable)
 - [x] **Tab Switching:** Verify all tabs (Initiatives, Assets, Programmes, Strategies, Milestones) display correctly with their respective counts.
@@ -40,6 +43,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify dynamic timeline scaling: if an initiative extends beyond the selected "Months" duration, columns automatically extend to fit.
 - [x] **Initiative Panel:**
     - [x] Click on an initiative in the timeline to open the edit panel.
+    - [x] Support initiative deletion from visualiser edit panel
     - [x] Modify initiative details and save, verifying changes persist and update the UI.
 - [x] **Coloring Logic:**
     - [x] **Toggle Color Mode:** Switch between "By Programme" and "By Strategy" and verify initiative bar colors change according to the legend.

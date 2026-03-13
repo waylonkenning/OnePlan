@@ -67,4 +67,5 @@ export interface TimelineSettings {
   emptyRowDisplay: 'show' | 'hide';
   snapToPeriod: 'off' | 'month';
   conflictDetection: 'on' | 'off';
+  columnWidths?: Record<string, Record<string, string>>;
 }
