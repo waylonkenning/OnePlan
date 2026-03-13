@@ -54,6 +54,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Persistence:** Ensure resized initiatives don't "snap back" after the mouse is released or the page is refreshed.
 - [x] **Initiative Interaction:**
     - [x] **Horizontal Move:** Drag an initiative left or right to change start/end dates while maintaining duration.
+    - [x] **Vertical Stability:** Verify initiatives maintain their vertical row during drag and resize operations.
     - [x] **Relationship Drawing:** Drag vertically from one initiative to another to create a dependency.
         - [x] Verify the dashed arrow starts from the center of the source initiative.
 - [x] **Milestone Interaction:**
