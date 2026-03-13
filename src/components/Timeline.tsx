@@ -623,9 +623,6 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         const maxBottom = Math.max(...groupItems.map(it => it.top + it.height));
         
         const firstInit = groupItems[0].init; // Use first init as representative
-        const fixedHeight = 44; // Standard initiative height
-        const centeredTop = minTop + (maxBottom - minTop - fixedHeight) / 2;
-
         // Calculate concatenated programme and strategy names
         const groupProgrammeIds = Array.from(new Set(groupItems.map(it => it.init.programmeId)));
         const groupProgrammeNames = groupProgrammeIds
@@ -641,18 +638,37 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           .sort()
           .join(' + ');
 
+        const sortedInits = group
+          .map(id => assetInitiatives.find(i => i.id === id))
+          .filter((i): i is Initiative => !!i)
+          .sort((a, b) => a.startDate.localeCompare(b.startDate));
+        const groupDescription = sortedInits.map(i => i.name).join(' + ');
+        const groupWidth = maxRight - minLeft;
+
+        let dynamicHeight = BAR_HEIGHT;
+        if (settings.descriptionDisplay === 'on' && groupDescription) {
+          const hasSubtitle = groupProgrammeNames || groupStrategyNames;
+          const baseHeight = hasSubtitle ? 48 : 32;
+          const charsPerLine = Math.max(20, Math.floor(groupWidth * 4));
+          const lines = Math.ceil(groupDescription.length / charsPerLine);
+          const clampedLines = Math.min(3, lines);
+          dynamicHeight = Math.max(BAR_HEIGHT, baseHeight + clampedLines * 12 + 9);
+        }
+
+        const centeredTop = minTop + (maxBottom - minTop - dynamicHeight) / 2;
+
         finalItems.push({
           init: {
             ...firstInit,
             id: groupId,
             name: `${group.length} Connected Initiatives`,
             budget: totalGroupBudget,
-            description: group.map(id => assetInitiatives.find(i => i.id === id)?.name).join(', ')
+            description: groupDescription
           },
           top: centeredTop,
-          height: fixedHeight,
+          height: dynamicHeight,
           left: minLeft,
-          width: maxRight - minLeft,
+          width: groupWidth,
           isGroup: true,
           groupIds: group,
           groupProgrammeNames,
