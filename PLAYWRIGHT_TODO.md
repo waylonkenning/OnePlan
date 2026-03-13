@@ -69,6 +69,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Conflict Detection:** Create two initiatives on the same asset that overlap in time and verify the red "Conflict Detected" marker appears at the start of the overlap.
     - [x] **Same-day Boundary:** Verify that initiatives touching on the same date (End A == Start B) are NOT marked as conflicts.
     - [x] Verify that conflict markers appear behind sticky asset swimlane labels when scrolling.
+    - [x] Verify that initiatives do not overlap sticky asset swimlane labels on hover.
     - [x] Verify that conflict detection can be toggled on/off via the header setting.
 - [x] **Milestones:** Verify milestones are rendered at the correct horizontal position based on their date.
 
