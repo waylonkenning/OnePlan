@@ -62,6 +62,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [creatingInitiativeParams, setCreatingInitiativeParams] = useState<{ assetId: string, startDate: string, endDate: string } | null>(null);
 
   const [initiativePositions, setInitiativePositions] = useState<Map<string, { x: number; y: number; width: number; height: number }>>(new Map());
+  const lastStableLayouts = useRef<Map<string, { items: any[]; height: number }>>(new Map());
 
   const timelineRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -612,6 +613,35 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     return { items, height: contentHeight };
   };
 
+  const getAssetLayout = (asset: Asset, assetInitiatives: Initiative[]) => {
+    const isOperating = !!resizing || !!moving;
+
+    if (isOperating && lastStableLayouts.current.has(asset.id)) {
+      const stable = lastStableLayouts.current.get(asset.id)!;
+      return {
+        ...stable,
+        items: stable.items.map(item => {
+          const currentInit = localInitiatives.find(li => li.id === item.init.id);
+          if (currentInit) {
+            return {
+              ...item,
+              init: currentInit,
+              left: getPosition(currentInit.startDate),
+              width: getWidth(currentInit.startDate, currentInit.endDate)
+            };
+          }
+          return item;
+        })
+      };
+    }
+
+    const layout = layoutAsset(assetInitiatives);
+    if (!isOperating) {
+      lastStableLayouts.current.set(asset.id, layout);
+    }
+    return layout;
+  };
+
   // Keep track of initiative positions for dependency drawing
   // Keep track of initiative positions for dependency drawing by reading the actual DOM rects.
   // This completely eliminates drift caused by borders, margins, or dynamic rendering.
@@ -980,7 +1010,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     const assetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
                     const assetMilestones = milestones.filter(m => m.assetId === asset.id);
                     const conflictPoints = getConflictPoints(asset.id);
-                    const { items: layoutItems, height: rowHeight } = layoutAsset(assetInitiatives);
+                    const { items: layoutItems, height: rowHeight } = getAssetLayout(asset, assetInitiatives);
                     return (
                       <div
                         key={asset.id}
