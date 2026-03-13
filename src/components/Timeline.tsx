@@ -550,14 +550,14 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       if (settings.descriptionDisplay === 'on' && init.description) {
         // Calculate exact height needed: py-1 (8px) + name (14px) + subtitle (16px) + desc spacing (8px)
         const hasSubtitle = init.programmeId || init.strategyId;
-        const baseHeight = hasSubtitle ? 46 : 30;
+        const baseHeight = hasSubtitle ? 48 : 32;
 
         // Estimate characters per line based on bar width (approx 4 chars per % of width)
         const charsPerLine = Math.max(20, Math.floor(width * 4));
         const lines = Math.ceil(init.description.length / charsPerLine);
         const clampedLines = Math.min(3, lines); // We use line-clamp-3
 
-        descHeight = Math.max(BAR_HEIGHT, baseHeight + clampedLines * 12 + 4); // 12px per line + 4px buffer
+        descHeight = Math.max(BAR_HEIGHT, baseHeight + clampedLines * 12 + 9); // 12px per line + 9px buffer (mt-1 + pt-1 + border-t)
       }
 
       const height = Math.max(budgetHeight, descHeight, BAR_HEIGHT);
@@ -604,7 +604,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     const contentHeight = Math.max(MIN_ROW_HEIGHT, ...placedRects.map(r => r.bottom)) + ROW_PADDING;
 
     // Post-process items to handle collapsed groups
-    const finalItems: { init: Initiative; top: number; height: number; left: number; width: number; isGroup?: boolean; groupIds?: string[] }[] = [];
+    const finalItems: { init: Initiative; top: number; height: number; left: number; width: number; isGroup?: boolean; groupIds?: string[]; groupProgrammeNames?: string; groupStrategyNames?: string }[] = [];
     const groupedIds = new Set<string>();
 
     const groups = getGroupsForAsset(assetInitiatives);
@@ -626,6 +626,21 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         const fixedHeight = 44; // Standard initiative height
         const centeredTop = minTop + (maxBottom - minTop - fixedHeight) / 2;
 
+        // Calculate concatenated programme and strategy names
+        const groupProgrammeIds = Array.from(new Set(groupItems.map(it => it.init.programmeId)));
+        const groupProgrammeNames = groupProgrammeIds
+          .map(id => programmes.find(p => p.id === id)?.name)
+          .filter(Boolean)
+          .sort()
+          .join(' + ');
+
+        const groupStrategyIds = Array.from(new Set(groupItems.map(it => it.init.strategyId).filter(Boolean)));
+        const groupStrategyNames = groupStrategyIds
+          .map(id => strategies.find(s => s.id === id)?.name)
+          .filter(Boolean)
+          .sort()
+          .join(' + ');
+
         finalItems.push({
           init: {
             ...firstInit,
@@ -639,7 +654,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           left: minLeft,
           width: maxRight - minLeft,
           isGroup: true,
-          groupIds: group
+          groupIds: group,
+          groupProgrammeNames,
+          groupStrategyNames
         });
         group.forEach(id => groupedIds.add(id));
       }
@@ -1155,11 +1172,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                             ))}
                           </div>
 
-                          {layoutItems.map(({ init, top, height, left, width, isGroup }) => {
+                          {layoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
                             const prog = programmes.find(p => p.id === init.programmeId);
                             const strat = strategies.find(s => s.id === init.strategyId);
                             const colorClass = colorBy === 'programme' ? (prog?.color || 'bg-slate-500') : (strat?.color || 'bg-slate-400');
-                            const subtitle = colorBy === 'programme' ? prog?.name : strat?.name;
+                            const subtitle = isGroup
+                              ? (colorBy === 'programme' ? groupProgrammeNames : groupStrategyNames)
+                              : (colorBy === 'programme' ? prog?.name : strat?.name);
 
                             if (left + width < 0 || left > 100) return null;
 
