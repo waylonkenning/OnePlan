@@ -10,10 +10,11 @@ interface InitiativePanelProps {
     strategies: Strategy[];
     onClose: () => void;
     onSave: (initiative: Initiative) => void;
+    onDelete?: (initiative: Initiative) => void;
     isOpen: boolean;
 }
 
-export function InitiativePanel({ initiative, assets, programmes, strategies, onClose, onSave, isOpen }: InitiativePanelProps) {
+export function InitiativePanel({ initiative, assets, programmes, strategies, onClose, onSave, onDelete, isOpen }: InitiativePanelProps) {
     const [formData, setFormData] = useState<Initiative | null>(null);
     const [errors, setErrors] = useState<ValidationErrors>({});
 
@@ -223,6 +224,21 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
                     >
                         Cancel
                     </button>
+                    {onDelete && !formData.id.includes('new') && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (window.confirm('Sure you want to delete this initiative?')) {
+                                    onDelete(formData);
+                                }
+                            }}
+                            className="px-4 py-2 bg-white text-red-600 border border-red-200 rounded-md hover:bg-red-50 hover:border-red-300 transition-colors font-medium flex items-center justify-center gap-2 shadow-sm"
+                            title="Delete Initiative"
+                        >
+                            <Trash2 size={18} />
+                            Delete Initiative
+                        </button>
+                    )}
                     <button
                         type="submit"
                         form="initiative-form"

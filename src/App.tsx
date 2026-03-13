@@ -491,6 +491,18 @@ export default function App() {
                 timelineSettings,
               });
             }}
+            onDeleteInitiative={(deletedInit) => {
+              handleUpdate({
+                assets,
+                initiatives: initiatives.filter(i => i.id !== deletedInit.id),
+                milestones,
+                programmes,
+                strategies,
+                dependencies: dependencies.filter(d => d.sourceId !== deletedInit.id && d.targetId !== deletedInit.id),
+                assetCategories,
+                timelineSettings,
+              });
+            }}
           />
         ) : (
           <DataManager
