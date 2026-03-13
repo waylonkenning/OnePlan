@@ -601,9 +601,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       placedRects.push({ id: init.id, start: left, end: right, top, bottom: top + height });
     });
 
-    const contentHeight = Math.max(MIN_ROW_HEIGHT, ...placedRects.map(r => r.bottom)) + ROW_PADDING;
-
-    // Post-process items to handle collapsed groups
+    // Final items will include either individual initiatives or collapsed group bars
     const finalItems: { init: Initiative; top: number; height: number; left: number; width: number; isGroup?: boolean; groupIds?: string[]; groupProgrammeNames?: string; groupStrategyNames?: string }[] = [];
     const groupedIds = new Set<string>();
 
@@ -684,14 +682,20 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       }
     });
 
+    // Recalculate contentHeight based on finalItems (collapsed or expanded)
+    let contentHeight = MIN_ROW_HEIGHT;
+    if (finalItems.length > 0) {
+      const maxBottom = finalItems.reduce((max, i) => Math.max(max, i.top + i.height), 0);
+      contentHeight = Math.max(MIN_ROW_HEIGHT, maxBottom + ROW_PADDING);
+    }
+
     // Vertically center the content within the row
     if (finalItems.length > 0) {
-      const currentItems = finalItems;
-      const contentTop = Math.min(...currentItems.map(i => i.top));
-      const contentBottom = Math.max(...currentItems.map(i => i.top + i.height));
+      const contentTop = finalItems.reduce((min, i) => Math.min(min, i.top), Infinity);
+      const contentBottom = finalItems.reduce((max, i) => Math.max(max, i.top + i.height), -Infinity);
       const contentSpan = contentBottom - contentTop;
       const offset = (contentHeight - contentSpan) / 2 - contentTop;
-      currentItems.forEach(item => { item.top += offset; });
+      finalItems.forEach(item => { item.top += offset; });
     }
 
     return { items: finalItems, height: contentHeight };
