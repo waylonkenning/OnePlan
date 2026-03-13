@@ -92,7 +92,13 @@ export default function App() {
           setStrategies(dbData.strategies || []);
           setDependencies(dbData.dependencies || []);
           setAssetCategories(dbData.assetCategories || []);
-          setTimelineSettings({ ...defaultTimelineSettings, ...(dbData.timelineSettings || {}) });
+          const mergedSettings = { ...defaultTimelineSettings, ...(dbData.timelineSettings || {}) };
+          // Migration: if we have startYear but no startDate, convert it
+          if ('startYear' in mergedSettings && !mergedSettings.startDate) {
+            mergedSettings.startDate = `${mergedSettings.startYear}-01-01`;
+            delete (mergedSettings as any).startYear;
+          }
+          setTimelineSettings(mergedSettings);
         }
       } catch (error) {
         console.error('Failed to load data from DB:', error);
@@ -260,20 +266,15 @@ export default function App() {
           <label className="flex items-center gap-1.5 text-xs text-slate-500">
             Start
             <input
-              type="number"
-              min="2000"
-              max="2100"
-              value={timelineSettings.startYear}
+              type="date"
+              value={timelineSettings.startDate}
               onChange={(e) => {
-                const val = parseInt(e.target.value);
-                if (val >= 2000 && val <= 2100) {
-                  handleUpdate({
-                    assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                    timelineSettings: { ...timelineSettings, startYear: val },
-                  });
-                }
+                handleUpdate({
+                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                  timelineSettings: { ...timelineSettings, startDate: e.target.value },
+                });
               }}
-              className="w-16 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </label>
           <label className="flex items-center gap-1.5 text-xs text-slate-500">

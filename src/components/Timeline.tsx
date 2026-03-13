@@ -190,7 +190,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const timeColumns = useMemo<{ date: Date; endDate: Date; label: string; sublabel: string }[]>(() => {
     const cols: { date: Date; endDate: Date; label: string; sublabel: string }[] = [];
     const ms = settings.monthsToShow || 36;
-    const timelineStart = startOfYear(new Date(settings.startYear, 0, 1));
+    const timelineStart = parseISO(settings.startDate);
 
     // Find the latest end date among all initiatives and milestones to ensure the grid covers it
     let maxEndDate = timelineStart;
@@ -257,7 +257,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       }
     }
     return cols;
-  }, [settings.startYear, settings.monthsToShow, localInitiatives, milestones]);
+  }, [settings.startDate, settings.monthsToShow, localInitiatives, milestones]);
 
   const startDate = timeColumns[0].date;
   const endDate = timeColumns[timeColumns.length - 1].endDate;

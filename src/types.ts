@@ -60,7 +60,7 @@ export interface TimeColumn {
 }
 
 export interface TimelineSettings {
-  startYear: number;
+  startDate: string; // YYYY-MM-DD
   monthsToShow: 3 | 6 | 12 | 24 | 36;
   budgetVisualisation: 'label' | 'bar-height' | 'off';
   descriptionDisplay: 'on' | 'off';

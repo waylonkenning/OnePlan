@@ -25,15 +25,15 @@ test.describe('Timeline Settings', () => {
     const monthsSelect = page.getByLabel('Months');
 
     // Check default values
-    await expect(startYearInput).toHaveValue('2026');
+    await expect(startYearInput).toHaveValue('2026-01-01');
     await expect(monthsSelect).toHaveValue('36');
 
     // Verify we have 12 quarterly columns (36 months = 12 quarters)
     await expect(page.getByTestId('timeline-col-0')).toBeVisible();
     await expect(page.getByTestId('timeline-col-11')).toBeVisible();
 
-    // Change start year to 2024
-    await startYearInput.fill('2024');
+    // Change start date to 2024-01-01
+    await startYearInput.fill('2024-01-01');
     await page.waitForTimeout(500);
 
     // Verify first column now starts at 2024
@@ -50,11 +50,10 @@ test.describe('Timeline Settings', () => {
     // First column should show "Jan"
     await expect(page.getByTestId('timeline-col-0')).toContainText('Jan');
 
-    // Verify it persisted after reload
     await page.reload();
     await expect(page.locator('#timeline-visualiser')).toBeVisible();
     await expect(page.getByLabel('Months')).toHaveValue('12');
-    await expect(page.getByLabel('Start')).toHaveValue('2024');
+    await expect(page.getByLabel('Start')).toHaveValue('2024-01-01');
   });
 
   test('timeline dynamically extends columns to fit out-of-bounds initiatives', async ({ page }) => {
