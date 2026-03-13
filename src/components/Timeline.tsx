@@ -518,52 +518,100 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     setDraggingCategory(null);
   };
 
-  const MIN_ROW_HEIGHT = 100;
+  const MIN_ROW_HEIGHT = 60;
   const BAR_HEIGHT = 44;
-  const BAR_GAP = 8;
-  const ROW_PADDING = 24;
+  const BAR_GAP = 4;
+  const ROW_PADDING = 8;
 
   const layoutAsset = (assetInitiatives: Initiative[]) => {
-    const sorted = [...assetInitiatives].sort((a, b) => a.startDate.localeCompare(b.startDate));
-    const items: { init: Initiative; top: number; height: number; left: number; width: number }[] = [];
-    const placedRects: { id: string; start: number; end: number; top: number; bottom: number }[] = [];
+    const groups = getGroupsForAsset(assetInitiatives);
+    const collapsedGroups = groups.filter(g => settings.collapsedGroups?.includes(g.sort().join('|')));
+    const collapsedGroupIds = new Set(collapsedGroups.flat());
 
-    // Check if there are dependencies between initiatives in this specific asset
+    const entities: any[] = [];
+    
+    // Collapsed groups become a single layout entity
+    collapsedGroups.forEach(group => {
+      const gInits = assetInitiatives.filter(i => group.includes(i.id));
+      const groupId = group.sort().join('|');
+      
+      const minStart = gInits.reduce((m, i) => i.startDate < m ? i.startDate : m, gInits[0].startDate);
+      const maxEnd = gInits.reduce((m, i) => i.endDate > m ? i.endDate : m, gInits[0].endDate);
+      const totalBudget = gInits.reduce((sum, i) => sum + (i.budget || 0), 0);
+      const groupDescription = gInits.sort((a, b) => a.startDate.localeCompare(b.startDate)).map(i => i.name).join(' + ');
+
+      const groupProgrammeIds = Array.from(new Set(gInits.map(i => i.programmeId)));
+      const groupProgrammeNames = groupProgrammeIds
+        .map(id => programmes.find(p => p.id === id)?.name)
+        .filter(Boolean)
+        .sort()
+        .join(' + ');
+
+      const groupStrategyIds = Array.from(new Set(gInits.map(i => i.strategyId).filter(Boolean)));
+      const groupStrategyNames = groupStrategyIds
+        .map(id => strategies.find(s => s.id === id)?.name)
+        .filter(Boolean)
+        .sort()
+        .join(' + ');
+
+      entities.push({
+        init: {
+          ...gInits[0],
+          id: groupId,
+          name: `${group.length} Connected Initiatives`,
+          budget: totalBudget,
+          description: groupDescription,
+          startDate: minStart,
+          endDate: maxEnd
+        },
+        isGroup: true,
+        groupIds: group,
+        groupProgrammeNames,
+        groupStrategyNames
+      });
+    });
+
+    // Individual initiatives not in collapsed groups
+    assetInitiatives.forEach(init => {
+      if (!collapsedGroupIds.has(init.id)) {
+        entities.push({ init });
+      }
+    });
+
+    const sorted = entities.sort((a, b) => a.init.startDate.localeCompare(b.init.startDate));
+    const finalItems: any[] = [];
+    const placedRects: any[] = [];
+
     const hasIntraAssetDependencies = dependencies.some(dep =>
       assetInitiatives.some(i => i.id === dep.sourceId) &&
       assetInitiatives.some(i => i.id === dep.targetId)
     );
-    const dynamicGap = hasIntraAssetDependencies ? 32 : BAR_GAP;
+    const dynamicGap = hasIntraAssetDependencies ? 8 : BAR_GAP;
 
-    sorted.forEach(init => {
+    sorted.forEach(entity => {
+      const { init, isGroup, groupIds, groupProgrammeNames, groupStrategyNames } = entity;
       const left = getPosition(init.startDate);
       const width = getWidth(init.startDate, init.endDate);
       const right = left + width;
 
       let budgetHeight = BAR_HEIGHT;
       if (settings.budgetVisualisation === 'bar-height' && init.budget) {
-        // Simple scaling: 44px base + 1px per $15k, max 120px
         budgetHeight = Math.min(120, BAR_HEIGHT + (init.budget / 15000));
       }
 
       let descHeight = BAR_HEIGHT;
       if (settings.descriptionDisplay === 'on' && init.description) {
-        // Calculate exact height needed: py-1 (8px) + name (14px) + subtitle (16px) + desc spacing (8px)
-        const hasSubtitle = init.programmeId || init.strategyId;
-        const baseHeight = hasSubtitle ? 48 : 32;
-
-        // Estimate characters per line based on bar width (approx 4 chars per % of width)
+        const subtitle = isGroup ? (groupProgrammeNames || groupStrategyNames) : (init.programmeId || init.strategyId);
+        const baseHeight = subtitle ? 48 : 32;
         const charsPerLine = Math.max(20, Math.floor(width * 4));
         const lines = Math.ceil(init.description.length / charsPerLine);
-        const clampedLines = Math.min(3, lines); // We use line-clamp-3
-
-        descHeight = Math.max(BAR_HEIGHT, baseHeight + clampedLines * 12 + 9); // 12px per line + 9px buffer (mt-1 + pt-1 + border-t)
+        const clampedLines = Math.min(3, lines);
+        descHeight = Math.max(BAR_HEIGHT, baseHeight + clampedLines * 12 + 9);
       }
 
       const height = Math.max(budgetHeight, descHeight, BAR_HEIGHT);
 
       let top = ROW_PADDING;
-      let collision = true;
       const candidateTops = [ROW_PADDING];
       placedRects.forEach(r => candidateTops.push(r.bottom + dynamicGap));
       candidateTops.sort((a, b) => a - b);
@@ -572,10 +620,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         const candidateBottom = candidateTop + height;
         let overlaps = false;
         for (const rect of placedRects) {
-          // If there's a dependency, we treat it as an overlap to force separate rows
-          const hasDep = dependencies.some(d =>
-            (d.sourceId === init.id && d.targetId === rect.id) ||
-            (d.sourceId === rect.id && d.targetId === init.id)
+          const entityIds = isGroup ? groupIds : [init.id];
+          const targetIds = rect.isGroup ? rect.groupIds : [rect.id];
+          
+          const hasDep = dependencies.some(d => 
+            (entityIds.includes(d.sourceId) && targetIds.includes(d.targetId)) ||
+            (targetIds.includes(d.sourceId) && entityIds.includes(d.targetId))
           );
 
           const xOverlap = hasDep || !(rect.end <= left || rect.start >= right);
@@ -587,112 +637,21 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         }
         if (!overlaps) {
           top = candidateTop;
-          collision = false;
           break;
         }
       }
 
-      if (collision) {
-        const maxBottom = Math.max(ROW_PADDING, ...placedRects.map(r => r.bottom));
-        top = maxBottom + dynamicGap;
-      }
-
-      items.push({ init, top, height, left, width });
-      placedRects.push({ id: init.id, start: left, end: right, top, bottom: top + height });
+      finalItems.push({ init, top, height, left, width, isGroup, groupIds, groupProgrammeNames, groupStrategyNames });
+      placedRects.push({ id: init.id, isGroup, groupIds, start: left, end: right, top, bottom: top + height });
     });
 
-    // Final items will include either individual initiatives or collapsed group bars
-    const finalItems: { init: Initiative; top: number; height: number; left: number; width: number; isGroup?: boolean; groupIds?: string[]; groupProgrammeNames?: string; groupStrategyNames?: string }[] = [];
-    const groupedIds = new Set<string>();
-
-    const groups = getGroupsForAsset(assetInitiatives);
-    groups.forEach(group => {
-      const groupId = group.sort().join('|');
-      const isCollapsed = settings.collapsedGroups?.includes(groupId);
-
-      if (isCollapsed) {
-        // Find the bounding box for the collapsed group
-        const groupItems = items.filter(it => group.includes(it.init.id));
-        const totalGroupBudget = groupItems.reduce((sum, it) => sum + (it.init.budget || 0), 0);
-        
-        const minLeft = Math.min(...groupItems.map(it => it.left));
-        const maxRight = Math.max(...groupItems.map(it => it.left + it.width));
-        const minTop = Math.min(...groupItems.map(it => it.top));
-        const maxBottom = Math.max(...groupItems.map(it => it.top + it.height));
-        
-        const firstInit = groupItems[0].init; // Use first init as representative
-        // Calculate concatenated programme and strategy names
-        const groupProgrammeIds = Array.from(new Set(groupItems.map(it => it.init.programmeId)));
-        const groupProgrammeNames = groupProgrammeIds
-          .map(id => programmes.find(p => p.id === id)?.name)
-          .filter(Boolean)
-          .sort()
-          .join(' + ');
-
-        const groupStrategyIds = Array.from(new Set(groupItems.map(it => it.init.strategyId).filter(Boolean)));
-        const groupStrategyNames = groupStrategyIds
-          .map(id => strategies.find(s => s.id === id)?.name)
-          .filter(Boolean)
-          .sort()
-          .join(' + ');
-
-        const sortedInits = group
-          .map(id => assetInitiatives.find(i => i.id === id))
-          .filter((i): i is Initiative => !!i)
-          .sort((a, b) => a.startDate.localeCompare(b.startDate));
-        const groupDescription = sortedInits.map(i => i.name).join(' + ');
-        const groupWidth = maxRight - minLeft;
-
-        let dynamicHeight = BAR_HEIGHT;
-        if (settings.descriptionDisplay === 'on' && groupDescription) {
-          const hasSubtitle = groupProgrammeNames || groupStrategyNames;
-          const baseHeight = hasSubtitle ? 48 : 32;
-          const charsPerLine = Math.max(20, Math.floor(groupWidth * 4));
-          const lines = Math.ceil(groupDescription.length / charsPerLine);
-          const clampedLines = Math.min(3, lines);
-          dynamicHeight = Math.max(BAR_HEIGHT, baseHeight + clampedLines * 12 + 9);
-        }
-
-        const centeredTop = minTop + (maxBottom - minTop - dynamicHeight) / 2;
-
-        finalItems.push({
-          init: {
-            ...firstInit,
-            id: groupId,
-            name: `${group.length} Connected Initiatives`,
-            budget: totalGroupBudget,
-            description: groupDescription
-          },
-          top: centeredTop,
-          height: dynamicHeight,
-          left: minLeft,
-          width: groupWidth,
-          isGroup: true,
-          groupIds: group,
-          groupProgrammeNames,
-          groupStrategyNames
-        });
-        group.forEach(id => groupedIds.add(id));
-      }
-    });
-
-    items.forEach(item => {
-      if (!groupedIds.has(item.init.id)) {
-        finalItems.push(item);
-      }
-    });
-
-    // Recalculate contentHeight based on finalItems (collapsed or expanded)
     let contentHeight = MIN_ROW_HEIGHT;
     if (finalItems.length > 0) {
       const maxBottom = finalItems.reduce((max, i) => Math.max(max, i.top + i.height), 0);
       contentHeight = Math.max(MIN_ROW_HEIGHT, maxBottom + ROW_PADDING);
-    }
-
-    // Vertically center the content within the row
-    if (finalItems.length > 0) {
-      const contentTop = finalItems.reduce((min, i) => Math.min(min, i.top), Infinity);
-      const contentBottom = finalItems.reduce((max, i) => Math.max(max, i.top + i.height), -Infinity);
+      
+      const contentTop = Math.min(...finalItems.map(i => i.top));
+      const contentBottom = Math.max(...finalItems.map(i => i.top + i.height));
       const contentSpan = contentBottom - contentTop;
       const offset = (contentHeight - contentSpan) / 2 - contentTop;
       finalItems.forEach(item => { item.top += offset; });
