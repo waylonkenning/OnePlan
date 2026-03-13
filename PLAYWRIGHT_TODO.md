@@ -62,6 +62,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Visualization Labels:**
     - [x] **Milestone Labels:** Display milestone names as text next to icons.
     - [x] **Dependency Labels:** Display dependency type along the connection arrows.
+    - [x] **Grouped Budgets:** Verify that collapsed groups show the sum of all initiative budgets in a dark-colored label.
     - [x] **Category Labels:** Verify that the category row labels remain sticky and visible when scrolling horizontally.
 - [ ] **Drag-and-Drop Reordering:**
     - [ ] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
