@@ -78,8 +78,8 @@ test.describe('Visualiser (Timeline)', () => {
     // Get the z-index of the conflict marker
     const markerZIndex = await markerContainer.evaluate(el => window.getComputedStyle(el).zIndex);
     
-    // Find a sticky asset label (z-20)
-    const stickyLabel = page.locator('div.sticky.left-0.z-20').first();
+    // Find a sticky asset label (z-30)
+    const stickyLabel = page.locator('div.sticky.left-0.z-30').first();
     await expect(stickyLabel).toBeVisible();
     
     const labelZIndex = await stickyLabel.evaluate(el => window.getComputedStyle(el).zIndex);
