@@ -68,4 +68,5 @@ export interface TimelineSettings {
   snapToPeriod: 'off' | 'month';
   conflictDetection: 'on' | 'off';
   columnWidths?: Record<string, Record<string, string>>;
+  collapsedGroups?: string[];
 }

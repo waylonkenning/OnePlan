@@ -2,7 +2,7 @@ import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth, endOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
-import { AlertTriangle, Star, Info, Palette, ChevronRight, ChevronDown, Settings, Grid, Calendar, Target } from 'lucide-react';
+import { AlertTriangle, Star, Info, Palette, ChevronRight, ChevronDown, Settings, Grid, Calendar, Target, Box, Boxes, Ungroup, Group } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
 
 interface TimelineProps {
@@ -20,12 +20,13 @@ interface TimelineProps {
   onUpdateDependencies?: (dependencies: Dependency[]) => void;
   onUpdateMilestone?: (milestone: Milestone) => void;
   onDeleteInitiative?: (initiative: Initiative) => void;
+  onUpdateSettings?: (settings: TimelineSettings) => void;
   searchQuery?: string;
 }
 
 const SIDEBAR_WIDTH = 256; // 16rem in pixels
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onUpdateInitiative, onAddInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, searchQuery }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
   const isDraggingRef = useRef(false);
@@ -302,6 +303,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     const calculatedEndDate = format(addDays(startDate, daysFromStart + 90), 'yyyy-MM-dd'); // 90 days default duration
 
     setCreatingInitiativeParams({
+      id: `init-new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       assetId,
       startDate: calculatedStartDate,
       endDate: calculatedEndDate
@@ -601,16 +603,114 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
     const contentHeight = Math.max(MIN_ROW_HEIGHT, ...placedRects.map(r => r.bottom)) + ROW_PADDING;
 
+    // Post-process items to handle collapsed groups
+    const finalItems: { init: Initiative; top: number; height: number; left: number; width: number; isGroup?: boolean; groupIds?: string[] }[] = [];
+    const groupedIds = new Set<string>();
+
+    const groups = getGroupsForAsset(assetInitiatives);
+    groups.forEach(group => {
+      const groupId = group.sort().join('|');
+      const isCollapsed = settings.collapsedGroups?.includes(groupId);
+
+      if (isCollapsed) {
+        // Find the bounding box for the collapsed group
+        const groupItems = items.filter(it => group.includes(it.init.id));
+        const minLeft = Math.min(...groupItems.map(it => it.left));
+        const maxRight = Math.max(...groupItems.map(it => it.left + it.width));
+        const minTop = Math.min(...groupItems.map(it => it.top));
+        const maxBottom = Math.max(...groupItems.map(it => it.top + it.height));
+        
+        const firstInit = groupItems[0].init; // Use first init as representative
+        const fixedHeight = 44; // Standard initiative height
+        const centeredTop = minTop + (maxBottom - minTop - fixedHeight) / 2;
+
+        finalItems.push({
+          init: {
+            ...firstInit,
+            id: groupId,
+            name: `${group.length} Connected Initiatives`,
+            description: group.map(id => assetInitiatives.find(i => i.id === id)?.name).join(', ')
+          },
+          top: centeredTop,
+          height: fixedHeight,
+          left: minLeft,
+          width: maxRight - minLeft,
+          isGroup: true,
+          groupIds: group
+        });
+        group.forEach(id => groupedIds.add(id));
+      }
+    });
+
+    items.forEach(item => {
+      if (!groupedIds.has(item.init.id)) {
+        finalItems.push(item);
+      }
+    });
+
     // Vertically center the content within the row
-    if (items.length > 0) {
-      const contentTop = Math.min(...items.map(i => i.top));
-      const contentBottom = Math.max(...items.map(i => i.top + i.height));
+    if (finalItems.length > 0) {
+      const currentItems = finalItems;
+      const contentTop = Math.min(...currentItems.map(i => i.top));
+      const contentBottom = Math.max(...currentItems.map(i => i.top + i.height));
       const contentSpan = contentBottom - contentTop;
       const offset = (contentHeight - contentSpan) / 2 - contentTop;
-      items.forEach(item => { item.top += offset; });
+      currentItems.forEach(item => { item.top += offset; });
     }
 
-    return { items, height: contentHeight };
+    return { items: finalItems, height: contentHeight };
+  };
+
+  const getGroupsForAsset = (assetInitiatives: Initiative[]) => {
+    const ids = assetInitiatives.map(i => i.id);
+    const adj = new Map<string, string[]>();
+    ids.forEach(id => adj.set(id, []));
+
+    dependencies.forEach(dep => {
+      if (ids.includes(dep.sourceId) && ids.includes(dep.targetId)) {
+        adj.get(dep.sourceId)!.push(dep.targetId);
+        adj.get(dep.targetId)!.push(dep.sourceId);
+      }
+    });
+
+    const groups: string[][] = [];
+    const visited = new Set<string>();
+
+    ids.forEach(id => {
+      if (!visited.has(id)) {
+        const group: string[] = [];
+        const stack = [id];
+        while (stack.length > 0) {
+          const u = stack.pop()!;
+          if (!visited.has(u)) {
+            visited.add(u);
+            group.push(u);
+            adj.get(u)!.forEach(v => stack.push(v));
+          }
+        }
+        if (group.length > 1) {
+          groups.push(group);
+        }
+      }
+    });
+
+    return groups;
+  };
+
+  const toggleGroupCollapse = (groupId: string) => {
+    if (!onUpdateInitiative) return;
+    const currentCollapsed = settings.collapsedGroups || [];
+    let nextCollapsed: string[];
+    if (currentCollapsed.includes(groupId)) {
+      nextCollapsed = currentCollapsed.filter(id => id !== groupId);
+    } else {
+      nextCollapsed = [...currentCollapsed, groupId];
+    }
+    // We trigger a dummy update to persist settings via handleUpdate in App.tsx
+    // Since settings are passed in separately, we should ideally use a dedicated callback
+    // But TimelineProps doesn't have onUpdateSettings. I'll check App.tsx again.
+    // App.tsx uses handleUpdate(data), where data is the whole state.
+    // I might need to add onUpdateSettings to TimelineProps.
   };
 
   const getAssetLayout = (asset: Asset, assetInitiatives: Initiative[]) => {
@@ -1014,6 +1114,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     return (
                       <div
                         key={asset.id}
+                        data-testid={`asset-row-${asset.id}`}
+                        data-asset-id={asset.id}
                         className={cn(
                           "flex border-b border-slate-200 hover:bg-slate-50 transition-colors group relative",
                           draggingAssetId === asset.id && "opacity-50"
@@ -1039,6 +1141,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
 
                         <div
+                          data-testid="asset-row-content"
                           className="relative flex-shrink-0"
                           style={{ width: totalWidth, height: rowHeight }}
                           onDoubleClick={(e) => handleRowDoubleClick(e, asset.id)}
@@ -1057,10 +1160,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                             if (left + width < 0 || left > 100) return null;
 
+                            const isGroup = (init as any).isGroup || layoutItems.find(li => li.init.id === init.id)?.isGroup;
+
                             return (
                               <div
                                 key={init.id}
                                 data-initiative-id={init.id}
+                                data-testid={isGroup ? "project-group-bar" : "initiative-bar"}
                                 onMouseDown={(e) => {
                                   isDraggingRef.current = false;
                                   setMoving({
@@ -1083,11 +1189,18 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                   "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden transition hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
                                   init.isPlaceholder
                                     ? "bg-transparent border-red-500 border-dashed border-2 text-red-600 opacity-70"
-                                    : cn("text-white border-white/20", colorClass)
+                                    : isGroup
+                                      ? "border-2 border-dashed border-blue-400/60 text-slate-900 font-bold"
+                                      : cn(colorClass, "text-white border-white/20")
                                 )}
                                 style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
-                                title={`${init.isPlaceholder ? '[Placeholder] ' : ''}${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}${init.description ? `\n${init.description}` : ''}`}
+                                title={(init as any).isGroup 
+                                  ? `Group: ${init.name}\n${init.description}`
+                                  : `${init.isPlaceholder ? '[Placeholder] ' : ''}${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}${init.description ? `\n${init.description}` : ''}`}
                               >
+                                {isGroup && (
+                                  <div className={cn("absolute inset-0 pointer-events-none rounded-md opacity-20", colorClass)} style={{ zIndex: 0 }} />
+                                )}
                                 <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'start', init.startDate); }} />
                                 <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'end', init.endDate); }} />
 
@@ -1124,6 +1237,80 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                     </div>
                                   )}
                                 </div>
+
+                                {/* Ungroup Button for summary bars */}
+                                {isGroup && (
+                                  <button
+                                    data-testid="expand-group-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const groupId = init.id;
+                                      const currentCollapsed = settings.collapsedGroups || [];
+                                      const nextCollapsed = currentCollapsed.filter(id => id !== groupId);
+                                      if (onUpdateSettings) {
+                                        onUpdateSettings({
+                                          ...settings,
+                                          collapsedGroups: nextCollapsed
+                                        });
+                                      }
+                                    }}
+                                    className="absolute top-1 right-1 p-1 bg-white/40 hover:bg-white/60 text-slate-700 rounded-md transition-all z-20 opacity-0 group-hover/item:opacity-100 shadow-sm"
+                                    title="Ungroup Initiatives"
+                                  >
+                                    <Boxes size={12} />
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+
+                          {/* Groups UI */}
+                          {!resizing && !moving && getGroupsForAsset(assetInitiatives).map(group => {
+                            const groupItems = layoutItems.filter(it => group.includes(it.init.id));
+                            if (groupItems.length === 0) return null;
+
+                            const groupId = group.sort().join('|');
+                            const isCollapsed = settings.collapsedGroups?.includes(groupId);
+                            if (isCollapsed) return null; // Handled as a single bar in layoutItems
+
+                            const minLeft = Math.min(...groupItems.map(it => it.left));
+                            const maxRight = Math.max(...groupItems.map(it => it.left + it.width));
+                            const minTop = Math.min(...groupItems.map(it => it.top));
+                            const maxBottom = Math.max(...groupItems.map(it => it.top + it.height));
+
+                            return (
+                              <div
+                                key={groupId}
+                                data-testid="initiative-group-box"
+                                className="absolute border-2 border-blue-400/30 border-dashed rounded-lg bg-blue-50/10 pointer-events-none z-0"
+                                style={{
+                                  left: `${minLeft - 0.5}%`,
+                                  width: `${maxRight - minLeft + 1}%`,
+                                  top: minTop - 8,
+                                  height: maxBottom - minTop + 16
+                                }}
+                              >
+                                <button
+                                  data-testid="collapse-group-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const currentCollapsed = settings.collapsedGroups || [];
+                                    const isCurrentlyCollapsed = currentCollapsed.includes(groupId);
+                                    const nextCollapsed = isCurrentlyCollapsed
+                                      ? currentCollapsed.filter(id => id !== groupId)
+                                      : [...currentCollapsed, groupId];
+                                    if (onUpdateSettings) {
+                                      onUpdateSettings({
+                                        ...settings,
+                                        collapsedGroups: nextCollapsed
+                                      });
+                                    }
+                                  }}
+                                  className={`absolute -top-3 -right-3 p-1 bg-white border border-blue-200 text-blue-500 rounded-full shadow-sm hover:bg-blue-50 transition-all pointer-events-auto z-50 ${settings.collapsedGroups?.includes(groupId) ? "opacity-100" : "group-hover:opacity-100 opacity-0"}`}
+                                  title={settings.collapsedGroups?.includes(groupId) ? "Ungroup Initiatives" : "Group Initiatives"}
+                                >
+                                  <Boxes size={14} />
+                                </button>
                               </div>
                             );
                           })}
@@ -1193,7 +1380,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             ? initiatives.find(i => i.id === selectedInitiativeId) || null
             : creatingInitiativeParams
               ? {
-                id: `init-new-${Date.now()}`,
+                id: creatingInitiativeParams.id,
                 name: '',
                 description: '',
                 assetId: creatingInitiativeParams.assetId,

@@ -141,7 +141,7 @@ export default function App() {
     // Persist to DB
     try {
       await saveAppData(data);
-      console.log('Data saved to DB');
+      console.log('Data saved to DB. Collapsed groups:', data.timelineSettings.collapsedGroups);
     } catch (error) {
       console.error('Failed to save data to DB:', error);
       alert('Failed to save changes to local storage.');
@@ -431,6 +431,7 @@ export default function App() {
             settings={timelineSettings}
             searchQuery={searchQuery}
             onAddInitiative={(newInit) => {
+              if (initiatives.some(i => i.id === newInit.id)) return;
               handleUpdate({
                 assets,
                 initiatives: [...initiatives, newInit],
@@ -502,6 +503,18 @@ export default function App() {
                 dependencies: dependencies.filter(d => d.sourceId !== deletedInit.id && d.targetId !== deletedInit.id),
                 assetCategories,
                 timelineSettings,
+              });
+            }}
+            onUpdateSettings={(updatedSettings) => {
+              handleUpdate({
+                assets,
+                initiatives,
+                milestones,
+                programmes,
+                strategies,
+                dependencies,
+                assetCategories,
+                timelineSettings: updatedSettings,
               });
             }}
           />
