@@ -672,7 +672,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       for (let j = i + 1; j < assetInitiatives.length; j++) {
         const a = assetInitiatives[i];
         const b = assetInitiatives[j];
-        if (a.startDate <= b.endDate && a.endDate >= b.startDate) {
+        if (a.startDate < b.endDate && a.endDate > b.startDate) {
           const conflictStart = a.startDate > b.startDate ? a.startDate : b.startDate;
           const conflictEnd = a.endDate < b.endDate ? a.endDate : b.endDate;
 
