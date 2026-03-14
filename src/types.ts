@@ -69,4 +69,5 @@ export interface TimelineSettings {
   conflictDetection: 'on' | 'off';
   columnWidths?: Record<string, Record<string, string>>;
   collapsedGroups?: string[];
+  hasSeenTutorial?: boolean;
 }
