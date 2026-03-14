@@ -8,6 +8,7 @@ import { Timeline } from './components/Timeline';
 import { DataControls } from './components/DataControls';
 import { DataManager } from './components/DataManager';
 import { TutorialModal } from './components/TutorialModal';
+import { FeaturesModal } from './components/FeaturesModal';
 import { LandingPage } from './components/LandingPage';
 import {
   demoAssets as initialAssets,
@@ -20,7 +21,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen } from 'lucide-react';
 
 type AppState = {
   assets: Asset[];
@@ -39,6 +40,7 @@ export default function App() {
   const [view, setView] = useState<'visualiser' | 'data'>('visualiser');
   const [isLoading, setIsLoading] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
   const [showLandingPage, setShowLandingPage] = useState(
     !localStorage.getItem('oneplan_has_seen_landing') && !localStorage.getItem('oneplan-e2e')
   );
@@ -424,14 +426,26 @@ export default function App() {
 
         <div className="w-px h-6 bg-slate-200" />
 
-        {/* Tutorial / Help */}
-        <button
-          onClick={() => setShowTutorial(true)}
-          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 bg-slate-50 rounded-lg border border-slate-200 transition-colors"
-          title="Show Tutorial"
-        >
-          <HelpCircle size={16} />
-        </button>
+        {/* Features / Tutorial */}
+        <div className="flex bg-slate-50 rounded-lg border border-slate-200 p-0.5">
+          <button
+            onClick={() => setShowFeatures(true)}
+            data-testid="nav-features"
+            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-white rounded-md transition-colors"
+            title="Features"
+          >
+            <BookOpen size={16} />
+          </button>
+          <div className="w-px h-3.5 bg-slate-200 my-auto mx-0.5" />
+          <button
+            onClick={() => setShowTutorial(true)}
+            data-testid="nav-tutorial"
+            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-white rounded-md transition-colors"
+            title="Tutorial"
+          >
+            <HelpCircle size={16} />
+          </button>
+        </div>
 
         <div className="w-px h-6 bg-slate-200" />
 
@@ -551,6 +565,10 @@ export default function App() {
           />
         )}
       </main>
+
+      {showFeatures && (
+        <FeaturesModal onClose={() => setShowFeatures(false)} />
+      )}
 
       {showTutorial && (
         <TutorialModal 
