@@ -7,6 +7,7 @@ test.describe('Tutorial Modal', () => {
     await page.goto('/');
     await page.evaluate(async () => {
       localStorage.removeItem('oneplan-e2e');
+      localStorage.setItem('oneplan_has_seen_landing', 'true');
       return new Promise<void>((resolve, reject) => {
         const req = indexedDB.deleteDatabase('oneplan-e2e');
         req.onsuccess = () => resolve();
