@@ -8,6 +8,7 @@ import { Timeline } from './components/Timeline';
 import { DataControls } from './components/DataControls';
 import { DataManager } from './components/DataManager';
 import { TutorialModal } from './components/TutorialModal';
+import { LandingPage } from './components/LandingPage';
 import {
   demoAssets as initialAssets,
   demoInitiatives as initialInitiatives,
@@ -38,6 +39,9 @@ export default function App() {
   const [view, setView] = useState<'visualiser' | 'data'>('visualiser');
   const [isLoading, setIsLoading] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showLandingPage, setShowLandingPage] = useState(
+    !localStorage.getItem('oneplan_has_seen_landing') && !localStorage.getItem('oneplan-e2e')
+  );
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
@@ -559,6 +563,15 @@ export default function App() {
               });
             }
           }} 
+        />
+      )}
+
+      {showLandingPage && (
+        <LandingPage
+          onGetStarted={() => {
+            setShowLandingPage(false);
+            localStorage.setItem('oneplan_has_seen_landing', 'true');
+          }}
         />
       )}
     </div>
