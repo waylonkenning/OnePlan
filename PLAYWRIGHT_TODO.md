@@ -89,3 +89,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [ ] **Invalid Dates:** Verify that entering an invalid date string in the Data Manager doesn't crash the Visualiser.
 - [ ] **Missing IDs:** Ensure that adding rows via CSV without IDs automatically generates them.
 - [ ] **Large Data Sets:** (Optional) Verify that the layout algorithm (Greedy Placement) handles 20+ overlapping initiatives on a single asset without infinite loops or UI breakage.
+## 6. Modals & Tutorials
+- [x] **Features Modal:**
+    - [x] Verify that the modal opens and displays all feature cards.
+    - [x] Verify that feature animations are loading correctly (with valid recoridngs).
+- [ ] **In-App Tutorial:**
+    - [ ] Verify that the tutorial modal appears on first load.
+    - [ ] Verify that the tutorial can be manually triggered via the Help button.

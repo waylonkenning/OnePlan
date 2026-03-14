@@ -65,7 +65,7 @@ test.describe('Tutorial Modal', () => {
     await expect(page.getByRole('heading', { name: 'Welcome to OnePlan' })).toBeHidden();
 
     // Click Help Button
-    await page.getByRole('button', { name: 'Show Tutorial' }).click();
+    await page.getByRole('button', { name: 'Tutorial' }).click();
 
     // Ensure modal is visible again
     await expect(page.getByRole('heading', { name: 'Welcome to OnePlan' })).toBeVisible();
