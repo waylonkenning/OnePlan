@@ -12,6 +12,21 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // Inject a flag to bypass the tutorial modal during E2E testing
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: 'http://localhost:3000',
+          localStorage: [
+            {
+              name: 'oneplan-e2e',
+              value: 'true',
+            },
+          ],
+        },
+      ],
+    },
   },
   projects: [
     {

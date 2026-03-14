@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { Timeline } from './components/Timeline';
 import { DataControls } from './components/DataControls';
 import { DataManager } from './components/DataManager';
+import { TutorialModal } from './components/TutorialModal';
 import {
   demoAssets as initialAssets,
   demoInitiatives as initialInitiatives,
@@ -18,7 +19,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2 } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle } from 'lucide-react';
 
 type AppState = {
   assets: Asset[];
@@ -36,6 +37,7 @@ import { getAppData, saveAppData } from './lib/db';
 export default function App() {
   const [view, setView] = useState<'visualiser' | 'data'>('visualiser');
   const [isLoading, setIsLoading] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
@@ -83,6 +85,10 @@ export default function App() {
           setDependencies(defaults.dependencies);
           setAssetCategories(defaults.assetCategories);
           setTimelineSettings(defaults.timelineSettings);
+          
+          if (!defaults.timelineSettings.hasSeenTutorial && !localStorage.getItem('oneplan-e2e')) {
+            setShowTutorial(true);
+          }
         } else {
           console.log('Loaded data from DB');
           setAssets(dbData.assets);
@@ -99,6 +105,10 @@ export default function App() {
             delete (mergedSettings as any).startYear;
           }
           setTimelineSettings(mergedSettings);
+
+          if (!mergedSettings.hasSeenTutorial && !localStorage.getItem('oneplan-e2e')) {
+            setShowTutorial(true);
+          }
         }
       } catch (error) {
         console.error('Failed to load data from DB:', error);
@@ -410,6 +420,17 @@ export default function App() {
 
         <div className="w-px h-6 bg-slate-200" />
 
+        {/* Tutorial / Help */}
+        <button
+          onClick={() => setShowTutorial(true)}
+          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 bg-slate-50 rounded-lg border border-slate-200 transition-colors"
+          title="Show Tutorial"
+        >
+          <HelpCircle size={16} />
+        </button>
+
+        <div className="w-px h-6 bg-slate-200" />
+
         {/* Data Controls (Export, Import only) */}
         <DataControls
           data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
@@ -526,6 +547,20 @@ export default function App() {
           />
         )}
       </main>
+
+      {showTutorial && (
+        <TutorialModal 
+          onClose={() => {
+            setShowTutorial(false);
+            if (!timelineSettings.hasSeenTutorial) {
+              handleUpdate({
+                assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                timelineSettings: { ...timelineSettings, hasSeenTutorial: true },
+              });
+            }
+          }} 
+        />
+      )}
     </div>
   );
 }
