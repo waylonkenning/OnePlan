@@ -8,6 +8,7 @@ export const demoTimelineSettings: TimelineSettings = {
     emptyRowDisplay: 'show',
     snapToPeriod: 'off',
     conflictDetection: 'on',
+    showRelationships: 'on',
     collapsedGroups: [],
 };
 

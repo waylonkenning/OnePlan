@@ -384,7 +384,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         e.preventDefault();
 
         // If we moved vertically more than 30px, switch to drawing dependency
-        if (!drawingDependency && Math.abs(deltaY) > 30) {
+        if (settings.showRelationships !== 'off' && !drawingDependency && Math.abs(deltaY) > 30) {
           const sourcePos = initiativePositions.get(moving.id);
           if (sourcePos && containerRef.current) {
             const containerRect = containerRef.current.getBoundingClientRect();
@@ -867,12 +867,14 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         </div>
 
         <div className="ml-auto flex items-center gap-4">
-          <div className="flex items-center gap-2 whitespace-nowrap">
-            <div className="w-6 h-px bg-blue-500 relative">
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[3px] border-y-transparent border-l-[5px] border-l-blue-500" />
+          {settings.showRelationships !== 'off' && (
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <div className="w-6 h-px bg-blue-500 relative">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[3px] border-y-transparent border-l-[5px] border-l-blue-500" />
+              </div>
+              <span className="text-slate-600">Dependency</span>
             </div>
-            <span className="text-slate-600">Dependency</span>
-          </div>
+          )}
           <div className="flex items-center gap-2 whitespace-nowrap">
             <AlertTriangle size={14} className="text-red-500" />
             <span className="text-slate-600">Conflict</span>
@@ -924,7 +926,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
                 </marker>
               </defs>
-              {dependencies.map(dep => {
+              {settings.showRelationships !== 'off' && dependencies.map(dep => {
                 const source = initiativePositions.get(dep.sourceId);
                 const target = initiativePositions.get(dep.targetId);
                 if (!source || !target) return null;
@@ -1046,7 +1048,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               })}
 
               {/* Live drawing arrow */}
-              {drawingDependency && (
+              {settings.showRelationships !== 'off' && drawingDependency && (
                 <path
                   d={`M ${drawingDependency.startX} ${drawingDependency.startY} L ${drawingDependency.currentX} ${drawingDependency.currentY} `}
                   stroke="#3b82f6"

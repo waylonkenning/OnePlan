@@ -227,7 +227,7 @@ export default function App() {
 
   return (
     <div className="h-screen w-full bg-slate-100 p-6 flex flex-col">
-      <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-2 flex items-center gap-3">
+      <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-2 flex flex-wrap items-center gap-3">
         {/* Logo */}
         <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">OnePlan</h1>
 
@@ -278,7 +278,7 @@ export default function App() {
         <div className="w-px h-6 bg-slate-200" />
 
         {/* Inline Timeline Settings */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label className="flex items-center gap-1.5 text-xs text-slate-500">
             Start
             <input
@@ -390,6 +390,23 @@ export default function App() {
                 handleUpdate({
                   assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
                   timelineSettings: { ...timelineSettings, conflictDetection: e.target.value as 'off' | 'on' },
+                });
+              }}
+              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="on">On</option>
+              <option value="off">Off</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-1.5 text-xs text-slate-500 ml-2">
+            Relationships
+            <select
+              id="showRelationships"
+              value={timelineSettings.showRelationships || 'on'}
+              onChange={(e) => {
+                handleUpdate({
+                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                  timelineSettings: { ...timelineSettings, showRelationships: e.target.value as 'off' | 'on' },
                 });
               }}
               className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
