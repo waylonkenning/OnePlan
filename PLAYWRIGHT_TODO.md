@@ -76,6 +76,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify that conflict markers appear behind sticky asset swimlane labels when scrolling.
     - [x] Verify that initiatives do not overlap sticky asset swimlane labels on hover.
     - [x] Verify that conflict detection can be toggled on/off via the header setting.
+    - [x] **Relationship Visibility:** Verify that dependency lines can be toggled on/off via the header setting.
 - [x] **Milestones:** Verify milestones are rendered at the correct horizontal position based on their date.
 
 ## 4. Data Controls (Import/Export)
