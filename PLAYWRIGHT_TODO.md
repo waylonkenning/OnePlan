@@ -81,6 +81,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Category Labels:** Verify that the category row labels remain sticky and visible when scrolling horizontally.
     - [x] **Description Display:** Verify that descriptions are correctly rendered without being cut off at the bottom.
     - [x] Grouped Descriptions: Verify that collapsed groups show initiative names concatenated with " + ".
+    - [x] **Grouped Description on Narrow Bar:** Verify that group descriptions display even when the bar spans < 8% of the timeline width (regression for `width > 8` gate that was hiding descriptions on narrow bars).
     - [x] **Dynamic Swimlane Height:** Verify that swimlane height shrinks when groups are collapsed and expands when ungrouped.
 - [x] **Compact Layout:** Verify that swimlane height is minimal (60px) and vertical padding is reduced.
 - [ ] **Drag-and-Drop Reordering:**
