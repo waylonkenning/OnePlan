@@ -10,6 +10,7 @@ import { DataManager } from './components/DataManager';
 import { TutorialModal } from './components/TutorialModal';
 import { FeaturesModal } from './components/FeaturesModal';
 import { LandingPage } from './components/LandingPage';
+import { VersionManager } from './components/VersionManager';
 import {
   demoAssets as initialAssets,
   demoInitiatives as initialInitiatives,
@@ -21,7 +22,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History } from 'lucide-react';
 
 type AppState = {
   assets: Asset[];
@@ -58,6 +59,7 @@ export default function App() {
   const [redoStack, setRedoStack] = useState<AppState[]>([]);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [isVersionManagerOpen, setIsVersionManagerOpen] = useState(false);
 
   const getCurrentState = (): AppState => ({
     assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings
@@ -260,6 +262,16 @@ export default function App() {
           >
             <Table size={14} />
             Data Manager
+          </button>
+          <button
+            onClick={() => setIsVersionManagerOpen(true)}
+            data-testid="nav-history"
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-800"
+            )}
+          >
+            <History size={14} />
+            History
           </button>
         </div>
 
@@ -609,6 +621,21 @@ export default function App() {
           }}
         />
       )}
+
+      <VersionManager
+        isOpen={isVersionManagerOpen}
+        onClose={() => setIsVersionManagerOpen(false)}
+        currentData={{
+          assets,
+          initiatives,
+          milestones,
+          programmes,
+          strategies,
+          dependencies,
+          assetCategories,
+          timelineSettings,
+        }}
+      />
     </div>
   );
 }

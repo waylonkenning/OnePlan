@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Version } from '../types';
 
 interface ITMapDB extends DBSchema {
   assets: {
@@ -34,10 +34,14 @@ interface ITMapDB extends DBSchema {
     key: string;
     value: TimelineSettings;
   };
+  versions: {
+    key: string;
+    value: Version;
+  };
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
@@ -62,6 +66,9 @@ export const initDB = () => {
         }
         if (oldVersion < 5 && !db.objectStoreNames.contains('settings')) {
           db.createObjectStore('settings');
+        }
+        if (oldVersion < 6 && !db.objectStoreNames.contains('versions')) {
+          db.createObjectStore('versions', { keyPath: 'id' });
         }
       },
     });
@@ -146,4 +153,20 @@ export const saveAppData = async (data: {
   await Promise.all(addPromises);
 
   await tx.done;
+};
+
+// Versions helper functions
+export const saveVersion = async (version: Version) => {
+  const db = await initDB();
+  await db.put('versions', version);
+};
+
+export const getAllVersions = async () => {
+  const db = await initDB();
+  return db.getAll('versions');
+};
+
+export const deleteVersion = async (id: string) => {
+  const db = await initDB();
+  await db.delete('versions', id);
 };
