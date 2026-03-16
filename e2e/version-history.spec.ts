@@ -111,6 +111,51 @@ test.describe('Version History & Snapshotting', () => {
     await expect(page.getByText(/Budget: .*\d+ → \$999,999/)).toBeVisible();
   });
 
+  test('Should not crash if selected version is deleted while comparison report is open', async ({ page }) => {
+    const pageErrors: string[] = [];
+    page.on('pageerror', err => pageErrors.push(err.message));
+
+    // 1. Save a version
+    await page.getByTestId('nav-history').click();
+    await page.getByRole('button', { name: 'Save Current State' }).click();
+    await page.fill('input[placeholder="e.g., March 2026 Snapshot"]', 'Crash Test Version');
+    await page.getByRole('button', { name: 'Save Version' }).click();
+
+    // 2. Select it and open the comparison report
+    await page.getByText('Crash Test Version').click();
+    await page.getByRole('button', { name: 'Run Difference Report' }).click();
+    await expect(page.getByRole('heading', { name: 'Difference Report' })).toBeVisible();
+
+    // 3. Force-click the delete button behind the comparison overlay.
+    //    comparisonVersionId stays 'current' after deletion since handleDelete only
+    //    clears it when comparisonVersionId === deletedId — which is never true for 'current'.
+    //    Without the fix: selectedVersionId → null, comparisonVersionId stays 'current',
+    //    React tries to render VersionComparisonReport with undefined baseVersion → crash.
+    //    With the fix: the IIFE guard returns null → overlay closes gracefully.
+    //
+    //    The delete button is inside the version list item that contains the h4 with the
+    //    version name. We target it precisely so we don't accidentally click something else.
+    // Use evaluate to directly call .click() on the DOM element, bypassing
+    // the z-index overlay that covers the button in the normal pointer-event path.
+    page.once('dialog', dialog => dialog.accept());
+    await page.evaluate(() => {
+      const btn = document.querySelector('button[title="Delete version"]') as HTMLButtonElement;
+      if (!btn) throw new Error('Delete button not found in DOM');
+      btn.click();
+    });
+    await page.waitForTimeout(500);
+
+    // 4. With the fix: the comparison overlay must be gone (IIFE returned null)
+    await expect(page.getByRole('heading', { name: 'Difference Report' })).not.toBeVisible({ timeout: 3000 });
+
+    // 5. No uncaught errors
+    expect(pageErrors.filter(e => e.includes('Cannot read') || e.includes('undefined'))).toHaveLength(0);
+
+    // 6. Version manager still usable
+    await page.getByTestId('close-version-manager').click();
+    await expect(page.locator('#timeline-visualiser')).toBeVisible();
+  });
+
   test('Should allow restoring a previous version', async ({ page }) => {
     // 1. Save a baseline version
     await page.getByTestId('nav-history').click();
