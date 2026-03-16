@@ -58,7 +58,8 @@ test.describe('Description Display', () => {
         const initialBox = await bar.boundingBox();
         const initialHeight = initialBox?.height || 0;
 
-        // Turn on the Desc toggle
+        // Open Display panel and turn on Descriptions
+        await page.getByRole('button', { name: 'Display' }).click();
         await page.locator('select#descriptionDisplay').selectOption('on');
 
         // The bar should now be taller

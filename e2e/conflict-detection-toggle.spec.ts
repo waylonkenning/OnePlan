@@ -12,7 +12,8 @@ test('Conflict detection toggle works', async ({ page }) => {
   const conflictText = page.getByText('Conflict Detected').first();
   await expect(conflictText).toBeVisible({ timeout: 10000 });
 
-  // Toggle conflict detection OFF
+  // Open Display panel then toggle conflict detection OFF
+  await page.getByRole('button', { name: 'Display' }).click();
   const toggle = page.locator('#conflictDetection');
   await toggle.selectOption('off');
 
