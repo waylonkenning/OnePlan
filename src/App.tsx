@@ -625,6 +625,9 @@ export default function App() {
       <VersionManager
         isOpen={isVersionManagerOpen}
         onClose={() => setIsVersionManagerOpen(false)}
+        onRestore={(version) => {
+          handleUpdate(version.data);
+        }}
         currentData={{
           assets,
           initiatives,
