@@ -588,7 +588,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       assetInitiatives.some(i => i.id === dep.sourceId) &&
       assetInitiatives.some(i => i.id === dep.targetId)
     );
-    const dynamicGap = hasIntraAssetDependencies ? 8 : BAR_GAP;
+    const dynamicGap = hasIntraAssetDependencies ? 32 : BAR_GAP;
 
     sorted.forEach(entity => {
       const { init, isGroup, groupIds, groupProgrammeNames, groupStrategyNames } = entity;
@@ -959,24 +959,24 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   // State 1: Clear Horizontal Flow (exits right, enters left)
                   const midX = sEndX + gap / 2;
                   path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX - 6} ${tMidY}`;
-                  labelX = midX;
+                  labelX = midX + 30; // Offset to the right of the vertical segment
                   labelY = (sMidY + tMidY) / 2;
                 } else if (tEndX <= sStartX + 20) {
                   // State 2: Backwards Flow (exits left, enters right)
                   const midX = tEndX + (sStartX - tEndX) / 2;
                   path = `M ${sStartX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tEndX + 6} ${tMidY}`;
-                  labelX = midX;
+                  labelX = midX - 30; // Offset to the left of the vertical segment
                   labelY = (sMidY + tMidY) / 2;
                 } else if (overlapWidth > 40) {
                   // State 3: Significant Overlap (exits bottom/top, enters top/bottom)
                   const midX = overlapLeft + overlapWidth / 2;
                   if (sMidY < tMidY) {
                     path = `M ${midX} ${sBottom} L ${midX} ${target.y - 6}`;
-                    labelX = midX;
+                    labelX = midX + 30; // Offset to the right
                     labelY = (sBottom + target.y) / 2;
                   } else {
                     path = `M ${midX} ${source.y} L ${midX} ${tBottom + 6}`;
-                    labelX = midX;
+                    labelX = midX + 30; // Offset to the right
                     labelY = (source.y + tBottom) / 2;
                   }
                 } else {
@@ -987,11 +987,11 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                   if (sMidY < tMidY) {
                     path = `M ${sEndX} ${sMidY} L ${dropX} ${sMidY} L ${dropX} ${target.y - 6}`;
-                    labelX = dropX;
+                    labelX = dropX + 30; // Offset to the right
                     labelY = (sMidY + target.y) / 2;
                   } else {
                     path = `M ${sEndX} ${sMidY} L ${dropX} ${sMidY} L ${dropX} ${tBottom + 6}`;
-                    labelX = dropX;
+                    labelX = dropX + 30; // Offset to the right
                     labelY = (sMidY + tBottom) / 2;
                   }
                 }
