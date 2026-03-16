@@ -199,8 +199,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     // Find the latest end date among all initiatives and milestones to ensure the grid covers it
     let maxEndDate = timelineStart;
     if (localInitiatives.length > 0 || milestones.length > 0) {
-      const initDates = localInitiatives.map(i => new Date(i.endDate).getTime());
-      const mileDates = milestones.map(m => new Date(m.date).getTime());
+      const initDates = localInitiatives.map(i => new Date(i.endDate).getTime()).filter(t => !isNaN(t));
+      const mileDates = milestones.map(m => new Date(m.date).getTime()).filter(t => !isNaN(t));
       const maxTime = Math.max(...initDates, ...mileDates, timelineStart.getTime());
       maxEndDate = new Date(maxTime);
     }

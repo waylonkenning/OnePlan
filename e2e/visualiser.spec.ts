@@ -88,6 +88,26 @@ test.describe('Visualiser (Timeline)', () => {
     expect(parseInt(markerZIndex)).toBeLessThan(parseInt(labelZIndex));
   });
 
+  test('Timeline renders correctly when an initiative has an invalid date', async ({ page }) => {
+    await page.getByTestId('nav-data-manager').click();
+    page.on('dialog', dialog => dialog.accept());
+    await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+
+    // Import an initiative with a valid date and one with an empty/invalid endDate
+    await page.getByRole('button', { name: 'Paste CSV' }).click();
+    const textarea = page.locator('textarea');
+    await textarea.fill(`id,name,assetId,startDate,endDate,budget\ngood-1,Good Initiative,a-ciam,2026-01-01,2026-06-30,0\nbad-1,Bad Date Initiative,a-ciam,2026-01-01,,0`);
+    await page.waitForTimeout(500);
+    await page.getByRole('button', { name: 'Import Rows' }).click();
+
+    await page.getByTestId('nav-visualiser').click();
+    await page.waitForSelector('#timeline-visualiser');
+
+    // The timeline should still render — column headers should be visible
+    await expect(page.locator('#timeline-visualiser')).toBeVisible();
+    await expect(page.locator('[data-testid="timeline-col-0"]')).toBeVisible();
+  });
+
   test('Milestones Render Correctly', async ({ page }) => {
     // Check if default milestone 'DR Failover Test' is rendered
     // Warning is amber (bg-amber-100)
