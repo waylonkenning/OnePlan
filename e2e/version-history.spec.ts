@@ -66,4 +66,38 @@ test.describe('Version History & Snapshotting', () => {
     await page.getByTestId('close-report-btn').click();
     await expect(page.getByRole('heading', { name: 'Difference Report' })).not.toBeVisible();
   });
+
+  test('Should allow restoring a previous version', async ({ page }) => {
+    // 1. Save a baseline version
+    await page.getByTestId('nav-history').click();
+    await page.getByRole('button', { name: 'Save Current State' }).click();
+    const baselineName = 'To Restore';
+    await page.fill('input[placeholder="e.g., March 2026 Snapshot"]', baselineName);
+    await page.getByRole('button', { name: 'Save Version' }).click();
+    await page.getByTestId('close-version-manager').click();
+
+    // 2. Make a radical change (Delete an initiative)
+    await page.getByTestId('nav-data-manager').click();
+    const countBefore = await page.locator('input[data-testid^="real-input-name"]').count();
+    const firstInitName = await page.locator('input[data-testid^="real-input-name"]').first().inputValue();
+    
+    // Delete the first row
+    page.once('dialog', dialog => dialog.accept());
+    await page.locator('button[title="Delete row"]').first().click();
+    await expect(page.locator('input[data-testid^="real-input-name"]')).toHaveCount(countBefore - 1);
+
+    // 3. Restore the version
+    await page.getByTestId('nav-history').click();
+    await page.getByText(baselineName).click();
+    
+    // Set up confirmation handler
+    page.once('dialog', dialog => dialog.accept());
+    await page.getByRole('button', { name: 'Restore to Current' }).click();
+
+    // 4. Verify data is back
+    await expect(page.getByText('Version History')).not.toBeVisible();
+    await page.getByTestId('nav-data-manager').click();
+    await expect(page.locator('input[data-testid^="real-input-name"]')).toHaveCount(countBefore);
+    await expect(page.locator('input[data-testid^="real-input-name"]').first()).toHaveValue(firstInitName);
+  });
 });

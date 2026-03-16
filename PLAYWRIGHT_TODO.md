@@ -20,6 +20,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify that a user can save a named snapshot of the current state.
     - [x] Verify that saved versions appear in the history sidebar.
     - [x] Verify that a Difference Report can be generated between a baseline and the current state.
+    - [x] Verify that a previous version can be restored, overwriting the current state.
 - [x] **Data Persistence (IndexedDB):**
     - [x] Load the app, make a change (e.g., rename an initiative), refresh the page, and verify the change persists.
     - [x] Verify that if the database is empty, the default data from `demoData.ts` is correctly initialized.

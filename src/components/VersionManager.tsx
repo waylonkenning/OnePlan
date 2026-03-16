@@ -6,6 +6,7 @@ import { getAllVersions, saveVersion, deleteVersion } from '../lib/db';
 interface VersionManagerProps {
   isOpen: boolean;
   onClose: () => void;
+  onRestore: (version: Version) => void;
   currentData: {
     assets: Asset[];
     initiatives: Initiative[];
@@ -18,7 +19,7 @@ interface VersionManagerProps {
   };
 }
 
-export function VersionManager({ isOpen, onClose, currentData }: VersionManagerProps) {
+export function VersionManager({ isOpen, onClose, onRestore, currentData }: VersionManagerProps) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [newName, setNewName] = useState('');
@@ -236,7 +237,13 @@ export function VersionManager({ isOpen, onClose, currentData }: VersionManagerP
                       Warning: Overwrites current work!
                     </p>
                     <button 
-                      onClick={() => alert('Restore functionality to be implemented in Phase 4')}
+                      onClick={() => {
+                        const v = versions.find(v => v.id === selectedVersionId);
+                        if (v && window.confirm(`Are you sure you want to restore "${v.name}"? This will overwrite all your current work.`)) {
+                          onRestore(v);
+                          onClose();
+                        }
+                      }}
                       className="w-full py-2 bg-white border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors text-xs font-bold"
                     >
                       Restore to Current
