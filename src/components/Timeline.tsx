@@ -560,7 +560,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       const minStart = gInits.reduce((m, i) => i.startDate < m ? i.startDate : m, gInits[0].startDate);
       const maxEnd = gInits.reduce((m, i) => i.endDate > m ? i.endDate : m, gInits[0].endDate);
       const totalBudget = gInits.reduce((sum, i) => sum + (i.budget || 0), 0);
-      const groupDescription = gInits.sort((a, b) => a.startDate.localeCompare(b.startDate)).map(i => i.name).join(' + ');
+      const groupDescription = [...gInits].sort((a, b) => (a.startDate || '').localeCompare(b.startDate || '')).map(i => i.name).filter(Boolean).join(' + ');
 
       const groupProgrammeIds = Array.from(new Set(gInits.map(i => i.programmeId)));
       const groupProgrammeNames = groupProgrammeIds
@@ -600,7 +600,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       }
     });
 
-    const sorted = entities.sort((a, b) => a.init.startDate.localeCompare(b.init.startDate));
+    const sorted = entities.sort((a, b) => (a.init.startDate || '').localeCompare(b.init.startDate || ''));
     const finalItems: any[] = [];
     const placedRects: any[] = [];
 

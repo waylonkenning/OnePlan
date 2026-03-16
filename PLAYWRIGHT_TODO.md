@@ -99,6 +99,8 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Excel Import:** Upload a valid Excel file and verify the Import Preview modal appears.
     - [x] **Merge Data:** Verify that clicking 'Merge Data' updates existing items, adds new items, and retains existing unreferenced items.
     - [x] **Overwrite All Data:** Verify backwards compatibility where 'Overwrite All Data' completely replaces the application state.
+    - [x] **Schema Validation:** Verify that importing a file with missing required fields (e.g. `startDate`) shows a "Schema warnings" panel in the preview modal, and that a valid file shows no warnings.
+    - [x] **Legacy Data Resilience:** Verify that importing data missing `startDate` does not crash the timeline (regression for TypeError in `localeCompare` on undefined).
 - [x] **PDF Export:** Trigger "Export PDF" while in Visualiser view and verify a PDF file is generated (checking for reasonable file size/optimization).
 
 ## 5. Edge Cases & Safety
