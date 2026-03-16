@@ -1252,7 +1252,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                       )}>{subtitle}</div>
                                     )}
                                     {settings.descriptionDisplay === 'on' && init.description && (
-                                      width > 8 ? (
+                                      (isGroup || width > 8) ? (
                                         <div draggable="false" className={cn(
                                           "text-[9px] leading-[12px] opacity-90 mt-1 pt-1 border-t border-white/30 whitespace-pre-wrap break-words line-clamp-3",
                                           !init.isPlaceholder && "drop-shadow-md"
