@@ -112,3 +112,13 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [ ] **In-App Tutorial:**
     - [ ] Verify that the tutorial modal appears on first load.
     - [ ] Verify that the tutorial can be manually triggered via the Help button.
+
+## 7. Landing Page & Branding
+- [x] **Open Source:**
+    - [x] Verify the "Open Source · Apache 2.0" badge is displayed.
+    - [x] Verify the GitHub nav link and "View on GitHub" CTA both link to the correct repository.
+- [x] **Feature Cards:**
+    - [x] Verify all six feature cards are present: Dependency Mapping, Intuitive Canvas, Conflict Detection, Version History, Excel & PDF Export, 100% Private.
+- [x] **Kenning Corporation branding:**
+    - [x] Verify the landing page footer links to kenning.co.nz.
+    - [x] Verify the in-app footer displays Kenning Corporation and Open Source links.
