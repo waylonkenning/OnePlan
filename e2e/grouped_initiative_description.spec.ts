@@ -6,7 +6,8 @@ test.describe('Grouped Initiative Description', () => {
     await page.goto('http://localhost:3000/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 
-    // Toggle Description Display correctly
+    // Open Display panel and toggle Description Display on
+    await page.getByRole('button', { name: 'Display' }).click();
     await page.locator('select#descriptionDisplay').selectOption('on');
     
     // For now, let's assume it's ON by default or toggle it if needed.

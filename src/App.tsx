@@ -22,7 +22,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 type AppState = {
   assets: Asset[];
@@ -36,6 +36,7 @@ type AppState = {
 };
 import { cn } from './lib/utils';
 import { getAppData, saveAppData } from './lib/db';
+import { useRef } from 'react';
 
 export default function App() {
   const [view, setView] = useState<'visualiser' | 'data'>('visualiser');
@@ -60,6 +61,8 @@ export default function App() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isVersionManagerOpen, setIsVersionManagerOpen] = useState(false);
+  const [showDisplayPanel, setShowDisplayPanel] = useState(false);
+  const displayPanelRef = useRef<HTMLDivElement>(null);
 
   const getCurrentState = (): AppState => ({
     assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings
@@ -195,6 +198,16 @@ export default function App() {
   };
 
   useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (displayPanelRef.current && !displayPanelRef.current.contains(e.target as Node)) {
+        setShowDisplayPanel(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if user is typing in an input or textarea
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -229,14 +242,14 @@ export default function App() {
 
   return (
     <div className="h-screen w-full bg-slate-100 p-6 flex flex-col">
-      <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-2 flex flex-wrap items-center gap-3">
+      <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-2 flex items-center gap-3">
         {/* Logo */}
         <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">OnePlan</h1>
 
-        <div className="w-px h-6 bg-slate-200" />
+        <div className="w-px h-6 bg-slate-200 shrink-0" />
 
         {/* View Toggle */}
-        <div className="flex bg-slate-100 rounded-lg p-0.5 border border-slate-200">
+        <div className="flex bg-slate-100 rounded-lg p-0.5 border border-slate-200 shrink-0">
           <button
             onClick={() => setView('visualiser')}
             data-testid="nav-visualiser"
@@ -263,20 +276,10 @@ export default function App() {
             <Table size={14} />
             Data Manager
           </button>
-          <button
-            onClick={() => setIsVersionManagerOpen(true)}
-            data-testid="nav-history"
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer text-slate-600 hover:text-slate-800"
-            )}
-          >
-            <History size={14} />
-            History
-          </button>
         </div>
 
         {/* Search */}
-        <div className="relative w-48">
+        <div className="relative w-44 shrink-0">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
           <input
             type="search"
@@ -287,153 +290,123 @@ export default function App() {
           />
         </div>
 
-        <div className="w-px h-6 bg-slate-200" />
+        <div className="w-px h-6 bg-slate-200 shrink-0" />
 
-        {/* Inline Timeline Settings */}
-        <div className="flex flex-wrap items-center gap-2">
-          <label className="flex items-center gap-1.5 text-xs text-slate-500">
-            Start
-            <input
-              type="date"
-              value={timelineSettings.startDate}
-              onChange={(e) => {
-                handleUpdate({
-                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                  timelineSettings: { ...timelineSettings, startDate: e.target.value },
-                });
-              }}
-              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </label>
-          <label className="flex items-center gap-1.5 text-xs text-slate-500">
-            Months
-            <select
-              value={timelineSettings.monthsToShow || 36}
-              onChange={(e) => {
-                handleUpdate({
-                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                  timelineSettings: { ...timelineSettings, monthsToShow: parseInt(e.target.value) as 3 | 6 | 12 | 24 | 36 },
-                });
-              }}
-              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        {/* Timeline Range */}
+        <label className="flex items-center gap-1.5 text-xs text-slate-500 shrink-0">
+          Start
+          <input
+            type="date"
+            value={timelineSettings.startDate}
+            onChange={(e) => {
+              handleUpdate({
+                assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                timelineSettings: { ...timelineSettings, startDate: e.target.value },
+              });
+            }}
+            className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </label>
+        <label className="flex items-center gap-1.5 text-xs text-slate-500 shrink-0">
+          Months
+          <select
+            value={timelineSettings.monthsToShow || 36}
+            onChange={(e) => {
+              handleUpdate({
+                assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                timelineSettings: { ...timelineSettings, monthsToShow: parseInt(e.target.value) as 3 | 6 | 12 | 24 | 36 },
+              });
+            }}
+            className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="3">3</option>
+            <option value="6">6</option>
+            <option value="12">12</option>
+            <option value="24">24</option>
+            <option value="36">36</option>
+          </select>
+        </label>
+
+        {/* Display Options Popover */}
+        <div className="relative shrink-0" ref={displayPanelRef}>
+          <button
+            onClick={() => setShowDisplayPanel(v => !v)}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors",
+              showDisplayPanel
+                ? "bg-blue-50 border-blue-200 text-blue-700"
+                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+            )}
+          >
+            <SlidersHorizontal size={13} />
+            Display
+            <ChevronDown size={11} className={cn("transition-transform", showDisplayPanel && "rotate-180")} />
+          </button>
+          {showDisplayPanel && (
+            <div
+              className="absolute top-full left-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-4 w-56"
+              onMouseDown={(e) => e.stopPropagation()}
             >
-              <option value="3">3</option>
-              <option value="6">6</option>
-              <option value="12">12</option>
-              <option value="24">24</option>
-              <option value="36">36</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-1.5 text-xs text-slate-500">
-            Budget
-            <select
-              id="budgetVisualisation"
-              value={timelineSettings.budgetVisualisation || 'off'}
-              onChange={(e) => {
-                handleUpdate({
-                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                  timelineSettings: { ...timelineSettings, budgetVisualisation: e.target.value as 'off' | 'bar-height' | 'label' },
-                });
-              }}
-              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="off">Off</option>
-              <option value="bar-height">Bar Height</option>
-              <option value="label">Label</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-1.5 text-xs text-slate-500">
-            Desc
-            <select
-              id="descriptionDisplay"
-              value={timelineSettings.descriptionDisplay || 'off'}
-              onChange={(e) => {
-                handleUpdate({
-                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                  timelineSettings: { ...timelineSettings, descriptionDisplay: e.target.value as 'off' | 'on' },
-                });
-              }}
-              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="off">Off</option>
-              <option value="on">On</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-1.5 text-xs text-slate-500 ml-2">
-            Empty Rows
-            <select
-              id="emptyRowDisplay"
-              value={timelineSettings.emptyRowDisplay || 'show'}
-              onChange={(e) => {
-                handleUpdate({
-                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                  timelineSettings: { ...timelineSettings, emptyRowDisplay: e.target.value as 'show' | 'hide' },
-                });
-              }}
-              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="show">Show</option>
-              <option value="hide">Hide</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-1.5 text-xs text-slate-500 ml-2">
-            Snap
-            <select
-              id="snapToPeriod"
-              value={timelineSettings.snapToPeriod || 'off'}
-              onChange={(e) => {
-                handleUpdate({
-                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                  timelineSettings: { ...timelineSettings, snapToPeriod: e.target.value as 'off' | 'month' },
-                });
-              }}
-              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="off">Off</option>
-              <option value="month">Month</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-1.5 text-xs text-slate-500 ml-2">
-            Conflict
-            <select
-              id="conflictDetection"
-              value={timelineSettings.conflictDetection || 'on'}
-              onChange={(e) => {
-                handleUpdate({
-                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                  timelineSettings: { ...timelineSettings, conflictDetection: e.target.value as 'off' | 'on' },
-                });
-              }}
-              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="on">On</option>
-              <option value="off">Off</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-1.5 text-xs text-slate-500 ml-2">
-            Relationships
-            <select
-              id="showRelationships"
-              value={timelineSettings.showRelationships || 'on'}
-              onChange={(e) => {
-                handleUpdate({
-                  assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                  timelineSettings: { ...timelineSettings, showRelationships: e.target.value as 'off' | 'on' },
-                });
-              }}
-              className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="on">On</option>
-              <option value="off">Off</option>
-            </select>
-          </label>
+              <div className="space-y-3">
+                {[
+                  { label: 'Budget', id: 'budgetVisualisation', value: timelineSettings.budgetVisualisation || 'off', options: [['off', 'Off'], ['bar-height', 'Bar Height'], ['label', 'Label']], key: 'budgetVisualisation' as const },
+                  { label: 'Descriptions', id: 'descriptionDisplay', value: timelineSettings.descriptionDisplay || 'off', options: [['off', 'Off'], ['on', 'On']], key: 'descriptionDisplay' as const },
+                  { label: 'Empty Rows', id: 'emptyRowDisplay', value: timelineSettings.emptyRowDisplay || 'show', options: [['show', 'Show'], ['hide', 'Hide']], key: 'emptyRowDisplay' as const },
+                  { label: 'Snap to Month', id: 'snapToPeriod', value: timelineSettings.snapToPeriod || 'off', options: [['off', 'Off'], ['month', 'Month']], key: 'snapToPeriod' as const },
+                  { label: 'Conflict Detection', id: 'conflictDetection', value: timelineSettings.conflictDetection || 'on', options: [['on', 'On'], ['off', 'Off']], key: 'conflictDetection' as const },
+                  { label: 'Relationships', id: 'showRelationships', value: timelineSettings.showRelationships || 'on', options: [['on', 'On'], ['off', 'Off']], key: 'showRelationships' as const },
+                ].map(({ label, id, value, options, key }) => (
+                  <div key={id} className="flex items-center justify-between gap-3">
+                    <label htmlFor={id} className="text-xs text-slate-600 whitespace-nowrap">{label}</label>
+                    <select
+                      id={id}
+                      value={value}
+                      onChange={(e) => {
+                        handleUpdate({
+                          assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                          timelineSettings: { ...timelineSettings, [key]: e.target.value },
+                        });
+                      }}
+                      className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      {options.map(([val, lbl]) => (
+                        <option key={val} value={val}>{lbl}</option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Spacer pushes remaining items right */}
+        {/* Spacer */}
         <div className="flex-1" />
 
+        {/* History */}
+        <button
+          onClick={() => setIsVersionManagerOpen(true)}
+          data-testid="nav-history"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
+          title="Version History"
+        >
+          <History size={14} />
+          History
+        </button>
+
+        <div className="w-px h-6 bg-slate-200 shrink-0" />
+
+        {/* Data Controls (PDF, Export, Import) */}
+        <DataControls
+          data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
+          onImport={handleUpdate}
+          timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
+        />
+
+        <div className="w-px h-6 bg-slate-200 shrink-0" />
+
         {/* Undo/Redo */}
-        <div className="flex items-center bg-slate-50 rounded-lg border border-slate-200 p-0.5">
+        <div className="flex items-center bg-slate-50 rounded-lg border border-slate-200 p-0.5 shrink-0">
           <button
             onClick={handleUndo}
             disabled={undoStack.length === 0}
@@ -453,10 +426,8 @@ export default function App() {
           </button>
         </div>
 
-        <div className="w-px h-6 bg-slate-200" />
-
         {/* Features / Tutorial */}
-        <div className="flex bg-slate-50 rounded-lg border border-slate-200 p-0.5">
+        <div className="flex bg-slate-50 rounded-lg border border-slate-200 p-0.5 shrink-0">
           <button
             onClick={() => setShowFeatures(true)}
             data-testid="nav-features"
@@ -475,15 +446,6 @@ export default function App() {
             <HelpCircle size={16} />
           </button>
         </div>
-
-        <div className="w-px h-6 bg-slate-200" />
-
-        {/* Data Controls (Export, Import only) */}
-        <DataControls
-          data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
-          onImport={handleUpdate}
-          timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
-        />
       </header>
 
       <main className="flex-1 min-h-0">

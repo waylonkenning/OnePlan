@@ -23,7 +23,8 @@ test.describe('Relationship Visibility Toggle', () => {
     console.log(`Initial dependency paths: ${initialCount}`);
     expect(initialCount).toBeGreaterThan(0);
     
-    // Toggle Relationships to 'off'
+    // Open Display panel then toggle Relationships to 'off'
+    await page.getByRole('button', { name: 'Display' }).click();
     const relationshipsSelect = page.locator('#showRelationships');
     await relationshipsSelect.selectOption('off');
 
@@ -33,8 +34,10 @@ test.describe('Relationship Visibility Toggle', () => {
   });
 
   test('Dependency lines should be shown when showRelationships is on', async ({ page }) => {
+    // Open Display panel
+    await page.getByRole('button', { name: 'Display' }).click();
     const relationshipsSelect = page.locator('#showRelationships');
-    
+
     // Toggle to 'off' first
     await relationshipsSelect.selectOption('off');
     const svg = page.locator('[data-testid="dependencies-svg"]');

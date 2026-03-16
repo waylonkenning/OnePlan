@@ -4,7 +4,8 @@ test.describe('Grouped Initiative Budget', () => {
     test('should show summed budget and dark font for grouped initiatives', async ({ page }) => {
         await page.goto('http://localhost:3000/');
         
-        // Ensure budget labels are on
+        // Open Display panel and ensure budget labels are on
+        await page.getByRole('button', { name: 'Display' }).click();
         await page.locator('select#budgetVisualisation').selectOption('label');
         
         const targetAssetId = 'a-ciam';

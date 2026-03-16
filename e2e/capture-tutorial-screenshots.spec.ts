@@ -31,8 +31,10 @@ test.describe('Tutorial Screenshots', () => {
     }
 
     // 4. Insights (Conflict detected)
-    // Turn on conflict detection explicitly
-    await page.getByLabel('Conflict').selectOption('on');
+    // Open Display panel and turn on conflict detection explicitly
+    await page.getByRole('button', { name: 'Display' }).click();
+    await page.locator('#conflictDetection').selectOption('on');
+    await page.getByRole('button', { name: 'Display' }).click(); // close panel
     // Hover over a conflict marker if present
     const conflictMarker = page.locator('[title*="Conflict detected"]').first();
     if (await conflictMarker.isVisible()) {

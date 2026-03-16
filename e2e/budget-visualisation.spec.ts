@@ -14,7 +14,8 @@ test.describe('Budget Visualisation', () => {
         const initialBox = await initiativeBar.boundingBox();
         const initialHeight = initialBox?.height || 0;
 
-        // Change the inline Budget select to bar-height
+        // Open Display panel and change Budget to bar-height
+        await page.getByRole('button', { name: 'Display' }).click();
         await page.locator('select#budgetVisualisation').selectOption('bar-height');
 
         // Check if height increased - Use expect.poll for robustness
@@ -25,7 +26,8 @@ test.describe('Budget Visualisation', () => {
     });
 
     test('can toggle budget visualisation to label', async ({ page }) => {
-        // Change the inline Budget select to label
+        // Open Display panel and change Budget to label
+        await page.getByRole('button', { name: 'Display' }).click();
         await page.locator('select#budgetVisualisation').selectOption('label');
 
         // Find an initiative bar - i-ciam-sso has 600k budget
