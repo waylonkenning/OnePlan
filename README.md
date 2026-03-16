@@ -4,7 +4,7 @@
 
 OnePlan is a powerful, interactive visualiser designed for IT strategic planning. It allows teams to map out initiatives across different IT assets, track dependencies, and identify scheduling conflicts in a clean, timeline-based interface.
 
-**[🌐 View Live Demo](https://oneplan-service-w2oqmpdtzq-uc.a.run.app/)** · **[⭐ Star on GitHub](https://github.com/waylonkenning/OnePlan)**
+**[🌐 View Live Demo](https://oneplan.website)** · **[⭐ Star on GitHub](https://github.com/waylonkenning/OnePlan)**
 
 ## 🚀 Key Features
 

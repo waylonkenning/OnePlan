@@ -26,6 +26,6 @@ All feature development and bug fixes must follow this strict sequence:
 - **Deployment:** Docker + Google Cloud Run + Google Cloud Build
 
 ## 3. Deployment Targets
-- **Production URL:** https://oneplan-service-w2oqmpdtzq-uc.a.run.app/
+- **Production URL:** https://oneplan.website
 - **CI/CD Configuration:** `cloudbuild.yaml`
 - **Environment:** Containerized via `Dockerfile` (Nginx on port 8080)
