@@ -1,5 +1,40 @@
 import React, { useRef, useState } from 'react';
-import { Upload, FileSpreadsheet, FileText, AlertCircle, Check } from 'lucide-react';
+import { Upload, FileSpreadsheet, FileText, AlertCircle, Check, TriangleAlert } from 'lucide-react';
+
+interface SchemaIssue {
+  entity: string;
+  issue: string;
+  severity: 'error' | 'warning';
+}
+
+const REQUIRED_FIELDS: Record<string, string[]> = {
+  initiatives: ['id', 'name', 'programmeId', 'assetId', 'startDate', 'endDate', 'budget'],
+  assets: ['id', 'name', 'categoryId'],
+  programmes: ['id', 'name', 'color'],
+  strategies: ['id', 'name', 'color'],
+  milestones: ['id', 'assetId', 'date', 'name', 'type'],
+  dependencies: ['id', 'sourceId', 'targetId', 'type'],
+  assetCategories: ['id', 'name'],
+};
+
+function validateImportSchema(data: Record<string, unknown[]>): SchemaIssue[] {
+  const issues: SchemaIssue[] = [];
+  for (const [entityType, fields] of Object.entries(REQUIRED_FIELDS)) {
+    const records = data[entityType] as Record<string, unknown>[] | undefined;
+    if (!records?.length) continue;
+    for (const field of fields) {
+      const missingCount = records.filter(r => r[field] === undefined || r[field] === null || r[field] === '').length;
+      if (missingCount > 0) {
+        issues.push({
+          entity: entityType,
+          issue: `"${field}" missing in ${missingCount} record${missingCount > 1 ? 's' : ''}`,
+          severity: field === 'id' || field === 'name' ? 'error' : 'warning',
+        });
+      }
+    }
+  }
+  return issues;
+}
 import { exportToExcel, importFromExcel } from '../lib/excel';
 import { exportToPDF } from '../lib/pdf';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
@@ -32,6 +67,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importPreviewData, setImportPreviewData] = useState<Partial<typeof data> | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [importSchemaIssues, setImportSchemaIssues] = useState<SchemaIssue[]>([]);
 
   const handleExportExcel = () => {
     exportToExcel(data);
@@ -58,6 +94,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
 
       // Basic validation/merging logic
       if (importedData.assets || importedData.initiatives) {
+        setImportSchemaIssues(validateImportSchema(importedData as Record<string, unknown[]>));
         setImportPreviewData(importedData);
         setShowImportModal(true);
       } else {
@@ -88,6 +125,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
     });
     setShowImportModal(false);
     setImportPreviewData(null);
+    setImportSchemaIssues([]);
     alert('Data overwritten successfully!');
   };
 
@@ -120,6 +158,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
     });
     setShowImportModal(false);
     setImportPreviewData(null);
+    setImportSchemaIssues([]);
     alert('Data merged successfully!');
   };
 
@@ -173,7 +212,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
               We found the following data in your Excel file:
             </p>
 
-            <ul className="space-y-2 mb-6 text-sm text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <ul className="space-y-2 mb-4 text-sm text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-200">
               {importPreviewData.initiatives && <li><span className="font-semibold">{importPreviewData.initiatives.length}</span> Initiatives</li>}
               {importPreviewData.assets && <li><span className="font-semibold">{importPreviewData.assets.length}</span> Assets</li>}
               {importPreviewData.programmes && <li><span className="font-semibold">{importPreviewData.programmes.length}</span> Programmes</li>}
@@ -182,6 +221,23 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
               {importPreviewData.dependencies && <li><span className="font-semibold">{importPreviewData.dependencies.length}</span> Dependencies</li>}
               {importPreviewData.assetCategories && <li><span className="font-semibold">{importPreviewData.assetCategories.length}</span> Categories</li>}
             </ul>
+
+            {importSchemaIssues.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-2 text-amber-700">
+                  <TriangleAlert size={16} />
+                  <span className="text-sm font-semibold">Schema warnings — this file may be from an older version</span>
+                </div>
+                <ul className="space-y-1 text-xs bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  {importSchemaIssues.map((issue, i) => (
+                    <li key={i} className={`flex items-start gap-1.5 ${issue.severity === 'error' ? 'text-rose-700' : 'text-amber-800'}`}>
+                      <span className="font-semibold capitalize shrink-0">{issue.entity}:</span>
+                      <span>{issue.issue}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="space-y-3">
               <button
@@ -202,7 +258,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
               </button>
 
               <button
-                onClick={() => { setShowImportModal(false); setImportPreviewData(null); }}
+                onClick={() => { setShowImportModal(false); setImportPreviewData(null); setImportSchemaIssues([]); }}
                 className="w-full py-2.5 text-slate-500 hover:bg-slate-100 rounded-lg font-medium transition-colors"
               >
                 Cancel
