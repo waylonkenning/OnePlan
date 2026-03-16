@@ -35,6 +35,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
   const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialDate: string } | null>(null);
+  const [movingDependency, setMovingDependency] = useState<{ id: string; initialX: number; initialOffset: number } | null>(null);
   const [drawingDependency, setDrawingDependency] = useState<{
     sourceId: string;
     startX: number;
@@ -315,12 +316,14 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const handleResizeStart = (e: React.MouseEvent, id: string, edge: 'start' | 'end', initialDate: string) => {
     e.stopPropagation();
     e.preventDefault();
+    isDraggingRef.current = false;
     setResizing({ id, edge, initialX: e.clientX, initialDate });
   };
 
   const handleMouseDown = (e: React.MouseEvent, init: Initiative) => {
     // If we click on the edge, handleResizeStart will be called via its own onMouseDown
     // which has e.stopPropagation(). So here we handle move or dependency draw.
+    isDraggingRef.current = false;
     console.log('MouseDown on initiative:', init.id, e.clientX, e.clientY);
     setMoving({
       id: init.id,
@@ -334,6 +337,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const handleMilestoneMouseDown = (e: React.MouseEvent, mile: Milestone) => {
     e.stopPropagation();
     e.preventDefault();
+    isDraggingRef.current = false;
     setMovingMilestone({
       id: mile.id,
       initialX: e.clientX,
@@ -449,6 +453,18 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             currentY: e.clientY - containerRect.top
           });
         }
+      } else if (movingDependency) {
+        const deltaX = e.clientX - movingDependency.initialX;
+        if (Math.abs(deltaX) > 3) {
+          isDraggingRef.current = true;
+        }
+        const newOffset = movingDependency.initialOffset + deltaX;
+
+        if (onUpdateDependencies) {
+          onUpdateDependencies(dependencies.map(d =>
+            d.id === movingDependency.id ? { ...d, midXOffset: newOffset } : d
+          ));
+        }
       }
     };
 
@@ -462,6 +478,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       } else if (movingMilestone && onUpdateMilestone) {
         const updated = localMilestones.find(m => m.id === movingMilestone.id);
         if (updated) onUpdateMilestone(updated);
+      } else if (movingDependency && onUpdateDependencies) {
+        const updated = dependencies.find(d => d.id === movingDependency.id);
+        if (updated) onUpdateDependencies([...dependencies]); // Trigger save
       } else if (drawingDependency && onUpdateDependencies) {
         // Find if we released over another initiative
         const targetElement = document.elementFromPoint(e.clientX, e.clientY);
@@ -470,7 +489,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
         if (targetId && targetId !== drawingDependency.sourceId) {
           const newDependency: Dependency = {
-            id: `dep - ${Date.now()} `,
+            id: `dep-${Date.now()}`,
             sourceId: drawingDependency.sourceId,
             targetId: targetId,
             type: 'blocks'
@@ -481,11 +500,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       setResizing(null);
       setMoving(null);
       setMovingMilestone(null);
+      setMovingDependency(null);
       setDrawingDependency(null);
       setDraggingCategory(null);
     };
 
-    if (resizing || moving || movingMilestone || drawingDependency) {
+    if (resizing || moving || movingMilestone || drawingDependency || movingDependency) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     }
@@ -494,7 +514,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizing, moving, movingMilestone, drawingDependency, localInitiatives, localMilestones, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, dependencies, initiativePositions]);
+  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, localInitiatives, localMilestones, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, dependencies, initiativePositions]);
 
   const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
     setDraggingCategory(category);
@@ -957,19 +977,19 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                 if (gap >= 20) {
                   // State 1: Clear Horizontal Flow (exits right, enters left)
-                  const midX = sEndX + gap / 2;
+                  const midX = (sEndX + gap / 2) + (dep.midXOffset || 0);
                   path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX - 6} ${tMidY}`;
                   labelX = midX + 30; // Offset to the right of the vertical segment
                   labelY = (sMidY + tMidY) / 2;
                 } else if (tEndX <= sStartX + 20) {
                   // State 2: Backwards Flow (exits left, enters right)
-                  const midX = tEndX + (sStartX - tEndX) / 2;
+                  const midX = (tEndX + (sStartX - tEndX) / 2) + (dep.midXOffset || 0);
                   path = `M ${sStartX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tEndX + 6} ${tMidY}`;
                   labelX = midX - 30; // Offset to the left of the vertical segment
                   labelY = (sMidY + tMidY) / 2;
                 } else if (overlapWidth > 40) {
                   // State 3: Significant Overlap (exits bottom/top, enters top/bottom)
-                  const midX = overlapLeft + overlapWidth / 2;
+                  const midX = (overlapLeft + overlapWidth / 2) + (dep.midXOffset || 0);
                   if (sMidY < tMidY) {
                     path = `M ${midX} ${sBottom} L ${midX} ${target.y - 6}`;
                     labelX = midX + 30; // Offset to the right
@@ -982,8 +1002,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 } else {
                   // State 4: Adjacent Proximity (Cramped Horizontal Gap)
                   // Exit source right, drop down/up into the top/bottom of target.
-                  let dropX = tStartX + 30;
-                  if (dropX > tEndX - 10) dropX = tEndX - 10;
+                  let baseDropX = tStartX + 30;
+                  if (baseDropX > tEndX - 10) baseDropX = tEndX - 10;
+                  const dropX = baseDropX + (dep.midXOffset || 0);
 
                   if (sMidY < tMidY) {
                     path = `M ${sEndX} ${sMidY} L ${dropX} ${sMidY} L ${dropX} ${target.y - 6}`;
@@ -998,11 +1019,25 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                 const handleDependencyClick = (e: React.MouseEvent) => {
                   e.stopPropagation();
+                  if (isDraggingRef.current) {
+                    isDraggingRef.current = false;
+                    return;
+                  }
                   setSelectedDependencyId(dep.id);
                 };
 
+                const handleDependencyMouseDown = (e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  isDraggingRef.current = false;
+                  setMovingDependency({
+                    id: dep.id,
+                    initialX: e.clientX,
+                    initialOffset: dep.midXOffset || 0
+                  });
+                };
+
                 return (
-                  <g key={dep.id} onClick={handleDependencyClick} className="cursor-pointer group" style={{ pointerEvents: 'all' }}>
+                  <g key={dep.id} onClick={handleDependencyClick} onMouseDown={handleDependencyMouseDown} className="cursor-pointer group" style={{ pointerEvents: 'all' }}>
                     <path
                       d={path}
                       stroke="transparent"
