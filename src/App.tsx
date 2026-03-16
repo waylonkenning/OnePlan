@@ -595,6 +595,27 @@ export default function App() {
         )}
       </main>
 
+      <footer className="flex-shrink-0 pt-2 flex items-center justify-center gap-1 text-xs text-slate-400">
+        Built by{' '}
+        <a
+          href="https://kenning.co.nz"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-slate-600 transition-colors"
+        >
+          Kenning Corporation Limited
+        </a>
+        <span className="text-slate-300">·</span>
+        <a
+          href="https://github.com/waylonkenning/OnePlan"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-slate-600 transition-colors"
+        >
+          Open Source
+        </a>
+      </footer>
+
       {showFeatures && (
         <FeaturesModal onClose={() => setShowFeatures(false)} />
       )}

@@ -1,6 +1,5 @@
-import { Building2, GitMerge, MousePointer2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Building2, GitMerge, MousePointer2, ShieldCheck, ArrowRight, Github, History, FileSpreadsheet } from 'lucide-react';
 import { motion } from 'motion/react';
-import { cn } from '../lib/utils';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -24,12 +23,23 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
             <span className="text-xl font-bold tracking-tight">OnePlan</span>
           </div>
-          <button
-            onClick={onGetStarted}
-            className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-          >
-            Launch App
-          </button>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://github.com/waylonkenning/OnePlan"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              <Github size={16} />
+              GitHub
+            </a>
+            <button
+              onClick={onGetStarted}
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              Launch App
+            </button>
+          </div>
         </header>
 
         {/* Hero Section */}
@@ -40,11 +50,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-sm font-medium mb-8"
           >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-            </span>
-            Local-First Planning
+            <Github size={14} />
+            Open Source · Apache 2.0
           </motion.div>
 
           <motion.h1
@@ -65,7 +72,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-xl text-slate-400 max-w-2xl mb-12 leading-relaxed"
           >
-            The easiest way to map relationships, detect conflicts, and sequence your large IT initiatives—all running locally in your browser.
+            Map your IT portfolio across assets, programmes, and strategies. Detect conflicts, sequence dependencies, and keep your entire team aligned—all running privately in your browser.
           </motion.p>
 
           <motion.div
@@ -81,6 +88,15 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               Get Started Now
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
+            <a
+              href="https://github.com/waylonkenning/OnePlan"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 px-8 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-semibold transition-all border border-slate-700 hover:-translate-y-0.5"
+            >
+              <Github size={18} />
+              View on GitHub
+            </a>
           </motion.div>
 
           {/* App Preview */}
@@ -90,9 +106,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             transition={{ duration: 0.7, delay: 0.4 }}
             className="w-full max-w-6xl mt-24 relative"
           >
-            {/* Decorative elements around image */}
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-20" />
-            
             <div className="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl">
               <div className="h-10 border-b border-slate-800 bg-slate-900/50 flex items-center px-4 gap-2">
                 <div className="w-3 h-3 rounded-full bg-slate-700" />
@@ -111,26 +125,36 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         {/* Features Section */}
         <section className="bg-slate-950 py-32 border-t border-slate-800 relative z-10">
           <div className="container mx-auto px-6 max-w-7xl">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
-              <FeatureCard
-                icon={Building2}
-                title="Enterprise Context"
-                description="Built specifically for planning large IT initiatives and complex transformation programmes."
-              />
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
               <FeatureCard
                 icon={GitMerge}
-                title="Conflict Detection"
-                description="Automatically highlights overlapping initiatives to prevent delivery collisions and change fatigue."
+                title="Dependency Mapping"
+                description="Draw visual links between initiatives and understand sequencing. Reverse, edit, or remove dependencies interactively directly on the canvas."
               />
               <FeatureCard
                 icon={MousePointer2}
                 title="Intuitive Canvas"
-                description="Drag, drop, and resize initiatives directly on the timeline. Draw dependencies with a simple click."
+                description="Drag, drop, and resize initiatives directly on the timeline. Double-click any empty space to create a new initiative instantly."
+              />
+              <FeatureCard
+                icon={Building2}
+                title="Conflict Detection"
+                description="Automatically highlights overlapping initiatives on the same asset to prevent delivery collisions and change fatigue before they happen."
+              />
+              <FeatureCard
+                icon={History}
+                title="Version History"
+                description="Save named snapshots at any point in time, compare differences between versions, and restore a previous state with a single click."
+              />
+              <FeatureCard
+                icon={FileSpreadsheet}
+                title="Excel & PDF Export"
+                description="Import existing plans from Excel, export full data sets for stakeholders, and generate PDF reports of your timeline view."
               />
               <FeatureCard
                 icon={ShieldCheck}
-                title="100% Local"
-                description="Zero cloud storage. Your highly sensitive strategic planning data stays right in your browser."
+                title="100% Private"
+                description="Zero cloud storage. Your highly sensitive strategic planning data stays right in your browser via IndexedDB—no account required."
               />
             </div>
           </div>
@@ -147,8 +171,33 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             >
               Start Planning
             </button>
-            <div className="mt-16 text-slate-500 text-sm">
-              &copy; {new Date().getFullYear()} OnePlan.
+
+            <div className="mt-16 flex flex-col items-center gap-3">
+              <div className="flex items-center gap-4 text-slate-500 text-sm">
+                <a
+                  href="https://github.com/waylonkenning/OnePlan"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 hover:text-slate-300 transition-colors"
+                >
+                  <Github size={14} />
+                  GitHub
+                </a>
+                <span>·</span>
+                <span>Apache 2.0</span>
+              </div>
+              <p className="text-slate-600 text-sm">
+                Built by{' '}
+                <a
+                  href="https://kenning.co.nz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  Kenning Corporation Limited
+                </a>
+              </p>
+              <p className="text-slate-700 text-sm">&copy; {new Date().getFullYear()} OnePlan.</p>
             </div>
           </div>
         </footer>
