@@ -128,6 +128,7 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
                           e.stopPropagation();
                           handleDelete(v.id);
                         }}
+                        title="Delete version"
                         className="p-1 text-slate-300 hover:text-red-500 rounded-md transition-colors"
                       >
                         <Trash2 size={14} />
@@ -296,13 +297,17 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
       </div>
       
       {/* Comparison Modal Overlay */}
-      {comparisonVersionId && (
-        <VersionComparisonReport 
-          baseVersion={versions.find(v => v.id === selectedVersionId)!}
-          comparisonData={currentData}
-          onClose={() => setComparisonVersionId(null)}
-        />
-      )}
+      {comparisonVersionId && (() => {
+        const baseVersion = versions.find(v => v.id === selectedVersionId);
+        if (!baseVersion) return null;
+        return (
+          <VersionComparisonReport
+            baseVersion={baseVersion}
+            comparisonData={currentData}
+            onClose={() => setComparisonVersionId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }
