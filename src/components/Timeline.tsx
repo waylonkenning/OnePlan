@@ -4,6 +4,7 @@ import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, s
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, Palette, ChevronRight, ChevronDown, Settings, Grid, Calendar, Target, Box, Boxes, Ungroup, Group } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
+import { DependencyPanel } from './DependencyPanel';
 
 interface TimelineProps {
   assets: Asset[];
@@ -29,6 +30,7 @@ const SIDEBAR_WIDTH = 256; // 16rem in pixels
 export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery }: TimelineProps) {
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
+  const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null);
   const isDraggingRef = useRef(false);
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
@@ -994,16 +996,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   }
                 }
 
-                const cycleType = () => {
-                  if (!onUpdateDependencies) return;
-                  const types: Dependency['type'][] = ['blocks', 'requires', 'related'];
-                  const idx = types.indexOf(dep.type);
-                  const nextType = types[(idx + 1) % types.length];
-                  onUpdateDependencies(dependencies.map(d => d.id === dep.id ? { ...d, type: nextType } : d));
+                const handleDependencyClick = (e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  setSelectedDependencyId(dep.id);
                 };
 
                 return (
-                  <g key={dep.id} onClick={cycleType} className="cursor-pointer group" style={{ pointerEvents: 'all' }}>
+                  <g key={dep.id} onClick={handleDependencyClick} className="cursor-pointer group" style={{ pointerEvents: 'all' }}>
                     <path
                       d={path}
                       stroke="transparent"
@@ -1413,6 +1412,25 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           if (onDeleteInitiative) onDeleteInitiative(initiative);
           setSelectedInitiativeId(null);
           setCreatingInitiativeParams(null);
+        }}
+      />
+
+      <DependencyPanel
+        isOpen={selectedDependencyId !== null}
+        onClose={() => setSelectedDependencyId(null)}
+        dependency={selectedDependencyId ? dependencies.find(d => d.id === selectedDependencyId) || null : null}
+        initiatives={initiatives}
+        onSave={(updatedDep) => {
+          if (onUpdateDependencies) {
+            onUpdateDependencies(dependencies.map(d => d.id === updatedDep.id ? updatedDep : d));
+          }
+          setSelectedDependencyId(null);
+        }}
+        onDelete={(deletedDep) => {
+          if (onUpdateDependencies) {
+            onUpdateDependencies(dependencies.filter(d => d.id !== deletedDep.id));
+          }
+          setSelectedDependencyId(null);
         }}
       />
     </div>
