@@ -124,7 +124,10 @@ export const saveAppData = async (data: {
   }
   const tx = db.transaction(stores, 'readwrite');
 
-  const clearPromises = [
+  // Queue all clears and adds in a single batch without intermediate awaits.
+  // Awaiting between operations risks the transaction auto-committing before
+  // all adds are queued, which would leave the stores empty.
+  const allPromises = [
     tx.objectStore('assets').clear(),
     tx.objectStore('initiatives').clear(),
     tx.objectStore('milestones').clear(),
@@ -132,13 +135,6 @@ export const saveAppData = async (data: {
     tx.objectStore('strategies').clear(),
     tx.objectStore('dependencies').clear(),
     tx.objectStore('assetCategories').clear(),
-  ];
-  if (db.objectStoreNames.contains('settings')) {
-    clearPromises.push(tx.objectStore('settings').clear());
-  }
-  await Promise.all(clearPromises);
-
-  const addPromises = [
     ...data.assets.map(item => tx.objectStore('assets').add(item)),
     ...data.initiatives.map(item => tx.objectStore('initiatives').add(item)),
     ...data.milestones.map(item => tx.objectStore('milestones').add(item)),
@@ -148,9 +144,10 @@ export const saveAppData = async (data: {
     ...data.assetCategories.map(item => tx.objectStore('assetCategories').add(item)),
   ];
   if (db.objectStoreNames.contains('settings')) {
-    addPromises.push(tx.objectStore('settings').put(data.timelineSettings, 'timelineSettings'));
+    allPromises.push(tx.objectStore('settings').clear());
+    allPromises.push(tx.objectStore('settings').put(data.timelineSettings, 'timelineSettings'));
   }
-  await Promise.all(addPromises);
+  await Promise.all(allPromises);
 
   await tx.done;
 };

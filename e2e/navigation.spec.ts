@@ -48,6 +48,33 @@ test.describe('Navigation & State Management', () => {
     await expect(inputAfterReload).toBeVisible();
   });
 
+  test('IndexedDB save is atomic: all stores intact after full overwrite and reload', async ({ page }) => {
+    // Trigger a full saveAppData call by resetting to demo data — this exercises the
+    // clear-all-stores-then-add-all-records path in db.ts
+    await page.getByTestId('nav-data-manager').click();
+    page.on('dialog', dialog => dialog.accept());
+    await page.getByRole('button', { name: 'Reset - use demo data' }).click();
+    await page.waitForTimeout(500);
+
+    // Reload immediately — no waiting, to maximise the chance of catching a mid-transaction commit
+    await page.reload();
+    await page.getByTestId('nav-data-manager').click();
+
+    // Initiatives store must have been written (not cleared and abandoned)
+    const initiativeRows = page.locator('table tbody tr[data-real="true"]');
+    await expect(initiativeRows).toHaveCount(22);
+
+    // Assets store must also be intact
+    await page.getByRole('button', { name: /Assets/ }).click();
+    const assetRows = page.locator('table tbody tr[data-real="true"]');
+    await expect(assetRows.first()).toBeVisible();
+
+    // Milestones store must also be intact
+    await page.getByRole('button', { name: /Milestones/ }).click();
+    const milestoneRows = page.locator('table tbody tr[data-real="true"]');
+    await expect(milestoneRows.first()).toBeVisible();
+  });
+
   test('Default Data Initialization', async ({ page }) => {
     // Check if defaults exist
     await page.getByRole('button', { name: 'Data Manager' }).click();
