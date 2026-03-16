@@ -73,3 +73,20 @@ export interface TimelineSettings {
   collapsedGroups?: string[];
   hasSeenTutorial?: boolean;
 }
+
+export interface Version {
+  id: string;
+  name: string;
+  timestamp: string; // ISO string
+  description?: string;
+  data: {
+    assets: Asset[];
+    initiatives: Initiative[];
+    milestones: Milestone[];
+    programmes: Programme[];
+    strategies: Strategy[];
+    dependencies: Dependency[];
+    assetCategories: AssetCategory[];
+    timelineSettings: TimelineSettings;
+  };
+}
