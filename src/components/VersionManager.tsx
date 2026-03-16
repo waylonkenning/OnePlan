@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Version, Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
-import { X, Save, History, Trash2, ArrowRight, FileText, AlertCircle } from 'lucide-react';
+import { X, Save, History, Trash2, ArrowRight, FileText, AlertCircle, LayoutGrid, Check } from 'lucide-react';
 import { getAllVersions, saveVersion, deleteVersion } from '../lib/db';
 
 interface VersionManagerProps {
@@ -315,32 +315,140 @@ function VersionComparisonReport({ baseVersion, comparisonData, onClose }: {
 }) {
   // Diff logic
   const diff = useMemo(() => {
-    const baseInits = baseVersion.data.initiatives;
-    const currInits = comparisonData.initiatives;
+    const compareEntities = <T extends { id: string }>(
+      base: T[], 
+      curr: T[], 
+      getDisplayName: (item: T) => string,
+      getChanges: (b: T, c: T) => string[]
+    ) => {
+      const added = curr.filter(ci => !base.some(bi => bi.id === ci.id)).map(i => getDisplayName(i));
+      const removed = base.filter(bi => !curr.some(ci => ci.id === bi.id)).map(i => getDisplayName(i));
+      const modified: { name: string, changes: string[] }[] = [];
+      
+      curr.forEach(ci => {
+        const bi = base.find(b => b.id === ci.id);
+        if (bi) {
+          const changes = getChanges(bi, ci);
+          if (changes.length > 0) {
+            modified.push({ name: getDisplayName(ci), changes });
+          }
+        }
+      });
+      
+      return { added, removed, modified };
+    };
 
-    const added = currInits.filter(ci => !baseInits.some(bi => bi.id === ci.id));
-    const removed = baseInits.filter(bi => !currInits.some(ci => ci.id === bi.id));
-    
-    const modified: any[] = [];
-    currInits.forEach(ci => {
-      const bi = baseInits.find(b => b.id === ci.id);
-      if (bi) {
+    // 1. Initiatives
+    const initiatives = compareEntities(
+      baseVersion.data.initiatives,
+      comparisonData.initiatives,
+      (i) => i.name,
+      (b, c) => {
         const changes: string[] = [];
-        if (bi.name !== ci.name) changes.push(`Name changed from "${bi.name}" to "${ci.name}"`);
-        if (bi.startDate !== ci.startDate) changes.push(`Start date shifted from ${bi.startDate} to ${ci.startDate}`);
-        if (bi.endDate !== ci.endDate) changes.push(`End date shifted from ${bi.endDate} to ${ci.endDate}`);
-        if (bi.budget !== ci.budget) changes.push(`Budget changed from ${bi.budget} to ${ci.budget}`);
-        
-        if (changes.length > 0) modified.push({ id: ci.id, name: ci.name, changes });
+        if (b.name !== c.name) changes.push(`Renamed from "${b.name}" to "${c.name}"`);
+        if (b.startDate !== c.startDate) changes.push(`Start date: ${b.startDate} → ${c.startDate}`);
+        if (b.endDate !== c.endDate) changes.push(`End date: ${b.endDate} → ${c.endDate}`);
+        if (b.budget !== c.budget) changes.push(`Budget: $${b.budget.toLocaleString()} → $${c.budget.toLocaleString()}`);
+        if (b.assetId !== c.assetId) {
+          const oldAsset = baseVersion.data.assets.find(a => a.id === b.assetId)?.name || 'Unknown';
+          const newAsset = comparisonData.assets.find(a => a.id === c.assetId)?.name || 'Unknown';
+          changes.push(`Moved from Asset "${oldAsset}" to "${newAsset}"`);
+        }
+        return changes;
       }
-    });
+    );
 
-    return { added, removed, modified };
+    // 2. Dependencies
+    const dependencies = compareEntities(
+      baseVersion.data.dependencies,
+      comparisonData.dependencies,
+      (d) => {
+        const s = comparisonData.initiatives.find(i => i.id === d.sourceId)?.name || baseVersion.data.initiatives.find(i => i.id === d.sourceId)?.name || 'Unknown';
+        const t = comparisonData.initiatives.find(i => i.id === d.targetId)?.name || baseVersion.data.initiatives.find(i => i.id === d.targetId)?.name || 'Unknown';
+        return `${s} → ${t}`;
+      },
+      (b, c) => {
+        const changes: string[] = [];
+        if (b.type !== c.type) changes.push(`Type: ${b.type} → ${c.type}`);
+        if (b.sourceId !== c.sourceId || b.targetId !== c.targetId) changes.push('Endpoints reconnected');
+        return changes;
+      }
+    );
+
+    // 3. Milestones
+    const milestones = compareEntities(
+      baseVersion.data.milestones,
+      comparisonData.milestones,
+      (m) => m.name,
+      (b, c) => {
+        const changes: string[] = [];
+        if (b.name !== c.name) changes.push(`Renamed to "${c.name}"`);
+        if (b.date !== c.date) changes.push(`Date: ${b.date} → ${c.date}`);
+        if (b.type !== c.type) changes.push(`Type: ${b.type} → ${c.type}`);
+        return changes;
+      }
+    );
+
+    const hasChanges = 
+      initiatives.added.length > 0 || initiatives.removed.length > 0 || initiatives.modified.length > 0 ||
+      dependencies.added.length > 0 || dependencies.removed.length > 0 || dependencies.modified.length > 0 ||
+      milestones.added.length > 0 || milestones.removed.length > 0 || milestones.modified.length > 0;
+
+    return { initiatives, dependencies, milestones, hasChanges };
   }, [baseVersion, comparisonData]);
+
+  const DiffSection = ({ title, data, icon: Icon, colorClass }: { title: string, data: any, icon: any, colorClass: string }) => {
+    if (data.added.length === 0 && data.removed.length === 0 && data.modified.length === 0) return null;
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+          <Icon size={18} className="text-slate-400" />
+          <h4 className="font-bold text-slate-800">{title}</h4>
+        </div>
+        
+        <div className="space-y-3">
+          {/* Added */}
+          {data.added.map((name: string, idx: number) => (
+            <div key={`add-${idx}`} className="flex items-start gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-sm">
+              <span className="px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded uppercase mt-0.5">Added</span>
+              <span className="font-medium text-emerald-900">{name}</span>
+            </div>
+          ))}
+
+          {/* Removed */}
+          {data.removed.map((name: string, idx: number) => (
+            <div key={`rem-${idx}`} className="flex items-start gap-3 p-3 bg-red-50 rounded-xl border border-red-100 text-sm opacity-80">
+              <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded uppercase mt-0.5">Removed</span>
+              <span className="font-medium text-red-900 line-through">{name}</span>
+            </div>
+          ))}
+
+          {/* Modified */}
+          {data.modified.map((item: any, idx: number) => (
+            <div key={`mod-${idx}`} className="p-3 bg-amber-50 rounded-xl border border-amber-100 text-sm">
+              <div className="flex items-start gap-3 mb-2">
+                <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-bold rounded uppercase mt-0.5">Changed</span>
+                <span className="font-bold text-amber-900">{item.name}</span>
+              </div>
+              <ul className="space-y-1 ml-14">
+                {item.changes.map((c: string, cIdx: number) => (
+                  <li key={cIdx} className="text-xs text-amber-700 flex items-start gap-2">
+                    <span className="opacity-40">•</span>
+                    {c}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-6">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col relative animate-in slide-in-from-bottom-8 duration-300">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col relative animate-in slide-in-from-bottom-8 duration-300">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-indigo-50/30 rounded-t-3xl">
           <h3 className="text-xl font-bold text-slate-900">Difference Report</h3>
           <button 
@@ -352,11 +460,11 @@ function VersionComparisonReport({ baseVersion, comparisonData, onClose }: {
           </button>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-6 space-y-8">
-          <div className="flex items-center gap-4 bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+        <div className="flex-1 overflow-y-auto p-6 space-y-10">
+          <div className="flex items-center gap-4 bg-indigo-50 p-4 rounded-2xl border border-indigo-100 shrink-0">
             <div className="flex-1 text-center">
               <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Baseline</p>
-              <p className="font-bold text-indigo-900">{baseVersion.name}</p>
+              <p className="font-bold text-indigo-900 truncate px-2">{baseVersion.name}</p>
             </div>
             <ArrowRight className="text-indigo-300" />
             <div className="flex-1 text-center">
@@ -365,59 +473,39 @@ function VersionComparisonReport({ baseVersion, comparisonData, onClose }: {
             </div>
           </div>
 
-          {/* Added */}
-          {diff.added.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                New Initiatives ({diff.added.length})
-              </h4>
-              <div className="grid gap-2">
-                {diff.added.map(i => (
-                  <div key={i.id} className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-sm font-medium text-emerald-900">
-                    {i.name}
-                  </div>
-                ))}
+          {!diff.hasChanges ? (
+            <div className="py-20 text-center text-slate-400">
+              <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check size={40} className="opacity-20 text-emerald-500" />
               </div>
+              <p className="font-bold text-slate-500">No changes detected</p>
+              <p className="text-sm mt-1">This version exactly matches the current state.</p>
             </div>
-          )}
-
-          {/* Modified */}
-          {diff.modified.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-amber-600 uppercase tracking-wider flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                Modified Initiatives ({diff.modified.length})
-              </h4>
-              <div className="space-y-3">
-                {diff.modified.map(m => (
-                  <div key={m.id} className="p-4 bg-amber-50 rounded-2xl border border-amber-100">
-                    <p className="font-bold text-amber-900 mb-2">{m.name}</p>
-                    <ul className="space-y-1">
-                      {m.changes.map((c: string, idx: number) => (
-                        <li key={idx} className="text-xs text-amber-700 flex items-start gap-2">
-                          <span className="opacity-50 mt-1">•</span>
-                          {c}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {diff.added.length === 0 && diff.modified.length === 0 && (
-            <div className="py-12 text-center text-slate-400">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <X size={32} className="opacity-20" />
-              </div>
-              <p className="font-medium">No differences found between these versions.</p>
-            </div>
+          ) : (
+            <>
+              <DiffSection 
+                title="Initiatives" 
+                data={diff.initiatives} 
+                icon={LayoutGrid} 
+                colorClass="indigo" 
+              />
+              <DiffSection 
+                title="Relationships" 
+                data={diff.dependencies} 
+                icon={History} 
+                colorClass="blue" 
+              />
+              <DiffSection 
+                title="Milestones" 
+                data={diff.milestones} 
+                icon={FileText} 
+                colorClass="rose" 
+              />
+            </>
           )}
         </div>
 
-        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-3xl">
+        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-3xl shrink-0">
           <button 
             onClick={onClose}
             data-testid="close-report-btn"

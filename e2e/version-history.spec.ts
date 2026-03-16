@@ -27,7 +27,7 @@ test.describe('Version History & Snapshotting', () => {
     await expect(page.getByText('Test description')).toBeVisible();
   });
 
-  test('Should generate a difference report', async ({ page }) => {
+  test('Should generate a difference report for renames', async ({ page }) => {
     // 1. Save a baseline version
     await page.getByTestId('nav-history').click();
     await page.getByRole('button', { name: 'Save Current State' }).click();
@@ -60,11 +60,55 @@ test.describe('Version History & Snapshotting', () => {
     // 4. Verify the report shows the change
     await expect(page.getByRole('heading', { name: 'Difference Report' })).toBeVisible();
     await expect(page.getByText(newName).first()).toBeVisible();
-    await expect(page.getByText(`Name changed from "${originalName}" to "${newName}"`)).toBeVisible();
+    await expect(page.getByText(`Renamed from "${originalName}" to "${newName}"`)).toBeVisible();
     
     // 5. Close report
     await page.getByTestId('close-report-btn').click();
     await expect(page.getByRole('heading', { name: 'Difference Report' })).not.toBeVisible();
+  });
+
+  test('Should show initiative additions, deletions, and budget changes in the report', async ({ page }) => {
+    // 1. Save baseline
+    await page.getByTestId('nav-history').click();
+    await page.getByRole('button', { name: 'Save Current State' }).click();
+    await page.fill('input[placeholder="e.g., March 2026 Snapshot"]', 'Complex Baseline');
+    await page.getByRole('button', { name: 'Save Version' }).click();
+    await page.getByTestId('close-version-manager').click();
+
+    // 2. Perform various changes
+    await page.getByTestId('nav-data-manager').click();
+    
+    // a) Delete an initiative
+    const firstInitName = await page.locator('input[data-testid^="real-input-name"]').first().inputValue();
+    page.once('dialog', dialog => dialog.accept());
+    await page.locator('button[title="Delete row"]').first().click();
+
+    // b) Add an initiative
+    await page.getByRole('button', { name: 'Add Row' }).first().click();
+    const addedInitName = 'Brand New Initiative';
+    await page.locator('input[data-testid^="real-input-name"]').last().fill(addedInitName);
+    await page.locator('input[data-testid^="real-input-name"]').last().press('Enter');
+
+    // c) Modify an initiative (Budget)
+    const secondInitName = await page.locator('input[data-testid^="real-input-name"]').nth(1).inputValue();
+    await page.locator('input[data-testid^="real-input-budget"]').nth(1).fill('999999');
+    await page.locator('input[data-testid^="real-input-budget"]').nth(1).press('Enter');
+
+    // 3. Run report
+    await page.getByTestId('nav-history').click();
+    await page.getByText('Complex Baseline').click();
+    await page.getByRole('button', { name: 'Run Difference Report' }).click();
+
+    // 4. Verify all changes are present
+    await expect(page.getByText('Removed').first()).toBeVisible();
+    await expect(page.getByText(firstInitName, { exact: true })).toBeVisible();
+    
+    await expect(page.getByText('Added').first()).toBeVisible();
+    await expect(page.getByText(addedInitName, { exact: true })).toBeVisible();
+    
+    await expect(page.getByText('Changed').first()).toBeVisible();
+    await expect(page.getByText(secondInitName, { exact: true })).toBeVisible();
+    await expect(page.getByText(/Budget: .*\d+ → \$999,999/)).toBeVisible();
   });
 
   test('Should allow restoring a previous version', async ({ page }) => {
