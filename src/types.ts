@@ -36,6 +36,7 @@ export interface Dependency {
   sourceId: string; // The initiative that depends on another
   targetId: string; // The initiative being depended upon
   type: 'blocks' | 'requires' | 'related';
+  midXOffset?: number; // Manual horizontal offset for the vertical segment
 }
 
 export interface Milestone {

@@ -64,6 +64,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Dependency Visual Enhancements:**
         - [x] Verify increased vertical gap (32px) for intra-asset dependencies.
         - [x] Verify that dependency labels are offset to not cover the arrow.
+    - [x] **Dependency Arrow Dragging:**
+        - [x] Verify that dependency arrows can be dragged horizontally.
+        - [x] Verify that dragged offsets are persisted across page reloads.
 - [x] **Milestone Interaction:**
     - [x] **Horizontal Move:** Drag a milestone left or right to change its date.
 - [x] **Visualization Labels:**
