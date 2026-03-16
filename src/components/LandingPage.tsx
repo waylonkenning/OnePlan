@@ -24,21 +24,21 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <span className="text-xl font-bold tracking-tight">OnePlan</span>
           </div>
           <div className="flex items-center gap-4">
-            <a
-              href="https://github.com/waylonkenning/OnePlan"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-            >
-              <Github size={16} />
-              GitHub
-            </a>
             <button
               onClick={onGetStarted}
               className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
             >
               Launch App
             </button>
+            <a
+              href="https://github.com/waylonkenning/OnePlan"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <Github size={16} />
+              GitHub
+            </a>
           </div>
         </header>
 
@@ -50,8 +50,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-sm font-medium mb-8"
           >
-            <Github size={14} />
-            Open Source · Apache 2.0
+            Free & Open Source
           </motion.div>
 
           <motion.h1
@@ -60,7 +59,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight"
           >
-            Enterprise Planning, <br />
+            IT Portfolio Planning, <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
               Visualised.
             </span>
@@ -79,24 +78,16 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 w-full md:w-auto"
+            className="flex flex-col items-center gap-4 w-full md:w-auto"
           >
             <button
               onClick={onGetStarted}
-              className="group flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 hover:-translate-y-0.5"
+              className="group flex items-center justify-center gap-2 px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 hover:-translate-y-0.5 w-full sm:w-auto"
             >
-              Get Started Now
+              Get Started — It's Free
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <a
-              href="https://github.com/waylonkenning/OnePlan"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 px-8 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-semibold transition-all border border-slate-700 hover:-translate-y-0.5"
-            >
-              <Github size={18} />
-              View on GitHub
-            </a>
+            <p className="text-sm text-slate-500">No signup. No servers. Instantly ready.</p>
           </motion.div>
 
           {/* App Preview */}
@@ -154,7 +145,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <FeatureCard
                 icon={ShieldCheck}
                 title="100% Private"
-                description="Zero cloud storage. Your highly sensitive strategic planning data stays right in your browser via IndexedDB—no account required."
+                description="Your strategic planning data never leaves your browser. No cloud, no account, no risk—stored locally via IndexedDB."
               />
             </div>
           </div>

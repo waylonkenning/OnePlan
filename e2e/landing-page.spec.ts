@@ -12,11 +12,11 @@ test.describe('Landing Page', () => {
 
   test('should show landing page on first visit and dismiss on Get Started click', async ({ page }) => {
     // Verify landing page is visible
-    const getStartedButton = page.getByRole('button', { name: 'Get Started Now' });
+    const getStartedButton = page.getByRole('button', { name: "Get Started — It's Free" });
     await expect(getStartedButton).toBeVisible();
 
     // Verify hero text
-    await expect(page.getByText('Enterprise Planning,')).toBeVisible();
+    await expect(page.getByText('IT Portfolio Planning,')).toBeVisible();
 
     // Verify app elements are fundamentally hiding beneath / not focusable while landing page is up
     // Actually the landing page is over them within the DOM, but let's just make sure
@@ -27,7 +27,7 @@ test.describe('Landing Page', () => {
     await getStartedButton.click();
 
     // Verify landing page is gone
-    await expect(getStartedButton).not.toBeVisible();
+    await expect(page.getByRole('button', { name: "Get Started — It's Free" })).not.toBeVisible();
 
     // Verify app is visible and interactive
     await expect(visualiserButton).toBeVisible();
@@ -36,22 +36,20 @@ test.describe('Landing Page', () => {
     await page.reload();
 
     // Landing page should NOT be visible
-    await expect(getStartedButton).not.toBeVisible();
+    await expect(page.getByRole('button', { name: "Get Started — It's Free" })).not.toBeVisible();
     await expect(visualiserButton).toBeVisible();
   });
 
-  test('should display open source badge and GitHub links', async ({ page }) => {
-    await expect(page.getByText('Open Source · Apache 2.0')).toBeVisible();
+  test('should display open source badge and GitHub link', async ({ page }) => {
+    await expect(page.getByText('Free & Open Source')).toBeVisible();
 
-    // GitHub link in nav header (first GitHub link in DOM order)
+    // GitHub link in nav header
     const navGitHubLink = page.getByRole('link', { name: 'GitHub' }).first();
     await expect(navGitHubLink).toBeVisible();
     await expect(navGitHubLink).toHaveAttribute('href', 'https://github.com/waylonkenning/OnePlan');
 
-    // "View on GitHub" CTA button (unique name, no ambiguity)
-    const githubCta = page.getByRole('link', { name: 'View on GitHub' });
-    await expect(githubCta).toBeVisible();
-    await expect(githubCta).toHaveAttribute('href', 'https://github.com/waylonkenning/OnePlan');
+    // "No signup" tagline under CTA
+    await expect(page.getByText('No signup. No servers. Instantly ready.').first()).toBeVisible();
   });
 
   test('should display all six feature cards', async ({ page }) => {
