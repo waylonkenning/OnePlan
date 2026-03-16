@@ -33,8 +33,9 @@ test.describe('Swimlane Padding', () => {
         console.log(`Row height for ${targetAssetId}: ${rowHeight}`);
 
         // Old calculation: ~168px
-        // New calculation: 8 + 44 + 4 + 44 + 8 = 108.
-        expect(rowHeight).toBeLessThanOrEqual(115);
+        // Compact calculation: 8 + 44 + 4 + 44 + 8 = 108.
+        // With intra-asset dependency gap (32px): 8 + 44 + 32 + 44 + 8 = 136.
+        expect(rowHeight).toBeLessThanOrEqual(140);
     });
 
     test('should have consistent height when a group is collapsed', async ({ page }) => {

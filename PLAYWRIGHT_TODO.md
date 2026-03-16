@@ -61,6 +61,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
         - [x] Verify that clicking a dependency arrow opens the edit modal.
         - [x] Verify that dependencies can be deleted from the modal.
         - [x] Verify that dependency direction can be reversed in the modal.
+    - [x] **Dependency Visual Enhancements:**
+        - [x] Verify increased vertical gap (32px) for intra-asset dependencies.
+        - [x] Verify that dependency labels are offset to not cover the arrow.
 - [x] **Milestone Interaction:**
     - [x] **Horizontal Move:** Drag a milestone left or right to change its date.
 - [x] **Visualization Labels:**
