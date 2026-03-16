@@ -627,7 +627,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         const baseHeight = subtitle ? 48 : 32;
         const charsPerLine = Math.max(20, Math.floor(width * 4));
         const lines = Math.ceil(init.description.length / charsPerLine);
-        const clampedLines = Math.min(3, lines);
+        const clampedLines = isGroup ? lines : Math.min(3, lines);
         descHeight = Math.max(BAR_HEIGHT, baseHeight + clampedLines * 12 + 9);
       }
 
@@ -1254,7 +1254,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                     {settings.descriptionDisplay === 'on' && init.description && (
                                       (isGroup || width > 8) ? (
                                         <div draggable="false" className={cn(
-                                          "text-[9px] leading-[12px] opacity-90 mt-1 pt-1 border-t border-white/30 whitespace-pre-wrap break-words line-clamp-3",
+                                          "text-[9px] leading-[12px] opacity-90 mt-1 pt-1 border-t border-white/30 whitespace-pre-wrap break-words",
+                                          !isGroup && "line-clamp-3",
                                           !init.isPlaceholder && "drop-shadow-md"
                                         )}>{init.description}</div>
                                       ) : null
