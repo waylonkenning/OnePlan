@@ -1,20 +1,25 @@
 # OnePlan: Strategic Roadmap & Visualiser
 
+**OnePlan is now open source!** We've made the full codebase publicly available under the Apache 2.0 licence. Whether you want to self-host, contribute, or just explore — you're welcome here.
+
 OnePlan is a powerful, interactive visualiser designed for IT strategic planning. It allows teams to map out initiatives across different IT assets, track dependencies, and identify scheduling conflicts in a clean, timeline-based interface.
+
+**[🌐 View Live Demo](https://oneplan-service-w2oqmpdtzq-uc.a.run.app/)** · **[⭐ Star on GitHub](https://github.com/waylonkenning/OnePlan)**
 
 ## 🚀 Key Features
 
 - **Interactive Timeline:** Drag the edges of initiative bars to change their duration directly in the visualiser.
 - **Asset Organisation:** Group initiatives by IT Asset and categorise assets. Drag and drop asset categories to reorder your view.
 - **Dependency Tracking:** Visualise relationships between initiatives with dynamic SVG-based dependency arrows.
+- **Version History:** Save point-in-time snapshots of your entire plan, compare changes between versions, and restore previous states.
 - **Conflict Detection:** Automatically identifies overlapping initiatives on the same asset and highlights them.
 - **Real-time Persistence:** All changes are saved instantly to your browser's IndexedDB, ensuring your data remains across sessions.
 - **Data Management:** Full CRUD operations for Assets, Initiatives, Milestones, and more, including Excel import/export capabilities.
 
 ## 🛠 Tech Stack
 
-- **Frontend:** React 18 with TypeScript
-- **Styling:** Tailwind CSS for modern, responsive design
+- **Frontend:** React 19 with TypeScript
+- **Styling:** Tailwind CSS
 - **Icons:** Lucide React
 - **Date Handling:** date-fns
 - **Build Tool:** Vite
@@ -41,22 +46,30 @@ The deployment pipeline is defined in `cloudbuild.yaml`:
 2.  **Push:** The resulting image is pushed to the Google Container Registry.
 3.  **Deploy:** The image is deployed to Google Cloud Run, automatically serving the application over HTTPS.
 
-### Container Configuration
-The `Dockerfile` uses a two-stage process:
--   **Stage 1 (Build):** Installs dependencies and builds the production-ready static files.
--   **Stage 2 (Production):** Serves the static files using a lightweight Nginx server configured for single-page application (SPA) routing.
-
 ## 💻 Local Development
 
-1.  **Install dependencies:**
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/waylonkenning/OnePlan.git
+    cd OnePlan
+    ```
+2.  **Install dependencies:**
     ```bash
     npm install
     ```
-2.  **Start the development server:**
+3.  **Start the development server:**
     ```bash
     npm run dev
     ```
-3.  **Build for production:**
+4.  **Run tests:**
     ```bash
-    npm run build
+    npm test
     ```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started.
+
+## 📜 License
+
+Licensed under the **Apache License 2.0**. See [LICENSE](LICENSE) for the full text.
