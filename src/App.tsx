@@ -285,7 +285,7 @@ export default function App() {
 
   return (
     <div className="h-screen w-full bg-slate-100 p-3 md:p-6 flex flex-col">
-      <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-2 flex items-center gap-3">
+      <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-2 flex items-center gap-3 overflow-x-auto">
         {/* Logo */}
         <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">OnePlan</h1>
 
