@@ -74,8 +74,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 - [x] **Add React Error Boundary** *(completed)*
   Added `ErrorBoundary` class component wrapping the app in `main.tsx`. If any child throws during render, a friendly "Something went wrong" screen with a Reload button is shown instead of a blank page. Includes a `TestErrorThrower` hook for E2E verification.
 
-- [ ] **Replace `JSON.parse(JSON.stringify(...))` deep clone with `structuredClone`**
-  `VersionManager.tsx` line 52 uses `JSON.parse(JSON.stringify(currentData))` for deep cloning. This silently drops any non-JSON-serialisable values. Replace with `structuredClone(currentData)`, which is available in all modern browsers and handles more types safely.
+- [x] **Replace `JSON.parse(JSON.stringify(...))` deep clone with `structuredClone`** *(completed)*
+  Replaced `JSON.parse(JSON.stringify(currentData))` in `VersionManager.tsx` with `structuredClone(currentData)`. Handles non-JSON-serialisable values safely. Tests verify snapshot immutability and that saved data is stored in IndexedDB with all fields intact.
 
 - [ ] **Fix stale demo data dates**
   All initiatives in `demoData.ts` are hardcoded to 2026â€“2028. Once those dates pass, new users see a timeline set entirely in the past. Generate dates dynamically relative to `new Date()` so the demo is always set in the near future.
