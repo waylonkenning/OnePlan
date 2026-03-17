@@ -5,6 +5,7 @@ import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, Palette, ChevronRight, ChevronDown, Settings, Grid, Calendar, Target, Box, Boxes, Ungroup, Group } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
 import { DependencyPanel } from './DependencyPanel';
+import { ArrowDisambiguator } from './ArrowDisambiguator';
 
 interface TimelineProps {
   assets: Asset[];
@@ -31,6 +32,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
   const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null);
+  const [disambiguateAt, setDisambiguateAt] = useState<{ x: number; y: number; candidates: Dependency[] } | null>(null);
+  const depSegmentsRef = useRef<Map<string, number[][]>>(new Map()); // depId → [[x1,y1,x2,y2], ...]
   const isDraggingRef = useRef(false);
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
@@ -940,8 +943,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           <div className="flex flex-col relative" ref={containerRef}>
             <svg
               data-testid="dependencies-svg"
-              className="absolute inset-0 z-10 pointer-events-none"
-              style={{ width: totalWidth + 256, height: '100%' }}
+              className="absolute inset-0 z-10"
+              style={{ width: totalWidth + 256, height: '100%', pointerEvents: 'none' }}
             >
               <defs>
                 <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
@@ -951,7 +954,32 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
                 </marker>
               </defs>
-              {settings.showRelationships !== 'off' && dependencies.map(dep => {
+              {settings.showRelationships !== 'off' && (() => {
+                // Auto-stagger: group deps that share the same routing corridor
+                const corridorGroups = new Map<string, string[]>();
+                for (const dep of dependencies) {
+                  const source = initiativePositions.get(dep.sourceId);
+                  const target = initiativePositions.get(dep.targetId);
+                  if (!source || !target) continue;
+                  const sEndX = source.x + source.width;
+                  const tStartX = target.x;
+                  const gap = tStartX - sEndX;
+                  if (gap >= 20) {
+                    const key = `${Math.round(sEndX / 4) * 4}_${Math.round(tStartX / 4) * 4}`;
+                    if (!corridorGroups.has(key)) corridorGroups.set(key, []);
+                    corridorGroups.get(key)!.push(dep.id);
+                  }
+                }
+                const STAGGER_STEP = 16;
+                const autoOffsets = new Map<string, number>();
+                for (const depIds of corridorGroups.values()) {
+                  if (depIds.length <= 1) continue;
+                  depIds.forEach((id, i) => {
+                    autoOffsets.set(id, (i - (depIds.length - 1) / 2) * STAGGER_STEP);
+                  });
+                }
+
+                return dependencies.map(dep => {
                 const source = initiativePositions.get(dep.sourceId);
                 const target = initiativePositions.get(dep.targetId);
                 if (!source || !target) return null;
@@ -980,7 +1008,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                 if (gap >= 20) {
                   // State 1: Clear Horizontal Flow (exits right, enters left)
-                  const midX = (sEndX + gap / 2) + (dep.midXOffset || 0);
+                  const midX = (sEndX + gap / 2) + (dep.midXOffset || 0) + (autoOffsets.get(dep.id) || 0);
                   path = `M ${sEndX} ${sMidY} L ${midX} ${sMidY} L ${midX} ${tMidY} L ${tStartX - 6} ${tMidY}`;
                   labelX = midX + 30; // Offset to the right of the vertical segment
                   labelY = (sMidY + tMidY) / 2;
@@ -1020,14 +1048,16 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   }
                 }
 
-                const handleDependencyClick = (e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  if (isDraggingRef.current) {
-                    isDraggingRef.current = false;
-                    return;
+                // Store path segments for SVG-level hit-testing
+                const parseSegments = (d: string): number[][] => {
+                  const pts = d.replace(/[ML]/g, '').trim().split(/\s+L\s*|\s{2,}/).map(s => s.trim().split(/\s+/).map(Number));
+                  const segs: number[][] = [];
+                  for (let i = 0; i < pts.length - 1; i++) {
+                    if (pts[i].length >= 2 && pts[i+1].length >= 2) segs.push([pts[i][0], pts[i][1], pts[i+1][0], pts[i+1][1]]);
                   }
-                  setSelectedDependencyId(dep.id);
+                  return segs;
                 };
+                depSegmentsRef.current.set(dep.id, parseSegments(path));
 
                 const handleDependencyMouseDown = (e: React.MouseEvent) => {
                   e.stopPropagation();
@@ -1043,8 +1073,36 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 const depLabelBorder = dep.type === 'blocks' ? '#fecaca' : dep.type === 'requires' ? '#bfdbfe' : '#cbd5e1';
                 const depMarker = dep.type === 'blocks' ? 'url(#arrowhead-red)' : dep.type === 'requires' ? 'url(#arrowhead-blue)' : undefined;
 
+                const handleDependencyClick = (e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  if (isDraggingRef.current) { isDraggingRef.current = false; return; }
+                  if (disambiguateAt) { setDisambiguateAt(null); return; }
+                  const svgEl = (e.currentTarget as SVGGElement).ownerSVGElement;
+                  if (!svgEl) { setSelectedDependencyId(dep.id); return; }
+                  const rect = svgEl.getBoundingClientRect();
+                  const px = e.clientX - rect.left;
+                  const py = e.clientY - rect.top;
+                  const THRESHOLD = 8;
+                  const distToSegment = (x1: number, y1: number, x2: number, y2: number) => {
+                    const dx = x2 - x1, dy = y2 - y1;
+                    const len2 = dx * dx + dy * dy;
+                    if (len2 === 0) return Math.hypot(px - x1, py - y1);
+                    const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / len2));
+                    return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+                  };
+                  const nearby = dependencies.filter(d => {
+                    const segs = depSegmentsRef.current.get(d.id);
+                    return segs?.some(([x1, y1, x2, y2]) => distToSegment(x1, y1, x2, y2) < THRESHOLD);
+                  });
+                  if (nearby.length > 1) {
+                    setDisambiguateAt({ x: e.clientX, y: e.clientY, candidates: nearby });
+                  } else {
+                    setSelectedDependencyId(dep.id);
+                  }
+                };
+
                 return (
-                  <g key={dep.id} onClick={handleDependencyClick} onMouseDown={handleDependencyMouseDown} className="cursor-pointer group" style={{ pointerEvents: 'all' }}>
+                  <g key={dep.id} data-dep-id={dep.id} onMouseDown={handleDependencyMouseDown} onClick={handleDependencyClick} className="cursor-pointer group" style={{ pointerEvents: 'all' }}>
                     <path
                       d={path}
                       stroke="transparent"
@@ -1085,7 +1143,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     </text>
                   </g>
                 );
-              })}
+              });
+              })()}
 
               {/* Live drawing arrow */}
               {settings.showRelationships !== 'off' && drawingDependency && (
@@ -1101,6 +1160,17 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 />
               )}
             </svg>
+
+            {disambiguateAt && (
+              <ArrowDisambiguator
+                x={disambiguateAt.x}
+                y={disambiguateAt.y}
+                candidates={disambiguateAt.candidates}
+                initiatives={initiatives}
+                onSelect={(id) => { setDisambiguateAt(null); setSelectedDependencyId(id); }}
+                onClose={() => setDisambiguateAt(null)}
+              />
+            )}
 
             {sortedCategoryIds.map((catId) => {
               const category = assetCategories.find(c => c.id === catId);

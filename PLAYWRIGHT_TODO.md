@@ -74,6 +74,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Dependency Arrow Dragging:**
         - [x] Verify that dependency arrows can be dragged horizontally.
         - [x] Verify that dragged offsets are persisted across page reloads.
+    - [x] **Dependency Arrow Selection:**
+        - [x] Verify parallel arrows in the same routing corridor are automatically staggered (different midX values).
+        - [x] Verify clicking near overlapping arrows shows a disambiguation popover or opens the dependency panel directly.
+        - [x] Verify clicking a specific arrow (by data-dep-id) opens the correct dependency panel.
 - [x] **Milestone Interaction:**
     - [x] **Horizontal Move:** Drag a milestone left or right to change its date.
 - [x] **Visualization Labels:**
