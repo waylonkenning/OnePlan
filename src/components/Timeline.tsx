@@ -565,7 +565,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       const minStart = gInits.reduce((m, i) => i.startDate < m ? i.startDate : m, gInits[0].startDate);
       const maxEnd = gInits.reduce((m, i) => i.endDate > m ? i.endDate : m, gInits[0].endDate);
       const totalBudget = gInits.reduce((sum, i) => sum + (i.budget || 0), 0);
-      const groupDescription = [...gInits].sort((a, b) => (a.startDate || '').localeCompare(b.startDate || '')).map(i => i.name).filter(Boolean).join(' + ');
+      const groupDescription = [...gInits].sort((a, b) => (a.startDate || '').localeCompare(b.startDate || '')).map(i => i.name).filter(Boolean).map(n => `• ${n}`).join('\n');
 
       const groupProgrammeIds = Array.from(new Set(gInits.map(i => i.programmeId)));
       const groupProgrammeNames = groupProgrammeIds
@@ -1343,7 +1343,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                 <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'start', init.startDate); }} />
                                 <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'end', init.endDate); }} />
 
-                                <div className="flex items-start justify-between gap-2 overflow-hidden h-full py-1">
+                                <div className="flex items-start justify-between gap-2 overflow-hidden h-full py-0.5">
                                   <div className="flex flex-col min-w-0 flex-1">
                                     <div draggable="false" className={cn(
                                       "font-bold text-[11px] leading-tight line-clamp-2",

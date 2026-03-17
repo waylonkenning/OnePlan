@@ -22,11 +22,11 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story �
 
 ## Visualiser — Grouped Initiatives
 
-- [ ] **Too much vertical padding inside a grouped initiative bar**
-  Grouped initiative bars have excess vertical padding. Tighten the internal spacing so the bar height better matches its content.
+- [x] **Too much vertical padding inside a grouped initiative bar** *(completed)*
+  Grouped initiative bars have excess vertical padding. Tightened the internal spacing (`py-0.5`) so the bar height better matches its content.
 
-- [ ] **Grouped initiative description: one bullet point per initiative name**
-  Currently, initiative names in a collapsed group description are joined with " + ". Change the layout so each initiative name is on its own line, rendered as a bullet point (e.g. • Passkey Rollout).
+- [x] **Grouped initiative description: one bullet point per initiative name** *(completed)*
+  Initiative names in a collapsed group description are now each on their own line as bullet points (e.g. • Passkey Rollout), replacing the old " + " separator.
 
 ---
 

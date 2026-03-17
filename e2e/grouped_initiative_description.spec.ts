@@ -35,8 +35,7 @@ test.describe('Grouped Initiative Description', () => {
     const descriptionText = await projectBar.textContent();
     console.log('Detected Group Description:', descriptionText);
     
-    // We want it to join with " + "
-    // Let's look for the "+" symbol in the description
-    await expect(projectBar).toContainText(' + ');
+    // Each initiative name should now appear as a bullet point
+    await expect(projectBar).toContainText('•');
   });
 });
