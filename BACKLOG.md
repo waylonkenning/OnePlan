@@ -71,8 +71,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 - [x] **Fix dangling dependency references in demo data** *(completed)*
   Removed `dep-4` from `demoData.ts`, which referenced the non-existent initiatives `i-k8s-multi` and `i-k8s-mesh`. Added a regression test that reads IndexedDB directly and asserts no dependency references a missing initiative ID.
 
-- [ ] **Add React Error Boundary**
-  The app has no `ErrorBoundary` component. If any component throws during render, the entire app goes blank with no recovery UI. Add a top-level `ErrorBoundary` that catches rendering errors and shows a user-friendly message with a "Reload" option.
+- [x] **Add React Error Boundary** *(completed)*
+  Added `ErrorBoundary` class component wrapping the app in `main.tsx`. If any child throws during render, a friendly "Something went wrong" screen with a Reload button is shown instead of a blank page. Includes a `TestErrorThrower` hook for E2E verification.
 
 - [ ] **Replace `JSON.parse(JSON.stringify(...))` deep clone with `structuredClone`**
   `VersionManager.tsx` line 52 uses `JSON.parse(JSON.stringify(currentData))` for deep cloning. This silently drops any non-JSON-serialisable values. Replace with `structuredClone(currentData)`, which is available in all modern browsers and handles more types safely.

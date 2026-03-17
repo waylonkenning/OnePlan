@@ -127,6 +127,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Missing IDs:** Ensure that adding rows via CSV without IDs automatically generates them.
 - [x] **Orphaned Dependency References:** Verify that no dependency in the loaded app data references a non-existent initiative ID (reads IndexedDB directly).
 - [ ] **Large Data Sets:** (Optional) Verify that the layout algorithm (Greedy Placement) handles 20+ overlapping initiatives on a single asset without infinite loops or UI breakage.
+## 5b. Error Handling
+- [x] **Error Boundary:** Verify that a render error shows a friendly "Something went wrong" UI with a Reload button instead of a blank screen. Verify normal operation is unaffected.
+
 ## 6. Modals & Tutorials
 - [x] **In-App Confirm Modal:**
     - [x] Verify all destructive actions use in-app ConfirmModal (no browser window.confirm dialogs).
