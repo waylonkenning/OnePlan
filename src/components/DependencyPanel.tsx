@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dependency, Initiative } from '../types';
 import { X, Save, Trash2, ArrowLeftRight } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 interface DependencyPanelProps {
     dependency: Dependency | null;
@@ -15,6 +16,7 @@ interface DependencyPanelProps {
 export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDelete, isOpen }: DependencyPanelProps) {
     const [formData, setFormData] = useState<Dependency | null>(null);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const panelRef = useFocusTrap(isOpen, onClose);
 
     useEffect(() => {
         if (dependency) {
@@ -61,7 +63,7 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
             onClick={handleOverlayClick}
             data-testid="dependency-panel"
         >
-            <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+            <div ref={panelRef} className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
                 <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50 flex-shrink-0">
                     <h2 className="text-lg font-semibold text-slate-800">Edit Relationship</h2>
                     <button

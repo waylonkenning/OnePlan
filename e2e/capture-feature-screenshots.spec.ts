@@ -12,7 +12,7 @@ test.describe('Capture Feature Screenshots', () => {
     await page.goto('/');
     
     // Ensure we're loaded
-    await expect(page.locator('h1').filter({ hasText: 'OnePlan' })).toBeVisible();
+    await page.waitForSelector('[data-testid="asset-row-content"]');
     
     // Expand a category to ensure consistent layout
     const cisGrp = page.getByRole('button', { name: 'Customer Information Systems' });

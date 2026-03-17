@@ -9,7 +9,7 @@ test.describe('Features Modal', () => {
     await page.goto('/');
     
     // Ensure we're loaded
-    await expect(page.locator('h1').filter({ hasText: 'OnePlan' })).toBeVisible();
+    await page.waitForSelector('[data-testid="asset-row-content"]');
   });
 
   test('should open and close the features modal', async ({ page }) => {

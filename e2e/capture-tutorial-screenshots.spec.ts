@@ -13,7 +13,7 @@ test.describe('Tutorial Screenshots', () => {
     // 1. Overview (Visualiser main view)
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.lucide-layout-grid')).toBeVisible(); // Ensure loaded
+    await expect(page.locator('.lucide-layout-grid').first()).toBeVisible(); // Ensure loaded
     await page.screenshot({ path: path.join(outputDir, '1-overview.png') });
 
     // 2. Visualiser (Zoomed in or specific view)
