@@ -4,9 +4,11 @@ test.describe('Grouped Initiative Budget', () => {
     test('should show summed budget and dark font for grouped initiatives', async ({ page }) => {
         await page.goto('http://localhost:3000/');
         
-        // Open Display panel and ensure budget labels are on
-        await page.getByRole('button', { name: 'Display' }).click();
-        await page.locator('select#budgetVisualisation').selectOption('label');
+        // Enable budget labels via inline toggle (off → label)
+        const budgetToggle = page.getByTestId('toggle-budget');
+        while ((await budgetToggle.getAttribute('data-mode')) !== 'label') {
+            await budgetToggle.click();
+        }
         
         const targetAssetId = 'a-ciam';
         const targetRow = page.locator(`[data-asset-id="${targetAssetId}"]`);

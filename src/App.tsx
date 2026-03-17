@@ -22,7 +22,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal } from 'lucide-react';
 
 type AppState = {
   assets: Asset[];
@@ -61,8 +61,8 @@ export default function App() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isVersionManagerOpen, setIsVersionManagerOpen] = useState(false);
-  const [showDisplayPanel, setShowDisplayPanel] = useState(false);
-  const displayPanelRef = useRef<HTMLDivElement>(null);
+  const [showMoreSettingsPanel, setShowMoreSettingsPanel] = useState(false);
+  const moreSettingsPanelRef = useRef<HTMLDivElement>(null);
 
   const getCurrentState = (): AppState => ({
     assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings
@@ -199,8 +199,8 @@ export default function App() {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (displayPanelRef.current && !displayPanelRef.current.contains(e.target as Node)) {
-        setShowDisplayPanel(false);
+      if (moreSettingsPanelRef.current && !moreSettingsPanelRef.current.contains(e.target as Node)) {
+        setShowMoreSettingsPanel(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -327,58 +327,107 @@ export default function App() {
           </select>
         </label>
 
-        {/* Display Options Popover */}
-        <div className="relative shrink-0" ref={displayPanelRef}>
-          <button
-            onClick={() => setShowDisplayPanel(v => !v)}
-            className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors",
-              showDisplayPanel
-                ? "bg-blue-50 border-blue-200 text-blue-700"
-                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-            )}
-          >
-            <SlidersHorizontal size={13} />
-            Display
-            <ChevronDown size={11} className={cn("transition-transform", showDisplayPanel && "rotate-180")} />
-          </button>
-          {showDisplayPanel && (
-            <div
-              className="absolute top-full left-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-4 w-56"
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <div className="space-y-3">
-                {[
-                  { label: 'Budget', id: 'budgetVisualisation', value: timelineSettings.budgetVisualisation || 'off', options: [['off', 'Off'], ['bar-height', 'Bar Height'], ['label', 'Label']], key: 'budgetVisualisation' as const },
-                  { label: 'Descriptions', id: 'descriptionDisplay', value: timelineSettings.descriptionDisplay || 'off', options: [['off', 'Off'], ['on', 'On']], key: 'descriptionDisplay' as const },
-                  { label: 'Empty Rows', id: 'emptyRowDisplay', value: timelineSettings.emptyRowDisplay || 'show', options: [['show', 'Show'], ['hide', 'Hide']], key: 'emptyRowDisplay' as const },
-                  { label: 'Snap to Month', id: 'snapToPeriod', value: timelineSettings.snapToPeriod || 'off', options: [['off', 'Off'], ['month', 'Month']], key: 'snapToPeriod' as const },
-                  { label: 'Conflict Detection', id: 'conflictDetection', value: timelineSettings.conflictDetection || 'on', options: [['on', 'On'], ['off', 'Off']], key: 'conflictDetection' as const },
-                  { label: 'Relationships', id: 'showRelationships', value: timelineSettings.showRelationships || 'on', options: [['on', 'On'], ['off', 'Off']], key: 'showRelationships' as const },
-                ].map(({ label, id, value, options, key }) => (
-                  <div key={id} className="flex items-center justify-between gap-3">
-                    <label htmlFor={id} className="text-xs text-slate-600 whitespace-nowrap">{label}</label>
-                    <select
-                      id={id}
-                      value={value}
-                      onChange={(e) => {
-                        handleUpdate({
-                          assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                          timelineSettings: { ...timelineSettings, [key]: e.target.value },
-                        });
-                      }}
-                      className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    >
-                      {options.map(([val, lbl]) => (
-                        <option key={val} value={val}>{lbl}</option>
+        {/* Inline Display Toggles */}
+        {(() => {
+          const conflictsOn = (timelineSettings.conflictDetection || 'on') === 'on';
+          const relationshipsOn = (timelineSettings.showRelationships || 'on') === 'on';
+          const descriptionsOn = (timelineSettings.descriptionDisplay || 'off') === 'on';
+          const budgetMode = timelineSettings.budgetVisualisation || 'off';
+          const budgetCycle: Array<'off' | 'label' | 'bar-height'> = ['off', 'label', 'bar-height'];
+          const nextBudget = budgetCycle[(budgetCycle.indexOf(budgetMode as 'off' | 'label' | 'bar-height') + 1) % 3];
+
+          const toggleClass = (active: boolean) => cn(
+            "p-1.5 rounded-md border transition-colors",
+            active
+              ? "bg-blue-50 border-blue-200 text-blue-600"
+              : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          );
+
+          return (
+            <div className="flex items-center gap-0.5 shrink-0">
+              <button
+                data-testid="toggle-conflicts"
+                data-active={conflictsOn ? 'true' : 'false'}
+                onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, conflictDetection: conflictsOn ? 'off' : 'on' } })}
+                className={toggleClass(conflictsOn)}
+                title="Conflict Detection"
+              >
+                <AlertTriangle size={13} />
+              </button>
+              <button
+                data-testid="toggle-relationships"
+                data-active={relationshipsOn ? 'true' : 'false'}
+                onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, showRelationships: relationshipsOn ? 'off' : 'on' } })}
+                className={toggleClass(relationshipsOn)}
+                title="Relationship Lines"
+              >
+                <GitBranch size={13} />
+              </button>
+              <button
+                data-testid="toggle-descriptions"
+                data-active={descriptionsOn ? 'true' : 'false'}
+                onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, descriptionDisplay: descriptionsOn ? 'off' : 'on' } })}
+                className={toggleClass(descriptionsOn)}
+                title="Descriptions"
+              >
+                <AlignLeft size={13} />
+              </button>
+              <button
+                data-testid="toggle-budget"
+                data-mode={budgetMode}
+                onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, budgetVisualisation: nextBudget } })}
+                className={toggleClass(budgetMode !== 'off')}
+                title={`Budget: ${budgetMode}`}
+              >
+                <DollarSign size={13} />
+              </button>
+
+              {/* More settings (snap, empty rows) */}
+              <div className="relative" ref={moreSettingsPanelRef}>
+                <button
+                  data-testid="display-more-btn"
+                  onClick={() => setShowMoreSettingsPanel(v => !v)}
+                  className={toggleClass(showMoreSettingsPanel)}
+                  title="More settings"
+                >
+                  <MoreHorizontal size={13} />
+                </button>
+                {showMoreSettingsPanel && (
+                  <div
+                    className="absolute top-full left-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-3 w-48"
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
+                    <div className="space-y-2">
+                      {[
+                        { label: 'Empty Rows', id: 'emptyRowDisplay', value: timelineSettings.emptyRowDisplay || 'show', options: [['show', 'Show'], ['hide', 'Hide']], key: 'emptyRowDisplay' as const },
+                        { label: 'Snap to Month', id: 'snapToPeriod', value: timelineSettings.snapToPeriod || 'off', options: [['off', 'Off'], ['month', 'Month']], key: 'snapToPeriod' as const },
+                      ].map(({ label, id, value, options, key }) => (
+                        <div key={id} className="flex items-center justify-between gap-3">
+                          <label htmlFor={id} className="text-xs text-slate-600 whitespace-nowrap">{label}</label>
+                          <select
+                            id={id}
+                            value={value}
+                            onChange={(e) => {
+                              handleUpdate({
+                                assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                                timelineSettings: { ...timelineSettings, [key]: e.target.value },
+                              });
+                            }}
+                            className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          >
+                            {options.map(([val, lbl]) => (
+                              <option key={val} value={val}>{lbl}</option>
+                            ))}
+                          </select>
+                        </div>
                       ))}
-                    </select>
+                    </div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
-          )}
-        </div>
+          );
+        })()}
 
         {/* Spacer */}
         <div className="flex-1" />

@@ -42,8 +42,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story �
 
 ## Header Display Settings
 
-- [ ] **Replace Display popover with inline icon toggles in the header**
-  The Display popover requires too many clicks to access common settings. Replace it with a row of icon buttons directly in the header — one per toggle (e.g. conflict detection, relationship lines, descriptions, budget). Each icon should show a descriptive tooltip on hover. Active/inactive state is shown via icon fill or colour.
+- [x] **Replace Display popover with inline icon toggles in the header** *(completed)*
+  Replaced the Display popover with four inline icon toggle buttons: Conflict Detection (AlertTriangle), Relationships (GitBranch), Descriptions (AlignLeft), Budget (DollarSign). Budget cycles off → label → bar-height. A small "⋯" overflow button retains Snap to Month and Empty Rows. Active state shown via blue colour; inactive via grey.
 
 ---
 

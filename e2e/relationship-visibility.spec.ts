@@ -18,28 +18,25 @@ test.describe('Relationship Visibility Toggle', () => {
     console.log(`Initial dependency groups: ${initialCount}`);
     expect(initialCount).toBeGreaterThan(0);
 
-    // Open Display panel then toggle Relationships to 'off'
-    await page.getByRole('button', { name: 'Display' }).click();
-    const relationshipsSelect = page.locator('#showRelationships');
-    await relationshipsSelect.selectOption('off');
+    // Toggle Relationships off via inline icon toggle
+    const relToggle = page.getByTestId('toggle-relationships');
+    await relToggle.click();
 
     // Verify dependency lines are gone
     await expect(depGroups).toHaveCount(0);
   });
 
   test('Dependency lines should be shown when showRelationships is on', async ({ page }) => {
-    // Open Display panel
-    await page.getByRole('button', { name: 'Display' }).click();
-    const relationshipsSelect = page.locator('#showRelationships');
+    const relToggle = page.getByTestId('toggle-relationships');
 
     // Toggle to 'off' first
-    await relationshipsSelect.selectOption('off');
+    await relToggle.click();
     const depGroups = page.locator('g.cursor-pointer.group');
     // Ensure they are gone
     await expect(depGroups).toHaveCount(0);
 
     // Toggle back to 'on'
-    await relationshipsSelect.selectOption('on');
+    await relToggle.click();
 
     // Verify dependency lines are back
     await expect(depGroups.first()).toBeAttached();
