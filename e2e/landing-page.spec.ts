@@ -79,13 +79,21 @@ test.describe('App Footer', () => {
     await page.reload();
   });
 
-  test('should display Kenning Corporation and open source links in app footer', async ({ page }) => {
-    const kenningLink = page.getByRole('link', { name: 'Kenning Corporation Limited' });
-    await expect(kenningLink).toBeVisible();
-    await expect(kenningLink).toHaveAttribute('href', 'https://kenning.co.nz');
+  test('should display correct text and links in app footer', async ({ page }) => {
+    const footer = page.locator('footer').last();
 
-    const openSourceLink = page.getByRole('link', { name: 'Open Source' });
+    // Static text
+    await expect(footer).toContainText('OnePlan IT Initiative Planner');
+    await expect(footer).toContainText('an open source tool from');
+
+    // "open source" links to GitHub
+    const openSourceLink = footer.getByRole('link', { name: 'open source' });
     await expect(openSourceLink).toBeVisible();
     await expect(openSourceLink).toHaveAttribute('href', 'https://github.com/waylonkenning/OnePlan');
+
+    // "Waylon Kenning" links to kenning.co.nz
+    const kenningLink = footer.getByRole('link', { name: 'Waylon Kenning' });
+    await expect(kenningLink).toBeVisible();
+    await expect(kenningLink).toHaveAttribute('href', 'https://kenning.co.nz');
   });
 });
