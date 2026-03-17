@@ -136,6 +136,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 ## 5c. Mobile Viewport
 - [x] **Mobile Phase 1 — Foundation:** Verify timeline sidebar narrows to 120px on mobile viewport (393px); verify outer padding reduces; verify content fits without excessive horizontal scroll.
 - [x] **Mobile Phase 1b — Horizontal Scroll:** Verify header is overflow-x-auto on mobile; verify Import button reachable by scrolling; verify DataManager table has a scrollable container.
+- [x] **Mobile Phase 2 — Mobile Header:** Verify desktop controls hidden on mobile; verify mobile header with settings icon; verify settings bottom sheet opens/closes (backdrop, Escape); verify bottom tab bar switches views; verify desktop unchanged.
 
 ## 5b. Error Handling
 - [x] **Error Boundary:** Verify that a render error shows a friendly "Something went wrong" UI with a Reload button instead of a blank screen. Verify normal operation is unaffected.

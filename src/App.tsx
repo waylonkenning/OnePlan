@@ -22,7 +22,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X } from 'lucide-react';
 import { ReportsView } from './components/ReportsView';
 
 type AppState = {
@@ -63,7 +63,15 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isVersionManagerOpen, setIsVersionManagerOpen] = useState(false);
   const [showMoreSettingsPanel, setShowMoreSettingsPanel] = useState(false);
+  const [showMobileSheet, setShowMobileSheet] = useState(false);
   const moreSettingsPanelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showMobileSheet) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowMobileSheet(false); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [showMobileSheet]);
   const undoRef = useRef<() => void>(() => {});
   const redoRef = useRef<() => void>(() => {});
 
@@ -285,7 +293,24 @@ export default function App() {
 
   return (
     <div className="h-screen w-full bg-slate-100 p-3 md:p-6 flex flex-col">
-      <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-2 flex items-center gap-3 overflow-x-auto">
+      <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+
+        {/* ── Mobile header ── */}
+        <div data-testid="mobile-header" className="flex md:hidden items-center gap-3 px-4 py-2">
+          <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">OnePlan</h1>
+          <div className="flex-1" />
+          <button
+            data-testid="mobile-settings-btn"
+            onClick={() => setShowMobileSheet(true)}
+            className="p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
+            title="Timeline settings"
+          >
+            <SlidersHorizontal size={16} />
+          </button>
+        </div>
+
+        {/* ── Desktop header ── */}
+        <div data-testid="desktop-header-controls" className="hidden md:flex items-center gap-3 px-4 py-2">
         {/* Logo */}
         <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">OnePlan</h1>
 
@@ -594,9 +619,99 @@ export default function App() {
             <HelpCircle size={16} />
           </button>
         </div>
+        </div>{/* end desktop-header-controls */}
       </header>
 
-      <main className="flex-1 min-h-0">
+      {/* ── Mobile settings bottom sheet ── */}
+      {showMobileSheet && (
+        <>
+          <div
+            data-testid="mobile-settings-backdrop"
+            className="fixed inset-0 bg-slate-900/40 z-40 md:hidden"
+            onClick={() => setShowMobileSheet(false)}
+            onKeyDown={(e) => e.key === 'Escape' && setShowMobileSheet(false)}
+          />
+          <div
+            data-testid="mobile-settings-sheet"
+            className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white rounded-t-2xl shadow-2xl border-t border-slate-200 p-5 space-y-4"
+            onKeyDown={(e) => e.key === 'Escape' && setShowMobileSheet(false)}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm font-semibold text-slate-700">Timeline Settings</span>
+              <button onClick={() => setShowMobileSheet(false)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400">
+                <X size={16} />
+              </button>
+            </div>
+            <label className="flex items-center justify-between text-sm text-slate-600">
+              Start date
+              <input
+                type="date"
+                value={timelineSettings.startDate}
+                onChange={(e) => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, startDate: e.target.value } })}
+                className="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </label>
+            <label className="flex items-center justify-between text-sm text-slate-600">
+              Months
+              <select
+                value={timelineSettings.monthsToShow || 36}
+                onChange={(e) => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, monthsToShow: parseInt(e.target.value) as 3 | 6 | 12 | 24 | 36 } })}
+                className="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="3">3</option>
+                <option value="6">6</option>
+                <option value="12">12</option>
+                <option value="24">24</option>
+                <option value="36">36</option>
+              </select>
+            </label>
+            {(() => {
+              const conflictsOn = (timelineSettings.conflictDetection || 'on') === 'on';
+              const relationshipsOn = (timelineSettings.showRelationships || 'on') === 'on';
+              const descriptionsOn = (timelineSettings.descriptionDisplay || 'off') === 'on';
+              const budgetMode = timelineSettings.budgetVisualisation || 'off';
+              const budgetCycle: Array<'off' | 'label' | 'bar-height'> = ['off', 'label', 'bar-height'];
+              const nextBudget = budgetCycle[(budgetCycle.indexOf(budgetMode as 'off' | 'label' | 'bar-height') + 1) % 3];
+              const sheetToggleClass = (active: boolean) => cn(
+                'px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors',
+                active ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-500'
+              );
+              return (
+                <div className="flex flex-wrap gap-2">
+                  <button className={sheetToggleClass(conflictsOn)} onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, conflictDetection: conflictsOn ? 'off' : 'on' } })}>Conflicts</button>
+                  <button className={sheetToggleClass(relationshipsOn)} onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, showRelationships: relationshipsOn ? 'off' : 'on' } })}>Relationships</button>
+                  <button className={sheetToggleClass(descriptionsOn)} onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, descriptionDisplay: descriptionsOn ? 'off' : 'on' } })}>Descriptions</button>
+                  <button className={sheetToggleClass(budgetMode !== 'off')} onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, budgetVisualisation: nextBudget } })}>Budget: {budgetMode}</button>
+                </div>
+              );
+            })()}
+          </div>
+        </>
+      )}
+
+      {/* ── Mobile bottom tab bar ── */}
+      <div data-testid="mobile-tab-bar" className="flex md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 shadow-lg">
+        {([
+          { id: 'visualiser', testid: 'mobile-tab-visualiser', icon: <LayoutGrid size={20} />, label: 'Visualiser' },
+          { id: 'data',       testid: 'mobile-tab-data',       icon: <Table size={20} />,      label: 'Data' },
+          { id: 'reports',    testid: 'mobile-tab-reports',    icon: <BarChart2 size={20} />,  label: 'Reports' },
+        ] as const).map(tab => (
+          <button
+            key={tab.id}
+            data-testid={tab.testid}
+            onClick={() => setView(tab.id)}
+            className={cn(
+              'flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors',
+              view === tab.id ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+            )}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <main className="flex-1 min-h-0 pb-16 md:pb-0">
         {view === 'visualiser' ? (
           <Timeline
             assets={assets}

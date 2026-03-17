@@ -237,7 +237,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <div data-testid="data-manager" className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
       <div className="flex border-b border-slate-200 bg-white overflow-x-auto">
         {tabs.map(tab => (
           <button
