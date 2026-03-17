@@ -50,6 +50,8 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Click on an initiative in the timeline to open the edit panel.
     - [x] Support initiative deletion from visualiser edit panel
     - [x] Modify initiative details and save, verifying changes persist and update the UI.
+    - [x] Verify a "Related Initiatives" section appears listing dependencies when the initiative has dependencies.
+    - [x] Verify the section is hidden when the initiative has no dependencies.
 - [x] **Coloring Logic:**
     - [x] **Toggle Color Mode:** Switch between "By Programme" and "By Strategy" and verify initiative bar colors change according to the legend.
     - [x] **Legend Sync:** Verify the legend updates its labels and colors when the mode is toggled.
