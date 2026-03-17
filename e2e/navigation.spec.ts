@@ -52,8 +52,8 @@ test.describe('Navigation & State Management', () => {
     // Trigger a full saveAppData call by resetting to demo data — this exercises the
     // clear-all-stores-then-add-all-records path in db.ts
     await page.getByTestId('nav-data-manager').click();
-    page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Reset - use demo data' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
     await page.waitForTimeout(500);
 
     // Reload immediately — no waiting, to maximise the chance of catching a mid-transaction commit

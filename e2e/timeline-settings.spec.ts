@@ -73,14 +73,15 @@ test.describe('Timeline Settings', () => {
 
     // Additionally, verify that if we delete ALL rows, it shrinks back down to the 3 month default
     await page.getByRole('button', { name: 'Data Manager' }).click();
-    page.on('dialog', dialog => dialog.accept());
 
     // Delete initiatives
     await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     // Delete milestones
     await page.getByRole('button', { name: 'Milestones' }).click();
     await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     // Go back to visualiser
     await page.getByRole('button', { name: 'Visualiser' }).click();

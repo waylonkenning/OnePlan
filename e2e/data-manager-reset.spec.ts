@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+const CONFIRM = '[data-testid="confirm-modal-confirm"]';
+
 test.describe('Data Manager Reset Buttons', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
@@ -14,9 +16,8 @@ test.describe('Data Manager Reset Buttons', () => {
         const initCount = await rows.count();
         expect(initCount).toBe(23); // At least one data row + ghost row
 
-        // Accept the upcoming confirmation dialog
-        page.once('dialog', dialog => dialog.accept());
         await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+        await page.locator(CONFIRM).click();
 
         // Initiatives should now be empty (only ghost row)
         await expect(rows).toHaveCount(1);
@@ -29,8 +30,8 @@ test.describe('Data Manager Reset Buttons', () => {
     });
 
     test('Reset - delete all data empties all tables', async ({ page }) => {
-        page.once('dialog', dialog => dialog.accept());
         await page.getByRole('button', { name: 'Reset - delete all data' }).click();
+        await page.locator(CONFIRM).click();
 
         // Check that the current tab (Initiatives) is empty
         const rows = page.locator('table tbody tr');
@@ -43,9 +44,8 @@ test.describe('Data Manager Reset Buttons', () => {
     });
 
     test('Reset - use demo data populates all tables', async ({ page }) => {
-        // Click demo data with confirm
-        page.once('dialog', dialog => dialog.accept());
         await page.getByRole('button', { name: 'Reset - use demo data' }).click();
+        await page.locator(CONFIRM).click();
 
         // Initiatives should have many rows now (22 initiatives + ghost row = 23)
         const initRows = page.locator('table tbody tr');

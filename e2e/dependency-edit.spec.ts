@@ -40,12 +40,8 @@ test.describe('Dependency Edit Modal', () => {
     const modal = page.locator('[data-testid="dependency-panel"]');
     const deleteBtn = modal.getByRole('button', { name: 'Delete Relationship' });
     
-    // Set up dialog handler for confirmation
-    page.once('dialog', async dialog => {
-      console.log(`Dialog message: ${dialog.message()}`);
-      await dialog.accept();
-    });
     await deleteBtn.click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     // Verify modal is closed
     await expect(modal).not.toBeVisible();

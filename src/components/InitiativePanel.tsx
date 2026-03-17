@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Initiative, Asset, Programme, Strategy } from '../types';
 import { X, Save, Trash2 } from 'lucide-react';
 import { validateInitiative, ValidationErrors } from '../lib/validation';
+import { ConfirmModal } from './ConfirmModal';
 
 interface InitiativePanelProps {
     initiative: Initiative | null;
@@ -17,6 +18,7 @@ interface InitiativePanelProps {
 export function InitiativePanel({ initiative, assets, programmes, strategies, onClose, onSave, onDelete, isOpen }: InitiativePanelProps) {
     const [formData, setFormData] = useState<Initiative | null>(null);
     const [errors, setErrors] = useState<ValidationErrors>({});
+    const [confirmDelete, setConfirmDelete] = useState(false);
 
     useEffect(() => {
         if (initiative) {
@@ -45,6 +47,7 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
     };
 
     return (
+        <>
         <div
             className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-50 flex justify-end"
             onClick={handleOverlayClick}
@@ -227,11 +230,7 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
                     {onDelete && !formData.id.includes('new') && (
                         <button
                             type="button"
-                            onClick={() => {
-                                if (window.confirm('Sure you want to delete this initiative?')) {
-                                    onDelete(formData);
-                                }
-                            }}
+                            onClick={() => setConfirmDelete(true)}
                             className="px-4 py-2 bg-white text-red-600 border border-red-200 rounded-md hover:bg-red-50 hover:border-red-300 transition-colors font-medium flex items-center justify-center gap-2 shadow-sm"
                             title="Delete Initiative"
                         >
@@ -250,5 +249,14 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
                 </div>
             </div>
         </div>
+        <ConfirmModal
+            isOpen={confirmDelete}
+            title="Delete Initiative"
+            message={`Sure you want to delete "${formData.name}"?`}
+            confirmLabel="Delete"
+            onConfirm={() => { setConfirmDelete(false); onDelete!(formData); }}
+            onCancel={() => setConfirmDelete(false)}
+        />
+        </>
     );
 }

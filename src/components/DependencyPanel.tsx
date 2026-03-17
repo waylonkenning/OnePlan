@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dependency, Initiative } from '../types';
 import { X, Save, Trash2, ArrowLeftRight } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 
 interface DependencyPanelProps {
     dependency: Dependency | null;
@@ -13,6 +14,7 @@ interface DependencyPanelProps {
 
 export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDelete, isOpen }: DependencyPanelProps) {
     const [formData, setFormData] = useState<Dependency | null>(null);
+    const [confirmDelete, setConfirmDelete] = useState(false);
 
     useEffect(() => {
         if (dependency) {
@@ -53,6 +55,7 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
     };
 
     return (
+        <>
         <div
             className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-50 flex justify-end"
             onClick={handleOverlayClick}
@@ -126,11 +129,7 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
                     {onDelete && (
                         <button
                             type="button"
-                            onClick={() => {
-                                if (window.confirm('Are you sure you want to delete this relationship?')) {
-                                    onDelete(formData);
-                                }
-                            }}
+                            onClick={() => setConfirmDelete(true)}
                             className="px-4 py-2 bg-white text-red-600 border border-red-200 rounded-md hover:bg-red-50 hover:border-red-300 transition-colors font-medium flex items-center justify-center gap-2 shadow-sm"
                             title="Delete Relationship"
                         >
@@ -149,5 +148,14 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
                 </div>
             </div>
         </div>
+        <ConfirmModal
+            isOpen={confirmDelete}
+            title="Delete Relationship"
+            message="Are you sure you want to delete this relationship?"
+            confirmLabel="Delete"
+            onConfirm={() => { setConfirmDelete(false); onDelete!(formData); }}
+            onCancel={() => setConfirmDelete(false)}
+        />
+    </>
     );
 }

@@ -80,8 +80,8 @@ test.describe('Version History & Snapshotting', () => {
     
     // a) Delete an initiative
     const firstInitName = await page.locator('input[data-testid^="real-input-name"]').first().inputValue();
-    page.once('dialog', dialog => dialog.accept());
     await page.locator('button[title="Delete row"]').first().click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     // b) Add an initiative
     await page.getByRole('button', { name: 'Add Row' }).first().click();
@@ -137,12 +137,12 @@ test.describe('Version History & Snapshotting', () => {
     //    version name. We target it precisely so we don't accidentally click something else.
     // Use evaluate to directly call .click() on the DOM element, bypassing
     // the z-index overlay that covers the button in the normal pointer-event path.
-    page.once('dialog', dialog => dialog.accept());
     await page.evaluate(() => {
       const btn = document.querySelector('button[title="Delete version"]') as HTMLButtonElement;
       if (!btn) throw new Error('Delete button not found in DOM');
       btn.click();
     });
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
     await page.waitForTimeout(500);
 
     // 4. With the fix: the comparison overlay must be gone (IIFE returned null)
@@ -171,17 +171,15 @@ test.describe('Version History & Snapshotting', () => {
     const firstInitName = await page.locator('input[data-testid^="real-input-name"]').first().inputValue();
     
     // Delete the first row
-    page.once('dialog', dialog => dialog.accept());
     await page.locator('button[title="Delete row"]').first().click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
     await expect(page.locator('input[data-testid^="real-input-name"]')).toHaveCount(countBefore - 1);
 
     // 3. Restore the version
     await page.getByTestId('nav-history').click();
     await page.getByText(baselineName).click();
-    
-    // Set up confirmation handler
-    page.once('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Restore to Current' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     // 4. Verify data is back
     await expect(page.getByText('Version History')).not.toBeVisible();

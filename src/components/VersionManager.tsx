@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Version, Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 import { X, Save, History, Trash2, ArrowRight, FileText, AlertCircle, LayoutGrid, Check } from 'lucide-react';
 import { getAllVersions, saveVersion, deleteVersion } from '../lib/db';
+import { ConfirmModal } from './ConfirmModal';
 
 interface VersionManagerProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
   const [newDescription, setNewDescription] = useState('');
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
   const [comparisonVersionId, setComparisonVersionId] = useState<string | null>(null);
+  const [pendingConfirm, setPendingConfirm] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -57,13 +59,18 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
     loadVersions();
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this version?')) {
-      await deleteVersion(id);
-      loadVersions();
-      if (selectedVersionId === id) setSelectedVersionId(null);
-      if (comparisonVersionId === id) setComparisonVersionId(null);
-    }
+  const handleDelete = (id: string) => {
+    setPendingConfirm({
+      title: 'Delete Version',
+      message: 'Are you sure you want to delete this version?',
+      onConfirm: async () => {
+        setPendingConfirm(null);
+        await deleteVersion(id);
+        loadVersions();
+        if (selectedVersionId === id) setSelectedVersionId(null);
+        if (comparisonVersionId === id) setComparisonVersionId(null);
+      },
+    });
   };
 
   if (!isOpen) return null;
@@ -129,6 +136,7 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
                           handleDelete(v.id);
                         }}
                         title="Delete version"
+                        data-testid="delete-version-btn"
                         className="p-1 text-slate-300 hover:text-red-500 rounded-md transition-colors"
                       >
                         <Trash2 size={14} />
@@ -237,12 +245,15 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
                       <AlertCircle size={10} />
                       Warning: Overwrites current work!
                     </p>
-                    <button 
+                    <button
                       onClick={() => {
                         const v = versions.find(v => v.id === selectedVersionId);
-                        if (v && window.confirm(`Are you sure you want to restore "${v.name}"? This will overwrite all your current work.`)) {
-                          onRestore(v);
-                          onClose();
+                        if (v) {
+                          setPendingConfirm({
+                            title: 'Restore Version',
+                            message: `Restore "${v.name}"? This will overwrite all your current work.`,
+                            onConfirm: () => { setPendingConfirm(null); onRestore(v); onClose(); },
+                          });
                         }
                       }}
                       className="w-full py-2 bg-white border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors text-xs font-bold"
@@ -308,6 +319,14 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
           />
         );
       })()}
+      <ConfirmModal
+        isOpen={pendingConfirm !== null}
+        title={pendingConfirm?.title ?? ''}
+        message={pendingConfirm?.message ?? ''}
+        confirmLabel="Confirm"
+        onConfirm={() => pendingConfirm?.onConfirm()}
+        onCancel={() => setPendingConfirm(null)}
+      />
     </div>
   );
 }
