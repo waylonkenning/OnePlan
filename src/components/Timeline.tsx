@@ -495,7 +495,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             id: `dep-${Date.now()}`,
             sourceId: drawingDependency.sourceId,
             targetId: targetId,
-            type: 'blocks'
+            type: 'requires'
           };
           onUpdateDependencies([...dependencies, newDependency]);
         }
