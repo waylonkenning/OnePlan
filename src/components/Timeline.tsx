@@ -943,7 +943,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           <div className="flex flex-col relative" ref={containerRef}>
             <svg
               data-testid="dependencies-svg"
-              className="absolute inset-0 z-10"
+              className="absolute inset-0 z-[25]"
               style={{ width: totalWidth + 256, height: '100%', pointerEvents: 'none' }}
             >
               <defs>

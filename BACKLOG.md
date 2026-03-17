@@ -12,8 +12,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 - [x] **Default relationship type when drawing an arrow should be "Requires"** *(completed)*
   Dragging vertically from one initiative to another now creates a `requires` relationship by default.
 
-- [ ] **Arrow z-index: arrows must always render above initiative bars**
-  On hover, initiative bars currently obscure dependency arrows that pass over them. Arrows should always sit on top of initiative bars.
+- [x] **Arrow z-index: arrows must always render above initiative bars** *(completed)*
+  The dependency SVG is now at z-[25], above the hover:z-20 applied to initiative bars.
 
 - [ ] **Arrow label tooltip on click**
   When a user clicks a dependency arrow label, flash a tooltip that states the full human-readable meaning of the relationship using initiative names â€” e.g. "Passkey Rollout must finish before SSO Consolidation can start" for a `blocks` relationship.
