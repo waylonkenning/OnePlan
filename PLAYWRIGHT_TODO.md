@@ -104,6 +104,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Asset Reordering: Drag an asset within its category and verify it moves correctly.
 - [x] **Inline Display Toggles:** Verify four icon toggles (conflict, relationships, descriptions, budget) replace the Display popover; verify active/inactive state and budget cycling; verify each has aria-label and aria-pressed reflecting current state.
 - [x] **Panel Focus Trap & Escape Key:** Verify InitiativePanel, DependencyPanel, and VersionManager all close on Escape; verify Tab cycles focus within InitiativePanel without escaping to the rest of the page.
+- [x] **EditableTable aria-label:** Verify real-row text inputs, ghost-row text inputs, real-row selects, and real-row checkboxes all carry aria-label matching the column label.
 - [x] **Reports Mode:** Verify Reports nav tab, view switching, active state highlighting.
 - [x] **Initiatives & Dependencies Report:** Verify report is grouped by asset, lists initiatives, and shows plain-language dependency sentences.
 - [x] **History Differences Report:** Verify `report-history-diff` section in Reports view; empty state when no versions; version selector appears after saving; inline diff result shows changes after running; error message shown if versions fail to load.

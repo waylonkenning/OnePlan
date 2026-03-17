@@ -414,6 +414,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                         <select
                           value={String(row[col.key] || '')}
                           onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
+                          aria-label={col.label}
                           className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none"
                         >
                           <option value="">Select...</option>
@@ -469,6 +470,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                             type="checkbox"
                             checked={!!row[col.key]}
                             onChange={(e) => handleCheckboxChange(rowIndex, col.key, e.target.checked, false)}
+                            aria-label={col.label}
                             className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
                           />
                         </div>
@@ -478,6 +480,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                           value={col.type === 'number' ? Number(row[col.key]) : String(row[col.key] || '')}
                           onChange={(e) => handleChange(rowIndex, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, false)}
                           placeholder={col.placeholder}
+                          aria-label={col.label}
                           className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none"
                           data-testid={`real-input-${String(col.key)}`}
                         />
@@ -506,6 +509,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                         value=""
                         onChange={(e) => handleChange(rows.length + i, col.key, e.target.value, true)}
                         onKeyDown={(e) => handleKeyDown(e, colIndex, true)}
+                        aria-label={col.label}
                         className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none appearance-none"
                         data-testid={`ghost-select-${String(col.key)}`}
                       >
@@ -557,6 +561,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                           checked={false}
                           onChange={(e) => handleCheckboxChange(rows.length + i, col.key, e.target.checked, true)}
                           onKeyDown={(e) => handleKeyDown(e, colIndex, true)}
+                          aria-label={col.label}
                           className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
                           data-testid={`ghost-checkbox-${String(col.key)}`}
                         />
@@ -573,6 +578,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                           }
                         }}
                         placeholder={col.placeholder}
+                        aria-label={col.label}
                         className="w-full h-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none"
                         data-testid={`ghost-input-${String(col.key)}`}
                       />
