@@ -67,6 +67,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
         - [x] Verify that clicking a dependency arrow opens the edit modal.
         - [x] Verify that dependencies can be deleted from the modal.
         - [x] Verify that dependency direction can be reversed in the modal.
+    - [x] **Arrow z-index:** Verify that the dependency SVG layer is always above initiative bars (z-index > 20), including when bars raise their z-index on hover.
         - [x] Verify that the description sentence uses actual initiative names (e.g. "X must finish before Y can start").
     - [x] **Dependency Visual Enhancements:**
         - [x] Verify increased vertical gap (32px) for intra-asset dependencies.
