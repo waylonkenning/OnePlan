@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/* ─── Mobile touch targets ──────────────────────────────────────────────────
+ * iOS HIG and Android Material both recommend 44px minimum touch targets.
+ * Apply to all interactive form elements inside panels on mobile.
+ * ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  [data-testid="initiative-panel"] input,
+  [data-testid="initiative-panel"] select,
+  [data-testid="initiative-panel"] textarea,
+  [data-testid="dependency-panel"] input,
+  [data-testid="dependency-panel"] select {
+    min-height: 44px;
+  }
+}
+
 /* ─── Print styles ─────────────────────────────────────────────────────────── *
  * Used by exportToPDF (window.print()) to produce crisp, searchable PDF output.
  * Hides app chrome, expands all overflow containers so the full timeline is
