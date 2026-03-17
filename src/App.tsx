@@ -22,7 +22,8 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2 } from 'lucide-react';
+import { ReportsView } from './components/ReportsView';
 
 type AppState = {
   assets: Asset[];
@@ -39,7 +40,7 @@ import { getAppData, saveAppData } from './lib/db';
 import { useRef } from 'react';
 
 export default function App() {
-  const [view, setView] = useState<'visualiser' | 'data'>('visualiser');
+  const [view, setView] = useState<'visualiser' | 'data' | 'reports'>('visualiser');
   const [isLoading, setIsLoading] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
@@ -275,6 +276,19 @@ export default function App() {
           >
             <Table size={14} />
             Data Manager
+          </button>
+          <button
+            onClick={() => setView('reports')}
+            data-testid="nav-reports"
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer",
+              view === 'reports'
+                ? "bg-white text-blue-700 shadow-sm ring-1 ring-blue-200"
+                : "text-slate-600 hover:text-slate-800"
+            )}
+          >
+            <BarChart2 size={14} />
+            Reports
           </button>
         </div>
 
@@ -597,12 +611,14 @@ export default function App() {
               });
             }}
           />
-        ) : (
+        ) : view === 'data' ? (
           <DataManager
             data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
             onUpdate={handleUpdate}
             searchQuery={searchQuery}
           />
+        ) : (
+          <ReportsView />
         )}
       </main>
 

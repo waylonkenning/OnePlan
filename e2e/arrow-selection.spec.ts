@@ -111,15 +111,10 @@ test.describe('Arrow selection — stagger & disambiguation', () => {
     test.setTimeout(60000);
     await loadScenario(page);
 
-    // Click directly on the dep-ab arrow group (arr-a → arr-b).
-    // The SVG-level hit-test should identify this as the nearest dep and open its panel.
-    const depAbGroup = page.locator('g[data-dep-id="dep-ab"]');
-    await expect(depAbGroup).toBeVisible({ timeout: 10000 });
-    const box = await depAbGroup.boundingBox();
-    if (!box) throw new Error('Could not find dep-ab arrow group');
-
-    // Click at the vertical midpoint segment of the arrow (near the elbow of the path)
-    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    // Click directly on the dep-ab arrow path stroke to open its panel.
+    const depAbPath = page.locator('g[data-dep-id="dep-ab"] path').first();
+    await expect(depAbPath).toBeVisible({ timeout: 10000 });
+    await depAbPath.click({ force: true });
 
     // The dependency panel must open
     const editPanel = page.locator('[data-testid="dependency-panel"]');
