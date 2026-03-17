@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { useMediaQuery } from '../lib/useMediaQuery';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth, endOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
@@ -26,9 +27,13 @@ interface TimelineProps {
   searchQuery?: string;
 }
 
-const SIDEBAR_WIDTH = 256; // 16rem in pixels
+const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
+const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
 export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery }: TimelineProps) {
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
+
   const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
   const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null);
@@ -177,7 +182,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [SIDEBAR_WIDTH]);
 
   // Local state for dragging operations
   const [localInitiatives, setLocalInitiatives] = useState<Initiative[]>(filteredInitiatives);
@@ -913,7 +918,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       <div className="flex-1 overflow-auto scroll-smooth" ref={scrollContainerRef}>
         <div className="relative w-max min-w-full">
           <div className="flex sticky top-0 z-40 bg-white shadow-sm border-b border-slate-200">
-            <div className="sticky left-0 w-64 flex-shrink-0 p-4 font-bold text-slate-700 border-r border-slate-200 bg-slate-50 z-50 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+            <div className="sticky left-0 flex-shrink-0 p-4 font-bold text-slate-700 border-r border-slate-200 bg-slate-50 z-50 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]" style={{ width: SIDEBAR_WIDTH }}>
               IT Asset
             </div>
             <div className="flex" style={{ width: totalWidth }}>
@@ -947,7 +952,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             <svg
               data-testid="dependencies-svg"
               className="absolute inset-0 z-[25]"
-              style={{ width: totalWidth + 256, height: '100%', pointerEvents: 'none' }}
+              style={{ width: totalWidth + SIDEBAR_WIDTH, height: '100%', pointerEvents: 'none' }}
             >
               <defs>
                 <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
@@ -1229,7 +1234,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       draggingCategory === catId && "opacity-50"
                     )}
                   >
-                    <div className="sticky left-0 w-64 flex-shrink-0 px-4 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 bg-slate-100 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                    <div className="sticky left-0 flex-shrink-0 px-4 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 bg-slate-100 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]" style={{ width: SIDEBAR_WIDTH }}>
                       <div className="p-0.5 hover:bg-slate-200 rounded text-slate-400">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                       </div>
@@ -1268,8 +1273,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                           draggable
                           onDragStart={(e) => handleAssetDragStart(e, asset.id)}
                           onDragEnd={handleAssetDragEnd}
-                          className="sticky left-0 w-64 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center cursor-grab active:cursor-grabbing"
-                          style={{ height: rowHeight }}
+                          className="sticky left-0 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center cursor-grab active:cursor-grabbing"
+                          style={{ height: rowHeight, width: SIDEBAR_WIDTH }}
                         >
                           <div className="flex items-center gap-2">
                             <div className="p-0.5 hover:bg-slate-100 rounded text-slate-300 group-hover:text-slate-400">
