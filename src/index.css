@@ -1,5 +1,75 @@
 @import "tailwindcss";
 
+/* ─── Print styles ─────────────────────────────────────────────────────────── *
+ * Used by exportToPDF (window.print()) to produce crisp, searchable PDF output.
+ * Hides app chrome, expands all overflow containers so the full timeline is
+ * visible, and sets the page to A2 landscape.
+ * ─────────────────────────────────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A2 landscape;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  /* React root */
+  #root {
+    height: auto !important;
+  }
+
+  /* App root wrapper — the h-screen flex container */
+  #root > div {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  /* Hide app chrome */
+  header,
+  footer {
+    display: none !important;
+  }
+
+  /* Main content area */
+  main {
+    height: auto !important;
+    min-height: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  /* Timeline outer container */
+  #timeline-visualiser {
+    height: auto !important;
+    overflow: visible !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    display: block !important;
+  }
+
+  /* Legend bar and scrollable content — direct children */
+  #timeline-visualiser > div {
+    overflow: visible !important;
+    height: auto !important;
+    flex: none !important;
+  }
+
+  /* Inner content grid */
+  #timeline-visualiser > div > div {
+    overflow: visible !important;
+    height: auto !important;
+  }
+}
+
 @theme {
   /* Override colors to use HEX for html2canvas compatibility */
   --color-slate-50: #f8fafc;
