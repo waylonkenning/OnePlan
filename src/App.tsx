@@ -404,6 +404,8 @@ export default function App() {
               <button
                 data-testid="toggle-conflicts"
                 data-active={conflictsOn ? 'true' : 'false'}
+                aria-label="Conflict Detection"
+                aria-pressed={conflictsOn}
                 onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, conflictDetection: conflictsOn ? 'off' : 'on' } })}
                 className={toggleClass(conflictsOn)}
                 title="Conflict Detection"
@@ -413,6 +415,8 @@ export default function App() {
               <button
                 data-testid="toggle-relationships"
                 data-active={relationshipsOn ? 'true' : 'false'}
+                aria-label="Relationship Lines"
+                aria-pressed={relationshipsOn}
                 onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, showRelationships: relationshipsOn ? 'off' : 'on' } })}
                 className={toggleClass(relationshipsOn)}
                 title="Relationship Lines"
@@ -422,6 +426,8 @@ export default function App() {
               <button
                 data-testid="toggle-descriptions"
                 data-active={descriptionsOn ? 'true' : 'false'}
+                aria-label="Descriptions"
+                aria-pressed={descriptionsOn}
                 onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, descriptionDisplay: descriptionsOn ? 'off' : 'on' } })}
                 className={toggleClass(descriptionsOn)}
                 title="Descriptions"
@@ -431,6 +437,8 @@ export default function App() {
               <button
                 data-testid="toggle-budget"
                 data-mode={budgetMode}
+                aria-label={`Budget visualisation: ${budgetMode}`}
+                aria-pressed={budgetMode !== 'off'}
                 onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, budgetVisualisation: nextBudget } })}
                 className={toggleClass(budgetMode !== 'off')}
                 title={`Budget: ${budgetMode}`}

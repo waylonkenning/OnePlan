@@ -102,7 +102,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Drag-and-Drop Reordering:**
     - [x] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
     - [x] Asset Reordering: Drag an asset within its category and verify it moves correctly.
-- [x] **Inline Display Toggles:** Verify four icon toggles (conflict, relationships, descriptions, budget) replace the Display popover; verify active/inactive state and budget cycling.
+- [x] **Inline Display Toggles:** Verify four icon toggles (conflict, relationships, descriptions, budget) replace the Display popover; verify active/inactive state and budget cycling; verify each has aria-label and aria-pressed reflecting current state.
 - [x] **Reports Mode:** Verify Reports nav tab, view switching, active state highlighting.
 - [x] **Initiatives & Dependencies Report:** Verify report is grouped by asset, lists initiatives, and shows plain-language dependency sentences.
 - [x] **History Differences Report:** Verify `report-history-diff` section in Reports view; empty state when no versions; version selector appears after saving; inline diff result shows changes after running; error message shown if versions fail to load.

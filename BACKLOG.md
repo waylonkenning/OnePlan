@@ -110,7 +110,7 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 
 ## Accessibility
 
-- [ ] **Add `aria-pressed` and `aria-label` to header toggle buttons**
+- [x] **Add `aria-pressed` and `aria-label` to header toggle buttons** *(completed)*
   The four header toggles (Conflict Detection, Relationships, Descriptions, Budget) convey their active state via colour only. Add `aria-pressed={isActive}` and a descriptive `aria-label` to each so screen readers can announce their purpose and state.
 
 - [ ] **Add focus trap and Escape key handling to panels**
