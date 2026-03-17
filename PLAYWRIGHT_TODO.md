@@ -125,4 +125,4 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify all six feature cards are present: Dependency Mapping, Intuitive Canvas, Conflict Detection, Version History, Excel & PDF Export, 100% Private.
 - [x] **Kenning Corporation branding:**
     - [x] Verify the landing page footer links to kenning.co.nz.
-    - [x] Verify the in-app footer displays Kenning Corporation and Open Source links.
+    - [x] Verify the in-app footer reads "OnePlan IT Initiative Planner — an open source tool from Waylon Kenning" with correct links.
