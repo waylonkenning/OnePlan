@@ -87,14 +87,12 @@ test.describe('Arrow selection — stagger & disambiguation', () => {
     test.setTimeout(60000);
     await loadScenario(page);
 
-    // The disambiguator should appear when clicking an area where arrows are close
-    // Click at the midpoint of the first arrow group's path
-    const firstGroup = page.locator('g.cursor-pointer.group').first();
-    const box = await firstGroup.boundingBox();
-    if (!box) throw new Error('Could not find arrow group');
-
-    // Click slightly offset to land between the two adjacent arrows
-    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    // The disambiguator should appear when clicking an area where arrows are close.
+    // Click directly on the dep-ab path stroke — this is a reliable hit regardless
+    // of minor layout shifts, and the test accepts either disambiguator or panel.
+    const depAbPath = page.locator('g[data-dep-id="dep-ab"] path').first();
+    await expect(depAbPath).toBeVisible({ timeout: 10000 });
+    await depAbPath.click({ force: true });
 
     // Either the disambiguator popover appears (when multiple arrows are close)
     // or the edit panel opens directly (when only one arrow is near the click)

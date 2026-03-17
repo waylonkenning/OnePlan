@@ -125,6 +125,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Schema Validation:** Verify that importing a file with missing required fields (e.g. `startDate`) shows a "Schema warnings" panel in the preview modal, and that a valid file shows no warnings.
     - [x] **Legacy Data Resilience:** Verify that importing data missing `startDate` does not crash the timeline (regression for TypeError in `localeCompare` on undefined).
 - [x] **PDF Export:** Trigger "Export PDF" while in Visualiser view and verify a PDF file is generated (checking for reasonable file size/optimization).
+- [x] **SVG Export:** Trigger "Export SVG" while in Visualiser view and verify a .svg file is generated with valid SVG content.
 
 ## 5. Edge Cases & Safety
 - [x] **Invalid Dates:** Verify that entering an invalid date string in the Data Manager doesn't crash the Visualiser.
