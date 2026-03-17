@@ -73,38 +73,126 @@ The viewport meta tag is present (`width=device-width, initial-scale=1.0`), so t
 
 ---
 
-### 3.2 Timeline / Visualiser
+### 3.2 Timeline / Visualiser → Mobile Card View
 
-This is the hardest view. The core challenge is that a swimlane chart is inherently wide.
+A Gantt timeline is a 2D layout: horizontal axis = time, vertical axis = assets. On a 390px screen there is simply not enough horizontal space to render a meaningful timeline — even at minimum zoom, a 12-month view requires ~480px of canvas, leaving no room for a sidebar. Horizontal scrolling is technically possible but loses the "at a glance" value of a timeline entirely.
 
-**Proposed mobile layout:**
+**Decision: replace the timeline with an Asset Card View on mobile.** The desktop timeline is unchanged.
+
+---
+
+#### 3.2.1 Asset Card View — Layout
+
+Each asset is rendered as a card. Within each card, initiatives are grouped into **buckets** chosen by the user via a toggle in the mobile settings sheet.
 
 ```
-┌──────────────┬──────────────────────────────────────────→ scroll
-│ Asset Name   │  Jan 2026  │  Feb 2026  │  Mar 2026  │
-│ (120px)      ├────────────┼────────────┼────────────┤
-│ Data         │  ████ Initiative A ████ │            │
-│ Platform     │            │  ██ Init B │            │
-├──────────────┼────────────┼────────────┼────────────┤
-│ Security     │            │  ████████████████████   │
-└──────────────┴────────────┴────────────┴────────────┘
+┌─────────────────────────────────────┐
+│ ● Data Platform             2 active│  ← asset name + colour dot + summary
+├─────────────────────────────────────┤
+│ Now                                  │  ← bucket label
+│  Cloud Migration      ends Jun 2026  │  ← initiative row
+│  API Security Audit   ends Mar 2026  │
+│                                      │
+│ Starting soon                        │
+│  Data Lake Phase 2   starts Apr 2026 │
+│                                      │
+│ Upcoming (2)                        ▸│  ← collapsed bucket; tap to expand
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│ ● Security Services         1 active│
+├─────────────────────────────────────┤
+│ Now                                  │
+│  Pen Testing Programme  ends May 2026│
+└─────────────────────────────────────┘
 ```
 
-**Changes:**
-- **Sidebar narrows to 120px** on mobile (from 256px). Asset names truncate with a tooltip on tap.
-- **Default zoom auto-reduces** to 0.75× on viewports < 768px so more months fit without scrolling.
-- **Dependency arrows still render** but are thinner on mobile (`stroke-width: 1` instead of 1.5).
-- **Initiative bars** show a truncated name only; description and budget labels are hidden on mobile (they're already gated by the `descriptionDisplay` toggle, which would default to off on narrow viewports).
-- **Tapping a bar** opens the InitiativePanel slide-in sheet (already full-width on mobile — works as-is).
-- **Drag-to-resize and drag-to-move** are disabled on mobile (touch events on SVG are unreliable and the UX for dragging a 20px handle on a touchscreen is poor). A banner or tooltip indicates "Use desktop for editing."
-- **Dependency drawing** (vertical drag to create arrows) is disabled on mobile.
-- **The "Now" indicator line** still renders.
+- Cards are grouped by asset category (same as the desktop swimlane grouping).
+- Category headers separate the cards: `─── Customer Information Systems (3) ───`
+- Tapping an initiative row opens the existing `InitiativePanel` slide-in.
+- Tapping the card header collapses/expands the card.
+- Assets with zero initiatives show a muted "No initiatives" state.
 
-**Implementation:**
-- Add a `useMobileLayout` hook: `const isMobile = useMediaQuery('(max-width: 767px)')`.
-- Pass `isMobile` into Timeline as a prop.
-- In Timeline.tsx: `const SIDEBAR_WIDTH = isMobile ? 120 : 256`.
-- Gate drag handlers: `if (!isMobile) { /* attach drag handlers */ }`.
+---
+
+#### 3.2.2 Flexible Bucketing
+
+The user can choose how initiatives are grouped within each card. This mirrors the desktop "color by" concept but applied to temporal/categorical grouping.
+
+| Bucket Mode | Groups | Example labels |
+|-------------|--------|---------------|
+| **Timeline** (default) | Active status relative to today | Now · Starting soon · Upcoming · Completed |
+| **Quarter** | Calendar quarter of initiative start date | Q1 2026 · Q2 2026 · Q3 2026 |
+| **Year** | Calendar year of initiative start date | 2026 · 2027 · 2028 |
+| **Programme** | Initiative's assigned programme | Cloud Transformation · Security · BAU |
+| **Strategy** | Initiative's assigned strategy | Grow · Protect · Optimise |
+
+**Timeline bucket definitions:**
+- **Now** — start ≤ today AND end ≥ today (currently active)
+- **Starting soon** — start is within the next 60 days
+- **Upcoming** — start is more than 60 days away
+- **Completed** — end < today
+
+The bucket mode is stored in `TimelineSettings` (new field `mobileBucketMode`) and persisted to IndexedDB alongside other settings.
+
+**UI:** A segmented control in the mobile settings bottom sheet:
+```
+Group by: [Timeline] [Quarter] [Year] [Programme] [Strategy]
+```
+
+---
+
+#### 3.2.3 Initiative Row Design
+
+Each initiative row within a card shows:
+
+```
+  Cloud Migration              ends Jun 2026
+  Programme: Cloud Transform   £150,000
+```
+
+- **Line 1:** initiative name (truncated if needed) + date context (relative to bucket mode)
+- **Line 2:** programme name + budget (if set) — shown in muted text
+- A left border coloured by the initiative's programme/strategy (same palette as desktop)
+- Tap anywhere on the row → opens `InitiativePanel`
+
+---
+
+#### 3.2.4 Dependency & Conflict Indicators
+
+Since dependency arrows cannot be drawn in card view, surface them as text indicators:
+
+- A small `⚡ 2 conflicts` badge on the card header if conflicts exist for that asset
+- A `→ depends on X` sub-line beneath an initiative row if it has dependencies
+- Tapping the dependency sub-line opens `DependencyPanel`
+
+---
+
+#### 3.2.5 Implementation Plan
+
+**New component:** `src/components/MobileCardView.tsx`
+- Accepts the same props as `Timeline` (assets, initiatives, milestones, programmes, strategies, dependencies, settings)
+- Reads `settings.mobileBucketMode` for grouping
+- Renders asset cards with initiative rows
+
+**App.tsx change:**
+```tsx
+// In the Visualiser tab render:
+{isMobile ? (
+  <MobileCardView ... />
+) : (
+  <Timeline ... />
+)}
+```
+
+**Types change:**
+```ts
+// In TimelineSettings:
+mobileBucketMode?: 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy';
+```
+
+**Settings sheet change:**
+Add the bucket mode segmented control to the mobile settings bottom sheet.
 
 ---
 
@@ -215,14 +303,21 @@ This frees up the top bar for just the logo + search + settings icon.
 - Build a bottom sheet for timeline settings (start date, months, toggles).
 - Bottom tab bar for view switching.
 
-### Phase 3 — Timeline Touch Optimisation (medium effort)
+### Phase 3 — Timeline Touch Optimisation (medium effort) ✅
 - Disable drag handlers on touch devices.
-- Add FAB for initiative creation.
 - Improve touch targets on panels (44px min height).
 - Add `inputmode` attributes.
 
-### Phase 4 — Data Manager Cards (high effort)
-- Read-only card list view for tables on mobile.
+### Phase 4 — Asset Card View (high effort) ← NEXT
+- Replace mobile timeline with `MobileCardView` component.
+- Flexible bucketing: Timeline / Quarter / Year / Programme / Strategy.
+- Asset cards with collapsible initiative rows.
+- Conflict and dependency text indicators.
+- Bucket mode selector in mobile settings sheet.
+- Persist `mobileBucketMode` in `TimelineSettings` / IndexedDB.
+
+### Phase 5 — Data Manager Cards (deferred)
+- Read-only card list view for Data Manager tables on mobile.
 - Tap-to-edit opens panel or sheet.
 
 ---
