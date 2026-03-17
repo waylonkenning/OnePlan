@@ -22,7 +22,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2 } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut } from 'lucide-react';
 import { ReportsView } from './components/ReportsView';
 
 type AppState = {
@@ -445,6 +445,41 @@ export default function App() {
               >
                 <DollarSign size={13} />
               </button>
+
+              {/* Zoom controls */}
+              {(() => {
+                const ZOOM_STEPS = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0];
+                const currentZoom = timelineSettings.columnZoom ?? 1.0;
+                const currentIdx = ZOOM_STEPS.findIndex(z => Math.abs(z - currentZoom) < 0.01);
+                const idx = currentIdx === -1 ? ZOOM_STEPS.indexOf(1.0) : currentIdx;
+                const canZoomOut = idx > 0;
+                const canZoomIn = idx < ZOOM_STEPS.length - 1;
+                return (
+                  <>
+                    <div className="w-px h-4 bg-slate-200 mx-0.5" />
+                    <button
+                      data-testid="zoom-out"
+                      aria-label="Zoom out"
+                      disabled={!canZoomOut}
+                      onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, columnZoom: ZOOM_STEPS[idx - 1] } })}
+                      className={cn(toggleClass(false), !canZoomOut && 'opacity-30 cursor-not-allowed')}
+                      title="Zoom out"
+                    >
+                      <ZoomOut size={13} />
+                    </button>
+                    <button
+                      data-testid="zoom-in"
+                      aria-label="Zoom in"
+                      disabled={!canZoomIn}
+                      onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, columnZoom: ZOOM_STEPS[idx + 1] } })}
+                      className={cn(toggleClass(false), !canZoomIn && 'opacity-30 cursor-not-allowed')}
+                      title="Zoom in"
+                    >
+                      <ZoomIn size={13} />
+                    </button>
+                  </>
+                );
+              })()}
 
               {/* More settings (snap, empty rows) */}
               <div className="relative" ref={moreSettingsPanelRef}>
