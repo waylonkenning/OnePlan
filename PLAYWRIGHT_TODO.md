@@ -129,7 +129,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Invalid Dates:** Verify that entering an invalid date string in the Data Manager doesn't crash the Visualiser.
 - [x] **Missing IDs:** Ensure that adding rows via CSV without IDs automatically generates them.
 - [x] **Orphaned Dependency References:** Verify that no dependency in the loaded app data references a non-existent initiative ID (reads IndexedDB directly).
-- [ ] **Large Data Sets:** (Optional) Verify that the layout algorithm (Greedy Placement) handles 20+ overlapping initiatives on a single asset without infinite loops or UI breakage.
+- [x] **Large Data Sets:** Verify that the layout algorithm (Greedy Placement) handles 20+ overlapping initiatives on a single asset without infinite loops or UI breakage.
 - [x] **Demo Data Dates:** Verify that the timeline shows the current or next year (not a hardcoded past year); verify all initiative start dates are within a reasonable range of today.
 ## 5b. Error Handling
 - [x] **Error Boundary:** Verify that a render error shows a friendly "Something went wrong" UI with a Reload button instead of a blank screen. Verify normal operation is unaffected.
