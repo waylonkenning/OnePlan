@@ -97,7 +97,7 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 
 ## Code Quality â€” Refactoring
 
-- [ ] **Extract shared diff logic to `src/lib/diff.ts`**
+- [x] **Extract shared diff logic to `src/lib/diff.ts`** *(completed)*
   The `compareEntities` function and full diff computation is copy-pasted between `VersionManager.tsx` and `ReportsView.tsx` (~70 lines each). Extract to a shared `src/lib/diff.ts` module and import it in both components, so a bug fix or enhancement only needs to happen once.
 
 - [ ] **Replace `alert()` calls with in-app feedback**

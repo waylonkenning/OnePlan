@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Asset, Initiative, Dependency, Version } from '../types';
 import { getAllVersions } from '../lib/db';
+import { computeDiff, DiffResult } from '../lib/diff';
 
 interface ReportsViewProps {
   assets: Asset[];
@@ -15,79 +16,10 @@ function depSentence(dep: Dependency, src: Initiative, tgt: Initiative): string 
   return `${src.name} and ${tgt.name} have a general connection.`;
 }
 
-function computeDiff(baseVersion: Version, currentData: Version['data']) {
-  const compareEntities = <T extends { id: string }>(
-    base: T[],
-    curr: T[],
-    getDisplayName: (item: T) => string,
-    getChanges: (b: T, c: T) => string[]
-  ) => {
-    const added = curr.filter(ci => !base.some(bi => bi.id === ci.id)).map(i => getDisplayName(i));
-    const removed = base.filter(bi => !curr.some(ci => ci.id === bi.id)).map(i => getDisplayName(i));
-    const modified: { name: string; changes: string[] }[] = [];
-    curr.forEach(ci => {
-      const bi = base.find(b => b.id === ci.id);
-      if (bi) {
-        const changes = getChanges(bi, ci);
-        if (changes.length > 0) modified.push({ name: getDisplayName(ci), changes });
-      }
-    });
-    return { added, removed, modified };
-  };
-
-  const initiatives = compareEntities(
-    baseVersion.data.initiatives,
-    currentData.initiatives,
-    (i) => i.name,
-    (b, c) => {
-      const changes: string[] = [];
-      if (b.name !== c.name) changes.push(`Renamed from "${b.name}" to "${c.name}"`);
-      if (b.startDate !== c.startDate) changes.push(`Start date: ${b.startDate} → ${c.startDate}`);
-      if (b.endDate !== c.endDate) changes.push(`End date: ${b.endDate} → ${c.endDate}`);
-      if (b.budget !== c.budget) changes.push(`Budget: $${b.budget.toLocaleString()} → $${c.budget.toLocaleString()}`);
-      return changes;
-    }
-  );
-
-  const dependencies = compareEntities(
-    baseVersion.data.dependencies,
-    currentData.dependencies,
-    (d) => {
-      const s = currentData.initiatives.find(i => i.id === d.sourceId)?.name || baseVersion.data.initiatives.find(i => i.id === d.sourceId)?.name || 'Unknown';
-      const t = currentData.initiatives.find(i => i.id === d.targetId)?.name || baseVersion.data.initiatives.find(i => i.id === d.targetId)?.name || 'Unknown';
-      return `${s} → ${t}`;
-    },
-    (b, c) => {
-      const changes: string[] = [];
-      if (b.type !== c.type) changes.push(`Type: ${b.type} → ${c.type}`);
-      return changes;
-    }
-  );
-
-  const milestones = compareEntities(
-    baseVersion.data.milestones,
-    currentData.milestones,
-    (m) => m.name,
-    (b, c) => {
-      const changes: string[] = [];
-      if (b.name !== c.name) changes.push(`Renamed to "${c.name}"`);
-      if (b.date !== c.date) changes.push(`Date: ${b.date} → ${c.date}`);
-      return changes;
-    }
-  );
-
-  const hasChanges =
-    initiatives.added.length > 0 || initiatives.removed.length > 0 || initiatives.modified.length > 0 ||
-    dependencies.added.length > 0 || dependencies.removed.length > 0 || dependencies.modified.length > 0 ||
-    milestones.added.length > 0 || milestones.removed.length > 0 || milestones.modified.length > 0;
-
-  return { initiatives, dependencies, milestones, hasChanges };
-}
-
 export function ReportsView({ assets, initiatives, dependencies, currentData }: ReportsViewProps) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
-  const [diffResult, setDiffResult] = useState<ReturnType<typeof computeDiff> | null>(null);
+  const [diffResult, setDiffResult] = useState<DiffResult | null>(null);
   const [versionsError, setVersionsError] = useState<string | null>(null);
 
   useEffect(() => {
