@@ -887,7 +887,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
         <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-wrap gap-x-4 gap-y-2 items-center">
           <div className="font-semibold text-slate-700 whitespace-nowrap">
             {colorBy === 'programme' ? 'Programmes:' : 'Strategies:'}
           </div>
@@ -1230,14 +1230,15 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     onDragStart={(e) => handleCategoryDragStart(e, catId)}
                     onDragEnd={handleCategoryDragEnd}
                     className={cn(
-                      "flex z-30 bg-slate-100 border-y border-slate-200 w-max cursor-grab active:cursor-grabbing",
+                      "flex z-30 bg-slate-100 border-y border-slate-200 w-max",
+                      !isMobile && "cursor-grab active:cursor-grabbing",
                       draggingCategory === catId && "opacity-50"
                     )}
                   >
                     <div className="sticky left-0 flex-shrink-0 px-4 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 bg-slate-100 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]" style={{ width: SIDEBAR_WIDTH }}>
-                      <div className="p-0.5 hover:bg-slate-200 rounded text-slate-400">
+                      {!isMobile && <div className="p-0.5 hover:bg-slate-200 rounded text-slate-400">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
-                      </div>
+                      </div>}
                       <button
                         onClick={() => toggleCategory(catId)}
                         className="flex items-center gap-1.5 hover:text-slate-700 focus:outline-none"
@@ -1273,16 +1274,16 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                           draggable
                           onDragStart={(e) => handleAssetDragStart(e, asset.id)}
                           onDragEnd={handleAssetDragEnd}
-                          className="sticky left-0 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center cursor-grab active:cursor-grabbing"
+                          className={cn("sticky left-0 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center", !isMobile && "cursor-grab active:cursor-grabbing")}
                           style={{ height: rowHeight, width: SIDEBAR_WIDTH }}
                         >
-                          <div className="flex items-center gap-2">
-                            <div className="p-0.5 hover:bg-slate-100 rounded text-slate-300 group-hover:text-slate-400">
+                          <div className="flex items-center gap-2 min-w-0">
+                            {!isMobile && <div className="p-0.5 hover:bg-slate-100 rounded text-slate-300 group-hover:text-slate-400 flex-shrink-0">
                               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
-                            </div>
-                            <div className="font-semibold text-slate-800">{asset.name}</div>
+                            </div>}
+                            <div className="font-semibold text-slate-800 truncate min-w-0">{asset.name}</div>
                           </div>
-                          <div className="text-xs text-slate-400 mt-1 ml-4">{assetInitiatives.length} Initiatives</div>
+                          <div className={cn("text-xs text-slate-400 mt-1", !isMobile && "ml-4")}>{assetInitiatives.length} Initiatives</div>
                         </div>
 
 

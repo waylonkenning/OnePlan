@@ -701,8 +701,8 @@ export default function App() {
             data-testid={tab.testid}
             onClick={() => setView(tab.id)}
             className={cn(
-              'flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors',
-              view === tab.id ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+              'flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors border-t-2',
+              view === tab.id ? 'text-blue-600 border-blue-600' : 'text-slate-400 border-transparent'
             )}
           >
             {tab.icon}

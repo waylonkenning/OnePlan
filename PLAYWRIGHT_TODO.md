@@ -138,6 +138,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Mobile Phase 1b — Horizontal Scroll:** Verify header is overflow-x-auto on mobile; verify Import button reachable by scrolling; verify DataManager table has a scrollable container.
 - [x] **Mobile Phase 2 — Mobile Header:** Verify desktop controls hidden on mobile; verify mobile header with settings icon; verify settings bottom sheet opens/closes (backdrop, Escape); verify bottom tab bar switches views; verify desktop unchanged.
 - [x] **Mobile Phase 3 — Touch Optimisation:** Verify no drag cursor on initiative bars on mobile; verify no resize handles on mobile; verify panel inputs ≥44px tall; verify budget field has inputmode="numeric".
+- [x] **Mobile Rendering Fixes:** Asset name sidebar truncates long names with ellipsis (no overflow); drag handle icons hidden on mobile (category and asset rows); legend items wrap correctly so all programme/strategy names are visible; tab bar active state uses border indicator for clear visual distinction.
 
 ## 5b. Error Handling
 - [x] **Error Boundary:** Verify that a render error shows a friendly "Something went wrong" UI with a Reload button instead of a blank screen. Verify normal operation is unaffected.
