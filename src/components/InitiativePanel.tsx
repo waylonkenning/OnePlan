@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Initiative, Asset, Programme, Strategy } from '../types';
+import { Initiative, Asset, Programme, Strategy, Dependency } from '../types';
 import { X, Save, Trash2 } from 'lucide-react';
 import { validateInitiative, ValidationErrors } from '../lib/validation';
 import { ConfirmModal } from './ConfirmModal';
@@ -9,13 +9,15 @@ interface InitiativePanelProps {
     assets: Asset[];
     programmes: Programme[];
     strategies: Strategy[];
+    dependencies?: Dependency[];
+    initiatives?: Initiative[];
     onClose: () => void;
     onSave: (initiative: Initiative) => void;
     onDelete?: (initiative: Initiative) => void;
     isOpen: boolean;
 }
 
-export function InitiativePanel({ initiative, assets, programmes, strategies, onClose, onSave, onDelete, isOpen }: InitiativePanelProps) {
+export function InitiativePanel({ initiative, assets, programmes, strategies, dependencies = [], initiatives = [], onClose, onSave, onDelete, isOpen }: InitiativePanelProps) {
     const [formData, setFormData] = useState<Initiative | null>(null);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -213,7 +215,37 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, on
                             </label>
                         </div>
 
-                        <div className="pt-4 border-t border-slate-200 mt-6">
+                        {(() => {
+                            const related = dependencies.filter(
+                                d => d.sourceId === formData.id || d.targetId === formData.id
+                            );
+                            if (related.length === 0) return null;
+                            return (
+                                <div data-testid="related-initiatives-section" className="pt-4 border-t border-slate-200 mt-2">
+                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Related Initiatives</p>
+                                    <ul className="space-y-1.5">
+                                        {related.map(dep => {
+                                            const otherId = dep.sourceId === formData.id ? dep.targetId : dep.sourceId;
+                                            const other = initiatives.find(i => i.id === otherId);
+                                            const isSource = dep.sourceId === formData.id;
+                                            const label = dep.type === 'blocks'
+                                                ? (isSource ? 'Blocks' : 'Blocked by')
+                                                : dep.type === 'requires'
+                                                ? (isSource ? 'Requires' : 'Required by')
+                                                : 'Related to';
+                                            return (
+                                                <li key={dep.id} className="flex items-center gap-2 text-sm text-slate-700">
+                                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 w-20 flex-shrink-0">{label}</span>
+                                                    <span className="font-medium">{other?.name ?? otherId}</span>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
+                            );
+                        })()}
+
+                        <div className="pt-4 border-t border-slate-200 mt-2">
                             <p className="text-xs text-slate-500">ID: {formData.id}</p>
                         </div>
                     </form>

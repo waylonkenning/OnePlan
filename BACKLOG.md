@@ -35,8 +35,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 - [x] **Edit Relationship modal: show full initiative names without truncation** *(completed)*
   Removed `truncate` from the Source and Target labels in `DependencyPanel`. Names now use `break-words` so long names wrap rather than being cut off.
 
-- [ ] **Create Initiative modal: show related initiatives at the bottom**
-  Add a "Related Initiatives" section at the bottom of the Create/Edit Initiative modal, listing any existing dependencies for that initiative. The modal body should scroll if needed, with Cancel / Delete / Save buttons fixed to the bottom.
+- [x] **Create Initiative modal: show related initiatives at the bottom** *(completed)*
+  Added a "Related Initiatives" section at the bottom of the Initiative panel, listing each dependency with a directional label (e.g. "Blocks", "Required by"). Hidden when no dependencies exist. Body already scrolls; footer is already fixed.
 
 ---
 

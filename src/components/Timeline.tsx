@@ -1539,6 +1539,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         assets={assets}
         programmes={programmes}
         strategies={strategies}
+        dependencies={dependencies}
+        initiatives={initiatives}
         onSave={(initiative) => {
           if (selectedInitiativeId) {
             if (onUpdateInitiative) onUpdateInitiative(initiative);
