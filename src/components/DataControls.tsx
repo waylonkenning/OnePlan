@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Upload, FileSpreadsheet, FileText, AlertCircle, Check, TriangleAlert } from 'lucide-react';
+import { Upload, FileSpreadsheet, FileText, AlertCircle, Check, TriangleAlert, ImageDown } from 'lucide-react';
 
 interface SchemaIssue {
   entity: string;
@@ -36,7 +36,7 @@ function validateImportSchema(data: Record<string, unknown[]>): SchemaIssue[] {
   return issues;
 }
 import { exportToExcel, importFromExcel } from '../lib/excel';
-import { exportToPDF } from '../lib/pdf';
+import { exportToPDF, exportToSVG } from '../lib/pdf';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 
 interface DataControlsProps {
@@ -85,6 +85,15 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
         .catch(() => showNotification('error', 'Failed to export PDF. Please try again.'));
     } else {
       showNotification('error', 'Switch to Visualiser view to export PDF.');
+    }
+  };
+
+  const handleExportSVG = () => {
+    if (timelineId) {
+      exportToSVG(timelineId, `it-roadmap-${new Date().toISOString().split('T')[0]}.svg`)
+        .catch(() => showNotification('error', 'Failed to export SVG. Please try again.'));
+    } else {
+      showNotification('error', 'Switch to Visualiser view to export SVG.');
     }
   };
 
@@ -180,6 +189,17 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       >
         <FileText size={14} />
         PDF
+      </button>
+
+      <button
+        data-testid="export-svg"
+        onClick={handleExportSVG}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+        title="Download roadmap as SVG"
+        disabled={!timelineId}
+      >
+        <ImageDown size={14} />
+        SVG
       </button>
 
       <button

@@ -1,4 +1,4 @@
-import { toJpeg } from 'html-to-image';
+import { toJpeg, toSvg } from 'html-to-image';
 import jsPDF from 'jspdf';
 
 /**
@@ -60,4 +60,39 @@ export const exportToPDF = async (elementId: string, filename: string = 'roadmap
 
   pdf.addImage(dataUrl, 'JPEG', x, 0, finalWidth, finalHeight, undefined, 'FAST');
   pdf.save(filename);
+};
+
+/**
+ * Exports the timeline element as an SVG file download.
+ */
+export const exportToSVG = async (elementId: string, filename: string = 'roadmap.svg') => {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    console.error(`Element with id ${elementId} not found`);
+    return;
+  }
+
+  const scrollableArea = (element.querySelector('.overflow-auto') as HTMLElement) || element;
+
+  const dataUrl = await toSvg(scrollableArea, {
+    backgroundColor: '#ffffff',
+    width: scrollableArea.scrollWidth,
+    height: scrollableArea.scrollHeight,
+    style: {
+      transform: 'scale(1)',
+      transformOrigin: 'top left',
+      width: scrollableArea.scrollWidth + 'px',
+      height: scrollableArea.scrollHeight + 'px',
+      overflow: 'visible',
+    },
+  });
+
+  const svgContent = decodeURIComponent(dataUrl.split(',')[1]);
+  const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 };
