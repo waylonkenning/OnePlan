@@ -6,16 +6,17 @@ test.describe('Data Controls (Export/Import)', () => {
     await page.goto('/');
   });
 
-  test('Export PDF triggers download', async ({ page }) => {
-    // Wait for the download event
-    const downloadPromise = page.waitForEvent('download');
+  test('Export PDF opens print dialog', async ({ page }) => {
+    // Mock window.print so the dialog doesn't block headless Playwright
+    await page.evaluate(() => {
+      (window as any).__printCalled = false;
+      window.print = () => { (window as any).__printCalled = true; };
+    });
 
-    // Click Export PDF
     await page.getByRole('button', { name: 'PDF' }).click();
 
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toContain('it-roadmap');
-    expect(download.suggestedFilename()).toContain('.pdf');
+    const printCalled = await page.evaluate(() => (window as any).__printCalled);
+    expect(printCalled).toBe(true);
   });
 
   test('Export Excel triggers download', async ({ page }) => {

@@ -81,7 +81,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
 
   const handleExportPDF = () => {
     if (timelineId) {
-      exportToPDF(timelineId, `it-roadmap-${new Date().toISOString().split('T')[0]}.pdf`);
+      exportToPDF(`it-roadmap-${new Date().toISOString().split('T')[0]}.pdf`);
     } else {
       showNotification('error', 'Switch to Visualiser view to export PDF.');
     }
