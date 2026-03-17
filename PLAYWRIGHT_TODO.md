@@ -105,7 +105,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Inline Display Toggles:** Verify four icon toggles (conflict, relationships, descriptions, budget) replace the Display popover; verify active/inactive state and budget cycling.
 - [x] **Reports Mode:** Verify Reports nav tab, view switching, active state highlighting.
 - [x] **Initiatives & Dependencies Report:** Verify report is grouped by asset, lists initiatives, and shows plain-language dependency sentences.
-- [x] **History Differences Report:** Verify `report-history-diff` section in Reports view; empty state when no versions; version selector appears after saving; inline diff result shows changes after running.
+- [x] **History Differences Report:** Verify `report-history-diff` section in Reports view; empty state when no versions; version selector appears after saving; inline diff result shows changes after running; error message shown if versions fail to load.
 - [x] **Conflict Detection:** Create two initiatives on the same asset that overlap in time and verify the red "Conflict Detected" marker appears at the start of the overlap.
     - [x] **Same-day Boundary:** Verify that initiatives touching on the same date (End A == Start B) are NOT marked as conflicts.
     - [x] Verify that conflict markers appear behind sticky asset swimlane labels when scrolling.
@@ -128,6 +128,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Missing IDs:** Ensure that adding rows via CSV without IDs automatically generates them.
 - [x] **Orphaned Dependency References:** Verify that no dependency in the loaded app data references a non-existent initiative ID (reads IndexedDB directly).
 - [ ] **Large Data Sets:** (Optional) Verify that the layout algorithm (Greedy Placement) handles 20+ overlapping initiatives on a single asset without infinite loops or UI breakage.
+- [x] **Demo Data Dates:** Verify that the timeline shows the current or next year (not a hardcoded past year); verify all initiative start dates are within a reasonable range of today.
 ## 5b. Error Handling
 - [x] **Error Boundary:** Verify that a render error shows a friendly "Something went wrong" UI with a Reload button instead of a blank screen. Verify normal operation is unaffected.
 

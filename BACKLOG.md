@@ -77,20 +77,20 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story �
 - [x] **Replace `JSON.parse(JSON.stringify(...))` deep clone with `structuredClone`** *(completed)*
   Replaced `JSON.parse(JSON.stringify(currentData))` in `VersionManager.tsx` with `structuredClone(currentData)`. Handles non-JSON-serialisable values safely. Tests verify snapshot immutability and that saved data is stored in IndexedDB with all fields intact.
 
-- [ ] **Fix stale demo data dates**
+- [x] **Fix stale demo data dates** *(completed)*
   All initiatives in `demoData.ts` are hardcoded to 2026–2028. Once those dates pass, new users see a timeline set entirely in the past. Generate dates dynamically relative to `new Date()` so the demo is always set in the near future.
 
-- [ ] **Add error handling to `getAllVersions` call in ReportsView**
+- [x] **Add error handling to `getAllVersions` call in ReportsView** *(completed)*
   The `useEffect` in `ReportsView.tsx` that calls `getAllVersions()` has no `.catch()`. If IndexedDB fails, the component silently stays in the empty state with no feedback to the user.
 
 ---
 
 ## Code Quality — Performance
 
-- [ ] **Fix keyboard shortcut `useEffect` dependency array**
+- [x] **Fix keyboard shortcut `useEffect` dependency array** *(completed)*
   In `App.tsx` the Cmd+Z / Cmd+Shift+Z handler lists every piece of state as a dependency, causing the event listener to be removed and re-added on every state change. Refactor to use a `useRef` holding the latest undo/redo callbacks, with a stable empty dependency array.
 
-- [ ] **Wrap update handler props in `useCallback`**
+- [x] **Wrap update handler props in `useCallback`** *(completed)*
   Large handler functions in `App.tsx` (`handleUpdateInitiative`, `handleSaveAppData`, etc.) are recreated on every render and passed as props to `Timeline`, `DataManager`, and others. Wrap these with `useCallback` to prevent unnecessary child re-renders.
 
 ---
