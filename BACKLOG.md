@@ -116,5 +116,5 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story �
 - [x] **Add focus trap and Escape key handling to panels** *(completed)*
   Created `src/lib/useFocusTrap.ts` — a custom hook using a callback ref (so focus trap activates even when the panel delays its first render via state initialisation). Attached to `InitiativePanel`, `DependencyPanel`, and `VersionManager`. Focus moves to the first focusable element on open; Tab/Shift-Tab cycle within the panel; Escape closes it.
 
-- [ ] **Add `aria-label` to editable table cell inputs**
-  Inputs in `EditableTable.tsx` use placeholder text only — screen readers won't announce which column an input belongs to. Add `aria-label={column.label}` to each cell input.
+- [x] **Add `aria-label` to editable table cell inputs** *(completed)*
+  Added `aria-label={col.label}` to all cell inputs (`text`, `number`, `date`), `select`, and `checkbox` elements in both real and ghost rows of `EditableTable.tsx`.
