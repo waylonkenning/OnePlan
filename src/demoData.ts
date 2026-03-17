@@ -202,7 +202,6 @@ export const demoDependencies: Dependency[] = [
     { id: 'dep-1', sourceId: 'i-ciam-passkey', targetId: 'i-ciam-sso', type: 'blocks' },
     { id: 'dep-2', sourceId: 'i-lake-ingest', targetId: 'i-lake-gov', type: 'blocks' },
     { id: 'dep-3', sourceId: 'i-web-redesign', targetId: 'i-web-a11y', type: 'blocks' },
-    { id: 'dep-4', sourceId: 'i-k8s-multi', targetId: 'i-k8s-mesh', type: 'blocks' },
     { id: 'dep-5', sourceId: 'i-apigw-v2', targetId: 'i-apigw-portal', type: 'blocks' },
     { id: 'dep-6', sourceId: 'i-core-iso', targetId: 'i-core-api', type: 'blocks' },
     { id: 'dep-7', sourceId: 'i-pay-rtp', targetId: 'i-pay-fraud', type: 'requires' },

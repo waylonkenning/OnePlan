@@ -68,8 +68,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 
 ## Code Quality â€” Bugs & Defects
 
-- [ ] **Fix dangling dependency references in demo data**
-  `demoData.ts` contains a dependency (`dep-4`) that references initiative IDs `i-k8s-multi` and `i-k8s-mesh` which don't exist in `demoInitiatives`. These produce silent "Unknown" labels in the Reports and dependency panels. Remove or replace the orphaned dependency with valid initiative IDs.
+- [x] **Fix dangling dependency references in demo data** *(completed)*
+  Removed `dep-4` from `demoData.ts`, which referenced the non-existent initiatives `i-k8s-multi` and `i-k8s-mesh`. Added a regression test that reads IndexedDB directly and asserts no dependency references a missing initiative ID.
 
 - [ ] **Add React Error Boundary**
   The app has no `ErrorBoundary` component. If any component throws during render, the entire app goes blank with no recovery UI. Add a top-level `ErrorBoundary` that catches rendering errors and shows a user-friendly message with a "Reload" option.
