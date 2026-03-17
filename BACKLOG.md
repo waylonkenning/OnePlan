@@ -113,8 +113,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story �
 - [x] **Add `aria-pressed` and `aria-label` to header toggle buttons** *(completed)*
   The four header toggles (Conflict Detection, Relationships, Descriptions, Budget) convey their active state via colour only. Add `aria-pressed={isActive}` and a descriptive `aria-label` to each so screen readers can announce their purpose and state.
 
-- [ ] **Add focus trap and Escape key handling to panels**
-  `InitiativePanel`, `DependencyPanel`, and `VersionManager` don't trap focus or respond to the Escape key. Keyboard-only users must Tab through the entire app to dismiss them. Add focus trapping on open and close on Escape.
+- [x] **Add focus trap and Escape key handling to panels** *(completed)*
+  Created `src/lib/useFocusTrap.ts` — a custom hook using a callback ref (so focus trap activates even when the panel delays its first render via state initialisation). Attached to `InitiativePanel`, `DependencyPanel`, and `VersionManager`. Focus moves to the first focusable element on open; Tab/Shift-Tab cycle within the panel; Escape closes it.
 
 - [ ] **Add `aria-label` to editable table cell inputs**
   Inputs in `EditableTable.tsx` use placeholder text only — screen readers won't announce which column an input belongs to. Add `aria-label={column.label}` to each cell input.

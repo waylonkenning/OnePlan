@@ -4,6 +4,7 @@ import { X, Save, History, Trash2, ArrowRight, FileText, AlertCircle, LayoutGrid
 import { getAllVersions, saveVersion, deleteVersion } from '../lib/db';
 import { ConfirmModal } from './ConfirmModal';
 import { computeDiff } from '../lib/diff';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 interface VersionManagerProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
   const [comparisonVersionId, setComparisonVersionId] = useState<string | null>(null);
   const [pendingConfirm, setPendingConfirm] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
+  const panelRef = useFocusTrap(isOpen, onClose);
 
   useEffect(() => {
     if (isOpen) {
@@ -78,7 +80,7 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col relative animate-in fade-in zoom-in duration-200">
+      <div ref={panelRef} className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col relative animate-in fade-in zoom-in duration-200">
         <div className="flex items-center justify-between p-6 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
