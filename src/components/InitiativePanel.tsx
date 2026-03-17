@@ -3,6 +3,7 @@ import { Initiative, Asset, Programme, Strategy, Dependency } from '../types';
 import { X, Save, Trash2 } from 'lucide-react';
 import { validateInitiative, ValidationErrors } from '../lib/validation';
 import { ConfirmModal } from './ConfirmModal';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 interface InitiativePanelProps {
     initiative: Initiative | null;
@@ -21,6 +22,7 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
     const [formData, setFormData] = useState<Initiative | null>(null);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const panelRef = useFocusTrap(isOpen, onClose);
 
     useEffect(() => {
         if (initiative) {
@@ -55,7 +57,7 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
             onClick={handleOverlayClick}
             data-testid="initiative-panel"
         >
-            <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+            <div ref={panelRef} className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
                 <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50 flex-shrink-0">
                     <h2 className="text-lg font-semibold text-slate-800">
                         {formData.id.includes('new') ? 'Create Initiative' : 'Edit Initiative'}
@@ -179,6 +181,7 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
                                 <input
                                     id="budget"
                                     type="number"
+                                    inputMode="numeric"
                                     step="1000"
                                     className={`w-full pl-7 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${errors.budget ? 'border-red-400' : 'border-slate-300'}`}
                                     value={formData.budget ?? ''}
