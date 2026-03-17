@@ -9,8 +9,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 - [x] **Arrow selection when arrows are adjacent** *(completed)*
   Arrows in the same routing corridor are automatically staggered 16px apart. When a click lands near multiple overlapping arrows, a disambiguation popover lists the relationships by name so the user can pick the correct one.
 
-- [ ] **Default relationship type when drawing an arrow should be "Requires"**
-  Currently, dragging vertically from one initiative to another creates a `blocks` relationship. The default should be `requires` instead.
+- [x] **Default relationship type when drawing an arrow should be "Requires"** *(completed)*
+  Dragging vertically from one initiative to another now creates a `requires` relationship by default.
 
 - [ ] **Arrow z-index: arrows must always render above initiative bars**
   On hover, initiative bars currently obscure dependency arrows that pass over them. Arrows should always sit on top of initiative bars.

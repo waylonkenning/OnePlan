@@ -62,6 +62,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Vertical Stability:** Verify initiatives maintain their vertical row during drag and resize operations.
     - [x] **Relationship Drawing:** Drag vertically from one initiative to another to create a dependency.
         - [x] Verify the dashed arrow starts from the center of the source initiative.
+        - [x] Verify new arrows default to `requires` type (blue).
     - [x] **Dependency Edit Modal:**
         - [x] Verify that clicking a dependency arrow opens the edit modal.
         - [x] Verify that dependencies can be deleted from the modal.
