@@ -68,6 +68,12 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
   const [importPreviewData, setImportPreviewData] = useState<Partial<typeof data> | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importSchemaIssues, setImportSchemaIssues] = useState<SchemaIssue[]>([]);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 4000);
+  };
 
   const handleExportExcel = () => {
     exportToExcel(data);
@@ -77,7 +83,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
     if (timelineId) {
       exportToPDF(timelineId, `it-roadmap-${new Date().toISOString().split('T')[0]}.pdf`);
     } else {
-      alert('Timeline view must be active to export PDF.');
+      showNotification('error', 'Switch to Visualiser view to export PDF.');
     }
   };
 
@@ -93,16 +99,17 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       const importedData = await importFromExcel(file);
 
       // Basic validation/merging logic
-      if (importedData.assets || importedData.initiatives) {
+      const hasData = Object.values(importedData).some(arr => Array.isArray(arr) && arr.length > 0);
+      if (hasData) {
         setImportSchemaIssues(validateImportSchema(importedData as Record<string, unknown[]>));
         setImportPreviewData(importedData);
         setShowImportModal(true);
       } else {
-        alert('No valid data found in the Excel file.');
+        showNotification('error', 'No valid data found in the Excel file.');
       }
     } catch (error) {
       console.error('Import failed:', error);
-      alert('Failed to import Excel file. Please check the format.');
+      showNotification('error', 'Failed to import Excel file. Please check the format.');
     }
 
     // Reset input
@@ -126,7 +133,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
     setShowImportModal(false);
     setImportPreviewData(null);
     setImportSchemaIssues([]);
-    alert('Data overwritten successfully!');
+    showNotification('success', 'Data overwritten successfully.');
   };
 
   const handleMergeImport = () => {
@@ -159,7 +166,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
     setShowImportModal(false);
     setImportPreviewData(null);
     setImportSchemaIssues([]);
-    alert('Data merged successfully!');
+    showNotification('success', 'Data merged successfully.');
   };
 
   return (
@@ -199,6 +206,19 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
         accept=".xlsx, .xls"
         className="hidden"
       />
+
+      {notification && (
+        <div
+          data-testid={notification.type === 'success' ? 'import-success-notification' : 'import-error-notification'}
+          className={`absolute top-full right-0 mt-2 px-3 py-2 rounded-lg text-xs font-medium shadow-md z-50 whitespace-nowrap ${
+            notification.type === 'success'
+              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+              : 'bg-red-50 border border-red-200 text-red-800'
+          }`}
+        >
+          {notification.message}
+        </div>
+      )}
 
       {showImportModal && importPreviewData && (
         <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[100] import-preview-modal">
