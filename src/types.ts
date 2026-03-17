@@ -106,6 +106,7 @@ export interface TimelineSettings {
   collapsedGroups?: string[];
   hasSeenTutorial?: boolean;
   columnZoom?: number; // Multiplier for minimum column width (0.5–3.0, default 1.0)
+  mobileBucketMode?: 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy';
 }
 
 /**

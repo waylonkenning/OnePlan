@@ -139,6 +139,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Mobile Phase 2 — Mobile Header:** Verify desktop controls hidden on mobile; verify mobile header with settings icon; verify settings bottom sheet opens/closes (backdrop, Escape); verify bottom tab bar switches views; verify desktop unchanged.
 - [x] **Mobile Phase 3 — Touch Optimisation:** Verify no drag cursor on initiative bars on mobile; verify no resize handles on mobile; verify panel inputs ≥44px tall; verify budget field has inputmode="numeric".
 - [x] **Mobile Rendering Fixes:** Asset name sidebar truncates long names with ellipsis (no overflow); drag handle icons hidden on mobile (category and asset rows); legend items wrap correctly so all programme/strategy names are visible; tab bar active state uses border indicator for clear visual distinction.
+- [x] **Mobile Phase 4 — Asset Card View:** On mobile the Visualiser tab renders `MobileCardView` instead of the timeline; one card per asset grouped by category; initiatives grouped by configurable bucket (Timeline/Quarter/Year/Programme/Strategy); bucket selector in settings sheet; tapping a row opens InitiativePanel; conflict badges; `mobileBucketMode` persists to IndexedDB; desktop unchanged.
 
 ## 5b. Error Handling
 - [x] **Error Boundary:** Verify that a render error shows a friendly "Something went wrong" UI with a Reload button instead of a blank screen. Verify normal operation is unaffected.

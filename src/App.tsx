@@ -5,6 +5,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Timeline } from './components/Timeline';
+import { MobileCardView } from './components/MobileCardView';
+import { useMediaQuery } from './lib/useMediaQuery';
 import { DataControls } from './components/DataControls';
 import { DataManager } from './components/DataManager';
 import { TutorialModal } from './components/TutorialModal';
@@ -40,6 +42,7 @@ import { getAppData, saveAppData } from './lib/db';
 import { useRef } from 'react';
 
 export default function App() {
+  const isMobile = useMediaQuery('(max-width: 767px)');
   const [view, setView] = useState<'visualiser' | 'data' | 'reports'>('visualiser');
   const [isLoading, setIsLoading] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -637,7 +640,7 @@ export default function App() {
             onKeyDown={(e) => e.key === 'Escape' && setShowMobileSheet(false)}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-semibold text-slate-700">Timeline Settings</span>
+              <span className="text-sm font-semibold text-slate-700">Settings</span>
               <button onClick={() => setShowMobileSheet(false)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400">
                 <X size={16} />
               </button>
@@ -665,6 +668,30 @@ export default function App() {
                 <option value="36">36</option>
               </select>
             </label>
+            {/* Group by — bucket mode for card view */}
+            <div>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Group by</span>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {(['Timeline', 'Quarter', 'Year', 'Programme', 'Strategy'] as const).map(label => {
+                  const mode = label.toLowerCase() as 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy';
+                  const active = (timelineSettings.mobileBucketMode ?? 'timeline') === mode;
+                  return (
+                    <button
+                      key={mode}
+                      data-testid={`bucket-mode-${mode}`}
+                      onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, mobileBucketMode: mode } })}
+                      className={cn(
+                        'px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors',
+                        active ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-500'
+                      )}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {(() => {
               const conflictsOn = (timelineSettings.conflictDetection || 'on') === 'on';
               const relationshipsOn = (timelineSettings.showRelationships || 'on') === 'on';
@@ -713,6 +740,19 @@ export default function App() {
 
       <main className="flex-1 min-h-0 pb-16 md:pb-0">
         {view === 'visualiser' ? (
+          isMobile ? (
+            <MobileCardView
+              assets={assets}
+              initiatives={initiatives}
+              programmes={programmes}
+              strategies={strategies}
+              dependencies={dependencies}
+              assetCategories={assetCategories}
+              settings={timelineSettings}
+              onSaveInitiative={handleUpdateInitiative}
+              onDeleteInitiative={handleDeleteInitiative}
+            />
+          ) : (
           <Timeline
             assets={assets}
             initiatives={initiatives}
@@ -731,6 +771,7 @@ export default function App() {
             onDeleteInitiative={handleDeleteInitiative}
             onUpdateSettings={handleUpdateSettings}
           />
+          )
         ) : view === 'data' ? (
           <DataManager
             data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings }}
