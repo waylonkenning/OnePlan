@@ -98,8 +98,8 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Grouped Description No Truncation:** Verify that group bars expand to show the full joined description without CSS `line-clamp-3` or bar-height truncation, regardless of the number of initiatives in the group.
     - [x] **Dynamic Swimlane Height:** Verify that swimlane height shrinks when groups are collapsed and expands when ungrouped.
 - [x] **Compact Layout:** Verify that swimlane height is minimal (60px) and vertical padding is reduced.
-- [ ] **Drag-and-Drop Reordering:**
-    - [ ] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
+- [x] **Drag-and-Drop Reordering:**
+    - [x] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
     - [x] Asset Reordering: Drag an asset within its category and verify it moves correctly.
 - [x] **Inline Display Toggles:** Verify four icon toggles (conflict, relationships, descriptions, budget) replace the Display popover; verify active/inactive state and budget cycling.
 - [x] **Reports Mode:** Verify Reports nav tab, view switching, active state highlighting.
@@ -123,8 +123,8 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **PDF Export:** Trigger "Export PDF" while in Visualiser view and verify a PDF file is generated (checking for reasonable file size/optimization).
 
 ## 5. Edge Cases & Safety
-- [ ] **Invalid Dates:** Verify that entering an invalid date string in the Data Manager doesn't crash the Visualiser.
-- [ ] **Missing IDs:** Ensure that adding rows via CSV without IDs automatically generates them.
+- [x] **Invalid Dates:** Verify that entering an invalid date string in the Data Manager doesn't crash the Visualiser.
+- [x] **Missing IDs:** Ensure that adding rows via CSV without IDs automatically generates them.
 - [ ] **Large Data Sets:** (Optional) Verify that the layout algorithm (Greedy Placement) handles 20+ overlapping initiatives on a single asset without infinite loops or UI breakage.
 ## 6. Modals & Tutorials
 - [x] **In-App Confirm Modal:**
@@ -135,9 +135,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Features Modal:**
     - [x] Verify that the modal opens and displays all feature cards.
     - [x] Verify that feature animations are loading correctly (with valid recoridngs).
-- [ ] **In-App Tutorial:**
-    - [ ] Verify that the tutorial modal appears on first load.
-    - [ ] Verify that the tutorial can be manually triggered via the Help button.
+- [x] **In-App Tutorial:**
+    - [x] Verify that the tutorial modal appears on first load.
+    - [x] Verify that the tutorial can be manually triggered via the Help button.
 
 ## 7. Landing Page & Branding
 - [x] **Open Source:**

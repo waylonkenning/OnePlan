@@ -1217,9 +1217,10 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               if (categoryAssets.length === 0) return null;
 
               return (
-                <div key={catId} onDragOver={(e) => handleCategoryDragOver(e, catId)}>
+                <div key={catId} data-testid={`category-row-${catId}`} onDragOver={(e) => handleCategoryDragOver(e, catId)}>
                   <div
                     draggable
+                    data-testid={`category-drag-handle-${catId}`}
                     onDragStart={(e) => handleCategoryDragStart(e, catId)}
                     onDragEnd={handleCategoryDragEnd}
                     className={cn(
