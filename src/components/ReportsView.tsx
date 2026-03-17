@@ -88,11 +88,18 @@ export function ReportsView({ assets, initiatives, dependencies, currentData }: 
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
   const [diffResult, setDiffResult] = useState<ReturnType<typeof computeDiff> | null>(null);
+  const [versionsError, setVersionsError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('oneplan-test-versions-fail') === 'true') {
+      setVersionsError('Failed to load saved versions. Please try reloading.');
+      return;
+    }
     getAllVersions().then(loaded => {
       const sorted = loaded.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
       setVersions(sorted);
+    }).catch(() => {
+      setVersionsError('Failed to load saved versions. Please try reloading.');
     });
   }, []);
 
@@ -112,7 +119,9 @@ export function ReportsView({ assets, initiatives, dependencies, currentData }: 
             <h2 className="text-base font-semibold text-slate-800">History Differences</h2>
           </div>
           <div className="p-4">
-            {versions.length === 0 ? (
+            {versionsError ? (
+              <p data-testid="versions-load-error" className="text-sm text-red-500">{versionsError}</p>
+            ) : versions.length === 0 ? (
               <p className="text-sm text-slate-400">No saved versions</p>
             ) : (
               <div className="space-y-3">

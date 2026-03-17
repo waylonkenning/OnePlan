@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Timeline } from './components/Timeline';
 import { DataControls } from './components/DataControls';
 import { DataManager } from './components/DataManager';
@@ -64,10 +64,14 @@ export default function App() {
   const [isVersionManagerOpen, setIsVersionManagerOpen] = useState(false);
   const [showMoreSettingsPanel, setShowMoreSettingsPanel] = useState(false);
   const moreSettingsPanelRef = useRef<HTMLDivElement>(null);
+  const undoRef = useRef<() => void>(() => {});
+  const redoRef = useRef<() => void>(() => {});
 
   const getCurrentState = (): AppState => ({
     assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings
   });
+
+  const getCurrentStateRef = useRef(getCurrentState);
 
   // Load data on mount
   useEffect(() => {
@@ -141,10 +145,10 @@ export default function App() {
     loadData();
   }, []);
 
-  const handleUpdate = async (data: AppState, skipHistory = false) => {
+  const handleUpdate = useCallback(async (data: AppState, skipHistory = false) => {
     if (!skipHistory) {
       setUndoStack(prev => {
-        const newStack = [...prev, getCurrentState()];
+        const newStack = [...prev, getCurrentStateRef.current()];
         if (newStack.length > 10) return newStack.slice(newStack.length - 10);
         return newStack;
       });
@@ -168,7 +172,7 @@ export default function App() {
       console.error('Failed to save data to DB:', error);
       alert('Failed to save changes to local storage.');
     }
-  };
+  }, []);
 
   const handleUndo = () => {
     if (undoStack.length === 0) return;
@@ -198,6 +202,44 @@ export default function App() {
     handleUpdate(nextState, true);
   };
 
+  // Keep refs pointing to latest callbacks so the keyboard listener never needs to re-register
+  undoRef.current = handleUndo;
+  redoRef.current = handleRedo;
+  getCurrentStateRef.current = getCurrentState;
+
+  const handleAddInitiative = useCallback((newInit: Initiative) => {
+    if (initiatives.some(i => i.id === newInit.id)) return;
+    handleUpdate({ assets, initiatives: [...initiatives, newInit], milestones, programmes, strategies, dependencies, assetCategories, timelineSettings });
+  }, [assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, handleUpdate]);
+
+  const handleUpdateInitiative = useCallback((updatedInit: Initiative) => {
+    handleUpdate({ assets, initiatives: initiatives.map(i => i.id === updatedInit.id ? updatedInit : i), milestones, programmes, strategies, dependencies, assetCategories, timelineSettings });
+  }, [assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, handleUpdate]);
+
+  const handleUpdateAssets = useCallback((updatedAssets: Asset[]) => {
+    handleUpdate({ assets: updatedAssets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings });
+  }, [initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, handleUpdate]);
+
+  const handleUpdateDependencies = useCallback((updatedDependencies: Dependency[]) => {
+    handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies: updatedDependencies, assetCategories, timelineSettings });
+  }, [assets, initiatives, milestones, programmes, strategies, assetCategories, timelineSettings, handleUpdate]);
+
+  const handleUpdateMilestone = useCallback((updatedMilestone: Milestone) => {
+    handleUpdate({ assets, initiatives, milestones: milestones.map(m => m.id === updatedMilestone.id ? updatedMilestone : m), programmes, strategies, dependencies, assetCategories, timelineSettings });
+  }, [assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, handleUpdate]);
+
+  const handleDeleteInitiative = useCallback((deletedInit: Initiative) => {
+    handleUpdate({ assets, initiatives: initiatives.filter(i => i.id !== deletedInit.id), milestones, programmes, strategies, dependencies: dependencies.filter(d => d.sourceId !== deletedInit.id && d.targetId !== deletedInit.id), assetCategories, timelineSettings });
+  }, [assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, handleUpdate]);
+
+  const handleUpdateSettings = useCallback((updatedSettings: TimelineSettings) => {
+    handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: updatedSettings });
+  }, [assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, handleUpdate]);
+
+  const handleRestoreVersion = useCallback((version: { data: AppState }) => {
+    handleUpdate(version.data);
+  }, [handleUpdate]);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (moreSettingsPanelRef.current && !moreSettingsPanelRef.current.contains(e.target as Node)) {
@@ -218,17 +260,17 @@ export default function App() {
       if (e.metaKey || e.ctrlKey) {
         if (e.key === 'z') {
           e.preventDefault();
-          handleUndo();
+          undoRef.current();
         } else if (e.key === 'Z' || (e.key === 'z' && e.shiftKey)) {
           e.preventDefault();
-          handleRedo();
+          redoRef.current();
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undoStack, redoStack, assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -523,93 +565,13 @@ export default function App() {
             assetCategories={assetCategories}
             settings={timelineSettings}
             searchQuery={searchQuery}
-            onAddInitiative={(newInit) => {
-              if (initiatives.some(i => i.id === newInit.id)) return;
-              handleUpdate({
-                assets,
-                initiatives: [...initiatives, newInit],
-                milestones,
-                programmes,
-                strategies,
-                dependencies,
-                assetCategories,
-                timelineSettings,
-              });
-            }}
-            onUpdateInitiative={(updatedInit) => {
-              const updatedInitiatives = initiatives.map(i => i.id === updatedInit.id ? updatedInit : i);
-              handleUpdate({
-                assets,
-                initiatives: updatedInitiatives,
-                milestones,
-                programmes,
-                strategies,
-                dependencies,
-                assetCategories,
-                timelineSettings,
-              });
-            }}
-            onUpdateAssets={(updatedAssets) => {
-              handleUpdate({
-                assets: updatedAssets,
-                initiatives,
-                milestones,
-                programmes,
-                strategies,
-                dependencies,
-                assetCategories,
-                timelineSettings,
-              });
-            }}
-            onUpdateDependencies={(updatedDependencies) => {
-              handleUpdate({
-                assets,
-                initiatives,
-                milestones,
-                programmes,
-                strategies,
-                dependencies: updatedDependencies,
-                assetCategories,
-                timelineSettings,
-              });
-            }}
-            onUpdateMilestone={(updatedMilestone) => {
-              const updatedMilestones = milestones.map(m => m.id === updatedMilestone.id ? updatedMilestone : m);
-              handleUpdate({
-                assets,
-                initiatives,
-                milestones: updatedMilestones,
-                programmes,
-                strategies,
-                dependencies,
-                assetCategories,
-                timelineSettings,
-              });
-            }}
-            onDeleteInitiative={(deletedInit) => {
-              handleUpdate({
-                assets,
-                initiatives: initiatives.filter(i => i.id !== deletedInit.id),
-                milestones,
-                programmes,
-                strategies,
-                dependencies: dependencies.filter(d => d.sourceId !== deletedInit.id && d.targetId !== deletedInit.id),
-                assetCategories,
-                timelineSettings,
-              });
-            }}
-            onUpdateSettings={(updatedSettings) => {
-              handleUpdate({
-                assets,
-                initiatives,
-                milestones,
-                programmes,
-                strategies,
-                dependencies,
-                assetCategories,
-                timelineSettings: updatedSettings,
-              });
-            }}
+            onAddInitiative={handleAddInitiative}
+            onUpdateInitiative={handleUpdateInitiative}
+            onUpdateAssets={handleUpdateAssets}
+            onUpdateDependencies={handleUpdateDependencies}
+            onUpdateMilestone={handleUpdateMilestone}
+            onDeleteInitiative={handleDeleteInitiative}
+            onUpdateSettings={handleUpdateSettings}
           />
         ) : view === 'data' ? (
           <DataManager
@@ -673,9 +635,7 @@ export default function App() {
       <VersionManager
         isOpen={isVersionManagerOpen}
         onClose={() => setIsVersionManagerOpen(false)}
-        onRestore={(version) => {
-          handleUpdate(version.data);
-        }}
+        onRestore={handleRestoreVersion}
         currentData={{
           assets,
           initiatives,
