@@ -58,8 +58,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 - [x] **Add a "Reports" mode alongside Visualiser and Data Manager** *(completed)*
   Added a third navigation tab (BarChart2 icon). Clicking Reports shows a `ReportsView` scaffold. Nav button highlights when active; switching away and back retains the view.
 
-- [ ] **Report: History Differences**
-  Move the existing Version History difference report into the new Reports mode so it is accessible as a first-class report rather than buried in the history sidebar.
+- [x] **Report: History Differences** *(completed)*
+  The History Differences section is now a first-class report in the Reports view. It loads saved versions, shows a dropdown selector, and renders the diff inline (added/removed/changed initiatives, dependencies, milestones) without requiring the History modal.
 
 - [x] **Report: Initiatives and their Dependencies** *(completed)*
   Reports view now shows an "Initiatives & Dependencies" report grouped by asset. Each initiative lists its dependencies as plain-language sentences (e.g. "Passkey Rollout blocks SSO Consolidation â€” must finish before it can start."). Initiatives with no dependencies show "No dependencies".
