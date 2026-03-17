@@ -103,6 +103,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] **Category Reordering:** Drag a category (e.g., "Data Assets") above another and verify the vertical order changes.
     - [x] Asset Reordering: Drag an asset within its category and verify it moves correctly.
 - [x] **Inline Display Toggles:** Verify four icon toggles (conflict, relationships, descriptions, budget) replace the Display popover; verify active/inactive state and budget cycling; verify each has aria-label and aria-pressed reflecting current state.
+- [x] **Zoom Control:** Verify zoom-in/zoom-out buttons widen/narrow timeline columns; verify disabled state at min/max zoom; verify zoom level persists across page reloads.
 - [x] **Panel Focus Trap & Escape Key:** Verify InitiativePanel, DependencyPanel, and VersionManager all close on Escape; verify Tab cycles focus within InitiativePanel without escaping to the rest of the page.
 - [x] **EditableTable aria-label:** Verify real-row text inputs, ghost-row text inputs, real-row selects, and real-row checkboxes all carry aria-label matching the column label.
 - [x] **Reports Mode:** Verify Reports nav tab, view switching, active state highlighting.

@@ -271,7 +271,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const startDate = timeColumns[0].date;
   const endDate = timeColumns[timeColumns.length - 1].endDate;
   const totalDays = differenceInDays(endDate, startDate);
-  const totalWidth = Math.max(containerWidth, timeColumns.length * 80); // Min 80px per column
+  const zoom = settings.columnZoom ?? 1.0;
+  const totalWidth = Math.max(containerWidth, timeColumns.length * 80 * zoom); // Min 80px per column, scaled by zoom
   const columnWidth = totalWidth / timeColumns.length;
 
   // Helper to get position and width
