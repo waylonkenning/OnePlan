@@ -618,7 +618,7 @@ export default function App() {
             searchQuery={searchQuery}
           />
         ) : (
-          <ReportsView />
+          <ReportsView assets={assets} initiatives={initiatives} dependencies={dependencies} />
         )}
       </main>
 

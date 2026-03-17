@@ -61,7 +61,5 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story �
 - [ ] **Report: History Differences**
   Move the existing Version History difference report into the new Reports mode so it is accessible as a first-class report rather than buried in the history sidebar.
 
-- [ ] **Report: Initiatives and their Dependencies**
-  Generate a plain-language report per asset listing each initiative and its dependencies. Example output:
-  > **Customer IAM (CIAM)**
-  > - Passkey Rollout blocks SSO Consolidation — Passkey Rollout must finish before SSO Consolidation can start.
+- [x] **Report: Initiatives and their Dependencies** *(completed)*
+  Reports view now shows an "Initiatives & Dependencies" report grouped by asset. Each initiative lists its dependencies as plain-language sentences (e.g. "Passkey Rollout blocks SSO Consolidation — must finish before it can start."). Initiatives with no dependencies show "No dependencies".
