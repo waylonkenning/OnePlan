@@ -103,7 +103,7 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 - [x] **Replace `alert()` calls with in-app feedback** *(completed)*
   `DataControls.tsx` uses `alert()` for some error conditions (blocking, unstyled, inconsistent with the rest of the UI). Replace with inline error state or a non-blocking toast notification consistent with the existing `ConfirmModal` pattern.
 
-- [ ] **Consolidate cascading delete handlers in DataManager**
+- [x] **Consolidate cascading delete handlers in DataManager** *(completed)*
   `DataManager.tsx` has five near-identical handler functions (`handleDeleteAsset`, `handleDeleteProgramme`, `handleDeleteStrategy`, etc.) that all follow the same pattern. Extract a single generic helper to reduce duplication and ensure cascade logic stays consistent.
 
 ---
