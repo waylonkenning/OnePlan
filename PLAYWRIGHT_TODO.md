@@ -125,6 +125,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 ## 5. Edge Cases & Safety
 - [x] **Invalid Dates:** Verify that entering an invalid date string in the Data Manager doesn't crash the Visualiser.
 - [x] **Missing IDs:** Ensure that adding rows via CSV without IDs automatically generates them.
+- [x] **Orphaned Dependency References:** Verify that no dependency in the loaded app data references a non-existent initiative ID (reads IndexedDB directly).
 - [ ] **Large Data Sets:** (Optional) Verify that the layout algorithm (Greedy Placement) handles 20+ overlapping initiatives on a single asset without infinite loops or UI breakage.
 ## 6. Modals & Tutorials
 - [x] **In-App Confirm Modal:**
