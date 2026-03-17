@@ -76,9 +76,7 @@ test.describe('Grouped description — no truncation', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 
     // Enable description display (default 36-month timeline keeps the bar narrow)
-    await page.getByRole('button', { name: 'Display' }).click();
-    await page.locator('select#descriptionDisplay').selectOption('on');
-    await page.keyboard.press('Escape');
+    await page.getByTestId('toggle-descriptions').click();
 
     // Collapse the group on the PAM row
     const pamRow = page.locator('[data-asset-id="a-pam"]');

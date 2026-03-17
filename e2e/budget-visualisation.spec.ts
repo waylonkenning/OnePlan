@@ -14,9 +14,11 @@ test.describe('Budget Visualisation', () => {
         const initialBox = await initiativeBar.boundingBox();
         const initialHeight = initialBox?.height || 0;
 
-        // Open Display panel and change Budget to bar-height
-        await page.getByRole('button', { name: 'Display' }).click();
-        await page.locator('select#budgetVisualisation').selectOption('bar-height');
+        // Cycle budget toggle to bar-height (off → label → bar-height)
+        const budgetToggle = page.getByTestId('toggle-budget');
+        while ((await budgetToggle.getAttribute('data-mode')) !== 'bar-height') {
+            await budgetToggle.click();
+        }
 
         // Check if height increased - Use expect.poll for robustness
         await expect.poll(async () => {
@@ -26,9 +28,11 @@ test.describe('Budget Visualisation', () => {
     });
 
     test('can toggle budget visualisation to label', async ({ page }) => {
-        // Open Display panel and change Budget to label
-        await page.getByRole('button', { name: 'Display' }).click();
-        await page.locator('select#budgetVisualisation').selectOption('label');
+        // Cycle budget toggle to label (off → label)
+        const budgetToggle = page.getByTestId('toggle-budget');
+        while ((await budgetToggle.getAttribute('data-mode')) !== 'label') {
+            await budgetToggle.click();
+        }
 
         // Find an initiative bar - i-ciam-sso has 600k budget
         const initiativeBar = page.locator('div[data-initiative-id="i-ciam-sso"]');

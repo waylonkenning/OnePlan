@@ -62,10 +62,11 @@ test.describe('Capture Feature Screenshots', () => {
     }
 
     // --- 5. Conflict Detection ---
-    // Open Display panel and enable conflict detection
-    await page.getByRole('button', { name: 'Display' }).click();
-    await page.locator('#conflictDetection').selectOption('on');
-    await page.getByRole('button', { name: 'Display' }).click(); // close panel
+    // Ensure conflict detection is on (toggle it on if currently off)
+    const conflictToggle = page.getByTestId('toggle-conflicts');
+    if ((await conflictToggle.getAttribute('data-active')) !== 'true') {
+      await conflictToggle.click();
+    }
     // Move SSO over Passkey to create a conflict
     const passkey = page.locator('div').filter({ hasText: /^Passkey Rollout$/ }).first();
     const passkeyBox = await passkey.boundingBox();
@@ -88,11 +89,15 @@ test.describe('Capture Feature Screenshots', () => {
     }
 
     // --- 6. Grouped Initiatives ---
-    // Open Display panel and turn on budget labels and descriptions
-    await page.getByRole('button', { name: 'Display' }).click();
-    await page.locator('#budgetVisualisation').selectOption('label');
-    await page.locator('#descriptionDisplay').selectOption('on');
-    await page.getByRole('button', { name: 'Display' }).click(); // close panel
+    // Turn on budget labels and descriptions via inline toggles
+    const budgetToggle = page.getByTestId('toggle-budget');
+    while ((await budgetToggle.getAttribute('data-mode')) !== 'label') {
+      await budgetToggle.click();
+    }
+    const descToggle = page.getByTestId('toggle-descriptions');
+    if ((await descToggle.getAttribute('data-active')) !== 'true') {
+      await descToggle.click();
+    }
     await page.waitForTimeout(200);
 
     // Collapse the PAM asset row

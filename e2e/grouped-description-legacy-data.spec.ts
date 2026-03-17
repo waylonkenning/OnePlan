@@ -63,8 +63,7 @@ test.describe('Grouped description with legacy imported data', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 
     // Turn on description display
-    await page.getByRole('button', { name: 'Display' }).click();
-    await page.locator('select#descriptionDisplay').selectOption('on');
+    await page.getByTestId('toggle-descriptions').click();
 
     // Import the legacy file (merge so existing data stays)
     const fileChooserPromise = page.waitForEvent('filechooser');

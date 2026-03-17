@@ -10,8 +10,8 @@ test.describe('Snap to Month Setting', () => {
         const init = page.getByText('Passkey Rollout');
         await expect(init).toBeVisible();
 
-        // Open Display panel, ensure snap is off first
-        await page.getByRole('button', { name: 'Display' }).click();
+        // Open more settings panel, ensure snap is off first
+        await page.getByTestId('display-more-btn').click();
         await page.getByLabel('Snap to Month').selectOption('off');
 
         const box1 = await init.boundingBox();
@@ -30,8 +30,8 @@ test.describe('Snap to Month Setting', () => {
         // Ensure it moved a little bit (not snapped)
         expect(box2!.x).toBeGreaterThan(box1!.x);
 
-        // Reopen Display panel and turn snap on
-        await page.getByRole('button', { name: 'Display' }).click();
+        // Reopen more settings panel and turn snap on
+        await page.getByTestId('display-more-btn').click();
         await page.getByLabel('Snap to Month').selectOption('month');
 
         // Drag it a little bit more to the right, it should either snap back to start of month or jump to next month

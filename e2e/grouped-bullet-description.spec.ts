@@ -10,9 +10,8 @@ test.describe('Grouped initiative description — bullet points', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 
-    // Enable description display
-    await page.getByRole('button', { name: 'Display' }).click();
-    await page.locator('select#descriptionDisplay').selectOption('on');
+    // Enable description display via inline toggle
+    await page.getByTestId('toggle-descriptions').click();
 
     // Collapse the CIAM group (Passkey Rollout + SSO Consolidation)
     const targetRow = page.locator('[data-asset-id="a-ciam"]');

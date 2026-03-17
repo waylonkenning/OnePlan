@@ -58,9 +58,8 @@ test.describe('Description Display', () => {
         const initialBox = await bar.boundingBox();
         const initialHeight = initialBox?.height || 0;
 
-        // Open Display panel and turn on Descriptions
-        await page.getByRole('button', { name: 'Display' }).click();
-        await page.locator('select#descriptionDisplay').selectOption('on');
+        // Turn on Descriptions via inline icon toggle
+        await page.getByTestId('toggle-descriptions').click();
 
         // The bar should now be taller
         await expect.poll(async () => {

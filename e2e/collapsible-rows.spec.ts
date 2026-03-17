@@ -51,14 +51,14 @@ test.describe('Collapsible Categories & Empty Rows', () => {
         const emptyAsset = page.getByText('Empty Asset', { exact: true });
         await expect(emptyAsset).toBeVisible();
 
-        // Open Display panel and change "Empty Rows" to "Hide"
-        await page.getByRole('button', { name: 'Display' }).click();
+        // Open more settings panel and change "Empty Rows" to "Hide"
+        await page.getByTestId('display-more-btn').click();
         await page.getByLabel('Empty Rows').selectOption('hide');
 
         // The empty asset should disappear
         await expect(emptyAsset).not.toBeVisible();
 
-        // Change back to "Show"
+        // Change back to "Show" (panel is still open)
         await page.getByLabel('Empty Rows').selectOption('show');
 
         // It should reappear

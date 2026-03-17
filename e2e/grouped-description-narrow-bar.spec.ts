@@ -85,9 +85,7 @@ test.describe('Grouped description on narrow bar', () => {
     // Enable description display. The default timeline is 36 months from 2026-01-01,
     // so the 2-month group (Sep–Oct 2026) spans only ~5.6% — below the old
     // `width > 8` guard that was blocking the description.
-    await page.getByRole('button', { name: 'Display' }).click();
-    await page.locator('select#descriptionDisplay').selectOption('on');
-    await page.keyboard.press('Escape');
+    await page.getByTestId('toggle-descriptions').click();
 
     // Collapse the group on the PAM asset row
     const pamRow = page.locator('[data-asset-id="a-pam"]');
