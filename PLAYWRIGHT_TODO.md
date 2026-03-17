@@ -66,9 +66,11 @@ This document outlines the critical functionality of **OnePlan** that should be 
         - [x] Verify that clicking a dependency arrow opens the edit modal.
         - [x] Verify that dependencies can be deleted from the modal.
         - [x] Verify that dependency direction can be reversed in the modal.
+        - [x] Verify that the description sentence uses actual initiative names (e.g. "X must finish before Y can start").
     - [x] **Dependency Visual Enhancements:**
         - [x] Verify increased vertical gap (32px) for intra-asset dependencies.
         - [x] Verify that dependency labels are offset to not cover the arrow.
+        - [x] Verify blocks arrows are red, requires arrows are blue, related arrows are dark with no arrowhead.
     - [x] **Dependency Arrow Dragging:**
         - [x] Verify that dependency arrows can be dragged horizontally.
         - [x] Verify that dragged offsets are persisted across page reloads.

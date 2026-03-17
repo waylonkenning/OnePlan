@@ -57,8 +57,8 @@ test.describe('Initiative Interaction Features', () => {
     await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 10 });
     await page.mouse.up();
 
-    // Check if a dependency line exists in the SVG
-    const dependencyLine = page.locator('svg path[marker-end="url(#arrowhead)"]');
-    await expect(dependencyLine.first()).toBeAttached();
+    // Check if a dependency group exists in the SVG (blocks arrow uses arrowhead-red)
+    const dependencyGroup = page.locator('g.cursor-pointer.group');
+    await expect(dependencyGroup.first()).toBeAttached();
   });
 });
