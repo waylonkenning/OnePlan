@@ -100,7 +100,7 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 - [x] **Extract shared diff logic to `src/lib/diff.ts`** *(completed)*
   The `compareEntities` function and full diff computation is copy-pasted between `VersionManager.tsx` and `ReportsView.tsx` (~70 lines each). Extract to a shared `src/lib/diff.ts` module and import it in both components, so a bug fix or enhancement only needs to happen once.
 
-- [ ] **Replace `alert()` calls with in-app feedback**
+- [x] **Replace `alert()` calls with in-app feedback** *(completed)*
   `DataControls.tsx` uses `alert()` for some error conditions (blocking, unstyled, inconsistent with the rest of the UI). Replace with inline error state or a non-blocking toast notification consistent with the existing `ConfirmModal` pattern.
 
 - [ ] **Consolidate cascading delete handlers in DataManager**

@@ -116,7 +116,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 
 ## 4. Data Controls (Import/Export)
 - [x] **Excel Export:** Trigger "Export Excel" and verify a `.xlsx` file is generated containing all sheets (Initiatives, Assets, Programmes, Strategies, Milestones).
-- [x] **Excel Import:** Upload a valid Excel file and verify the Import Preview modal appears.
+- [x] **Excel Import:** Upload a valid Excel file and verify the Import Preview modal appears; verify merge/overwrite show inline success notifications; verify no-data upload shows inline error notification — no browser alert().
     - [x] **Merge Data:** Verify that clicking 'Merge Data' updates existing items, adds new items, and retains existing unreferenced items.
     - [x] **Overwrite All Data:** Verify backwards compatibility where 'Overwrite All Data' completely replaces the application state.
     - [x] **Schema Validation:** Verify that importing a file with missing required fields (e.g. `startDate`) shows a "Schema warnings" panel in the preview modal, and that a valid file shows no warnings.
