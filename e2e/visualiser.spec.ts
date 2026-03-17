@@ -32,8 +32,8 @@ test.describe('Visualiser (Timeline)', () => {
     await page.getByRole('button', { name: 'Data Manager' }).click();
 
     // Clear initiatives and add two overlapping ones on the same asset
-    page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Ensure significant overlap within 2026-2028 range
@@ -61,8 +61,8 @@ test.describe('Visualiser (Timeline)', () => {
   test('Conflict markers layering', async ({ page }) => {
     // Navigate to ensure we have a conflict (similar to above)
     await page.getByRole('button', { name: 'Data Manager' }).click();
-    page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     const textarea = page.locator('textarea');
     await textarea.fill(`id,name,assetId,startDate,endDate,budget\nconf-1,Conflict A,a-ciam,2026-04-01,2026-12-31,100\nconf-2,Conflict B,a-ciam,2026-04-01,2026-12-31,100`);
@@ -90,8 +90,8 @@ test.describe('Visualiser (Timeline)', () => {
 
   test('Timeline renders correctly when an initiative has an invalid date', async ({ page }) => {
     await page.getByTestId('nav-data-manager').click();
-    page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     // Import an initiative with a valid date and one with an empty/invalid endDate
     await page.getByRole('button', { name: 'Paste CSV' }).click();

@@ -3,6 +3,7 @@ import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCat
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
 import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree, Trash2, RotateCcw } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 import {
   demoAssets, demoInitiatives, demoMilestones, demoProgrammes, demoStrategies,
   demoDependencies, demoAssetCategories, demoTimelineSettings
@@ -36,6 +37,11 @@ type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'prog
 
 export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>('initiatives');
+  const [pendingConfirm, setPendingConfirm] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
+
+  const confirm = (title: string, message: string, action: () => void) => {
+    setPendingConfirm({ title, message, onConfirm: () => { setPendingConfirm(null); action(); } });
+  };
 
   const updateData = (key: keyof typeof data, newData: any[]) => {
     onUpdate({
@@ -59,15 +65,13 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
       ? `Deleting "${asset.name}" will also remove ${parts.join(', ')}. Continue?`
       : `Delete "${asset.name}"?`;
 
-    if (!window.confirm(msg)) return true;
-
-    onUpdate({
+    confirm('Delete Asset', msg, () => onUpdate({
       ...data,
       assets: data.assets.filter(a => a.id !== asset.id),
       initiatives: data.initiatives.filter(i => i.assetId !== asset.id),
       milestones: data.milestones.filter(m => m.assetId !== asset.id),
       dependencies: data.dependencies.filter(d => !affectedInitIds.has(d.sourceId) && !affectedInitIds.has(d.targetId)),
-    });
+    }));
     return true;
   };
 
@@ -83,14 +87,12 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
       ? `Deleting "${prog.name}" will also remove ${parts.join(', ')}. Continue?`
       : `Delete "${prog.name}"?`;
 
-    if (!window.confirm(msg)) return true;
-
-    onUpdate({
+    confirm('Delete Programme', msg, () => onUpdate({
       ...data,
       programmes: data.programmes.filter(p => p.id !== prog.id),
       initiatives: data.initiatives.filter(i => i.programmeId !== prog.id),
       dependencies: data.dependencies.filter(d => !affectedInitIds.has(d.sourceId) && !affectedInitIds.has(d.targetId)),
-    });
+    }));
     return true;
   };
 
@@ -100,13 +102,11 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
       ? `Deleting "${strat.name}" will clear the strategy on ${affected.length} initiative(s). Continue?`
       : `Delete "${strat.name}"?`;
 
-    if (!window.confirm(msg)) return true;
-
-    onUpdate({
+    confirm('Delete Strategy', msg, () => onUpdate({
       ...data,
       strategies: data.strategies.filter(s => s.id !== strat.id),
       initiatives: data.initiatives.map(i => i.strategyId === strat.id ? { ...i, strategyId: undefined } : i),
-    });
+    }));
     return true;
   };
 
@@ -116,13 +116,11 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
       ? `Deleting "${init.name}" will also remove ${affectedDeps.length} dependency(ies). Continue?`
       : `Delete "${init.name}"?`;
 
-    if (!window.confirm(msg)) return true;
-
-    onUpdate({
+    confirm('Delete Initiative', msg, () => onUpdate({
       ...data,
       initiatives: data.initiatives.filter(i => i.id !== init.id),
       dependencies: data.dependencies.filter(d => d.sourceId !== init.id && d.targetId !== init.id),
-    });
+    }));
     return true;
   };
 
@@ -143,16 +141,14 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
       ? `Deleting "${cat.name}" will also remove ${parts.join(', ')}. Continue?`
       : `Delete "${cat.name}"?`;
 
-    if (!window.confirm(msg)) return true;
-
-    onUpdate({
+    confirm('Delete Category', msg, () => onUpdate({
       ...data,
       assetCategories: data.assetCategories.filter(c => c.id !== cat.id),
       assets: data.assets.filter(a => a.categoryId !== cat.id),
       initiatives: data.initiatives.filter(i => !affectedAssetIds.has(i.assetId)),
       milestones: data.milestones.filter(m => !affectedAssetIds.has(m.assetId)),
       dependencies: data.dependencies.filter(d => !affectedInitIds.has(d.sourceId) && !affectedInitIds.has(d.targetId)),
-    });
+    }));
     return true;
   };
 
@@ -364,46 +360,36 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
 
       <div className="flex items-center gap-3 mt-3 pt-3 border-t border-slate-200">
         <button
-          onClick={() => {
-            if (window.confirm('This will permanently delete ALL data across every table (Initiatives, Assets, Programmes, etc.). This cannot be undone. Continue?')) {
-              onUpdate({
-                ...data,
-                assets: [],
-                initiatives: [],
-                milestones: [],
-                programmes: [],
-                strategies: [],
-                dependencies: [],
-                assetCategories: [],
-              });
-            }
-          }}
+          onClick={() => confirm(
+            'Reset — delete all data',
+            'This will permanently delete ALL data across every table (Initiatives, Assets, Programmes, etc.). This cannot be undone.',
+            () => onUpdate({ ...data, assets: [], initiatives: [], milestones: [], programmes: [], strategies: [], dependencies: [], assetCategories: [] }),
+          )}
           className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-all shadow-sm font-medium text-sm"
         >
           <Trash2 size={16} />
           Reset - delete all data
         </button>
         <button
-          onClick={() => {
-            if (window.confirm('This will replace ALL current data with a comprehensive demo dataset for a large corporate IT organisation. Your existing data will be lost. Continue?')) {
-              onUpdate({
-                assets: demoAssets,
-                initiatives: demoInitiatives,
-                milestones: demoMilestones,
-                programmes: demoProgrammes,
-                strategies: demoStrategies,
-                dependencies: demoDependencies,
-                assetCategories: demoAssetCategories,
-                timelineSettings: demoTimelineSettings,
-              });
-            }
-          }}
+          onClick={() => confirm(
+            'Reset — use demo data',
+            'This will replace ALL current data with the demo dataset. Your existing data will be lost.',
+            () => onUpdate({ assets: demoAssets, initiatives: demoInitiatives, milestones: demoMilestones, programmes: demoProgrammes, strategies: demoStrategies, dependencies: demoDependencies, assetCategories: demoAssetCategories, timelineSettings: demoTimelineSettings }),
+          )}
           className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all shadow-sm font-medium text-sm"
         >
           <RotateCcw size={16} />
           Reset - use demo data
         </button>
       </div>
+      <ConfirmModal
+        isOpen={pendingConfirm !== null}
+        title={pendingConfirm?.title ?? ''}
+        message={pendingConfirm?.message ?? ''}
+        confirmLabel="Confirm"
+        onConfirm={() => pendingConfirm?.onConfirm()}
+        onCancel={() => setPendingConfirm(null)}
+      />
     </div>
   );
 }

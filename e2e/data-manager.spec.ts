@@ -22,19 +22,17 @@ test.describe('Data Manager Operations', () => {
     await page.getByRole('button', { name: 'Add Row' }).click();
     await expect(realRows).toHaveCount(initialCount + 1);
 
-    // Accept cascade confirmation dialog
-    page.on('dialog', dialog => dialog.accept());
-
     const lastRealRow = realRows.last();
     await lastRealRow.hover(); // Make delete button visible
     const deleteButton = lastRealRow.getByTitle('Delete row');
     await deleteButton.click({ force: true });
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
     await expect(realRows).toHaveCount(initialCount);
   });
 
   test('Clear All Rows', async ({ page }) => {
-    page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     const realRows = page.locator('table tbody tr[data-real="true"]');
     await expect(realRows).toHaveCount(0);
@@ -44,8 +42,8 @@ test.describe('Data Manager Operations', () => {
   });
 
   test('CSV Paste: Import New', async ({ page }) => {
-    page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Use the correct column order from DataManager.tsx: name, assetId, programmeId, strategyId, startDate, endDate, budget
@@ -87,8 +85,8 @@ test.describe('Data Manager Operations', () => {
 
   test('CSV Paste: Multi-word & Quoted Values', async ({ page }) => {
     await page.getByRole('button', { name: 'Assets' }).click();
-    page.on('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Asset columns: id, name, categoryId

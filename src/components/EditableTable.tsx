@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Plus, Trash2, ClipboardPaste, X, Check, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { ConfirmModal } from './ConfirmModal';
 
 export interface Option {
   value: string;
@@ -43,6 +44,7 @@ export function EditableTable<T extends { [key: string]: any }>({
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
   const [pendingFocus, setPendingFocus] = useState<{ id: string; key: keyof T } | null>(null);
   const [activeColorPicker, setActiveColorPicker] = useState<{ rowId: string | number, colKey: keyof T } | null>(null);
+  const [confirmClearAll, setConfirmClearAll] = useState(false);
 
   // Column Resizing State
   const [resizing, setResizing] = useState<{ key: string; startX: number; startWidth: number } | null>(null);
@@ -277,11 +279,11 @@ export function EditableTable<T extends { [key: string]: any }>({
     onUpdate(newRows);
   };
 
-  const handleClearAll = () => {
-    if (window.confirm('Are you sure you want to clear all rows in this table?')) {
-      setRows([]);
-      onUpdate([]);
-    }
+  const handleClearAll = () => setConfirmClearAll(true);
+  const executeClearAll = () => {
+    setConfirmClearAll(false);
+    setRows([]);
+    onUpdate([]);
   };
 
   const handlePasteCsv = () => {
@@ -657,6 +659,14 @@ export function EditableTable<T extends { [key: string]: any }>({
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmClearAll}
+        title="Delete all rows"
+        message="Are you sure you want to clear all rows in this table? This cannot be undone."
+        confirmLabel="Delete All"
+        onConfirm={executeClearAll}
+        onCancel={() => setConfirmClearAll(false)}
+      />
     </div>
   );
 }

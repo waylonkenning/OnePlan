@@ -16,13 +16,8 @@ test.describe('Initiative Deletion', () => {
         const deleteBtn = page.getByRole('button', { name: 'Delete Initiative' });
         await expect(deleteBtn).toBeVisible();
 
-        // Click Delete and handle confirmation
-        page.on('dialog', dialog => {
-            expect(dialog.message()).toContain('Sure you want to delete this initiative?');
-            return dialog.accept();
-        });
-
         await deleteBtn.click();
+        await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
         // Verify the initiative is gone
         await expect(page.locator(`div[title*="${initiativeName}"]`)).not.toBeVisible();

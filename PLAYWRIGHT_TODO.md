@@ -112,6 +112,11 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [ ] **Missing IDs:** Ensure that adding rows via CSV without IDs automatically generates them.
 - [ ] **Large Data Sets:** (Optional) Verify that the layout algorithm (Greedy Placement) handles 20+ overlapping initiatives on a single asset without infinite loops or UI breakage.
 ## 6. Modals & Tutorials
+- [x] **In-App Confirm Modal:**
+    - [x] Verify all destructive actions use in-app ConfirmModal (no browser window.confirm dialogs).
+    - [x] Verify cancel keeps data unchanged.
+    - [x] Verify confirm executes the destructive action.
+    - [x] Covers: EditableTable Clear All, DataManager Reset, DependencyPanel delete, InitiativePanel delete, VersionManager delete/restore.
 - [x] **Features Modal:**
     - [x] Verify that the modal opens and displays all feature cards.
     - [x] Verify that feature animations are loading correctly (with valid recoridngs).

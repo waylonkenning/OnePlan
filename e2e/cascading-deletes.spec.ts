@@ -20,11 +20,9 @@ test.describe('Cascading Deletes', () => {
         // Go back to Assets and delete Customer IAM (CIAM) (a-ciam), which has 2 initiatives
         await page.getByRole('button', { name: 'Assets' }).click();
 
-        // Accept the cascading confirmation dialog
-        page.on('dialog', dialog => dialog.accept());
-
         // Click the delete button on the first asset row (Customer IAM (CIAM))
         await page.locator('table tbody tr').first().getByRole('button', { name: 'Delete row' }).click();
+        await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
         // Check that the asset is removed
         await expect(page.locator('table tbody tr').first()).not.toContainText('Customer IAM (CIAM)');

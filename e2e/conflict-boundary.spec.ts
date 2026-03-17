@@ -8,8 +8,8 @@ test('Initiatives touching on same date do not trigger conflict', async ({ page 
   await page.getByTestId('nav-data-manager').click();
   
   // Clear all data first
-  page.on('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: /Delete all rows for this table/i }).click();
+  await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
   // Paste CSV to ensure exact setup
   await page.getByRole('button', { name: /Paste CSV/i }).click();
