@@ -81,7 +81,8 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
 
   const handleExportPDF = () => {
     if (timelineId) {
-      exportToPDF(`it-roadmap-${new Date().toISOString().split('T')[0]}.pdf`);
+      exportToPDF(timelineId, `it-roadmap-${new Date().toISOString().split('T')[0]}.pdf`)
+        .catch(() => showNotification('error', 'Failed to export PDF. Please try again.'));
     } else {
       showNotification('error', 'Switch to Visualiser view to export PDF.');
     }
