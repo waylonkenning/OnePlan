@@ -944,7 +944,10 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               style={{ width: totalWidth + 256, height: '100%' }}
             >
               <defs>
-                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+                </marker>
+                <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
                   <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
                 </marker>
               </defs>
@@ -1036,6 +1039,10 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   });
                 };
 
+                const depColor = dep.type === 'blocks' ? '#ef4444' : dep.type === 'requires' ? '#3b82f6' : '#475569';
+                const depLabelBorder = dep.type === 'blocks' ? '#fecaca' : dep.type === 'requires' ? '#bfdbfe' : '#cbd5e1';
+                const depMarker = dep.type === 'blocks' ? 'url(#arrowhead-red)' : dep.type === 'requires' ? 'url(#arrowhead-blue)' : undefined;
+
                 return (
                   <g key={dep.id} onClick={handleDependencyClick} onMouseDown={handleDependencyMouseDown} className="cursor-pointer group" style={{ pointerEvents: 'all' }}>
                     <path
@@ -1046,13 +1053,12 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     />
                     <path
                       d={path}
-                      stroke="#3b82f6"
+                      stroke={depColor}
                       strokeWidth="2"
                       fill="none"
-                      markerEnd="url(#arrowhead)"
+                      markerEnd={depMarker}
                       opacity="0.8"
                       strokeDasharray={dep.type === 'related' ? "4 2" : "none"}
-                      className="group-hover:stroke-blue-600 transition-colors"
                     />
                     <rect
                       x={labelX - 25}
@@ -1062,13 +1068,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       fill="#ffffff"
                       rx="9"
                       opacity="0.9"
-                      stroke="#bfdbfe"
+                      stroke={depLabelBorder}
                       strokeWidth="1"
                     />
                     <text
                       x={labelX}
                       y={labelY}
-                      fill="#2563eb"
+                      fill={depColor}
                       fontSize="9"
                       fontWeight="bold"
                       textAnchor="middle"

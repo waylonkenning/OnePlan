@@ -24,6 +24,8 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
 
     const sourceInit = initiatives.find(i => i.id === formData.sourceId);
     const targetInit = initiatives.find(i => i.id === formData.targetId);
+    const sourceName = sourceInit?.name || 'Unknown';
+    const targetName = targetInit?.name || 'Unknown';
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,6 +44,12 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
         if (e.target === e.currentTarget) {
             onClose();
         }
+    };
+
+    const getDescription = (type: Dependency['type'], src: string, tgt: string) => {
+        if (type === 'blocks') return `${src} must finish before ${tgt} can start.`;
+        if (type === 'requires') return `${src} requires ${tgt} to be complete first.`;
+        return `${src} and ${tgt} have a general connection.`;
     };
 
     return (
@@ -66,7 +74,7 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-center justify-between gap-4">
                             <div className="flex-1 min-w-0">
                                 <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Source</p>
-                                <p className="text-sm font-semibold text-slate-800 truncate">{sourceInit?.name || 'Unknown'}</p>
+                                <p data-testid="dep-source-name" className="text-sm font-semibold text-slate-800 truncate">{sourceName}</p>
                             </div>
                             <button
                                 type="button"
@@ -78,7 +86,7 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
                             </button>
                             <div className="flex-1 min-w-0 text-right">
                                 <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Target</p>
-                                <p className="text-sm font-semibold text-slate-800 truncate">{targetInit?.name || 'Unknown'}</p>
+                                <p data-testid="dep-target-name" className="text-sm font-semibold text-slate-800 truncate">{targetName}</p>
                             </div>
                         </div>
 
@@ -96,13 +104,11 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
                                 <option value="requires">Requires</option>
                                 <option value="related">Related</option>
                             </select>
-                            <p className="mt-2 text-xs text-slate-500">
-                                {formData.type === 'blocks' && 'The source initiative must finish before the target can start.'}
-                                {formData.type === 'requires' && 'The target initiative is a prerequisite for the source.'}
-                                {formData.type === 'related' && 'There is a general connection between these initiatives.'}
+                            <p data-testid="dep-description" className="mt-2 text-xs text-slate-500">
+                                {getDescription(formData.type, sourceName, targetName)}
                             </p>
                         </div>
-                        
+
                         <div className="pt-4 border-t border-slate-200 mt-6">
                             <p className="text-xs text-slate-500">ID: {formData.id}</p>
                         </div>
