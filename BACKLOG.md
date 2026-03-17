@@ -55,8 +55,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 
 ## Reports Mode
 
-- [ ] **Add a "Reports" mode alongside Visualiser and Data Manager**
-  Create a third top-level navigation mode. The Reports view hosts read-only analytical reports generated from the current data.
+- [x] **Add a "Reports" mode alongside Visualiser and Data Manager** *(completed)*
+  Added a third navigation tab (BarChart2 icon). Clicking Reports shows a `ReportsView` scaffold. Nav button highlights when active; switching away and back retains the view.
 
 - [ ] **Report: History Differences**
   Move the existing Version History difference report into the new Reports mode so it is accessible as a first-class report rather than buried in the history sidebar.
