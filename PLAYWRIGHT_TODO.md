@@ -69,6 +69,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
         - [x] Verify that dependency direction can be reversed in the modal.
     - [x] **Arrow z-index:** Verify that the dependency SVG layer is always above initiative bars (z-index > 20), including when bars raise their z-index on hover.
     - [x] **Arrow label tooltip:** Verify clicking a dependency label shows a plain-language tooltip sentence; verify clicking the tooltip dismisses it; verify the label click does not open the edit panel.
+- [x] **Grouped Initiative Description:** Verify each initiative name appears as a `•` bullet on its own line (not joined with ` + `); verified on both standard and narrow bars.
         - [x] Verify that the description sentence uses actual initiative names (e.g. "X must finish before Y can start").
     - [x] **Dependency Visual Enhancements:**
         - [x] Verify increased vertical gap (32px) for intra-asset dependencies.

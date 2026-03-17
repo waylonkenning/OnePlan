@@ -101,10 +101,9 @@ test.describe('Grouped description on narrow bar', () => {
     const groupBar = page.getByTestId('project-group-bar').first();
     await expect(groupBar).toBeVisible({ timeout: 10000 });
 
-    // Description MUST contain both names joined by " + " even though the bar
+    // Description MUST contain both names as bullet points even though the bar
     // is narrower than 8% of the timeline width.
-    await expect(groupBar).toContainText('Narrow Alpha');
-    await expect(groupBar).toContainText('Narrow Beta');
-    await expect(groupBar).toContainText(' + ');
+    await expect(groupBar).toContainText('• Narrow Alpha');
+    await expect(groupBar).toContainText('• Narrow Beta');
   });
 });
