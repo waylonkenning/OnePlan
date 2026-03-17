@@ -35,6 +35,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [disambiguateAt, setDisambiguateAt] = useState<{ x: number; y: number; candidates: Dependency[] } | null>(null);
   const depSegmentsRef = useRef<Map<string, number[][]>>(new Map()); // depId → [[x1,y1,x2,y2], ...]
   const isDraggingRef = useRef(false);
+  const [labelTooltip, setLabelTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const labelTooltipTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
   const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialDate: string } | null>(null);
@@ -1119,6 +1121,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       strokeDasharray={dep.type === 'related' ? "4 2" : "none"}
                     />
                     <rect
+                      data-testid="dep-label-rect"
                       x={labelX - 25}
                       y={labelY - 9}
                       width="50"
@@ -1128,6 +1131,20 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       opacity="0.9"
                       stroke={depLabelBorder}
                       strokeWidth="1"
+                      style={{ cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const src = initiatives.find(i => i.id === dep.sourceId)?.name ?? 'Unknown';
+                        const tgt = initiatives.find(i => i.id === dep.targetId)?.name ?? 'Unknown';
+                        const text = dep.type === 'blocks'
+                          ? `${src} must finish before ${tgt} can start.`
+                          : dep.type === 'requires'
+                          ? `${src} requires ${tgt} to be complete first.`
+                          : `${src} and ${tgt} have a general connection.`;
+                        setLabelTooltip({ x: e.clientX, y: e.clientY - 48, text });
+                        clearTimeout(labelTooltipTimerRef.current);
+                        labelTooltipTimerRef.current = setTimeout(() => setLabelTooltip(null), 3000);
+                      }}
                     />
                     <text
                       x={labelX}
@@ -1170,6 +1187,17 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 onSelect={(id) => { setDisambiguateAt(null); setSelectedDependencyId(id); }}
                 onClose={() => setDisambiguateAt(null)}
               />
+            )}
+
+            {labelTooltip && (
+              <div
+                data-testid="arrow-label-tooltip"
+                className="fixed z-[160] bg-white rounded-xl shadow-2xl border border-slate-200 px-3 py-2 max-w-xs text-xs text-slate-700 leading-snug cursor-pointer"
+                style={{ left: Math.min(labelTooltip.x, window.innerWidth - 320), top: labelTooltip.y }}
+                onClick={() => { clearTimeout(labelTooltipTimerRef.current); setLabelTooltip(null); }}
+              >
+                {labelTooltip.text}
+              </div>
             )}
 
             {sortedCategoryIds.map((catId) => {
