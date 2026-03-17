@@ -77,7 +77,7 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-center justify-between gap-4">
                             <div className="flex-1 min-w-0">
                                 <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Source</p>
-                                <p data-testid="dep-source-name" className="text-sm font-semibold text-slate-800 truncate">{sourceName}</p>
+                                <p data-testid="dep-source-name" className="text-sm font-semibold text-slate-800 break-words">{sourceName}</p>
                             </div>
                             <button
                                 type="button"
@@ -89,7 +89,7 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
                             </button>
                             <div className="flex-1 min-w-0 text-right">
                                 <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Target</p>
-                                <p data-testid="dep-target-name" className="text-sm font-semibold text-slate-800 truncate">{targetName}</p>
+                                <p data-testid="dep-target-name" className="text-sm font-semibold text-slate-800 break-words">{targetName}</p>
                             </div>
                         </div>
 

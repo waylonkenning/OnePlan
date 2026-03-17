@@ -32,8 +32,8 @@ Tasks to be worked on one by one, following the CLAUDE.md process (User Story â†
 
 ## Panels & Modals
 
-- [ ] **Edit Relationship modal: show full initiative names without truncation**
-  The Source and Target initiative labels in the Edit Relationship modal are truncated with CSS `truncate`. Remove the truncation so the full name is always visible (wrap if needed).
+- [x] **Edit Relationship modal: show full initiative names without truncation** *(completed)*
+  Removed `truncate` from the Source and Target labels in `DependencyPanel`. Names now use `break-words` so long names wrap rather than being cut off.
 
 - [ ] **Create Initiative modal: show related initiatives at the bottom**
   Add a "Related Initiatives" section at the bottom of the Create/Edit Initiative modal, listing any existing dependencies for that initiative. The modal body should scroll if needed, with Cancel / Delete / Save buttons fixed to the bottom.
