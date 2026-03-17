@@ -49,7 +49,7 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
       name: newName,
       timestamp: new Date().toISOString(),
       description: newDescription,
-      data: JSON.parse(JSON.stringify(currentData)), // Deep clone
+      data: structuredClone(currentData),
     };
 
     await saveVersion(version);

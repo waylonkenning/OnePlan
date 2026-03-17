@@ -16,6 +16,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Global Search & Filter:** 
     - [x] Verify that searching filters both the Visualiser timeline and the Data Manager tables simultaneously.
 - [x] **View Switching:** Verify that clicking "Visualiser", "Data Manager", "Reports", and "History" correctly swaps the main view/modal and retains current data.
+- [x] **Version Snapshot Integrity:** Verify saved versions are deep clones (mutations after saving don't affect the snapshot); verify snapshot data is persisted in full to IndexedDB.
 - [x] **Version History & Snapshotting:**
     - [x] Verify that a user can save a named snapshot of the current state.
     - [x] Verify that saved versions appear in the history sidebar.
