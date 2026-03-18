@@ -120,12 +120,12 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <FeatureCard
                 icon={GitMerge}
                 title="Dependency Mapping"
-                description="Draw visual links between initiatives to sequence work and understand what blocks what. Edit, reverse, or remove relationships directly on the canvas and trace the full critical path."
+                description="Draw visual links between initiatives and milestones to sequence work and understand what blocks what. Trace the full critical path across your portfolio and highlight the longest dependency chain."
               />
               <FeatureCard
                 icon={MousePointer2}
                 title="Intuitive Canvas"
-                description="Drag and resize initiatives directly on the timeline. Double-click to create, click to edit — set dates, status, progress percentage, owner, and budget without leaving the view."
+                description="Drag and resize initiatives directly on the timeline. Double-click to create, click to edit — set dates, status, progress, owner, assign team resources, and budget without leaving the view."
               />
               <FeatureCard
                 icon={Building2}
@@ -140,7 +140,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <FeatureCard
                 icon={FileSpreadsheet}
                 title="Excel & PDF Export"
-                description="Import existing plans from Excel and export full datasets for stakeholders. Generate PDF or SVG snapshots of your timeline, and review budget totals by programme, strategy, and category in the Reports view."
+                description="Import existing plans from Excel and export full datasets for stakeholders. Generate PDF or SVG snapshots of your timeline, and review budget totals, capacity report, and dependency summaries in the Reports view."
               />
               <FeatureCard
                 icon={ShieldCheck}
