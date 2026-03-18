@@ -147,21 +147,21 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
   const categoryOptions = data.assetCategories.map(c => ({ value: c.id, label: c.name }));
 
   const initiativeColumns: Column<Initiative>[] = [
-    { key: 'name', label: 'Initiative Name', type: 'text', width: '25%' },
-    { key: 'assetId', label: 'Asset', type: 'select', options: assetOptions, width: '15%' },
-    { key: 'programmeId', label: 'Programme', type: 'select', options: programmeOptions, width: '15%' },
-    { key: 'strategyId', label: 'Strategy', type: 'select', options: strategyOptions, width: '15%' },
-    { key: 'startDate', label: 'Start Date', type: 'date', width: '10%' },
-    { key: 'endDate', label: 'End Date', type: 'date', width: '10%' },
-    { key: 'budget', label: 'Budget ($)', type: 'number', width: '10%' },
+    { key: 'name', label: 'Initiative Name', type: 'text', width: '18%' },
+    { key: 'assetId', label: 'Asset', type: 'select', options: assetOptions, width: '12%' },
+    { key: 'programmeId', label: 'Programme', type: 'select', options: programmeOptions, width: '10%' },
+    { key: 'strategyId', label: 'Strategy', type: 'select', options: strategyOptions, width: '10%' },
+    { key: 'startDate', label: 'Start Date', type: 'date', width: '8%' },
+    { key: 'endDate', label: 'End Date', type: 'date', width: '8%' },
+    { key: 'budget', label: 'Budget ($)', type: 'number', width: '8%' },
     { key: 'status', label: 'Status', type: 'select', options: [
       { value: 'planned', label: 'Planned' },
       { value: 'active', label: 'Active' },
       { value: 'done', label: 'Done' },
       { value: 'cancelled', label: 'Cancelled' },
-    ], width: '8%' },
-    { key: 'progress', label: 'Progress (%)', type: 'number', width: '7%' },
-    { key: 'owner', label: 'Owner', type: 'text', width: '10%' },
+    ], width: '7%' },
+    { key: 'progress', label: 'Progress (%)', type: 'number', width: '6%' },
+    { key: 'owner', label: 'Owner', type: 'text', width: '8%' },
     { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '5%' },
   ];
 
