@@ -243,12 +243,23 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [ ] `dist/` — built output should not be in version control; confirm it's in `.gitignore`.
     - [ ] Review `package.json` for any unused dependencies that crept in during feature development.
 
-### Documentation
+### Documentation & Marketing
 
 - [ ] **Feature Documentation / Help Guide:**
     - [ ] Review git commit history and compile a comprehensive `FEATURES.md` covering all features added since launch.
     - [ ] Update in-app tutorial content and help guide to reflect new features (grouping modes, milestone dependencies, progress tracking, owner field, critical path, colour-by-status, zoom, keyboard shortcuts, mobile card view, etc.).
-    - [ ] Ensure Features Modal cards and animations are up to date with current feature set.
+
+- [ ] **Update Screenshots & Animations:**
+    - [ ] Re-run `scripts/capture-feature-screenshots.spec.ts` after reviewing whether the 6 feature card images (dependency, conflict, column-resize, global-search, grouped, inline-editing, move-resize, view-switching) still represent the best showcase of current capabilities.
+    - [ ] Add new feature cards / replace outdated ones to cover: milestone dependencies, progress tracking, critical path highlighting, grouping by programme/strategy, owner badges, colour-by-status, mobile card view.
+    - [ ] Re-run `scripts/capture-tutorial-screenshots.spec.ts` and `scripts/mobile-screenshots.spec.ts` to refresh tutorial step images (overview, visualiser, interactive, insights, data-manager).
+    - [ ] Record updated animated GIFs / WebP animations for the Features Modal to replace any that show the old UI.
+
+- [ ] **Update Landing Page:**
+    - [ ] Review the current landing page copy and feature cards against the full current feature set.
+    - [ ] Update the six landing page feature cards to highlight the most compelling current capabilities (e.g. milestone dependencies, progress tracking, mobile view, critical path).
+    - [ ] Refresh any landing page screenshots or hero imagery to show the current UI.
+    - [ ] Review the headline and value proposition copy to ensure it reflects the maturity of the product.
 
 ### Larger Features
 
