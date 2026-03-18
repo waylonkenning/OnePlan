@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Asset, Initiative, Dependency, Version, Programme, Strategy, AssetCategory } from '../types';
+import { Asset, Initiative, Dependency, Milestone, Version, Programme, Strategy, AssetCategory } from '../types';
 import { getAllVersions } from '../lib/db';
 import { computeDiff, DiffResult } from '../lib/diff';
 
 interface ReportsViewProps {
   assets: Asset[];
   initiatives: Initiative[];
+  milestones: Milestone[];
   dependencies: Dependency[];
   currentData: Version['data'];
   programmes: Programme[];
@@ -26,7 +27,7 @@ function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspect
   return `${src.name} and ${tgt.name} are related.`;
 }
 
-export function ReportsView({ assets, initiatives, dependencies, currentData, programmes, strategies, assetCategories }: ReportsViewProps) {
+export function ReportsView({ assets, initiatives, milestones, dependencies, currentData, programmes, strategies, assetCategories }: ReportsViewProps) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
   const [diffResult, setDiffResult] = useState<DiffResult | null>(null);
@@ -308,6 +309,31 @@ export function ReportsView({ assets, initiatives, dependencies, currentData, pr
             );
           })}
         </div>
+
+        {/* Milestone Dependencies */}
+        {(() => {
+          const milestoneDeps = dependencies.filter(d => d.sourceType === 'milestone');
+          if (milestoneDeps.length === 0) return null;
+          return (
+            <div data-testid="report-milestone-dependencies" className="max-w-3xl mx-auto space-y-4 mt-8">
+              <h2 className="text-base font-semibold text-slate-800">Milestone Dependencies</h2>
+              <ul className="space-y-2">
+                {milestoneDeps.map(dep => {
+                  const mile = milestones.find(m => m.id === dep.sourceId);
+                  const tgt = initiatives.find(i => i.id === dep.targetId);
+                  if (!mile || !tgt) return null;
+                  return (
+                    <li key={dep.id} className="text-xs text-slate-600 flex items-start gap-2">
+                      <span className="font-semibold text-slate-700">{mile.name}</span>
+                      <span>→</span>
+                      <span>{tgt.name} requires this milestone to be reached first.</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })()}
 
       </div>
     </div>
