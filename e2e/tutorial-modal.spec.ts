@@ -27,7 +27,7 @@ test.describe('Tutorial Modal', () => {
     await expect(modalHeading).toBeVisible();
 
     // Verify content of first slide
-    await expect(page.getByText('OnePlan is a strategic planning')).toBeVisible();
+    await expect(page.getByText('OnePlan is a complete initiative planning tool')).toBeVisible();
 
     // Click 'Skip' button
     await page.getByRole('button', { name: 'Skip' }).click();
@@ -48,7 +48,7 @@ test.describe('Tutorial Modal', () => {
     await page.getByRole('button', { name: 'Next' }).click();
     
     // Ensure slide 2 is visible
-    await expect(page.getByRole('heading', { name: 'Visualiser Mode' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'The Timeline' })).toBeVisible();
 
     // Click Prev
     await page.locator('button').filter({ has: page.locator('.lucide-chevron-left') }).click(); // target the chevron left

@@ -8,28 +8,28 @@ interface TutorialModalProps {
 const slides = [
   {
     title: 'Welcome to OnePlan',
-    text: 'OnePlan is a strategic planning and visualization tool designed to help you manage and organize initiatives, assets, milestones, and dependencies over time.',
+    text: 'OnePlan is a complete initiative planning tool. Map your work across time, track costs and sequencing, understand dependencies, and report on progress — all in one place, with no data leaving your browser.',
     image: '/tutorial/1-overview.png',
   },
   {
-    title: 'Visualiser Mode',
-    text: 'Navigate your timeline easily. You can zoom in by adjusting the months shown to focus on specific quarters, or view up to 3 years at once. Group items together to reduce clutter.',
+    title: 'The Timeline',
+    text: 'Your plan lives on a scrollable timeline grouped by asset or team. Zoom in for a quarterly view or out for a three-year picture. A "Today" line keeps you oriented, and overlapping work on the same row is flagged automatically.',
     image: '/tutorial/2-visualiser.png',
   },
   {
-    title: 'Interactive Editing',
-    text: 'Drag and drop initiatives to reschedule them or change tracks. Drag the edges to quickly adjust their start and end dates. Snap to month settings keep things tidy.',
+    title: 'Adding & Editing Initiatives',
+    text: 'Double-click anywhere on the timeline to create a new initiative at that date. Click any bar to open the edit panel — set the status, track progress, assign an owner, record a budget, and draw dependencies to related work.',
     image: '/tutorial/3-interactive.png',
   },
   {
-    title: 'Insights & Conflicts',
-    text: 'Gain immediate insights! OnePlan draws dependency lines between related work, and if conflict detection is on, overlapping items on the same track will be visually flagged.',
-    image: '/tutorial/4-insights.png',
+    title: 'Data Manager',
+    text: 'Switch to the Data Manager for spreadsheet-style editing across all your data: initiatives, assets, programmes, strategies, and milestones. Paste CSV rows, sort columns, and import or export to Excel.',
+    image: '/tutorial/5-data-manager.png',
   },
   {
-    title: 'Data Manager',
-    text: 'Switch to the spreadsheet-like Data Manager mode for rapid data entry, bulk modifications, and managing custom columns.',
-    image: '/tutorial/5-data-manager.png',
+    title: 'Reports',
+    text: 'The Reports view gives you budget summaries broken down by programme, strategy, and category; a full dependency report for every initiative; and a version history so you can compare your plan over time.',
+    image: '/tutorial/4-insights.png',
   },
 ];
 
