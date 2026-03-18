@@ -192,9 +192,9 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify a Status field (planned / active / done / cancelled) appears in the InitiativePanel and Data Manager.
     - [x] Verify the status value is saved and persisted to IndexedDB.
 
-- [ ] **Undo Depth Increase:**
-    - [ ] Verify the undo history stack limit is raised from 10 to at least 50 operations.
-    - [ ] Verify operations beyond the new limit correctly drop the oldest entry.
+- [x] **Undo Depth Increase:**
+    - [x] Verify the undo history stack limit is raised from 10 to at least 50 operations.
+    - [x] Verify operations beyond the new limit correctly drop the oldest entry.
 
 - [ ] **Keyboard Shortcuts Reference:**
     - [ ] Verify a discoverable shortcuts modal or panel can be opened (e.g. via a "?" button or keyboard shortcut).

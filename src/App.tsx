@@ -160,7 +160,7 @@ export default function App() {
     if (!skipHistory) {
       setUndoStack(prev => {
         const newStack = [...prev, getCurrentStateRef.current()];
-        if (newStack.length > 10) return newStack.slice(newStack.length - 10);
+        if (newStack.length > 50) return newStack.slice(newStack.length - 50);
         return newStack;
       });
       setRedoStack([]);
@@ -191,7 +191,7 @@ export default function App() {
 
     setRedoStack(prev => {
       const newStack = [...prev, getCurrentState()];
-      if (newStack.length > 10) return newStack.slice(newStack.length - 10);
+      if (newStack.length > 50) return newStack.slice(newStack.length - 50);
       return newStack;
     });
     setUndoStack(prev => prev.slice(0, -1));
@@ -205,7 +205,7 @@ export default function App() {
 
     setUndoStack(prev => {
       const newStack = [...prev, getCurrentState()];
-      if (newStack.length > 10) return newStack.slice(newStack.length - 10);
+      if (newStack.length > 50) return newStack.slice(newStack.length - 50);
       return newStack;
     });
     setRedoStack(prev => prev.slice(0, -1));
