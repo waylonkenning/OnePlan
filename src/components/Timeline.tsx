@@ -7,6 +7,7 @@ import { AlertTriangle, Star, Info, Palette, ChevronRight, ChevronDown, Settings
 import { InitiativePanel } from './InitiativePanel';
 import { DependencyPanel } from './DependencyPanel';
 import { ArrowDisambiguator } from './ArrowDisambiguator';
+import { computeCriticalPath } from '../lib/criticalPath';
 
 interface TimelineProps {
   assets: Asset[];
@@ -106,6 +107,11 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       return newOrder.filter(id => categories.includes(id));
     });
   }, [assetCategories]);
+
+  const [criticalPathInitIds, criticalPathDepIds] = useMemo(() => {
+    if ((settings.criticalPath || 'off') !== 'on') return [new Set<string>(), new Set<string>()];
+    return computeCriticalPath(initiatives, dependencies);
+  }, [initiatives, dependencies, settings.criticalPath]);
 
   const filteredInitiatives = useMemo(() => {
     if (!searchQuery) return initiatives;
@@ -1115,6 +1121,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   });
                 };
 
+                const isDepOnCriticalPath = criticalPathDepIds.has(dep.id);
                 const depColor = dep.type === 'blocks' ? '#ef4444' : dep.type === 'requires' ? '#3b82f6' : '#475569';
                 const depLabelBorder = dep.type === 'blocks' ? '#fecaca' : dep.type === 'requires' ? '#bfdbfe' : '#cbd5e1';
                 const depMarker = dep.type === 'blocks' ? 'url(#arrowhead-red)' : dep.type === 'requires' ? 'url(#arrowhead-blue)' : undefined;
@@ -1157,11 +1164,11 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                     />
                     <path
                       d={path}
-                      stroke={depColor}
-                      strokeWidth="2"
+                      stroke={isDepOnCriticalPath ? '#f59e0b' : depColor}
+                      strokeWidth={isDepOnCriticalPath ? "3.5" : "2"}
                       fill="none"
                       markerEnd={depMarker}
-                      opacity="0.8"
+                      opacity={isDepOnCriticalPath ? "1" : "0.8"}
                       strokeDasharray={dep.type === 'related' ? "4 2" : "none"}
                     />
                     <rect
@@ -1353,10 +1360,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                             if (left + width < 0 || left > 100) return null;
 
+                            const isOnCriticalPath = criticalPathInitIds.has(init.id);
+
                             return (
                               <div
                                 key={init.id}
                                 data-initiative-id={init.id}
+                                data-critical-path={isOnCriticalPath ? 'true' : 'false'}
                                 data-testid={isGroup ? "project-group-bar" : "initiative-bar"}
                                 onMouseDown={(e) => {
                                   isDraggingRef.current = false;
@@ -1382,7 +1392,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                     ? "bg-transparent border-red-500 border-dashed border-2 text-red-600 opacity-70"
                                     : isGroup
                                       ? "border-2 border-dashed border-blue-400/60 text-slate-900 font-bold"
-                                      : cn(colorClass, "text-white border-white/20")
+                                      : cn(colorClass, "text-white border-white/20"),
+                                  isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10"
                                 )}
                                 style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
                                 title={(init as any).isGroup 
