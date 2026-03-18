@@ -101,6 +101,7 @@ test.describe('Milestone Dependencies', () => {
 
     // Go to reports
     await page.getByTestId('nav-reports').click();
+    await page.getByTestId('report-card-initiatives-dependencies').click();
     await expect(page.locator('[data-testid="report-milestone-dependencies"]')).toBeVisible();
   });
 });

@@ -9,6 +9,7 @@ test.describe('Budget Summary Charts', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.getByRole('button', { name: 'Reports' }).click();
     await page.waitForSelector('[data-testid="reports-view"]', { timeout: 10000 });
+    await page.getByTestId('report-card-budget').click();
   });
 
   test('budget summary section is visible in Reports view', async ({ page }) => {
@@ -44,6 +45,7 @@ test.describe('Budget Summary Charts', () => {
 
     // Go to Reports and check the total
     await page.getByRole('button', { name: 'Reports' }).click();
+    await page.getByTestId('report-card-budget').click();
     await page.waitForSelector('[data-testid="report-budget-summary"]', { timeout: 10000 });
 
     const totalEl = page.getByTestId('budget-grand-total');

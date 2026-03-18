@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Asset, Initiative, Dependency, Milestone, Version, Programme, Strategy, AssetCategory, Resource } from '../types';
 import { getAllVersions } from '../lib/db';
 import { computeDiff, DiffResult } from '../lib/diff';
+import { History, DollarSign, GitBranch, Users, ChevronLeft } from 'lucide-react';
 
 interface ReportsViewProps {
   assets: Asset[];
@@ -14,6 +15,8 @@ interface ReportsViewProps {
   assetCategories: AssetCategory[];
   resources?: Resource[];
 }
+
+type ReportSlug = 'version-history' | 'budget' | 'initiatives-dependencies' | 'capacity';
 
 function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspectiveId: string): string {
   const isSource = src.id === perspectiveId;
@@ -29,6 +32,7 @@ function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspect
 }
 
 export function ReportsView({ assets, initiatives, milestones, dependencies, currentData, programmes, strategies, assetCategories, resources = [] }: ReportsViewProps) {
+  const [selectedReport, setSelectedReport] = useState<ReportSlug | null>(null);
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
   const [diffResult, setDiffResult] = useState<DiffResult | null>(null);
@@ -53,351 +57,312 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
     setDiffResult(computeDiff(base, currentData));
   };
 
-  return (
-    <div data-testid="reports-view" className="h-full overflow-y-auto p-6 bg-slate-50">
-      <div className="max-w-3xl mx-auto space-y-6">
+  const cards: { slug: ReportSlug; icon: React.ReactNode; title: string; description: string }[] = [
+    {
+      slug: 'version-history',
+      icon: <History size={28} className="text-indigo-500" />,
+      title: 'Version History',
+      description: 'Compare the current plan against a saved version to see what has changed.',
+    },
+    {
+      slug: 'budget',
+      icon: <DollarSign size={28} className="text-emerald-500" />,
+      title: 'Budget Report',
+      description: 'See total spend broken down by programme, strategy, and category.',
+    },
+    {
+      slug: 'initiatives-dependencies',
+      icon: <GitBranch size={28} className="text-blue-500" />,
+      title: 'Initiatives & Dependencies',
+      description: 'Review every initiative and its upstream or downstream dependencies.',
+    },
+    {
+      slug: 'capacity',
+      icon: <Users size={28} className="text-amber-500" />,
+      title: 'Capacity & Resources',
+      description: 'See how many initiatives each resource is assigned to across the portfolio.',
+    },
+  ];
 
-        {/* History Differences */}
-        <div data-testid="report-history-diff" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
-            <h2 className="text-base font-semibold text-slate-800">History Differences</h2>
+  // ── Home screen ──────────────────────────────────────────────────────────────
+  if (selectedReport === null) {
+    return (
+      <div data-testid="reports-view" className="h-full overflow-y-auto p-6 bg-slate-50">
+        <div data-testid="reports-home" className="max-w-3xl mx-auto">
+          <h1 className="text-xl font-bold text-slate-800 mb-6">Reports</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {cards.map(({ slug, icon, title, description }) => (
+              <button
+                key={slug}
+                data-testid={`report-card-${slug}`}
+                onClick={() => setSelectedReport(slug)}
+                className="text-left bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:border-blue-300 hover:shadow-md transition-all group"
+              >
+                <div className="mb-3">{icon}</div>
+                <h2 className="text-base font-semibold text-slate-800 mb-1 group-hover:text-blue-700">{title}</h2>
+                <p className="text-sm text-slate-500">{description}</p>
+              </button>
+            ))}
           </div>
-          <div className="p-4">
-            {versionsError ? (
-              <p data-testid="versions-load-error" className="text-sm text-red-500">{versionsError}</p>
-            ) : versions.length === 0 ? (
-              <p className="text-sm text-slate-400">No saved versions</p>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <select
-                    data-testid="version-select"
-                    value={selectedVersionId}
-                    onChange={e => { setSelectedVersionId(e.target.value); setDiffResult(null); }}
-                    className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Select a version…</option>
-                    {versions.map(v => (
-                      <option key={v.id} value={v.id}>{v.name}</option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={handleRunDiff}
-                    disabled={!selectedVersionId}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-40"
-                  >
-                    Run Difference Report
-                  </button>
-                </div>
+        </div>
+      </div>
+    );
+  }
 
-                {diffResult && (
-                  <div data-testid="diff-result" className="mt-4 space-y-4">
-                    {!diffResult.hasChanges ? (
-                      <p className="text-sm text-slate-500 text-center py-4">No changes detected — this version matches the current state.</p>
-                    ) : (
-                      <>
-                        {/* Initiatives */}
-                        {(diffResult.initiatives.added.length > 0 || diffResult.initiatives.removed.length > 0 || diffResult.initiatives.modified.length > 0) && (
-                          <div>
-                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Initiatives</h4>
-                            <div className="space-y-2">
-                              {diffResult.initiatives.added.map((name, i) => (
-                                <div key={`add-${i}`} className="flex gap-2 items-start text-sm p-2 bg-emerald-50 rounded-lg border border-emerald-100">
-                                  <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded uppercase">Added</span>
-                                  <span className="text-emerald-900">{name}</span>
-                                </div>
-                              ))}
-                              {diffResult.initiatives.removed.map((name, i) => (
-                                <div key={`rem-${i}`} className="flex gap-2 items-start text-sm p-2 bg-red-50 rounded-lg border border-red-100">
-                                  <span className="text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded uppercase">Removed</span>
-                                  <span className="text-red-900 line-through">{name}</span>
-                                </div>
-                              ))}
-                              {diffResult.initiatives.modified.map((item, i) => (
-                                <div key={`mod-${i}`} className="p-2 bg-amber-50 rounded-lg border border-amber-100 text-sm">
-                                  <div className="flex gap-2 items-start mb-1">
-                                    <span className="text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded uppercase">Changed</span>
-                                    <span className="font-medium text-amber-900">{item.name}</span>
-                                  </div>
-                                  <ul className="ml-14 space-y-0.5">
-                                    {item.changes.map((c, ci) => (
-                                      <li key={ci} className="text-xs text-amber-700">• {c}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+  // ── Report views ─────────────────────────────────────────────────────────────
+  const BackButton = () => (
+    <button
+      data-testid="report-back-btn"
+      onClick={() => setSelectedReport(null)}
+      className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-4"
+    >
+      <ChevronLeft size={16} />
+      All Reports
+    </button>
+  );
 
-                        {/* Dependencies */}
-                        {(diffResult.dependencies.added.length > 0 || diffResult.dependencies.removed.length > 0 || diffResult.dependencies.modified.length > 0) && (
-                          <div>
-                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Relationships</h4>
-                            <div className="space-y-2">
-                              {diffResult.dependencies.added.map((name, i) => (
-                                <div key={i} className="flex gap-2 items-start text-sm p-2 bg-emerald-50 rounded-lg border border-emerald-100">
-                                  <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded uppercase">Added</span>
-                                  <span className="text-emerald-900">{name}</span>
-                                </div>
-                              ))}
-                              {diffResult.dependencies.removed.map((name, i) => (
-                                <div key={i} className="flex gap-2 items-start text-sm p-2 bg-red-50 rounded-lg border border-red-100">
-                                  <span className="text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded uppercase">Removed</span>
-                                  <span className="text-red-900 line-through">{name}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Milestones */}
-                        {(diffResult.milestones.added.length > 0 || diffResult.milestones.removed.length > 0 || diffResult.milestones.modified.length > 0) && (
-                          <div>
-                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Milestones</h4>
-                            <div className="space-y-2">
-                              {diffResult.milestones.added.map((name, i) => (
-                                <div key={i} className="flex gap-2 items-start text-sm p-2 bg-emerald-50 rounded-lg border border-emerald-100">
-                                  <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded uppercase">Added</span>
-                                  <span className="text-emerald-900">{name}</span>
-                                </div>
-                              ))}
-                              {diffResult.milestones.removed.map((name, i) => (
-                                <div key={i} className="flex gap-2 items-start text-sm p-2 bg-red-50 rounded-lg border border-red-100">
-                                  <span className="text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded uppercase">Removed</span>
-                                  <span className="text-red-900 line-through">{name}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
+  // ── Version History ──────────────────────────────────────────────────────────
+  if (selectedReport === 'version-history') {
+    return (
+      <div data-testid="report-view-version-history" className="h-full overflow-y-auto p-6 bg-slate-50">
+        <div className="max-w-3xl mx-auto">
+          <BackButton />
+          <div data-testid="report-history-diff" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+              <h2 className="text-base font-semibold text-slate-800">History Differences</h2>
+            </div>
+            <div className="p-4">
+              {versionsError ? (
+                <p data-testid="versions-load-error" className="text-sm text-red-500">{versionsError}</p>
+              ) : versions.length === 0 ? (
+                <p className="text-sm text-slate-400">No saved versions</p>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <select
+                      data-testid="version-select"
+                      value={selectedVersionId}
+                      onChange={e => { setSelectedVersionId(e.target.value); setDiffResult(null); }}
+                      className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="">Select a version…</option>
+                      {versions.map(v => (
+                        <option key={v.id} value={v.id}>{v.name}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={handleRunDiff}
+                      disabled={!selectedVersionId}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-40"
+                    >
+                      Run Difference Report
+                    </button>
                   </div>
-                )}
-              </div>
-            )}
+
+                  {diffResult && (
+                    <div data-testid="diff-result" className="mt-4 space-y-4">
+                      {!diffResult.hasChanges ? (
+                        <p className="text-sm text-slate-500 text-center py-4">No changes detected — this version matches the current state.</p>
+                      ) : (
+                        <>
+                          {(diffResult.initiatives.added.length > 0 || diffResult.initiatives.removed.length > 0 || diffResult.initiatives.modified.length > 0) && (
+                            <div>
+                              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Initiatives</h4>
+                              <div className="space-y-2">
+                                {diffResult.initiatives.added.map((name, i) => (
+                                  <div key={`add-${i}`} className="flex gap-2 items-start text-sm p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                                    <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded uppercase">Added</span>
+                                    <span className="text-emerald-900">{name}</span>
+                                  </div>
+                                ))}
+                                {diffResult.initiatives.removed.map((name, i) => (
+                                  <div key={`rem-${i}`} className="flex gap-2 items-start text-sm p-2 bg-red-50 rounded-lg border border-red-100">
+                                    <span className="text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded uppercase">Removed</span>
+                                    <span className="text-red-900 line-through">{name}</span>
+                                  </div>
+                                ))}
+                                {diffResult.initiatives.modified.map((item, i) => (
+                                  <div key={`mod-${i}`} className="p-2 bg-amber-50 rounded-lg border border-amber-100 text-sm">
+                                    <div className="flex gap-2 items-start mb-1">
+                                      <span className="text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded uppercase">Changed</span>
+                                      <span className="font-medium text-amber-900">{item.name}</span>
+                                    </div>
+                                    <ul className="ml-14 space-y-0.5">
+                                      {item.changes.map((c, ci) => (
+                                        <li key={ci} className="text-xs text-amber-700">• {c}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {(diffResult.dependencies.added.length > 0 || diffResult.dependencies.removed.length > 0 || diffResult.dependencies.modified.length > 0) && (
+                            <div>
+                              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Relationships</h4>
+                              <div className="space-y-2">
+                                {diffResult.dependencies.added.map((name, i) => (
+                                  <div key={i} className="flex gap-2 items-start text-sm p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                                    <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded uppercase">Added</span>
+                                    <span className="text-emerald-900">{name}</span>
+                                  </div>
+                                ))}
+                                {diffResult.dependencies.removed.map((name, i) => (
+                                  <div key={i} className="flex gap-2 items-start text-sm p-2 bg-red-50 rounded-lg border border-red-100">
+                                    <span className="text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded uppercase">Removed</span>
+                                    <span className="text-red-900 line-through">{name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {(diffResult.milestones.added.length > 0 || diffResult.milestones.removed.length > 0 || diffResult.milestones.modified.length > 0) && (
+                            <div>
+                              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Milestones</h4>
+                              <div className="space-y-2">
+                                {diffResult.milestones.added.map((name, i) => (
+                                  <div key={i} className="flex gap-2 items-start text-sm p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                                    <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded uppercase">Added</span>
+                                    <span className="text-emerald-900">{name}</span>
+                                  </div>
+                                ))}
+                                {diffResult.milestones.removed.map((name, i) => (
+                                  <div key={i} className="flex gap-2 items-start text-sm p-2 bg-red-50 rounded-lg border border-red-100">
+                                    <span className="text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded uppercase">Removed</span>
+                                    <span className="text-red-900 line-through">{name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* Budget Summary */}
-        {(() => {
-          const realInitiatives = initiatives.filter(i => !i.isPlaceholder);
-          const grandTotal = realInitiatives.reduce((sum, i) => sum + (i.budget || 0), 0);
+  // ── Budget Report ────────────────────────────────────────────────────────────
+  if (selectedReport === 'budget') {
+    const realInitiatives = initiatives.filter(i => !i.isPlaceholder);
+    const grandTotal = realInitiatives.reduce((sum, i) => sum + (i.budget || 0), 0);
 
-          const fmt = (n: number) =>
-            n >= 1_000_000
-              ? `$${(n / 1_000_000).toFixed(1)}m`
-              : n >= 1_000
-              ? `$${Math.round(n / 1_000)}k`
-              : `$${n.toLocaleString()}`;
+    const fmt = (n: number) =>
+      n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}m` : n >= 1_000 ? `$${Math.round(n / 1_000)}k` : `$${n.toLocaleString()}`;
 
-          const byProgramme = programmes
-            .map(p => ({
-              id: p.id,
-              name: p.name,
-              color: p.color,
-              total: realInitiatives.filter(i => i.programmeId === p.id).reduce((s, i) => s + (i.budget || 0), 0),
-            }))
-            .filter(r => r.total > 0)
-            .sort((a, b) => b.total - a.total);
+    const byProgramme = programmes
+      .map(p => ({ id: p.id, name: p.name, color: p.color, total: realInitiatives.filter(i => i.programmeId === p.id).reduce((s, i) => s + (i.budget || 0), 0) }))
+      .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
 
-          const byStrategy = strategies
-            .map(s => ({
-              id: s.id,
-              name: s.name,
-              color: s.color,
-              total: realInitiatives.filter(i => i.strategyId === s.id).reduce((sum, i) => sum + (i.budget || 0), 0),
-            }))
-            .filter(r => r.total > 0)
-            .sort((a, b) => b.total - a.total);
+    const byStrategy = strategies
+      .map(s => ({ id: s.id, name: s.name, color: s.color, total: realInitiatives.filter(i => i.strategyId === s.id).reduce((sum, i) => sum + (i.budget || 0), 0) }))
+      .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
 
-          const byCategory = assetCategories
-            .map(c => {
-              const catAssets = assets.filter(a => a.categoryId === c.id).map(a => a.id);
-              return {
-                id: c.id,
-                name: c.name,
-                total: realInitiatives.filter(i => catAssets.includes(i.assetId)).reduce((s, i) => s + (i.budget || 0), 0),
-              };
-            })
-            .filter(r => r.total > 0)
-            .sort((a, b) => b.total - a.total);
+    const byCategory = assetCategories
+      .map(c => {
+        const catAssets = assets.filter(a => a.categoryId === c.id).map(a => a.id);
+        return { id: c.id, name: c.name, total: realInitiatives.filter(i => catAssets.includes(i.assetId)).reduce((s, i) => s + (i.budget || 0), 0) };
+      })
+      .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
 
-          const BudgetBar = ({ total, max, color }: { total: number; max: number; color?: string }) => (
-            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full ${color ?? 'bg-blue-500'}`}
-                style={{ width: `${max > 0 ? Math.round((total / max) * 100) : 0}%` }}
-              />
+    const BudgetBar = ({ total, max, color }: { total: number; max: number; color?: string }) => (
+      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div className={`h-full rounded-full ${color ?? 'bg-blue-500'}`} style={{ width: `${max > 0 ? Math.round((total / max) * 100) : 0}%` }} />
+      </div>
+    );
+
+    const Section = ({ testId, title, rows, max }: { testId: string; title: string; rows: { id: string; name: string; total: number; color?: string }[]; max: number }) => (
+      <div data-testid={testId} className="space-y-2">
+        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{title}</h3>
+        {rows.map(row => (
+          <div key={row.id} data-testid={`budget-row-${testId.replace('budget-by-', '')}-${row.id}`} className="flex items-center gap-3">
+            <span className="text-sm text-slate-700 w-44 truncate flex-shrink-0">{row.name}</span>
+            <BudgetBar total={row.total} max={max} color={row.color} />
+            <span className="text-sm font-semibold text-slate-800 w-16 text-right flex-shrink-0">{fmt(row.total)}</span>
+          </div>
+        ))}
+      </div>
+    );
+
+    return (
+      <div data-testid="report-view-budget" className="h-full overflow-y-auto p-6 bg-slate-50">
+        <div className="max-w-3xl mx-auto">
+          <BackButton />
+          <div data-testid="report-budget-summary" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-slate-800">Budget Summary</h2>
+              <span data-testid="budget-grand-total" className="text-sm font-bold text-slate-700">{fmt(grandTotal)} total</span>
             </div>
-          );
-
-          const Section = ({ testId, title, rows, max }: { testId: string; title: string; rows: { id: string; name: string; total: number; color?: string }[]; max: number }) => (
-            <div data-testid={testId} className="space-y-2">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{title}</h3>
-              {rows.map(row => (
-                <div key={row.id} data-testid={`budget-row-${testId.replace('budget-by-', '')}-${row.id}`} className="flex items-center gap-3">
-                  <span className="text-sm text-slate-700 w-44 truncate flex-shrink-0">{row.name}</span>
-                  <BudgetBar total={row.total} max={max} color={row.color} />
-                  <span className="text-sm font-semibold text-slate-800 w-16 text-right flex-shrink-0">{fmt(row.total)}</span>
-                </div>
-              ))}
+            <div className="p-4 space-y-6">
+              <Section testId="budget-by-programme" title="By Programme" rows={byProgramme} max={byProgramme[0]?.total ?? 0} />
+              <Section testId="budget-by-strategy" title="By Strategy" rows={byStrategy} max={byStrategy[0]?.total ?? 0} />
+              <Section testId="budget-by-category" title="By Category" rows={byCategory} max={byCategory[0]?.total ?? 0} />
             </div>
-          );
-
-          const maxProg = byProgramme[0]?.total ?? 0;
-          const maxStrat = byStrategy[0]?.total ?? 0;
-          const maxCat = byCategory[0]?.total ?? 0;
-
-          return (
-            <div data-testid="report-budget-summary" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                <h2 className="text-base font-semibold text-slate-800">Budget Summary</h2>
-                <span data-testid="budget-grand-total" className="text-sm font-bold text-slate-700">{fmt(grandTotal)} total</span>
-              </div>
-              <div className="p-4 space-y-6">
-                <Section testId="budget-by-programme" title="By Programme" rows={byProgramme} max={maxProg} />
-                <Section testId="budget-by-strategy" title="By Strategy" rows={byStrategy} max={maxStrat} />
-                <Section testId="budget-by-category" title="By Category" rows={byCategory} max={maxCat} />
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Initiatives & Dependencies */}
-        <div data-testid="report-dependencies" className="max-w-3xl mx-auto space-y-6">
-          <h2 className="text-base font-semibold text-slate-800">Initiatives &amp; Dependencies</h2>
-
-          {assets.map(asset => {
-            const assetInitiatives = initiatives.filter(i => i.assetId === asset.id && !i.isPlaceholder);
-            if (assetInitiatives.length === 0) return null;
-
-            return (
-              <section key={asset.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
-                  <h3 className="text-sm font-semibold text-slate-700">{asset.name}</h3>
-                </div>
-                <ul className="divide-y divide-slate-100">
-                  {assetInitiatives.map(init => {
-                    const related = dependencies.filter(
-                      d => d.sourceId === init.id || d.targetId === init.id
-                    );
-                    return (
-                      <li key={init.id} className="px-4 py-3">
-                        <p className="text-sm font-medium text-slate-800 mb-1">{init.name}</p>
-                        {related.length === 0 ? (
-                          <p className="text-xs text-slate-400">No dependencies</p>
-                        ) : (
-                          <ul className="space-y-0.5">
-                            {related.map(dep => {
-                              const src = initiatives.find(i => i.id === dep.sourceId);
-                              const tgt = initiatives.find(i => i.id === dep.targetId);
-                              if (!src || !tgt) return null;
-                              return (
-                                <li key={dep.id} className="text-xs text-slate-600">
-                                  {depSentence(dep, src, tgt, init.id)}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            );
-          })}
+          </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* Capacity Report */}
-        {(() => {
-          const fmt = (iso: string) => new Date(iso).toLocaleDateString('en-NZ', { month: 'short', year: 'numeric' });
+  // ── Initiatives & Dependencies ───────────────────────────────────────────────
+  if (selectedReport === 'initiatives-dependencies') {
+    const milestoneDeps = dependencies.filter(d => d.sourceType === 'milestone');
 
-          const realInitiatives = initiatives.filter(i => !i.isPlaceholder);
-
-          const assignmentsFor = (resourceId: string) =>
-            realInitiatives.filter(i =>
-              i.ownerId === resourceId || (i.resourceIds ?? []).includes(resourceId)
-            );
-
-          return (
-            <div data-testid="capacity-report" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
-                <h2 className="text-base font-semibold text-slate-800">Capacity Report</h2>
-              </div>
-              <div className="p-4">
-                {resources.length === 0 ? (
-                  <p data-testid="capacity-no-resources" className="text-sm text-slate-400">
-                    No resources defined. Add resources in Data Manager → Resources to track capacity.
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {resources.map(resource => {
-                      const assigned = assignmentsFor(resource.id);
+    return (
+      <div data-testid="report-view-initiatives-dependencies" className="h-full overflow-y-auto p-6 bg-slate-50">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <BackButton />
+          <div data-testid="report-dependencies">
+            <h2 className="text-base font-semibold text-slate-800 mb-4">Initiatives &amp; Dependencies</h2>
+            {assets.map(asset => {
+              const assetInitiatives = initiatives.filter(i => i.assetId === asset.id && !i.isPlaceholder);
+              if (assetInitiatives.length === 0) return null;
+              return (
+                <section key={asset.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-4">
+                  <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+                    <h3 className="text-sm font-semibold text-slate-700">{asset.name}</h3>
+                  </div>
+                  <ul className="divide-y divide-slate-100">
+                    {assetInitiatives.map(init => {
+                      const related = dependencies.filter(d => d.sourceId === init.id || d.targetId === init.id);
                       return (
-                        <div
-                          key={resource.id}
-                          data-testid="capacity-resource-row"
-                          className="border border-slate-100 rounded-lg overflow-hidden"
-                        >
-                          <div
-                            data-testid={`capacity-resource-row-${resource.id}`}
-                            className="px-4 py-3"
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <div>
-                                <span className="text-sm font-semibold text-slate-800">{resource.name}</span>
-                                {resource.role && (
-                                  <span className="ml-2 text-xs text-slate-400">({resource.role})</span>
-                                )}
-                              </div>
-                              <span
-                                data-testid="capacity-assignment-count"
-                                className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                                  assigned.length === 0
-                                    ? 'bg-slate-100 text-slate-400'
-                                    : assigned.length >= 3
-                                    ? 'bg-red-100 text-red-700'
-                                    : 'bg-blue-100 text-blue-700'
-                                }`}
-                              >
-                                {assigned.length}
-                              </span>
-                            </div>
-                            {assigned.length === 0 ? (
-                              <p data-testid="capacity-no-assignments" className="text-xs text-slate-400 italic">No initiatives assigned</p>
-                            ) : (
-                              <ul className="space-y-1">
-                                {assigned.map(init => (
-                                  <li key={init.id} className="flex items-center gap-2 text-xs text-slate-600">
-                                    {init.ownerId === resource.id && (
-                                      <span className="text-[10px] font-bold bg-slate-200 text-slate-600 px-1 rounded uppercase">Owner</span>
-                                    )}
-                                    <span className="font-medium text-slate-700">{init.name}</span>
-                                    <span className="text-slate-400">{fmt(init.startDate)} → {fmt(init.endDate)}</span>
+                        <li key={init.id} className="px-4 py-3">
+                          <p className="text-sm font-medium text-slate-800 mb-1">{init.name}</p>
+                          {related.length === 0 ? (
+                            <p className="text-xs text-slate-400">No dependencies</p>
+                          ) : (
+                            <ul className="space-y-0.5">
+                              {related.map(dep => {
+                                const src = initiatives.find(i => i.id === dep.sourceId);
+                                const tgt = initiatives.find(i => i.id === dep.targetId);
+                                if (!src || !tgt) return null;
+                                return (
+                                  <li key={dep.id} className="text-xs text-slate-600">
+                                    {depSentence(dep, src, tgt, init.id)}
                                   </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        </div>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </li>
                       );
                     })}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })()}
+                  </ul>
+                </section>
+              );
+            })}
+          </div>
 
-        {/* Milestone Dependencies */}
-        {(() => {
-          const milestoneDeps = dependencies.filter(d => d.sourceType === 'milestone');
-          if (milestoneDeps.length === 0) return null;
-          return (
-            <div data-testid="report-milestone-dependencies" className="max-w-3xl mx-auto space-y-4 mt-8">
+          {milestoneDeps.length > 0 && (
+            <div data-testid="report-milestone-dependencies" className="space-y-4">
               <h2 className="text-base font-semibold text-slate-800">Milestone Dependencies</h2>
               <ul className="space-y-2">
                 {milestoneDeps.map(dep => {
@@ -414,9 +379,73 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
                 })}
               </ul>
             </div>
-          );
-        })()}
+          )}
+        </div>
+      </div>
+    );
+  }
 
+  // ── Capacity & Resources ─────────────────────────────────────────────────────
+  const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-NZ', { month: 'short', year: 'numeric' });
+  const realInitiatives = initiatives.filter(i => !i.isPlaceholder);
+  const assignmentsFor = (resourceId: string) =>
+    realInitiatives.filter(i => i.ownerId === resourceId || (i.resourceIds ?? []).includes(resourceId));
+
+  return (
+    <div data-testid="report-view-capacity" className="h-full overflow-y-auto p-6 bg-slate-50">
+      <div className="max-w-3xl mx-auto">
+        <BackButton />
+        <div data-testid="capacity-report" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+            <h2 className="text-base font-semibold text-slate-800">Capacity Report</h2>
+          </div>
+          <div className="p-4">
+            {resources.length === 0 ? (
+              <p data-testid="capacity-no-resources" className="text-sm text-slate-400">
+                No resources defined. Add resources in Data Manager → Resources to track capacity.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {resources.map(resource => {
+                  const assigned = assignmentsFor(resource.id);
+                  return (
+                    <div key={resource.id} data-testid="capacity-resource-row" className="border border-slate-100 rounded-lg overflow-hidden">
+                      <div data-testid={`capacity-resource-row-${resource.id}`} className="px-4 py-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <span className="text-sm font-semibold text-slate-800">{resource.name}</span>
+                            {resource.role && <span className="ml-2 text-xs text-slate-400">({resource.role})</span>}
+                          </div>
+                          <span
+                            data-testid="capacity-assignment-count"
+                            className={`text-xs font-bold px-2 py-0.5 rounded-full ${assigned.length === 0 ? 'bg-slate-100 text-slate-400' : assigned.length >= 3 ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}
+                          >
+                            {assigned.length}
+                          </span>
+                        </div>
+                        {assigned.length === 0 ? (
+                          <p data-testid="capacity-no-assignments" className="text-xs text-slate-400 italic">No initiatives assigned</p>
+                        ) : (
+                          <ul className="space-y-1">
+                            {assigned.map(init => (
+                              <li key={init.id} className="flex items-center gap-2 text-xs text-slate-600">
+                                {init.ownerId === resource.id && (
+                                  <span className="text-[10px] font-bold bg-slate-200 text-slate-600 px-1 rounded uppercase">Owner</span>
+                                )}
+                                <span className="font-medium text-slate-700">{init.name}</span>
+                                <span className="text-slate-400">{fmtDate(init.startDate)} → {fmtDate(init.endDate)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
