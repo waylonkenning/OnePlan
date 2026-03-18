@@ -107,7 +107,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Panel Focus Trap & Escape Key:** Verify InitiativePanel, DependencyPanel, and VersionManager all close on Escape; verify Tab cycles focus within InitiativePanel without escaping to the rest of the page.
 - [x] **EditableTable aria-label:** Verify real-row text inputs, ghost-row text inputs, real-row selects, and real-row checkboxes all carry aria-label matching the column label.
 - [x] **Reports Mode:** Verify Reports nav tab, view switching, active state highlighting.
-- [x] **Initiatives & Dependencies Report:** Verify report is grouped by asset, lists initiatives, and shows plain-language dependency sentences.
+- [x] **Initiatives & Dependencies Report:** Verify report is grouped by asset, lists initiatives, and shows plain-language dependency sentences using subject-verb-object form ("A must finish before B can start.", "A requires B to finish first.", "A and B are related."); verify no legacy "blocks X —" or "general connection" wording.
 - [x] **History Differences Report:** Verify `report-history-diff` section in Reports view; empty state when no versions; version selector appears after saving; inline diff result shows changes after running; error message shown if versions fail to load.
 - [x] **Conflict Detection:** Create two initiatives on the same asset that overlap in time and verify the red "Conflict Detected" marker appears at the start of the overlap.
     - [x] **Same-day Boundary:** Verify that initiatives touching on the same date (End A == Start B) are NOT marked as conflicts.
