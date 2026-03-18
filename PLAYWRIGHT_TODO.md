@@ -253,7 +253,3 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [ ] Verify milestone dependencies are rendered as arrows in the timeline.
     - [ ] Verify milestone dependencies are included in the dependency report.
 
-- [ ] **Initiative Templates / Cloning:**
-    - [ ] Verify an initiative can be duplicated from the InitiativePanel with a new unique ID.
-    - [ ] Verify the clone option to include or exclude dependencies is presented.
-    - [ ] Verify the cloned initiative appears in the timeline and Data Manager.
