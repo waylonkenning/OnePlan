@@ -230,7 +230,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 
 ### Codebase Cleanup
 
-- [ ] **Remove stale / unused files:**
+- [x] **Remove stale / unused files:**
     - [ ] `GEMINI.md` — duplicate of `CLAUDE.md`; references AI Studio / Gemini workflow no longer in use.
     - [ ] `.env.example` — references `GEMINI_API_KEY` and `APP_URL`; no longer relevant (app has no server-side secrets).
     - [ ] `VERSIONING_PLAN.md` — the version history feature is fully shipped; this planning doc is now dead weight.
