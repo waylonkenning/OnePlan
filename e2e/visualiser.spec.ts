@@ -12,15 +12,20 @@ test.describe('Visualiser (Timeline)', () => {
   });
 
   test('Coloring Logic: Toggle Color Mode', async ({ page }) => {
-    // Initial mode is 'By Programme'
+    await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
+
+    // Open View Options popover to access colour-by controls
+    await page.getByTestId('view-options-btn').click();
+    await expect(page.getByTestId('view-options-popover')).toBeVisible();
+
+    // Initial mode is 'By Programme' — its button should appear active
     const byProgBtn = page.getByRole('button', { name: 'By Programme' });
     const byStratBtn = page.getByRole('button', { name: 'By Strategy' });
-
-    await expect(byProgBtn).toHaveClass(/bg-white text-blue-600/);
+    await expect(byProgBtn).toHaveClass(/bg-blue/);
 
     // Click By Strategy
     await byStratBtn.click();
-    await expect(byStratBtn).toHaveClass(/bg-white text-indigo-600/);
+    await expect(byStratBtn).toHaveClass(/bg-indigo/);
 
     // Check if legend updated (e.g. 'Customer First' is a strategy name)
     await expect(page.getByText('Strategies:').first()).toBeVisible();

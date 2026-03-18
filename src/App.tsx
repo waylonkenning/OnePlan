@@ -71,8 +71,10 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isVersionManagerOpen, setIsVersionManagerOpen] = useState(false);
   const [showMoreSettingsPanel, setShowMoreSettingsPanel] = useState(false);
+  const [showViewOptionsPanel, setShowViewOptionsPanel] = useState(false);
   const [showMobileSheet, setShowMobileSheet] = useState(false);
   const moreSettingsPanelRef = useRef<HTMLDivElement>(null);
+  const viewOptionsPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!showMobileSheet) return;
@@ -259,14 +261,18 @@ export default function App() {
   }, [handleUpdate]);
 
   useEffect(() => {
+    if (!showMoreSettingsPanel && !showViewOptionsPanel) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (moreSettingsPanelRef.current && !moreSettingsPanelRef.current.contains(e.target as Node)) {
+      if (showMoreSettingsPanel && moreSettingsPanelRef.current && !moreSettingsPanelRef.current.contains(e.target as Node)) {
         setShowMoreSettingsPanel(false);
+      }
+      if (showViewOptionsPanel && viewOptionsPanelRef.current && !viewOptionsPanelRef.current.contains(e.target as Node)) {
+        setShowViewOptionsPanel(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [showMoreSettingsPanel, showViewOptionsPanel]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -598,67 +604,100 @@ export default function App() {
         })()}
         </>}
 
-        {/* Color-by and Group-by selectors (visualiser only) */}
-        {view === 'visualiser' && (
-          <>
-            <div className="w-px h-6 bg-slate-200 shrink-0" />
-            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0">
+        {/* View Options — colour-by and group-by in a single compact popover */}
+        {view === 'visualiser' && (() => {
+          const colorBy = timelineSettings.colorBy || 'programme';
+          const groupBy = timelineSettings.groupBy || 'asset';
+          const colorLabel = colorBy === 'programme' ? 'Programme' : colorBy === 'strategy' ? 'Strategy' : 'Status';
+          const groupLabel = groupBy === 'asset' ? 'Asset' : groupBy === 'programme' ? 'Programme' : 'Strategy';
+          return (
+            <div className="relative shrink-0" ref={viewOptionsPanelRef}>
               <button
-                onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'programme' })}
-                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.colorBy || 'programme') === 'programme' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                data-testid="view-options-btn"
+                onClick={() => setShowViewOptionsPanel(v => !v)}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors",
+                  showViewOptionsPanel
+                    ? "bg-blue-50 border-blue-200 text-blue-600"
+                    : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                )}
+                title="View options: colour and grouping"
               >
-                <Palette size={14} />
-                By Programme
+                <Palette size={13} />
+                {colorLabel}
+                <span className="text-slate-300">·</span>
+                <Box size={13} />
+                {groupLabel}
               </button>
-              <button
-                onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'strategy' })}
-                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.colorBy || 'programme') === 'strategy' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-              >
-                <Palette size={14} />
-                By Strategy
-              </button>
-              <button
-                onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'status' })}
-                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.colorBy || 'programme') === 'status' ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-              >
-                <Palette size={14} />
-                By Status
-              </button>
+
+              {showViewOptionsPanel && (
+                <div
+                  data-testid="view-options-popover"
+                  className="absolute top-full left-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-3 w-52"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  {/* Colour by */}
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Colour by</p>
+                  <div className="flex flex-col gap-1 mb-3">
+                    <button
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'programme' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", colorBy === 'programme' ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <Palette size={13} />
+                      By Programme
+                    </button>
+                    <button
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'strategy' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", colorBy === 'strategy' ? "bg-indigo-50 text-indigo-600" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <Palette size={13} />
+                      By Strategy
+                    </button>
+                    <button
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'status' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", colorBy === 'status' ? "bg-emerald-50 text-emerald-600" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <Palette size={13} />
+                      By Status
+                    </button>
+                  </div>
+
+                  {/* Group by */}
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Group by</p>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      data-testid="group-by-asset"
+                      aria-pressed={groupBy === 'asset'}
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'asset' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", groupBy === 'asset' ? "bg-slate-100 text-slate-800" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <Box size={13} />
+                      Asset
+                    </button>
+                    <button
+                      data-testid="group-by-programme"
+                      aria-pressed={groupBy === 'programme'}
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'programme' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", groupBy === 'programme' ? "bg-slate-100 text-slate-800" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <Boxes size={13} />
+                      Programme
+                    </button>
+                    <button
+                      data-testid="group-by-strategy"
+                      aria-pressed={groupBy === 'strategy'}
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'strategy' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", groupBy === 'strategy' ? "bg-slate-100 text-slate-800" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <Target size={13} />
+                      Strategy
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0">
-              <button
-                data-testid="group-by-asset"
-                aria-pressed={(timelineSettings.groupBy || 'asset') === 'asset'}
-                onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'asset' })}
-                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.groupBy || 'asset') === 'asset' ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-                title="Group by Asset"
-              >
-                <Box size={14} />
-                Asset
-              </button>
-              <button
-                data-testid="group-by-programme"
-                aria-pressed={(timelineSettings.groupBy || 'asset') === 'programme'}
-                onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'programme' })}
-                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.groupBy || 'asset') === 'programme' ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-                title="Group by Programme"
-              >
-                <Boxes size={14} />
-                Programme
-              </button>
-              <button
-                data-testid="group-by-strategy"
-                aria-pressed={(timelineSettings.groupBy || 'asset') === 'strategy'}
-                onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'strategy' })}
-                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.groupBy || 'asset') === 'strategy' ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-                title="Group by Strategy"
-              >
-                <Target size={14} />
-                Strategy
-              </button>
-            </div>
-          </>
-        )}
+          );
+        })()}
 
         {/* Spacer */}
         <div className="flex-1" />

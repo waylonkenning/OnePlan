@@ -417,11 +417,22 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             milestoneDepDirectRef.current = false;
             setDrawingDependency(null);
             if (!onUpdateDependencies) return;
-            const els = document.elementsFromPoint(dup.clientX, dup.clientY);
             let targetId: string | null = null;
+            // elementsFromPoint only works within the viewport; use it first
+            const els = document.elementsFromPoint(dup.clientX, dup.clientY);
             for (const el of els) {
               const id = el.getAttribute('data-initiative-id') ?? el.closest('[data-initiative-id]')?.getAttribute('data-initiative-id');
               if (id) { targetId = id; break; }
+            }
+            // Fallback: scan all initiative elements by bounding rect (handles off-viewport drops)
+            if (!targetId) {
+              for (const el of document.querySelectorAll('[data-initiative-id]')) {
+                const r = el.getBoundingClientRect();
+                if (dup.clientX >= r.left && dup.clientX <= r.right && dup.clientY >= r.top && dup.clientY <= r.bottom) {
+                  targetId = el.getAttribute('data-initiative-id');
+                  if (targetId) break;
+                }
+              }
             }
             if (targetId && targetId !== mile.id) {
               onUpdateDependencies([...dependencies, {
@@ -619,6 +630,16 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         for (const el of elements) {
           const id = el.getAttribute('data-initiative-id') ?? el.closest('[data-initiative-id]')?.getAttribute('data-initiative-id');
           if (id) { targetId = id; break; }
+        }
+        // Fallback: scan by bounding rect (handles drops near or beyond viewport edge)
+        if (!targetId) {
+          for (const el of document.querySelectorAll('[data-initiative-id]')) {
+            const r = el.getBoundingClientRect();
+            if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
+              targetId = el.getAttribute('data-initiative-id');
+              if (targetId) break;
+            }
+          }
         }
 
         if (targetId && targetId !== drawingDependency.sourceId) {
