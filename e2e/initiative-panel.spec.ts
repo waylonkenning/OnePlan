@@ -43,8 +43,8 @@ test.describe('Initiative Panel', () => {
         await nameInput.fill('Passkey Rollout V2');
 
         // Change Programme (to Regulatory Programme - ID: prog-reg)
-        // The select should be visible
-        const programmeSelect = panel.getByLabel('Programme');
+        // The select should be visible — use ID to avoid ambiguity with resource checkboxes
+        const programmeSelect = panel.locator('select#programmeId');
         await programmeSelect.selectOption({ label: 'Regulatory Programme' });
 
         // Save changes

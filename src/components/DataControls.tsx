@@ -37,7 +37,7 @@ function validateImportSchema(data: Record<string, unknown[]>): SchemaIssue[] {
 }
 import { exportToExcel, importFromExcel } from '../lib/excel';
 import { exportToPDF, exportToSVG } from '../lib/pdf';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 
 interface DataControlsProps {
   data: {
@@ -49,6 +49,7 @@ interface DataControlsProps {
     dependencies: Dependency[];
     assetCategories: AssetCategory[];
     timelineSettings: TimelineSettings;
+    resources: Resource[];
   };
   onImport: (data: {
     assets: Asset[];
@@ -59,6 +60,7 @@ interface DataControlsProps {
     dependencies: Dependency[];
     assetCategories: AssetCategory[];
     timelineSettings: TimelineSettings;
+    resources: Resource[];
   }) => void;
   timelineId?: string; // ID of the element to capture for PDF
 }
@@ -139,6 +141,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       dependencies: importPreviewData.dependencies || [],
       assetCategories: importPreviewData.assetCategories || [],
       timelineSettings: data.timelineSettings,
+      resources: data.resources,
     });
     setShowImportModal(false);
     setImportPreviewData(null);
@@ -172,6 +175,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       dependencies: mergeArrays(data.dependencies, importPreviewData.dependencies),
       assetCategories: mergeArrays(data.assetCategories, importPreviewData.assetCategories),
       timelineSettings: data.timelineSettings,
+      resources: data.resources,
     });
     setShowImportModal(false);
     setImportPreviewData(null);

@@ -490,6 +490,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                   <td className="border-b border-slate-100 p-1 text-center">
                     <button
                       onClick={() => handleDelete(rowIndex)}
+                      data-testid={`delete-row-btn-${tableId}`}
                       className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors opacity-0 group-hover:opacity-100"
                       title="Delete row"
                     >
@@ -596,6 +597,7 @@ export function EditableTable<T extends { [key: string]: any }>({
       <div className="mt-4 flex gap-3">
         <button
           onClick={handleAdd}
+          data-testid={`add-row-btn-${tableId}`}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium text-sm"
         >
           <Plus size={16} />

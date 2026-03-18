@@ -34,6 +34,15 @@ export interface AssetCategory {
 }
 
 /**
+ * A person or generic role that can be assigned to initiatives.
+ */
+export interface Resource {
+  id: string;
+  name: string;  // Person name or generic role, e.g. "Jane Smith" or "Business Analyst"
+  role?: string; // Optional job title / role label
+}
+
+/**
  * The core entity representing a specific project or piece of work.
  */
 export interface Initiative {
@@ -49,7 +58,9 @@ export interface Initiative {
   isPlaceholder?: boolean;
   status?: 'planned' | 'active' | 'done' | 'cancelled';
   progress?: number; // 0–100
-  owner?: string;
+  owner?: string;    // Legacy free-text owner (used as fallback when ownerId is absent)
+  ownerId?: string;  // ID of a Resource record
+  resourceIds?: string[]; // IDs of additionally assigned resources
 }
 
 /**
@@ -114,6 +125,7 @@ export interface TimelineSettings {
   criticalPath?: 'on' | 'off';
   groupBy?: 'asset' | 'programme' | 'strategy';
   colorBy?: 'programme' | 'strategy' | 'status';
+  showResources?: 'on' | 'off';
 }
 
 /**
@@ -133,5 +145,6 @@ export interface Version {
     dependencies: Dependency[];
     assetCategories: AssetCategory[];
     timelineSettings: TimelineSettings;
+    resources: Resource[];
   };
 }
