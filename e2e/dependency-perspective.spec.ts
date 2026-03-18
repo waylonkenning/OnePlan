@@ -39,11 +39,11 @@ test.describe('Perspective-aware dependency sentences in Reports', () => {
     await expect(report).toContainText('Required: Real-Time Payments Gateway requires Transaction Fraud ML to start first.');
   });
 
-  test('required initiative shows "Required by:" sentence', async ({ page }) => {
+  test('required initiative shows "Required by:" sentence naming both initiatives', async ({ page }) => {
     const report = page.getByTestId('report-dependencies');
-    // Transaction Fraud ML is the TARGET of a requires dep
-    // Sentence must read: "Required by: Real-Time Payments Gateway requires this to start first."
-    await expect(report).toContainText('Required by: Real-Time Payments Gateway requires this to start first.');
+    // Transaction Fraud ML is the TARGET of a requires dep (must start first)
+    // Sentence must read: "Required by: Transaction Fraud ML must start first before Real-Time Payments Gateway."
+    await expect(report).toContainText('Required by: Transaction Fraud ML must start first before Real-Time Payments Gateway.');
   });
 
   test('no legacy wording remains', async ({ page }) => {

@@ -18,7 +18,7 @@ function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspect
   }
   if (dep.type === 'requires') {
     if (isSource) return `Required: ${src.name} requires ${tgt.name} to start first.`;
-    return `Required by: ${src.name} requires this to start first.`;
+    return `Required by: ${tgt.name} must start first before ${src.name}.`;
   }
   return `${src.name} and ${tgt.name} are related.`;
 }
