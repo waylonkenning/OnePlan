@@ -11,9 +11,9 @@ interface ReportsViewProps {
 }
 
 function depSentence(dep: Dependency, src: Initiative, tgt: Initiative): string {
-  if (dep.type === 'blocks') return `${src.name} blocks ${tgt.name} — must finish before it can start.`;
-  if (dep.type === 'requires') return `${src.name} requires ${tgt.name} to be complete first.`;
-  return `${src.name} and ${tgt.name} have a general connection.`;
+  if (dep.type === 'blocks') return `${src.name} must finish before ${tgt.name} can start.`;
+  if (dep.type === 'requires') return `${tgt.name} must be complete before ${src.name} can start.`;
+  return `${src.name} and ${tgt.name} are related.`;
 }
 
 export function ReportsView({ assets, initiatives, dependencies, currentData }: ReportsViewProps) {

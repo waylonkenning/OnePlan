@@ -52,8 +52,8 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
 
     const getDescription = (type: Dependency['type'], src: string, tgt: string) => {
         if (type === 'blocks') return `${src} must finish before ${tgt} can start.`;
-        if (type === 'requires') return `${src} requires ${tgt} to be complete first.`;
-        return `${src} and ${tgt} have a general connection.`;
+        if (type === 'requires') return `${tgt} must be complete before ${src} can start.`;
+        return `${src} and ${tgt} are related.`;
     };
 
     return (

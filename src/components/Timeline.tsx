@@ -1145,8 +1145,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                         const text = dep.type === 'blocks'
                           ? `${src} must finish before ${tgt} can start.`
                           : dep.type === 'requires'
-                          ? `${src} requires ${tgt} to be complete first.`
-                          : `${src} and ${tgt} have a general connection.`;
+                          ? `${tgt} must be complete before ${src} can start.`
+                          : `${src} and ${tgt} are related.`;
                         setLabelTooltip({ x: e.clientX, y: e.clientY - 48, text });
                         clearTimeout(labelTooltipTimerRef.current);
                         labelTooltipTimerRef.current = setTimeout(() => setLabelTooltip(null), 3000);
