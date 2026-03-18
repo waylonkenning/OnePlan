@@ -1439,8 +1439,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                   {settings.budgetVisualisation === 'label' && init.budget > 0 && (
                                     <div className={cn(
                                       "flex-shrink-0 text-[10px] font-bold px-1 rounded backdrop-blur-[2px] self-center",
-                                      init.isPlaceholder 
-                                        ? "bg-red-50 text-red-600 border border-red-200" 
+                                      init.isPlaceholder
+                                        ? "bg-red-50 text-red-600 border border-red-200"
                                         : isGroup
                                           ? "bg-blue-100/50 text-blue-900 border border-blue-200/50"
                                           : "bg-white/20 text-white"
@@ -1448,6 +1448,15 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                       ${init.budget >= 1000000
                                         ? `${(init.budget / 1000000).toFixed(1)}m`
                                         : `${Math.round(init.budget / 1000)}k`}
+                                    </div>
+                                  )}
+                                  {!init.isPlaceholder && !isGroup && init.owner && width > 6 && (
+                                    <div
+                                      data-testid="owner-badge"
+                                      className="flex-shrink-0 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white self-center"
+                                      title={init.owner}
+                                    >
+                                      {init.owner.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                     </div>
                                   )}
                                 </div>

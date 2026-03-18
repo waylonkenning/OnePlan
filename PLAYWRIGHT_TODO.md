@@ -213,10 +213,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify the timeline bar renders a fill overlay proportional to the % complete value.
     - [x] Verify progress values persist to IndexedDB across reloads.
 
-- [ ] **Owner / Assignee:**
-    - [ ] Verify an Owner field is available on each initiative in the InitiativePanel and Data Manager.
-    - [ ] Verify the owner value is saved and persisted to IndexedDB.
-    - [ ] Verify owner is shown on the initiative bar (e.g. as an avatar or initials) or in tooltips.
+- [x] **Owner / Assignee:**
+    - [x] Verify an Owner field is available on each initiative in the InitiativePanel and Data Manager.
+    - [x] Verify the owner value is saved and persisted to IndexedDB.
+    - [x] Verify owner initials are shown as a badge on the initiative bar.
 
 - [ ] **Budget Summary Charts:**
     - [ ] Verify a budget report section is visible in the Reports view.

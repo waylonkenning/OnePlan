@@ -159,6 +159,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
       { value: 'cancelled', label: 'Cancelled' },
     ], width: '8%' },
     { key: 'progress', label: 'Progress (%)', type: 'number', width: '7%' },
+    { key: 'owner', label: 'Owner', type: 'text', width: '10%' },
     { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '5%' },
   ];
 
