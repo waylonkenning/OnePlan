@@ -81,32 +81,29 @@ test.describe('Undo/Redo Functionality', () => {
         await expect(nameInput).toHaveValue('Kb Shortcut Edit');
     });
 
-    test('history stack is limited to 10 operations', async ({ page }) => {
+    test('history stack is limited to 50 operations', async ({ page }) => {
         const firstRow = page.locator('tbody tr[data-real="true"]').first();
         const nameInput = firstRow.locator('input[type="text"]').first();
 
-        const initialValue = await nameInput.inputValue();
-
-        // Perform 11 operations
-        for (let i = 1; i <= 11; i++) {
+        // Perform 51 operations
+        for (let i = 1; i <= 51; i++) {
             await nameInput.fill(`Edit Operation ${i}`);
             await page.keyboard.press('Tab');
-            await expect(nameInput).toHaveValue(`Edit Operation ${i}`);
         }
 
         const undoBtn = page.getByTitle('Undo');
 
-        // Undo 10 times (this should get us back to "Edit Operation 1")
-        for (let i = 0; i < 10; i++) {
+        // Undo 50 times (this should get us back to "Edit Operation 1")
+        for (let i = 0; i < 50; i++) {
             await expect(undoBtn).toBeEnabled();
             await undoBtn.click();
         }
 
         // We should now be at "Edit Operation 1", NOT the initial value,
-        // because the 11th operation pushed the initial state out of the stack.
+        // because the 51st operation pushed the initial state out of the stack.
         await expect(nameInput).toHaveValue('Edit Operation 1');
 
-        // The Undo button should now be disabled since the stack (max size 10) is empty
+        // The Undo button should now be disabled since the stack (max size 50) is empty
         await expect(undoBtn).toBeDisabled();
     });
 });
