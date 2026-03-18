@@ -95,6 +95,7 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
           <button
             onClick={onClose}
             data-testid="close-version-manager"
+            aria-label="Close"
             className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <X size={20} />
@@ -397,9 +398,10 @@ function VersionComparisonReport({ baseVersion, comparisonData, onClose }: {
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col relative animate-in slide-in-from-bottom-8 duration-300">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-indigo-50/30 rounded-t-3xl">
           <h3 className="text-xl font-bold text-slate-900">Difference Report</h3>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             data-testid="close-report"
+            aria-label="Close"
             className="p-2 hover:bg-white rounded-full transition-colors"
           >
             <X size={20} />

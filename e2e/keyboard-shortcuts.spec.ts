@@ -23,7 +23,9 @@ test.describe('Keyboard Shortcuts Reference', () => {
     await page.getByTestId('keyboard-shortcuts-btn').click();
     const modal = page.getByTestId('keyboard-shortcuts-modal');
     await expect(modal).toContainText('Undo');
-    await expect(modal).toContainText('Cmd');
+    // Key label is platform-aware: Cmd on macOS, Ctrl on Windows/Linux
+    const text = await modal.textContent();
+    expect(text).toMatch(/Cmd|Ctrl/);
   });
 
   test('modal lists Redo shortcut', async ({ page }) => {

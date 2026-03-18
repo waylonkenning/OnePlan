@@ -6,9 +6,11 @@ interface Props {
   onClose: () => void;
 }
 
+const metaKey = /Mac|iPod|iPhone|iPad/.test(navigator.userAgent) ? 'Cmd' : 'Ctrl';
+
 const SHORTCUTS = [
-  { keys: ['Cmd', 'Z'], description: 'Undo last action' },
-  { keys: ['Cmd', 'Shift', 'Z'], description: 'Redo last undone action' },
+  { keys: [metaKey, 'Z'], description: 'Undo last action' },
+  { keys: [metaKey, 'Shift', 'Z'], description: 'Redo last undone action' },
   { keys: ['Escape'], description: 'Close open panel or modal' },
   { keys: ['Tab'], description: 'Cycle focus within an open panel' },
   { keys: ['Double-click'], description: 'Create a new initiative on the timeline' },

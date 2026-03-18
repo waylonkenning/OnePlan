@@ -70,4 +70,23 @@ Generated 2026-03-19. Issues are ordered by recommended fix priority.
 
 | # | Status |
 |---|--------|
-| 1–20 | ⬜ Open |
+| 1 | ✅ Fixed |
+| 2 | ✅ Fixed |
+| 3 | ℹ️ N/A — idb transactions auto-rollback; architectural divergence risk is by-design for UI responsiveness |
+| 4 | ✅ Fixed |
+| 5 | ✅ Fixed |
+| 6 | ℹ️ N/A — defensive coercion for old DB data; harmless |
+| 7 | ✅ Fixed — updateData now generic |
+| 8 | ℹ️ N/A — cascadeDelete helper already refactored in codebase |
+| 9 | ℹ️ N/A — text label (blocks/requires/related) IS shown alongside colour |
+| 10 | ℹ️ N/A — TestErrorThrower IS used in main.tsx |
+| 11 | ✅ Fixed |
+| 12 | ✅ Fixed — renamed to oneplan_collapsed_categories |
+| 13 | ✅ Fixed |
+| 14 | ⬜ Open — deferred (minor perf, no bugs) |
+| 15 | ⬜ Open — deferred (minor perf, no bugs) |
+| 16 | ✅ Fixed — String(aValue) instead of as any |
+| 17 | ⬜ Open — deferred (no bugs; cosmetic inconsistency) |
+| 18 | ✅ Fixed — platform-aware Cmd/Ctrl |
+| 19 | ✅ Fixed — aria-label="Close" on all icon-only close buttons |
+| 20 | ⬜ Open — deferred (low-impact a11y) |

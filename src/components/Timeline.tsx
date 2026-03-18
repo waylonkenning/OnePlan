@@ -75,7 +75,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(() => {
     try {
-      const saved = sessionStorage.getItem('oneplan-collapsed-categories');
+      const saved = sessionStorage.getItem('oneplan_collapsed_categories');
       return saved ? new Set(JSON.parse(saved)) : new Set();
     } catch { return new Set(); }
   });
@@ -85,7 +85,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       const next = new Set(prev);
       if (next.has(catId)) next.delete(catId);
       else next.add(catId);
-      sessionStorage.setItem('oneplan-collapsed-categories', JSON.stringify([...next]));
+      sessionStorage.setItem('oneplan_collapsed_categories', JSON.stringify([...next]));
       return next;
     });
   };
@@ -296,6 +296,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     return cols;
   }, [settings.startDate, settings.monthsToShow, localInitiatives, milestones]);
 
+  if (timeColumns.length === 0) return null;
   const startDate = timeColumns[0].date;
   const endDate = timeColumns[timeColumns.length - 1].endDate;
   const totalDays = differenceInDays(endDate, startDate);

@@ -141,7 +141,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       dependencies: importPreviewData.dependencies || [],
       assetCategories: importPreviewData.assetCategories || [],
       timelineSettings: data.timelineSettings,
-      resources: data.resources,
+      resources: importPreviewData.resources || [],
     });
     setShowImportModal(false);
     setImportPreviewData(null);
@@ -175,7 +175,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       dependencies: mergeArrays(data.dependencies, importPreviewData.dependencies),
       assetCategories: mergeArrays(data.assetCategories, importPreviewData.assetCategories),
       timelineSettings: data.timelineSettings,
-      resources: data.resources,
+      resources: mergeArrays(data.resources, importPreviewData.resources),
     });
     setShowImportModal(false);
     setImportPreviewData(null);

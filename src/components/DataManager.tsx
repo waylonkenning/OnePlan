@@ -45,7 +45,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
     setPendingConfirm({ title, message, onConfirm: () => { setPendingConfirm(null); action(); } });
   };
 
-  const updateData = (key: keyof typeof data, newData: any[]) => {
+  const updateData = <K extends keyof typeof data>(key: K, newData: (typeof data)[K]) => {
     onUpdate({
       ...data,
       [key]: newData

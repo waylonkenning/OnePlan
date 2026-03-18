@@ -55,9 +55,13 @@ export function computeCriticalPath(
   // path = [{initId, depId | null}] starting from this node
   type PathNode = { initId: string; depId: string | null };
   const memo = new Map<string, { days: number; path: PathNode[] }>();
+  const visiting = new Set<string>(); // cycle detection
 
   function longestFrom(id: string): { days: number; path: PathNode[] } {
     if (memo.has(id)) return memo.get(id)!;
+    // Cycle detected — treat this node as a dead end to avoid infinite recursion
+    if (visiting.has(id)) return { days: 0, path: [] };
+    visiting.add(id);
 
     const myDays = durationOf.get(id) ?? 0;
     const children = successors.get(id) ?? [];
@@ -77,6 +81,7 @@ export function computeCriticalPath(
       }
     }
 
+    visiting.delete(id);
     memo.set(id, best);
     return best;
   }
