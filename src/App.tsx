@@ -783,7 +783,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="flex-shrink-0 pt-2 flex items-center justify-center gap-1 text-xs text-slate-400">
+      <footer className="hidden md:flex flex-shrink-0 pt-2 items-center justify-center gap-1 text-xs text-slate-400">
         OnePlan IT Initiative Planner — an{' '}
         <a
           href="https://github.com/waylonkenning/OnePlan"
