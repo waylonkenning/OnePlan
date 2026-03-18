@@ -97,7 +97,6 @@ export default function App() {
 
         // If DB is empty (first run), use initial data and save it
         if (dbData.assets.length === 0 && dbData.initiatives.length === 0) {
-          console.log('Initializing DB with default data...');
           const defaults = {
             assets: initialAssets,
             initiatives: initialInitiatives,
@@ -124,7 +123,6 @@ export default function App() {
             setShowTutorial(true);
           }
         } else {
-          console.log('Loaded data from DB');
           setAssets(dbData.assets);
           setInitiatives(dbData.initiatives.map(i => ({ ...i, budget: Number(i.budget) || 0 })));
           setMilestones(dbData.milestones);
@@ -133,12 +131,12 @@ export default function App() {
           setDependencies(dbData.dependencies || []);
           setAssetCategories(dbData.assetCategories || []);
           setResources(dbData.resources || []);
-          const mergedSettings = { ...defaultTimelineSettings, ...(dbData.timelineSettings || {}) };
-          // Migration: if we have startYear but no startDate, convert it
-          if ('startYear' in mergedSettings && !mergedSettings.startDate) {
-            mergedSettings.startDate = `${mergedSettings.startYear}-01-01`;
-            delete (mergedSettings as any).startYear;
-          }
+          const rawSettings = dbData.timelineSettings || {};
+          // Migration: if we have legacy startYear but no startDate, convert it
+          const migratedSettings = ('startYear' in rawSettings && !('startDate' in rawSettings))
+            ? { startDate: `${(rawSettings as any).startYear}-01-01` }
+            : {};
+          const mergedSettings = { ...defaultTimelineSettings, ...rawSettings, ...migratedSettings };
           setTimelineSettings(mergedSettings);
 
           if (!mergedSettings.hasSeenTutorial && !localStorage.getItem('oneplan-e2e')) {
@@ -188,7 +186,6 @@ export default function App() {
     // Persist to DB
     try {
       await saveAppData(data);
-      console.log('Data saved to DB. Collapsed groups:', data.timelineSettings.collapsedGroups);
     } catch (error) {
       console.error('Failed to save data to DB:', error);
       alert('Failed to save changes to local storage.');

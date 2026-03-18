@@ -72,6 +72,7 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
           {/* Close icon */}
           <button
             onClick={onClose}
+            aria-label="Close"
             className="p-1.5 text-slate-400 hover:text-slate-600 bg-white/80 backdrop-blur rounded-md border border-slate-200 transition-colors"
           >
             <X size={16} />

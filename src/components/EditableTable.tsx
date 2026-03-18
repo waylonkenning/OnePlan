@@ -8,6 +8,20 @@ export interface Option {
   label: string;
 }
 
+// Defined outside component to avoid re-creation on every render
+const COLORS = [
+  { value: 'bg-slate-500', name: 'Slate' }, { value: 'bg-gray-500', name: 'Gray' }, { value: 'bg-zinc-500', name: 'Zinc' },
+  { value: 'bg-red-400', name: 'Light Red' }, { value: 'bg-red-500', name: 'Red' }, { value: 'bg-red-600', name: 'Dark Red' },
+  { value: 'bg-orange-400', name: 'Light Orange' }, { value: 'bg-orange-500', name: 'Orange' }, { value: 'bg-orange-600', name: 'Dark Orange' },
+  { value: 'bg-amber-400', name: 'Light Amber' }, { value: 'bg-amber-500', name: 'Amber' }, { value: 'bg-amber-600', name: 'Dark Amber' },
+  { value: 'bg-emerald-400', name: 'Light Emerald' }, { value: 'bg-emerald-500', name: 'Emerald' }, { value: 'bg-emerald-600', name: 'Dark Emerald' },
+  { value: 'bg-cyan-400', name: 'Light Cyan' }, { value: 'bg-cyan-500', name: 'Cyan' }, { value: 'bg-cyan-600', name: 'Dark Cyan' },
+  { value: 'bg-blue-400', name: 'Light Blue' }, { value: 'bg-blue-500', name: 'Blue' }, { value: 'bg-blue-600', name: 'Dark Blue' },
+  { value: 'bg-indigo-400', name: 'Light Indigo' }, { value: 'bg-indigo-500', name: 'Indigo' }, { value: 'bg-indigo-600', name: 'Dark Indigo' },
+  { value: 'bg-violet-400', name: 'Light Violet' }, { value: 'bg-violet-500', name: 'Violet' }, { value: 'bg-violet-600', name: 'Dark Violet' },
+  { value: 'bg-rose-400', name: 'Light Rose' }, { value: 'bg-rose-500', name: 'Rose' }, { value: 'bg-rose-600', name: 'Dark Rose' },
+];
+
 export interface Column<T> {
   key: keyof T;
   label: string;
@@ -114,20 +128,6 @@ export function EditableTable<T extends { [key: string]: any }>({
     });
   };
 
-  // Predefined color palette (30 colors)
-  const COLORS = [
-    { value: 'bg-slate-500', name: 'Slate' }, { value: 'bg-gray-500', name: 'Gray' }, { value: 'bg-zinc-500', name: 'Zinc' },
-    { value: 'bg-red-400', name: 'Light Red' }, { value: 'bg-red-500', name: 'Red' }, { value: 'bg-red-600', name: 'Dark Red' },
-    { value: 'bg-orange-400', name: 'Light Orange' }, { value: 'bg-orange-500', name: 'Orange' }, { value: 'bg-orange-600', name: 'Dark Orange' },
-    { value: 'bg-amber-400', name: 'Light Amber' }, { value: 'bg-amber-500', name: 'Amber' }, { value: 'bg-amber-600', name: 'Dark Amber' },
-    { value: 'bg-emerald-400', name: 'Light Emerald' }, { value: 'bg-emerald-500', name: 'Emerald' }, { value: 'bg-emerald-600', name: 'Dark Emerald' },
-    { value: 'bg-cyan-400', name: 'Light Cyan' }, { value: 'bg-cyan-500', name: 'Cyan' }, { value: 'bg-cyan-600', name: 'Dark Cyan' },
-    { value: 'bg-blue-400', name: 'Light Blue' }, { value: 'bg-blue-500', name: 'Blue' }, { value: 'bg-blue-600', name: 'Dark Blue' },
-    { value: 'bg-indigo-400', name: 'Light Indigo' }, { value: 'bg-indigo-500', name: 'Indigo' }, { value: 'bg-indigo-600', name: 'Dark Indigo' },
-    { value: 'bg-violet-400', name: 'Light Violet' }, { value: 'bg-violet-500', name: 'Violet' }, { value: 'bg-violet-600', name: 'Dark Violet' },
-    { value: 'bg-rose-400', name: 'Light Rose' }, { value: 'bg-rose-500', name: 'Rose' }, { value: 'bg-rose-600', name: 'Dark Rose' },
-  ];
-
   // Only one blank row that spawns another when edited
   const GHOST_ROWS_COUNT = 1;
 
@@ -185,8 +185,8 @@ export function EditableTable<T extends { [key: string]: any }>({
       const column = columns.find(c => c.key === sortConfig.key);
 
       if (column?.type === 'number') {
-        const aNum = parseFloat(aValue as any) || 0;
-        const bNum = parseFloat(bValue as any) || 0;
+        const aNum = parseFloat(String(aValue)) || 0;
+        const bNum = parseFloat(String(bValue)) || 0;
         return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
       }
 

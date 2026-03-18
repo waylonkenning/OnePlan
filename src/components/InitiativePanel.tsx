@@ -65,6 +65,7 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
                     </h2>
                     <button
                         onClick={onClose}
+                        aria-label="Close"
                         className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-md transition-colors"
                     >
                         <X size={20} />
