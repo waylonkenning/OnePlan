@@ -860,6 +860,7 @@ export default function App() {
               dependencies={dependencies}
               assetCategories={assetCategories}
               settings={timelineSettings}
+              resources={resources}
               onSaveInitiative={handleUpdateInitiative}
               onDeleteInitiative={handleDeleteInitiative}
             />

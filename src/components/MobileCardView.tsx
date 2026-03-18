@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Asset, Initiative, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
+import { Asset, Initiative, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { ChevronDown, ChevronRight, AlertTriangle } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
 
@@ -11,6 +11,7 @@ interface MobileCardViewProps {
   dependencies: Dependency[];
   assetCategories: AssetCategory[];
   settings: TimelineSettings;
+  resources?: Resource[];
   onSaveInitiative: (initiative: Initiative) => void;
   onDeleteInitiative?: (initiative: Initiative) => void;
 }
@@ -303,6 +304,7 @@ export function MobileCardView({
   dependencies,
   assetCategories,
   settings,
+  resources = [],
   onSaveInitiative,
   onDeleteInitiative,
 }: MobileCardViewProps) {
@@ -398,6 +400,7 @@ export function MobileCardView({
         strategies={strategies}
         dependencies={dependencies}
         initiatives={initiatives}
+        resources={resources}
         onClose={() => setIsPanelOpen(false)}
         onSave={handleSave}
         onDelete={handleDelete}
