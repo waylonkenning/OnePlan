@@ -34,7 +34,20 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
 
-  const [colorBy, setColorBy] = useState<'programme' | 'strategy'>('programme');
+  const [colorBy, setColorBy] = useState<'programme' | 'strategy' | 'status'>('programme');
+
+  const STATUS_COLORS: Record<string, string> = {
+    planned: 'bg-slate-400',
+    active: 'bg-blue-500',
+    done: 'bg-emerald-500',
+    cancelled: 'bg-red-400',
+  };
+  const STATUS_LABELS: Record<string, string> = {
+    planned: 'Planned',
+    active: 'Active',
+    done: 'Done',
+    cancelled: 'Cancelled',
+  };
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
   const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null);
   const [disambiguateAt, setDisambiguateAt] = useState<{ x: number; y: number; candidates: Dependency[] } | null>(null);
@@ -883,11 +896,33 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             <Palette size={14} />
             By Strategy
           </button>
+          <button
+            onClick={() => setColorBy('status')}
+            className={cn(
+              "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
+              colorBy === 'status' ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            )}
+          >
+            <Palette size={14} />
+            By Status
+          </button>
         </div>
 
         <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
-        <div className="flex flex-wrap gap-x-4 gap-y-2 items-center">
+        <div data-testid="colour-legend" className="flex flex-wrap gap-x-4 gap-y-2 items-center">
+          {colorBy === 'status' ? (
+            <>
+              <div className="font-semibold text-slate-700 whitespace-nowrap">Status:</div>
+              {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                <div key={key} className="flex items-center gap-2 whitespace-nowrap">
+                  <div className={cn("w-3 h-3 rounded-full", STATUS_COLORS[key])} />
+                  <span className="text-slate-600">{label}</span>
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
           <div className="font-semibold text-slate-700 whitespace-nowrap">
             {colorBy === 'programme' ? 'Programmes:' : 'Strategies:'}
           </div>
@@ -897,6 +932,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               <span className="text-slate-600">{item.name}</span>
             </div>
           ))}
+            </>
+          )}
         </div>
 
         <div className="ml-auto flex items-center gap-4">
@@ -1303,8 +1340,14 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                           {layoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
                             const prog = programmes.find(p => p.id === init.programmeId);
                             const strat = strategies.find(s => s.id === init.strategyId);
-                            const colorClass = colorBy === 'programme' ? (prog?.color || 'bg-slate-500') : (strat?.color || 'bg-slate-400');
-                            const subtitle = isGroup
+                            const colorClass = colorBy === 'status'
+                              ? (STATUS_COLORS[init.status || 'planned'])
+                              : colorBy === 'programme'
+                              ? (prog?.color || 'bg-slate-500')
+                              : (strat?.color || 'bg-slate-400');
+                            const subtitle = colorBy === 'status'
+                              ? STATUS_LABELS[init.status || 'planned']
+                              : isGroup
                               ? (colorBy === 'programme' ? groupProgrammeNames : groupStrategyNames)
                               : (colorBy === 'programme' ? prog?.name : strat?.name);
 

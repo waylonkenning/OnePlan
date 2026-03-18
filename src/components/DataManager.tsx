@@ -152,6 +152,12 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
     { key: 'startDate', label: 'Start Date', type: 'date', width: '10%' },
     { key: 'endDate', label: 'End Date', type: 'date', width: '10%' },
     { key: 'budget', label: 'Budget ($)', type: 'number', width: '10%' },
+    { key: 'status', label: 'Status', type: 'select', options: [
+      { value: 'planned', label: 'Planned' },
+      { value: 'active', label: 'Active' },
+      { value: 'done', label: 'Done' },
+      { value: 'cancelled', label: 'Cancelled' },
+    ], width: '8%' },
     { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '5%' },
   ];
 
