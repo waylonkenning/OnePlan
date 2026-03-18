@@ -6,4 +6,3 @@ test-results/
 .DS_Store
 *.log
 .env*
-!.env.example
