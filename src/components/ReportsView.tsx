@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Asset, Initiative, Dependency, Version } from '../types';
+import { Asset, Initiative, Dependency, Version, Programme, Strategy, AssetCategory } from '../types';
 import { getAllVersions } from '../lib/db';
 import { computeDiff, DiffResult } from '../lib/diff';
 
@@ -8,6 +8,9 @@ interface ReportsViewProps {
   initiatives: Initiative[];
   dependencies: Dependency[];
   currentData: Version['data'];
+  programmes: Programme[];
+  strategies: Strategy[];
+  assetCategories: AssetCategory[];
 }
 
 function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspectiveId: string): string {
@@ -23,7 +26,7 @@ function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspect
   return `${src.name} and ${tgt.name} are related.`;
 }
 
-export function ReportsView({ assets, initiatives, dependencies, currentData }: ReportsViewProps) {
+export function ReportsView({ assets, initiatives, dependencies, currentData, programmes, strategies, assetCategories }: ReportsViewProps) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
   const [diffResult, setDiffResult] = useState<DiffResult | null>(null);
@@ -174,6 +177,91 @@ export function ReportsView({ assets, initiatives, dependencies, currentData }: 
             )}
           </div>
         </div>
+
+        {/* Budget Summary */}
+        {(() => {
+          const realInitiatives = initiatives.filter(i => !i.isPlaceholder);
+          const grandTotal = realInitiatives.reduce((sum, i) => sum + (i.budget || 0), 0);
+
+          const fmt = (n: number) =>
+            n >= 1_000_000
+              ? `$${(n / 1_000_000).toFixed(1)}m`
+              : n >= 1_000
+              ? `$${Math.round(n / 1_000)}k`
+              : `$${n.toLocaleString()}`;
+
+          const byProgramme = programmes
+            .map(p => ({
+              id: p.id,
+              name: p.name,
+              color: p.color,
+              total: realInitiatives.filter(i => i.programmeId === p.id).reduce((s, i) => s + (i.budget || 0), 0),
+            }))
+            .filter(r => r.total > 0)
+            .sort((a, b) => b.total - a.total);
+
+          const byStrategy = strategies
+            .map(s => ({
+              id: s.id,
+              name: s.name,
+              color: s.color,
+              total: realInitiatives.filter(i => i.strategyId === s.id).reduce((sum, i) => sum + (i.budget || 0), 0),
+            }))
+            .filter(r => r.total > 0)
+            .sort((a, b) => b.total - a.total);
+
+          const byCategory = assetCategories
+            .map(c => {
+              const catAssets = assets.filter(a => a.categoryId === c.id).map(a => a.id);
+              return {
+                id: c.id,
+                name: c.name,
+                total: realInitiatives.filter(i => catAssets.includes(i.assetId)).reduce((s, i) => s + (i.budget || 0), 0),
+              };
+            })
+            .filter(r => r.total > 0)
+            .sort((a, b) => b.total - a.total);
+
+          const BudgetBar = ({ total, max, color }: { total: number; max: number; color?: string }) => (
+            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full ${color ?? 'bg-blue-500'}`}
+                style={{ width: `${max > 0 ? Math.round((total / max) * 100) : 0}%` }}
+              />
+            </div>
+          );
+
+          const Section = ({ testId, title, rows, max }: { testId: string; title: string; rows: { id: string; name: string; total: number; color?: string }[]; max: number }) => (
+            <div data-testid={testId} className="space-y-2">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{title}</h3>
+              {rows.map(row => (
+                <div key={row.id} data-testid={`budget-row-${testId.replace('budget-by-', '')}-${row.id}`} className="flex items-center gap-3">
+                  <span className="text-sm text-slate-700 w-44 truncate flex-shrink-0">{row.name}</span>
+                  <BudgetBar total={row.total} max={max} color={row.color} />
+                  <span className="text-sm font-semibold text-slate-800 w-16 text-right flex-shrink-0">{fmt(row.total)}</span>
+                </div>
+              ))}
+            </div>
+          );
+
+          const maxProg = byProgramme[0]?.total ?? 0;
+          const maxStrat = byStrategy[0]?.total ?? 0;
+          const maxCat = byCategory[0]?.total ?? 0;
+
+          return (
+            <div data-testid="report-budget-summary" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                <h2 className="text-base font-semibold text-slate-800">Budget Summary</h2>
+                <span data-testid="budget-grand-total" className="text-sm font-bold text-slate-700">{fmt(grandTotal)} total</span>
+              </div>
+              <div className="p-4 space-y-6">
+                <Section testId="budget-by-programme" title="By Programme" rows={byProgramme} max={maxProg} />
+                <Section testId="budget-by-strategy" title="By Strategy" rows={byStrategy} max={maxStrat} />
+                <Section testId="budget-by-category" title="By Category" rows={byCategory} max={maxCat} />
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Initiatives & Dependencies */}
         <div data-testid="report-dependencies" className="max-w-3xl mx-auto space-y-6">

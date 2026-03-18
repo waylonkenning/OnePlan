@@ -218,10 +218,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify the owner value is saved and persisted to IndexedDB.
     - [x] Verify owner initials are shown as a badge on the initiative bar.
 
-- [ ] **Budget Summary Charts:**
-    - [ ] Verify a budget report section is visible in the Reports view.
-    - [ ] Verify spend is broken down by programme, strategy, and category.
-    - [ ] Verify chart totals match the sum of initiative budgets in the Data Manager.
+- [x] **Budget Summary Charts:**
+    - [x] Verify a budget report section is visible in the Reports view.
+    - [x] Verify spend is broken down by programme, strategy, and category.
+    - [x] Verify chart totals match the sum of initiative budgets in the Data Manager.
 
 - [ ] **Baseline Comparison Overlay:**
     - [ ] Verify a saved version can be selected as a "baseline" to overlay on the live timeline.
