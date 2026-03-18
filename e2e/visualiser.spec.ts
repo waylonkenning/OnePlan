@@ -28,7 +28,7 @@ test.describe('Visualiser (Timeline)', () => {
     await expect(byStratBtn).toHaveClass(/bg-indigo/);
 
     // Check if legend updated (e.g. 'Customer First' is a strategy name)
-    await expect(page.getByText('Strategies:').first()).toBeVisible();
+    await expect(page.getByText('Strategies').first()).toBeVisible();
     await expect(page.getByText('Customer First').first()).toBeVisible();
   });
 

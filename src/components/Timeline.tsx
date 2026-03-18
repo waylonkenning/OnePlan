@@ -3,7 +3,7 @@ import { useMediaQuery } from '../lib/useMediaQuery';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth, endOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
-import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, Boxes } from 'lucide-react';
+import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
 import { DependencyPanel } from './DependencyPanel';
 import { ArrowDisambiguator } from './ArrowDisambiguator';
@@ -72,6 +72,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   } | null>(null);
   const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
   const [draggingAssetId, setDraggingAssetId] = useState<string | null>(null);
+  const [legendExpanded, setLegendExpanded] = useState<boolean>(() => {
+    try { return localStorage.getItem('oneplan_legend_expanded') !== 'false'; } catch { return true; }
+  });
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(() => {
     try {
@@ -1019,51 +1022,8 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const groupBy = settings.groupBy || 'asset';
 
   return (
-    <div id="timeline-visualiser" ref={timelineRef} className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <div id="timeline-visualiser" ref={timelineRef} className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden relative">
 
-      {/* Legend & Controls Bar */}
-      <div className="flex-shrink-0 border-b border-slate-200 bg-white p-3 flex flex-wrap gap-x-6 gap-y-3 items-center text-sm overflow-x-auto">
-        <div data-testid="colour-legend" className="flex flex-wrap gap-x-4 gap-y-2 items-center">
-          {colorBy === 'status' ? (
-            <>
-              <div className="font-semibold text-slate-700 whitespace-nowrap">Status:</div>
-              {Object.entries(STATUS_LABELS).map(([key, label]) => (
-                <div key={key} className="flex items-center gap-2 whitespace-nowrap">
-                  <div className={cn("w-3 h-3 rounded-full", STATUS_COLORS[key])} />
-                  <span className="text-slate-600">{label}</span>
-                </div>
-              ))}
-            </>
-          ) : (
-            <>
-          <div className="font-semibold text-slate-700 whitespace-nowrap">
-            {colorBy === 'programme' ? 'Programmes:' : 'Strategies:'}
-          </div>
-          {(colorBy === 'programme' ? programmes : strategies).map(item => (
-            <div key={item.id} className="flex items-center gap-2 whitespace-nowrap">
-              <div className={cn("w-3 h-3 rounded-full", item.color)} />
-              <span className="text-slate-600">{item.name}</span>
-            </div>
-          ))}
-            </>
-          )}
-        </div>
-
-        <div className="ml-auto flex items-center gap-4">
-          {settings.showRelationships !== 'off' && (
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              <div className="w-6 h-px bg-blue-500 relative">
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[3px] border-y-transparent border-l-[5px] border-l-blue-500" />
-              </div>
-              <span className="text-slate-600">Dependency</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2 whitespace-nowrap">
-            <AlertTriangle size={14} className="text-red-500" />
-            <span className="text-slate-600">Conflict</span>
-          </div>
-        </div>
-      </div>
 
       <div className="flex-1 overflow-auto scroll-smooth" ref={scrollContainerRef}>
         <div className="relative w-max min-w-full">
@@ -1884,6 +1844,108 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           setSelectedDependencyId(null);
         }}
       />
+
+      {/* Floating Legend — anchored to bottom-right of the visualiser canvas */}
+      <div
+        data-testid="timeline-legend"
+        className="absolute bottom-3 right-3 z-50 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-lg shadow-md text-xs select-none"
+        style={{ maxWidth: '220px' }}
+      >
+        <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-slate-100">
+          <span className="font-semibold text-slate-600 uppercase tracking-wide text-[10px]">Legend</span>
+          <button
+            data-testid="legend-toggle"
+            onClick={() => {
+              const next = !legendExpanded;
+              setLegendExpanded(next);
+              try { localStorage.setItem('oneplan_legend_expanded', String(next)); } catch { /* noop */ }
+            }}
+            className="p-0.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+            aria-label={legendExpanded ? 'Collapse legend' : 'Expand legend'}
+          >
+            {legendExpanded ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
+          </button>
+        </div>
+
+        {legendExpanded && (
+          <div data-testid="legend-content" className="p-2.5 space-y-2.5">
+            {/* Colour swatches */}
+            <div data-testid="legend-colour-swatches">
+              <div data-testid="colour-legend">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">
+                  {colorBy === 'status' ? 'Status' : colorBy === 'programme' ? 'Programmes' : 'Strategies'}
+                </p>
+                <div className="space-y-1">
+                  {colorBy === 'status' ? (
+                    Object.entries(STATUS_LABELS).map(([key, label]) => (
+                      <div key={key} className="flex items-center gap-1.5">
+                        <div className={cn('w-2.5 h-2.5 rounded-full flex-shrink-0', STATUS_COLORS[key])} />
+                        <span className="text-slate-600">{label}</span>
+                      </div>
+                    ))
+                  ) : (
+                    (colorBy === 'programme' ? programmes : strategies).map(item => (
+                      <div key={item.id} className="flex items-center gap-1.5">
+                        <div className={cn('w-2.5 h-2.5 rounded-full flex-shrink-0', item.color)} />
+                        <span className="text-slate-600 truncate">{item.name}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Milestone types */}
+            <div data-testid="legend-milestones">
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Milestones</p>
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0"><Info size={10} /></div>
+                  <span className="text-slate-600">Info</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0"><Info size={10} /></div>
+                  <span className="text-slate-600">Warning</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0"><Star size={10} fill="currentColor" /></div>
+                  <span className="text-slate-600">Critical</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Dependency arrows */}
+            {settings.showRelationships !== 'off' && (
+              <div data-testid="legend-dependencies">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Dependencies</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-6 h-px bg-blue-500 relative flex-shrink-0">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[3px] border-y-transparent border-l-[5px] border-l-blue-500" />
+                    </div>
+                    <span className="text-slate-600">Requires</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-6 h-px bg-red-500 relative flex-shrink-0">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-[3px] border-y-transparent border-l-[5px] border-l-red-500" />
+                    </div>
+                    <span className="text-slate-600">Blocks</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Conflict indicator */}
+            <div data-testid="legend-conflict">
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Indicators</p>
+              <div className="flex items-center gap-1.5">
+                <AlertTriangle size={12} className="text-red-500 flex-shrink-0" />
+                <span className="text-slate-600">Conflict</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
