@@ -228,6 +228,28 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify switching grouping mode re-renders rows correctly with the appropriate labels.
     - [x] Verify the selected grouping mode persists across page reloads.
 
+### Codebase Cleanup
+
+- [ ] **Remove stale / unused files:**
+    - [ ] `GEMINI.md` — duplicate of `CLAUDE.md`; references AI Studio / Gemini workflow no longer in use.
+    - [ ] `.env.example` — references `GEMINI_API_KEY` and `APP_URL`; no longer relevant (app has no server-side secrets).
+    - [ ] `VERSIONING_PLAN.md` — the version history feature is fully shipped; this planning doc is now dead weight.
+    - [ ] `BACKLOG.md` — superseded by `PLAYWRIGHT_TODO.md` (all items have been carried over); safe to delete.
+    - [ ] `OPEN_SOURCE_TODO.md` — all items checked off; the open-source transition is complete.
+    - [ ] `docs/enhancement-report.md` and `docs/mobile-research.md` — one-off research docs; no longer needed.
+    - [ ] `e2e/mock-bad-file.txt` — leftover test fixture sitting loose in the e2e root.
+    - [ ] `e2e/take-screenshot.spec.ts` and `e2e/capture-feature-screenshots.spec.ts` / `capture-tutorial-screenshots.spec.ts` / `mobile-screenshots.spec.ts` — screenshot capture scripts that aren't part of the test suite; review whether they should be kept, moved to a `scripts/` folder, or deleted.
+    - [ ] `metadata.json` — likely an AI Studio project artifact; verify it's unused before deleting.
+    - [ ] `dist/` — built output should not be in version control; confirm it's in `.gitignore`.
+    - [ ] Review `package.json` for any unused dependencies that crept in during feature development.
+
+### Documentation
+
+- [ ] **Feature Documentation / Help Guide:**
+    - [ ] Review git commit history and compile a comprehensive `FEATURES.md` covering all features added since launch.
+    - [ ] Update in-app tutorial content and help guide to reflect new features (grouping modes, milestone dependencies, progress tracking, owner field, critical path, colour-by-status, zoom, keyboard shortcuts, mobile card view, etc.).
+    - [ ] Ensure Features Modal cards and animations are up to date with current feature set.
+
 ### Larger Features
 
 - [ ] **Resource / Capacity Planning:**
@@ -243,8 +265,8 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify existing rows are updated by ID (merge) and new rows are appended.
     - [x] Verify CSV files with missing optional columns import without errors.
 
-- [ ] **Milestone Dependencies:**
-    - [ ] Verify a dependency can be drawn from a milestone to an initiative (milestone blocks initiative start).
-    - [ ] Verify milestone dependencies are rendered as arrows in the timeline.
-    - [ ] Verify milestone dependencies are included in the dependency report.
+- [x] **Milestone Dependencies:**
+    - [x] Verify a dependency can be drawn from a milestone to an initiative (milestone blocks initiative start).
+    - [x] Verify milestone dependencies are rendered as arrows in the timeline.
+    - [x] Verify milestone dependencies are included in the dependency report.
 
