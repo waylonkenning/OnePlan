@@ -249,11 +249,11 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [ ] Review git commit history and compile a comprehensive `FEATURES.md` covering all features added since launch.
     - [x] Update in-app tutorial content to reflect new features — colour modes, critical path, resource assignment, Resources tab in Data Manager, capacity report, and mobile card view.
 
-- [ ] **Update Screenshots & Animations:**
-    - [ ] Re-run `scripts/capture-feature-screenshots.spec.ts` after reviewing whether the 6 feature card images (dependency, conflict, column-resize, global-search, grouped, inline-editing, move-resize, view-switching) still represent the best showcase of current capabilities.
-    - [ ] Add new feature cards / replace outdated ones to cover: milestone dependencies, progress tracking, critical path highlighting, grouping by programme/strategy, owner badges, colour-by-status, mobile card view.
-    - [ ] Re-run `scripts/capture-tutorial-screenshots.spec.ts` and `scripts/mobile-screenshots.spec.ts` to refresh tutorial step images (overview, visualiser, interactive, insights, data-manager).
-    - [ ] Record updated animated GIFs / WebP animations for the Features Modal to replace any that show the old UI.
+- [x] **Update Screenshots & Animations:**
+    - [x] Added Resources & Capacity card to FeaturesModal; updated Budget Summary card to mention Capacity Report; updated Spreadsheet Editing card to mention Resources tab.
+    - [x] All feature cards already cover: milestone dependencies, progress tracking, critical path, grouping, owner badges, colour-by-status, mobile card view.
+    - [x] Re-ran `e2e/capture-screenshots.spec.ts` — all 13 tutorial and feature PNGs refreshed with current UI.
+    - [x] Features Modal uses static PNGs (no animated GIFs/WebP); placeholder icons used where screenshots aren't applicable.
 
 - [ ] **Update Landing Page:**
     - [ ] Review the current landing page copy and feature cards against the full current feature set.

@@ -109,7 +109,14 @@ const featureSections = [
       {
         title: "Spreadsheet Editing",
         image: "/features/inline-editing.png",
-        desc: "Update names, dates, budgets, status, progress, and owner quickly in a familiar table format. Switch between Initiatives, Assets, Programmes, Strategies, and Milestones tabs.",
+        desc: "Update names, dates, budgets, status, progress, and owner quickly in a familiar table format. Switch between Initiatives, Assets, Programmes, Strategies, Milestones, and Resources tabs.",
+      },
+      {
+        title: "Resources & Capacity",
+        itemIcon: (
+          <User className="w-16 h-16 text-slate-300 mx-auto my-12" />
+        ),
+        desc: "Define your team in the Resources tab — named people or generic roles. Assign an owner and additional team members to each initiative. The Capacity Report in Reports view shows every resource's initiative assignments at a glance.",
       },
       {
         title: "Adjustable Columns",
@@ -130,9 +137,9 @@ const featureSections = [
     icon: <BarChart2 className="w-5 h-5 text-violet-500" />,
     items: [
       {
-        title: "Budget Summary",
+        title: "Budget & Capacity Reports",
         image: "/tutorial/4-insights.png",
-        desc: "The Reports view shows total spend broken down by Programme, Strategy, and Category. Budget totals update live as you edit initiative values.",
+        desc: "The Reports view shows total spend broken down by Programme, Strategy, and Category, plus a Capacity Report listing every resource's initiative assignments. Budget totals update live as you edit initiative values.",
       },
       {
         title: "Version History",

@@ -12,6 +12,12 @@ test.describe('Features Modal', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]');
   });
 
+  test('should show Resources & Capacity card', async ({ page }) => {
+    await page.getByTestId('nav-features').click();
+    await expect(page.getByText('OnePlan Features & Capabilities')).toBeVisible();
+    await expect(page.getByText('Resources & Capacity')).toBeVisible();
+  });
+
   test('should open and close the features modal', async ({ page }) => {
     // Open features modal
     await page.getByTestId('nav-features').click();
