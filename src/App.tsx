@@ -385,6 +385,7 @@ export default function App() {
           />
         </div>
 
+        {view === 'visualiser' && <>
         <div className="w-px h-6 bg-slate-200 shrink-0" />
 
         {/* Timeline Range */}
@@ -392,6 +393,7 @@ export default function App() {
           Start
           <input
             type="date"
+            data-testid="timeline-start-input"
             value={timelineSettings.startDate}
             onChange={(e) => {
               handleUpdate({
@@ -406,6 +408,7 @@ export default function App() {
         <label className="flex items-center gap-1.5 text-xs text-slate-500 shrink-0">
           Months
           <select
+            data-testid="timeline-months-select"
             value={timelineSettings.monthsToShow || 36}
             onChange={(e) => {
               handleUpdate({
@@ -593,6 +596,7 @@ export default function App() {
             </div>
           );
         })()}
+        </>}
 
         {/* Color-by and Group-by selectors (visualiser only) */}
         {view === 'visualiser' && (
