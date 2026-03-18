@@ -269,9 +269,6 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify owner initials badge derives from the linked resource record.
     - [ ] Verify a capacity report shows allocation per resource across the timeline.
 
-- [ ] **Dependency Graph View:**
-    - [ ] Verify a network diagram view of all dependencies is accessible from the Reports tab.
-    - [ ] Verify nodes represent initiatives and edges represent dependencies with type-based styling.
 
 - [x] **CSV Import:**
     - [x] Verify CSV data can be pasted into any Data Manager table via the "Paste CSV" button.
