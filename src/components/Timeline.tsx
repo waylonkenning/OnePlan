@@ -54,14 +54,16 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [disambiguateAt, setDisambiguateAt] = useState<{ x: number; y: number; candidates: Dependency[] } | null>(null);
   const depSegmentsRef = useRef<Map<string, number[][]>>(new Map()); // depId → [[x1,y1,x2,y2], ...]
   const isDraggingRef = useRef(false);
+  const milestoneDepDirectRef = useRef(false); // true when direct listener is handling milestone dep creation
   const [labelTooltip, setLabelTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
   const labelTooltipTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
-  const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialDate: string } | null>(null);
+  const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialY: number; initialDate: string } | null>(null);
   const [movingDependency, setMovingDependency] = useState<{ id: string; initialX: number; initialOffset: number } | null>(null);
   const [drawingDependency, setDrawingDependency] = useState<{
     sourceId: string;
+    sourceType: 'initiative' | 'milestone';
     startX: number;
     startY: number;
     currentX: number;
@@ -90,6 +92,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const [creatingInitiativeParams, setCreatingInitiativeParams] = useState<{ assetId: string, startDate: string, endDate: string } | null>(null);
 
   const [initiativePositions, setInitiativePositions] = useState<Map<string, { x: number; y: number; width: number; height: number }>>(new Map());
+  const [milestonePositions, setMilestonePositions] = useState<Map<string, { x: number; y: number }>>(new Map());
   const lastStableLayouts = useRef<Map<string, { items: any[]; height: number }>>(new Map());
 
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -368,11 +371,86 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
     e.stopPropagation();
     e.preventDefault();
     isDraggingRef.current = false;
-    setMovingMilestone({
-      id: mile.id,
-      initialX: e.clientX,
-      initialDate: mile.date
-    });
+    const initialX = e.clientX;
+    const initialY = e.clientY;
+
+    // Add direct window listeners immediately (avoids timing gap before React/useEffect commits)
+    // These handle the first mousemove events to decide gesture direction.
+    let gestureDecided = false;
+
+    const handleGestureMove = (mv: MouseEvent) => {
+      if (gestureDecided) return;
+      const deltaY = mv.clientY - initialY;
+      const deltaX = mv.clientX - initialX;
+      // If dragging downward by threshold: switch to dep drawing
+      if (settings.showRelationships !== 'off' && deltaY > 10 && deltaY > Math.abs(deltaX)) {
+        gestureDecided = true;
+        window.removeEventListener('mousemove', handleGestureMove);
+        window.removeEventListener('mouseup', handleGestureUp);
+        if (containerRef.current) {
+          const containerRect = containerRef.current.getBoundingClientRect();
+          const milePos = milestonePositions.get(mile.id);
+          const startX = milePos ? milePos.x : initialX - containerRect.left;
+          const startY = milePos ? milePos.y : initialY - containerRect.top;
+          // Set React state for the visual arrow
+          setDrawingDependency({
+            sourceId: mile.id,
+            sourceType: 'milestone',
+            startX,
+            startY,
+            currentX: mv.clientX - containerRect.left,
+            currentY: mv.clientY - containerRect.top,
+          });
+          // Add direct listeners so dep creation doesn't depend on useEffect timing.
+          // Guard against double-creation if useEffect also fires on same mouseup.
+          milestoneDepDirectRef.current = true;
+          const handleDepMove = (dmv: MouseEvent) => {
+            if (!containerRef.current) return;
+            const cr = containerRef.current.getBoundingClientRect();
+            setDrawingDependency(prev => prev ? { ...prev, currentX: dmv.clientX - cr.left, currentY: dmv.clientY - cr.top } : null);
+          };
+          const handleDepUp = (dup: MouseEvent) => {
+            window.removeEventListener('mousemove', handleDepMove);
+            window.removeEventListener('mouseup', handleDepUp);
+            milestoneDepDirectRef.current = false;
+            setDrawingDependency(null);
+            if (!onUpdateDependencies) return;
+            const els = document.elementsFromPoint(dup.clientX, dup.clientY);
+            let targetId: string | null = null;
+            for (const el of els) {
+              const id = el.getAttribute('data-initiative-id') ?? el.closest('[data-initiative-id]')?.getAttribute('data-initiative-id');
+              if (id) { targetId = id; break; }
+            }
+            if (targetId && targetId !== mile.id) {
+              onUpdateDependencies([...dependencies, {
+                id: `dep-${Date.now()}`,
+                sourceId: mile.id,
+                sourceType: 'milestone',
+                targetId,
+                type: 'requires'
+              }]);
+            }
+          };
+          window.addEventListener('mousemove', handleDepMove);
+          window.addEventListener('mouseup', handleDepUp);
+        }
+      } else if (Math.abs(deltaX) > 5 || (deltaY < 0 && Math.abs(deltaY) > 5)) {
+        // Horizontal or upward drag: commit to milestone moving
+        gestureDecided = true;
+        window.removeEventListener('mousemove', handleGestureMove);
+        window.removeEventListener('mouseup', handleGestureUp);
+        setMovingMilestone({ id: mile.id, initialX, initialY, initialDate: mile.date });
+      }
+    };
+
+    const handleGestureUp = () => {
+      gestureDecided = true;
+      window.removeEventListener('mousemove', handleGestureMove);
+      window.removeEventListener('mouseup', handleGestureUp);
+    };
+
+    window.addEventListener('mousemove', handleGestureMove);
+    window.addEventListener('mouseup', handleGestureUp);
   };
 
 
@@ -429,6 +507,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
             setDrawingDependency({
               sourceId: moving.id,
+              sourceType: 'initiative',
               startX,
               startY,
               currentX: e.clientX - containerRect.left,
@@ -461,7 +540,25 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
           setLocalInitiatives(updatedInitiatives);
         }
       } else if (movingMilestone) {
+        const deltaY = e.clientY - movingMilestone.initialY;
         const deltaX = e.clientX - movingMilestone.initialX;
+        // If dragging downward more than 10px and more than horizontal movement, switch to dependency drawing
+        if (settings.showRelationships !== 'off' && deltaY > 10 && deltaY > Math.abs(deltaX)) {
+          const milePos = milestonePositions.get(movingMilestone.id);
+          if (milePos && containerRef.current) {
+            const containerRect = containerRef.current.getBoundingClientRect();
+            setDrawingDependency({
+              sourceId: movingMilestone.id,
+              sourceType: 'milestone',
+              startX: milePos.x,
+              startY: milePos.y,
+              currentX: e.clientX - containerRect.left,
+              currentY: e.clientY - containerRect.top,
+            });
+            setMovingMilestone(null);
+            return;
+          }
+        }
         const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
         const rawNewDate = addDays(parseISO(movingMilestone.initialDate), deltaDays);
         const snappedDate = settings.snapToPeriod === 'month' ? startOfMonth(rawNewDate) : rawNewDate;
@@ -511,16 +608,22 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       } else if (movingDependency && onUpdateDependencies) {
         const updated = dependencies.find(d => d.id === movingDependency.id);
         if (updated) onUpdateDependencies([...dependencies]); // Trigger save
-      } else if (drawingDependency && onUpdateDependencies) {
-        // Find if we released over another initiative
-        const targetElement = document.elementFromPoint(e.clientX, e.clientY);
-        const initiativeEl = targetElement?.closest('[data-initiative-id]');
-        const targetId = initiativeEl?.getAttribute('data-initiative-id');
+      } else if (drawingDependency && onUpdateDependencies && !milestoneDepDirectRef.current) {
+        // Only handle here if the direct milestone dep listener isn't already handling it
+        // Find if we released over an initiative — check all elements at the point
+        // (SVG dep arrows have pointerEvents: 'all' at z-25, so they may be topmost)
+        const elements = document.elementsFromPoint(e.clientX, e.clientY);
+        let targetId: string | null = null;
+        for (const el of elements) {
+          const id = el.getAttribute('data-initiative-id') ?? el.closest('[data-initiative-id]')?.getAttribute('data-initiative-id');
+          if (id) { targetId = id; break; }
+        }
 
         if (targetId && targetId !== drawingDependency.sourceId) {
           const newDependency: Dependency = {
             id: `dep-${Date.now()}`,
             sourceId: drawingDependency.sourceId,
+            sourceType: drawingDependency.sourceType,
             targetId: targetId,
             type: 'requires'
           };
@@ -544,7 +647,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, localInitiatives, localMilestones, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, dependencies, initiativePositions]);
+  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, localInitiatives, localMilestones, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, dependencies, initiativePositions, milestonePositions]);
 
   const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
     setDraggingCategory(category);
@@ -824,6 +927,21 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
       });
 
       setInitiativePositions(positions);
+
+      // Also track milestone positions
+      const milePositions = new Map<string, { x: number; y: number }>();
+      const mileElements = containerRef.current.querySelectorAll('[data-milestone-id]');
+      mileElements.forEach((el) => {
+        const mileId = el.getAttribute('data-milestone-id');
+        if (mileId) {
+          const rect = el.getBoundingClientRect();
+          milePositions.set(mileId, {
+            x: rect.left - containerRect.left + rect.width / 2,
+            y: rect.top - containerRect.top + rect.height / 2,
+          });
+        }
+      });
+      setMilestonePositions(milePositions);
     }, 50);
 
     return () => clearTimeout(timer);
@@ -998,14 +1116,21 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                 }
 
                 return dependencies.map(dep => {
-                const source = initiativePositions.get(dep.sourceId);
+                const isMilestoneSource = dep.sourceType === 'milestone';
+                let source: { x: number; y: number; width: number; height: number } | undefined;
+                if (isMilestoneSource) {
+                  const mPos = milestonePositions.get(dep.sourceId);
+                  if (mPos) source = { x: mPos.x, y: mPos.y, width: 0, height: 0 };
+                } else {
+                  source = initiativePositions.get(dep.sourceId);
+                }
                 const target = initiativePositions.get(dep.targetId);
                 if (!source || !target) return null;
 
                 // Determine if same asset
-                const sourceInit = initiatives.find(i => i.id === dep.sourceId);
+                const sourceInit = isMilestoneSource ? null : initiatives.find(i => i.id === dep.sourceId);
                 const targetInit = initiatives.find(i => i.id === dep.targetId);
-                const sameAsset = sourceInit && targetInit && sourceInit.assetId === targetInit.assetId;
+                const sameAsset = !isMilestoneSource && sourceInit && targetInit && sourceInit.assetId === targetInit.assetId;
 
                 const sStartX = source.x;
                 const sEndX = source.x + source.width;
@@ -1122,6 +1247,16 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
                 return (
                   <g key={dep.id} data-dep-id={dep.id} onMouseDown={handleDependencyMouseDown} onClick={handleDependencyClick} className="cursor-pointer group" style={{ pointerEvents: 'all' }}>
+                    {isMilestoneSource && (
+                      <circle
+                        data-testid="milestone-dep-source"
+                        cx={source.x}
+                        cy={source.y}
+                        r="5"
+                        fill={depColor}
+                        opacity="0.8"
+                      />
+                    )}
                     <path
                       d={path}
                       stroke="transparent"
@@ -1151,7 +1286,9 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                       style={{ cursor: 'pointer' }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        const src = initiatives.find(i => i.id === dep.sourceId)?.name ?? 'Unknown';
+                        const src = isMilestoneSource
+                          ? (milestones.find(m => m.id === dep.sourceId)?.name ?? 'Milestone')
+                          : (initiatives.find(i => i.id === dep.sourceId)?.name ?? 'Unknown');
                         const tgt = initiatives.find(i => i.id === dep.targetId)?.name ?? 'Unknown';
                         const text = dep.type === 'blocks'
                           ? `${src} must finish before ${tgt} can start.`
@@ -1597,12 +1734,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                             return (
                               <div
                                 key={mile.id}
+                                data-milestone-id={mile.id}
                                 onMouseDown={(e) => handleMilestoneMouseDown(e, mile)}
                                 className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-0 cursor-grab active:cursor-grabbing"
                                 style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
                               >
                                 <div className="absolute top-0 bottom-0 w-px border-l border-dashed border-slate-400/50 group-hover/marker:border-slate-600" />
-                                <div className={cn(
+                                <div data-testid="milestone-dep-handle" className={cn(
                                   "relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110",
                                   mile.type === 'critical' ? "bg-red-100 text-red-600" :
                                     mile.type === 'warning' ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
@@ -1676,6 +1814,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         onClose={() => setSelectedDependencyId(null)}
         dependency={selectedDependencyId ? dependencies.find(d => d.id === selectedDependencyId) || null : null}
         initiatives={initiatives}
+        milestones={milestones}
         onSave={(updatedDep) => {
           if (onUpdateDependencies) {
             onUpdateDependencies(dependencies.map(d => d.id === updatedDep.id ? updatedDep : d));

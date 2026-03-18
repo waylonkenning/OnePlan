@@ -57,10 +57,11 @@ export interface Initiative {
  */
 export interface Dependency {
   id: string;
-  sourceId: string; // The ID of the initiative that has the dependency
+  sourceId: string; // The ID of the initiative (or milestone) that has the dependency
   targetId: string; // The ID of the initiative that is being depended upon
   type: 'blocks' | 'requires' | 'related';
   midXOffset?: number; // Manual horizontal offset for the vertical segment of the arrow
+  sourceType?: 'initiative' | 'milestone'; // Defaults to 'initiative' when absent
 }
 
 /**

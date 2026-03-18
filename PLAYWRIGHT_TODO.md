@@ -223,11 +223,6 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify spend is broken down by programme, strategy, and category.
     - [x] Verify chart totals match the sum of initiative budgets in the Data Manager.
 
-- [ ] **Baseline Comparison Overlay:**
-    - [ ] Verify a saved version can be selected as a "baseline" to overlay on the live timeline.
-    - [ ] Verify baseline bars are rendered as ghost/outline bars behind the live bars.
-    - [ ] Verify the overlay can be toggled on and off.
-
 - [x] **Swimlane Grouping by Strategy / Programme:**
     - [x] Verify the timeline can be grouped by Strategy or Programme (in addition to the default asset/category grouping).
     - [x] Verify switching grouping mode re-renders rows correctly with the appropriate labels.

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dependency, Initiative } from '../types';
+import { Dependency, Initiative, Milestone } from '../types';
 import { X, Save, Trash2, ArrowLeftRight } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import { useFocusTrap } from '../lib/useFocusTrap';
@@ -7,13 +7,14 @@ import { useFocusTrap } from '../lib/useFocusTrap';
 interface DependencyPanelProps {
     dependency: Dependency | null;
     initiatives: Initiative[];
+    milestones?: Milestone[];
     onClose: () => void;
     onSave: (dependency: Dependency) => void;
     onDelete?: (dependency: Dependency) => void;
     isOpen: boolean;
 }
 
-export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDelete, isOpen }: DependencyPanelProps) {
+export function DependencyPanel({ dependency, initiatives, milestones, onClose, onSave, onDelete, isOpen }: DependencyPanelProps) {
     const [formData, setFormData] = useState<Dependency | null>(null);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const panelRef = useFocusTrap(isOpen, onClose);
@@ -26,9 +27,11 @@ export function DependencyPanel({ dependency, initiatives, onClose, onSave, onDe
 
     if (!isOpen || !formData) return null;
 
-    const sourceInit = initiatives.find(i => i.id === formData.sourceId);
+    const isMilestoneSource = formData.sourceType === 'milestone';
+    const sourceName = isMilestoneSource
+        ? (milestones?.find(m => m.id === formData.sourceId)?.name ?? 'Milestone')
+        : (initiatives.find(i => i.id === formData.sourceId)?.name ?? 'Unknown');
     const targetInit = initiatives.find(i => i.id === formData.targetId);
-    const sourceName = sourceInit?.name || 'Unknown';
     const targetName = targetInit?.name || 'Unknown';
 
     const handleSubmit = (e: React.FormEvent) => {
