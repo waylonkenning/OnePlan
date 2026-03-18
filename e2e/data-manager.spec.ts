@@ -109,4 +109,23 @@ test.describe('Data Manager Operations', () => {
     // Category is now a select
     await expect(firstRow.locator('select')).toHaveValue('cat-iam');
   });
+
+  test('CSV Paste: Missing optional columns import without errors', async ({ page }) => {
+    await page.getByRole('button', { name: 'Paste CSV' }).click();
+    // Only supply required columns — omit strategyId, description, progress, owner, status
+    const textarea = page.locator('textarea');
+    await textarea.fill(`name,startDate,endDate,budget\nMinimal Initiative,2026-03-01,2026-09-30,50000`);
+
+    await page.waitForTimeout(1000);
+    const importBtn = page.getByTestId('import-rows-button');
+    await expect(importBtn).toBeEnabled({ timeout: 5000 });
+    await importBtn.click();
+
+    // No error shown and modal dismissed
+    await expect(page.locator('text=Paste CSV Data')).not.toBeVisible();
+
+    // The new row exists with the correct name
+    const newRow = page.locator('table tbody tr[data-real="true"] input[value="Minimal Initiative"]');
+    await expect(newRow).toBeVisible();
+  });
 });
