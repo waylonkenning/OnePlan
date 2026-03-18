@@ -8,32 +8,32 @@ test.describe('Mobile Phase 3 — Touch Optimisation', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="asset-row-content"]');
+    await page.waitForSelector('[data-testid="mobile-card-view"]', { timeout: 15000 });
   });
 
   // ── Drag disabled on mobile ───────────────────────────────────────────────
 
   test('initiative bars have no drag cursor on mobile', async ({ page }) => {
-    // On desktop bars have cursor-grab; on mobile they should not
-    const bar = page.locator('[data-testid^="initiative-bar"]').first();
-    await expect(bar).toBeVisible();
-    const cursor = await bar.evaluate(el => getComputedStyle(el).cursor);
+    // On mobile the Visualiser shows MobileCardView (card rows), not draggable timeline bars.
+    // Verify initiative rows (cards) are present and have no grab cursor.
+    const row = page.locator('[data-testid^="initiative-row-"]').first();
+    await expect(row).toBeVisible();
+    const cursor = await row.evaluate(el => getComputedStyle(el).cursor);
     expect(cursor).not.toBe('grab');
   });
 
   test('initiative bars do not have resize handles on mobile', async ({ page }) => {
-    // Resize handle divs should not be rendered on mobile
-    const bar = page.locator('[data-testid^="initiative-bar"]').first();
-    await expect(bar).toBeVisible();
-    const handles = bar.locator('[data-testid="resize-handle-start"], [data-testid="resize-handle-end"]');
+    // MobileCardView has no resize handles — the entire concept of bar resizing
+    // is absent on mobile (card-based layout, not timeline bars).
+    const handles = page.locator('[data-testid="resize-handle-start"], [data-testid="resize-handle-end"]');
     await expect(handles).toHaveCount(0);
   });
 
   // ── Panel touch targets ───────────────────────────────────────────────────
 
   test('InitiativePanel inputs are at least 44px tall on mobile', async ({ page }) => {
-    // Open an initiative panel by tapping a bar
-    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    // Open an initiative panel by tapping a card row
+    const bar = page.locator('[data-testid^="initiative-row-"]').first();
     await bar.click();
     const panel = page.locator('[data-testid="initiative-panel"]');
     await expect(panel).toBeVisible({ timeout: 5000 });
@@ -46,7 +46,7 @@ test.describe('Mobile Phase 3 — Touch Optimisation', () => {
   });
 
   test('budget field has inputmode="numeric"', async ({ page }) => {
-    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    const bar = page.locator('[data-testid^="initiative-row-"]').first();
     await bar.click();
     const panel = page.locator('[data-testid="initiative-panel"]');
     await expect(panel).toBeVisible({ timeout: 5000 });

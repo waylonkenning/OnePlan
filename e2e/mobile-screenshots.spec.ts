@@ -8,15 +8,15 @@ test.describe('Mobile Screenshots', () => {
 
   test('capture all mobile views', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 15000 });
+    await page.waitForSelector('[data-testid="mobile-card-view"]', { timeout: 15000 });
 
-    // 1. Visualiser (default)
+    // 1. Visualiser — card view (default on mobile)
     await page.screenshot({ path: `${OUT}/1-visualiser.png`, fullPage: false });
 
-    // 2. Visualiser — scrolled right to show timeline content
-    await page.locator('#timeline-visualiser .overflow-auto').evaluate(el => { el.scrollLeft = 200; });
+    // 2. Visualiser — scrolled down to show more cards
+    await page.evaluate(() => window.scrollTo(0, 300));
     await page.screenshot({ path: `${OUT}/2-visualiser-scrolled.png`, fullPage: false });
-    await page.locator('#timeline-visualiser .overflow-auto').evaluate(el => { el.scrollLeft = 0; });
+    await page.evaluate(() => window.scrollTo(0, 0));
 
     // 3. Settings sheet open
     await page.locator('[data-testid="mobile-settings-btn"]').click();
@@ -24,9 +24,9 @@ test.describe('Mobile Screenshots', () => {
     await page.screenshot({ path: `${OUT}/3-settings-sheet.png`, fullPage: false });
     await page.keyboard.press('Escape');
 
-    // 4. Initiative panel open
-    const bar = page.locator('[data-testid^="initiative-bar"]').first();
-    await bar.click();
+    // 4. Initiative panel open (tap a card row)
+    const row = page.locator('[data-testid^="initiative-row-"]').first();
+    await row.click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     await page.screenshot({ path: `${OUT}/4-initiative-panel.png`, fullPage: false });
     await page.keyboard.press('Escape');
