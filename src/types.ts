@@ -49,6 +49,7 @@ export interface Initiative {
   isPlaceholder?: boolean;
   status?: 'planned' | 'active' | 'done' | 'cancelled';
   progress?: number; // 0–100
+  owner?: string;
 }
 
 /**
