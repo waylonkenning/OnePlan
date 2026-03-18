@@ -171,3 +171,90 @@ This document outlines the critical functionality of **OnePlan** that should be 
 - [x] **Kenning Corporation branding:**
     - [x] Verify the landing page footer links to kenning.co.nz.
     - [x] Verify the in-app footer reads "OnePlan IT Initiative Planner — an open source tool from Waylon Kenning" with correct links.
+
+---
+
+## 8. Upcoming Features (Backlog)
+
+### Quick Wins
+
+- [ ] **Today Indicator Line:**
+    - [ ] Verify a vertical line is rendered at today's date in the timeline.
+    - [ ] Verify the line is visually distinct (e.g. red/orange) and labelled "Today".
+    - [ ] Verify the indicator updates correctly when the timeline start date is changed.
+
+- [ ] **Colour-by-Status:**
+    - [ ] Verify a new "By Status" colour mode option is available alongside "By Programme" and "By Strategy".
+    - [ ] Verify initiative bars are coloured by their status (e.g. planned/in-flight/done) when this mode is selected.
+    - [ ] Verify the legend updates to show status colours when the mode is active.
+
+- [ ] **Initiative Status Field:**
+    - [ ] Verify a Status field (planned / active / done / cancelled) appears in the InitiativePanel and Data Manager.
+    - [ ] Verify the status value is saved and persisted to IndexedDB.
+    - [ ] Verify status is included in Excel export and import.
+
+- [ ] **Undo Depth Increase:**
+    - [ ] Verify the undo history stack limit is raised from 10 to at least 50 operations.
+    - [ ] Verify operations beyond the new limit correctly drop the oldest entry.
+
+- [ ] **Keyboard Shortcuts Reference:**
+    - [ ] Verify a discoverable shortcuts modal or panel can be opened (e.g. via a "?" button or keyboard shortcut).
+    - [ ] Verify the modal lists all active keyboard shortcuts with their descriptions.
+    - [ ] Verify the modal can be dismissed with Escape.
+
+### Medium Effort
+
+- [ ] **Critical Path Highlighting:**
+    - [ ] Verify the critical path (longest dependency chain) can be highlighted in the timeline.
+    - [ ] Verify highlighted path bars and arrows are visually distinct from non-critical items.
+    - [ ] Verify the critical path updates when dependencies change.
+
+- [ ] **Progress Tracking:**
+    - [ ] Verify a % complete field is available on each initiative in the InitiativePanel and Data Manager.
+    - [ ] Verify the timeline bar renders a fill overlay proportional to the % complete value.
+    - [ ] Verify progress values are persisted to IndexedDB and included in Excel export/import.
+
+- [ ] **Owner / Assignee:**
+    - [ ] Verify an Owner field is available on each initiative in the InitiativePanel and Data Manager.
+    - [ ] Verify the owner value is saved and persisted to IndexedDB.
+    - [ ] Verify owner is shown on the initiative bar (e.g. as an avatar or initials) or in tooltips.
+
+- [ ] **Budget Summary Charts:**
+    - [ ] Verify a budget report section is visible in the Reports view.
+    - [ ] Verify spend is broken down by programme, strategy, and category.
+    - [ ] Verify chart totals match the sum of initiative budgets in the Data Manager.
+
+- [ ] **Baseline Comparison Overlay:**
+    - [ ] Verify a saved version can be selected as a "baseline" to overlay on the live timeline.
+    - [ ] Verify baseline bars are rendered as ghost/outline bars behind the live bars.
+    - [ ] Verify the overlay can be toggled on and off.
+
+- [ ] **Swimlane Grouping by Strategy / Programme:**
+    - [ ] Verify the timeline can be grouped by Strategy or Programme (in addition to the default asset/category grouping).
+    - [ ] Verify switching grouping mode re-renders rows correctly with the appropriate labels.
+    - [ ] Verify the selected grouping mode persists across page reloads.
+
+### Larger Features
+
+- [ ] **Resource / Capacity Planning:**
+    - [ ] Verify initiatives support team/headcount fields in addition to budget.
+    - [ ] Verify a capacity report shows allocation per team across the timeline.
+
+- [ ] **Dependency Graph View:**
+    - [ ] Verify a network diagram view of all dependencies is accessible from the Reports tab.
+    - [ ] Verify nodes represent initiatives and edges represent dependencies with type-based styling.
+
+- [ ] **CSV Import:**
+    - [ ] Verify a CSV file can be imported as an alternative to XLSX.
+    - [ ] Verify the same merge/overwrite/preview flow applies as for XLSX import.
+    - [ ] Verify CSV files with missing optional columns import without errors.
+
+- [ ] **Milestone Dependencies:**
+    - [ ] Verify a dependency can be drawn from a milestone to an initiative (milestone blocks initiative start).
+    - [ ] Verify milestone dependencies are rendered as arrows in the timeline.
+    - [ ] Verify milestone dependencies are included in the dependency report.
+
+- [ ] **Initiative Templates / Cloning:**
+    - [ ] Verify an initiative can be duplicated from the InitiativePanel with a new unique ID.
+    - [ ] Verify the clone option to include or exclude dependencies is presented.
+    - [ ] Verify the cloned initiative appears in the timeline and Data Manager.
