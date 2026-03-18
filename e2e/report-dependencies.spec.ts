@@ -10,6 +10,7 @@ test.describe('Initiatives & Dependencies report', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.getByTestId('nav-reports').click();
     await expect(page.getByTestId('reports-view')).toBeVisible();
+    await page.getByTestId('report-card-initiatives-dependencies').click();
   });
 
   test('report is grouped by asset with asset headings', async ({ page }) => {
@@ -49,6 +50,7 @@ test.describe('Dependency sentence wording', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.getByTestId('nav-reports').click();
+    await page.getByTestId('report-card-initiatives-dependencies').click();
     const text = await page.getByTestId('report-dependencies').textContent();
     // Any blocks dependency in demo data should produce this pattern
     if (text?.match(/must finish before/)) {
@@ -61,6 +63,7 @@ test.describe('Dependency sentence wording', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.getByTestId('nav-reports').click();
+    await page.getByTestId('report-card-initiatives-dependencies').click();
     const text = await page.getByTestId('report-dependencies').textContent();
     if (text?.match(/requires .+ to finish first/)) {
       expect(text).toMatch(/\w.+ requires \w.+ to finish first\./);

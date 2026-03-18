@@ -17,6 +17,7 @@ test.describe('ReportsView — versions load error handling', () => {
 
     // Navigate to Reports view
     await page.getByTestId('nav-reports').click();
+    await page.getByTestId('report-card-version-history').click();
 
     // The History Differences section must show an error, not the silent empty state
     const histDiff = page.getByTestId('report-history-diff');
@@ -28,6 +29,7 @@ test.describe('ReportsView — versions load error handling', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 
     await page.getByTestId('nav-reports').click();
+    await page.getByTestId('report-card-version-history').click();
 
     const histDiff = page.getByTestId('report-history-diff');
     await expect(histDiff.getByTestId('versions-load-error')).not.toBeVisible({ timeout: 5000 });

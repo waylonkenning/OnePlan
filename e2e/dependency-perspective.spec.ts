@@ -16,6 +16,7 @@ test.describe('Perspective-aware dependency sentences in Reports', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.getByTestId('nav-reports').click();
     await expect(page.getByTestId('reports-view')).toBeVisible();
+    await page.getByTestId('report-card-initiatives-dependencies').click();
   });
 
   test('blocked initiative shows "Blocked:" sentence with its own name first', async ({ page }) => {

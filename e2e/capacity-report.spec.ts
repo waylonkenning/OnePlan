@@ -18,6 +18,7 @@ test.describe('Capacity Report', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.getByTestId('nav-reports').click();
     await page.waitForSelector('[data-testid="reports-view"]', { timeout: 5000 });
+    await page.getByTestId('report-card-capacity').click();
   });
 
   test('Capacity Report section is visible in Reports view', async ({ page }) => {
@@ -71,6 +72,7 @@ test.describe('Capacity Report', () => {
     }
     await page.getByTestId('nav-reports').click();
     await page.waitForSelector('[data-testid="reports-view"]', { timeout: 5000 });
+    await page.getByTestId('report-card-capacity').click();
     await expect(page.getByTestId('capacity-no-resources')).toBeVisible();
   });
 });

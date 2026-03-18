@@ -12,11 +12,13 @@ test.describe('History Differences report', () => {
 
   test('Reports view shows History Differences section', async ({ page }) => {
     await page.getByTestId('nav-reports').click();
+    await page.getByTestId('report-card-version-history').click();
     await expect(page.getByTestId('report-history-diff')).toBeVisible();
   });
 
   test('shows empty state when no versions are saved', async ({ page }) => {
     await page.getByTestId('nav-reports').click();
+    await page.getByTestId('report-card-version-history').click();
     const section = page.getByTestId('report-history-diff');
     await expect(section).toBeVisible();
     await expect(section).toContainText('No saved versions');
@@ -32,6 +34,7 @@ test.describe('History Differences report', () => {
 
     // Navigate to Reports
     await page.getByTestId('nav-reports').click();
+    await page.getByTestId('report-card-version-history').click();
     const section = page.getByTestId('report-history-diff');
     await expect(section).toBeVisible();
 
@@ -56,6 +59,7 @@ test.describe('History Differences report', () => {
 
     // Navigate to Reports and run diff
     await page.getByTestId('nav-reports').click();
+    await page.getByTestId('report-card-version-history').click();
     const section = page.getByTestId('report-history-diff');
     await section.getByTestId('version-select').selectOption({ label: 'Baseline Snapshot' });
     await section.getByRole('button', { name: 'Run Difference Report' }).click();
