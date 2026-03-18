@@ -158,6 +158,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
       { value: 'done', label: 'Done' },
       { value: 'cancelled', label: 'Cancelled' },
     ], width: '8%' },
+    { key: 'progress', label: 'Progress (%)', type: 'number', width: '7%' },
     { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '5%' },
   ];
 

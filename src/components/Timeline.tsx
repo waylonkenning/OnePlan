@@ -1403,6 +1403,13 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                 {isGroup && (
                                   <div className={cn("absolute inset-0 pointer-events-none rounded-md opacity-20", colorClass)} style={{ zIndex: 0 }} />
                                 )}
+                                {!init.isPlaceholder && (init.progress ?? 0) > 0 && (
+                                  <div
+                                    data-testid="progress-overlay"
+                                    className="absolute left-0 top-0 bottom-0 pointer-events-none rounded-l-md bg-white/25"
+                                    style={{ width: `${init.progress}%`, zIndex: 1 }}
+                                  />
+                                )}
                                 <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'start', init.startDate); }} />
                                 <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'end', init.endDate); }} />
 
