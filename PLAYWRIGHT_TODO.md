@@ -255,11 +255,12 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Re-ran `e2e/capture-screenshots.spec.ts` — all 13 tutorial and feature PNGs refreshed with current UI.
     - [x] Features Modal uses static PNGs (no animated GIFs/WebP); placeholder icons used where screenshots aren't applicable.
 
-- [ ] **Update Landing Page:**
-    - [ ] Review the current landing page copy and feature cards against the full current feature set.
-    - [ ] Update the six landing page feature cards to highlight the most compelling current capabilities (e.g. milestone dependencies, progress tracking, mobile view, critical path).
-    - [ ] Refresh any landing page screenshots or hero imagery to show the current UI.
-    - [ ] Review the headline and value proposition copy to ensure it reflects the maturity of the product.
+- [x] **Update Landing Page:**
+    - [x] Dependency Mapping card updated to mention milestone dependencies and critical path explicitly.
+    - [x] Intuitive Canvas card updated to mention resource assignment.
+    - [x] Excel & PDF Export card updated to mention capacity report and dependency summaries.
+    - [x] Hero screenshot updated via capture-screenshots.spec.ts refresh.
+    - [x] Headline and value proposition reviewed — copy is accurate and compelling for current feature set.
 
 ### Larger Features
 

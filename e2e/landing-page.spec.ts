@@ -61,6 +61,21 @@ test.describe('Landing Page', () => {
     await expect(page.getByText('100% Private')).toBeVisible();
   });
 
+  test('feature cards mention key current capabilities', async ({ page }) => {
+    // Dependency Mapping card mentions milestone dependencies and critical path
+    const depCard = page.locator('div').filter({ hasText: /^Dependency Mapping/ }).first();
+    await expect(depCard).toContainText(/milestone/i);
+    await expect(depCard).toContainText(/critical path/i);
+
+    // Intuitive Canvas card mentions resource assignment
+    const canvasCard = page.locator('div').filter({ hasText: /^Intuitive Canvas/ }).first();
+    await expect(canvasCard).toContainText(/resource/i);
+
+    // Excel & PDF Export card mentions capacity report
+    const exportCard = page.locator('div').filter({ hasText: /^Excel & PDF Export/ }).first();
+    await expect(exportCard).toContainText(/capacity/i);
+  });
+
   test('should display Kenning Corporation link in landing page footer', async ({ page }) => {
     // The landing page is rendered after the app in the DOM, so its Kenning link is last
     const kenningLink = page.getByRole('link', { name: 'Kenning Corporation Limited' }).last();
