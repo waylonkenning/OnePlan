@@ -5,8 +5,15 @@ import {
   Layers,
   MousePointer2,
   Settings2,
-  DownloadCloud,
   HardDrive,
+  GitBranch,
+  Palette,
+  User,
+  Flag,
+  History,
+  Smartphone,
+  BarChart2,
+  FileSpreadsheet,
 } from "lucide-react";
 
 interface FeaturesModalProps {
@@ -23,17 +30,17 @@ const featureSections = [
         itemIcon: (
           <HardDrive className="w-16 h-16 text-slate-300 mx-auto my-12" />
         ),
-        desc: "Your data is saved directly on your computer via IndexedDB, a part of your local browser storage. Nothing is sent to the cloud, ensuring complete privacy.",
+        desc: "Your data is saved directly on your computer via IndexedDB — a part of your local browser storage. Nothing is sent to the cloud, ensuring complete privacy.",
       },
       {
         title: "Global Search",
         image: "/features/global-search.png",
-        desc: "Looking for a specific project? The search bar finds it instantly across all views.",
+        desc: "Looking for a specific initiative? The search bar instantly filters the timeline and Data Manager simultaneously across all views.",
       },
       {
         title: "View Switching",
-        image: "/features/view_switching_1773456994090.webp",
-        desc: "Easily switch between the visual timeline and the spreadsheet view with one click.",
+        image: "/features/view-switching.png",
+        desc: "Switch between the Visualiser timeline, Data Manager spreadsheet, and Reports view with one click. Your data stays in sync across all three.",
       },
     ],
   },
@@ -42,24 +49,56 @@ const featureSections = [
     icon: <MousePointer2 className="w-5 h-5 text-indigo-500" />,
     items: [
       {
-        title: "Drag and Drop",
-        image: "/features/drag_and_drop_fixed_v3.webp",
-        desc: "Move projects left or right to change their dates, or drag the edges to make them longer or shorter.",
+        title: "Drag, Drop & Resize",
+        image: "/features/move-resize.png",
+        desc: "Move initiatives left or right to reschedule them, or drag either edge to adjust start and end dates. Double-click any empty timeline space to create a new initiative instantly.",
       },
       {
-        title: "Drawing Connections",
-        image: "/features/drawing_connectors_1773457854128.webp",
-        desc: "Click and drag a line from one project to another to show that they depend on each other.",
+        title: "Dependency Mapping",
+        image: "/features/dependency.png",
+        desc: "Draw visual links between initiatives to show sequencing. Drag vertically from one bar to another to create a dependency. Edit, reverse, or remove relationships directly on the canvas.",
       },
       {
-        title: "Spotting Problems",
-        image: "/features/spotting_problems_1773458485875.webp",
-        desc: "If two projects overlap on the same track, a red warning icon appears to alert you of a scheduling conflict.",
+        title: "Conflict Detection",
+        image: "/features/conflict.png",
+        desc: "Overlapping initiatives on the same asset are automatically flagged with a conflict marker. Toggle detection on or off to suit your planning style.",
       },
       {
-        title: "Grouping Projects",
-        image: "/features/grouping_projects_fixed_v3.webp",
-        desc: "Click a category name to neatly fold multiple related projects into one single row to save space.",
+        title: "Grouping & Collapsing",
+        image: "/features/grouped.png",
+        desc: "Collapse multiple related initiatives into a single grouped bar to reduce clutter. Group the entire timeline by Programme or Strategy instead of the default asset view.",
+      },
+      {
+        title: "Critical Path Highlighting",
+        itemIcon: (
+          <GitBranch className="w-16 h-16 text-slate-300 mx-auto my-12" />
+        ),
+        desc: "Highlight the longest dependency chain across your plan. Critical path bars and arrows are visually distinct so you can see immediately which work drives your end date.",
+      },
+      {
+        title: "Colour by Status",
+        itemIcon: (
+          <Palette className="w-16 h-16 text-slate-300 mx-auto my-12" />
+        ),
+        desc: "Switch initiative bar colouring from Programme or Strategy to Status — Planned, Active, Done, or Cancelled — for an instant health-check view of your portfolio.",
+      },
+    ],
+  },
+  {
+    title: "Initiative Detail",
+    icon: <Flag className="w-5 h-5 text-rose-500" />,
+    items: [
+      {
+        title: "Progress & Owner",
+        image: "/tutorial/3-interactive.png",
+        desc: "Record a % complete and assign an owner to every initiative. Owner initials appear as a badge on the timeline bar, and the progress fill gives an at-a-glance completion view.",
+      },
+      {
+        title: "Milestone Dependencies",
+        itemIcon: (
+          <Flag className="w-16 h-16 text-slate-300 mx-auto my-12" />
+        ),
+        desc: "Draw a dependency from a milestone to an initiative to indicate the initiative can't start until that date milestone is reached. Milestone dependencies appear as arrows and are included in the dependency report.",
       },
     ],
   },
@@ -70,12 +109,50 @@ const featureSections = [
       {
         title: "Spreadsheet Editing",
         image: "/features/inline-editing.png",
-        desc: "Update names, dates, and budgets quickly in a familiar table format without switching screens.",
+        desc: "Update names, dates, budgets, status, progress, and owner quickly in a familiar table format. Switch between Initiatives, Assets, Programmes, Strategies, and Milestones tabs.",
       },
       {
         title: "Adjustable Columns",
         image: "/features/column-resize.png",
-        desc: "Drag the lines between headings to make columns wider or narrower to fit your screen.",
+        desc: "Drag the lines between column headers to make columns wider or narrower. Column widths persist across sessions.",
+      },
+      {
+        title: "Excel Import & Export",
+        itemIcon: (
+          <FileSpreadsheet className="w-16 h-16 text-slate-300 mx-auto my-12" />
+        ),
+        desc: "Import an existing plan from Excel to seed your data. Export the full dataset as an Excel workbook for stakeholders, or generate a PDF or SVG snapshot of the current timeline view.",
+      },
+    ],
+  },
+  {
+    title: "Reports & Insights",
+    icon: <BarChart2 className="w-5 h-5 text-violet-500" />,
+    items: [
+      {
+        title: "Budget Summary",
+        image: "/tutorial/4-insights.png",
+        desc: "The Reports view shows total spend broken down by Programme, Strategy, and Category. Budget totals update live as you edit initiative values.",
+      },
+      {
+        title: "Version History",
+        itemIcon: (
+          <History className="w-16 h-16 text-slate-300 mx-auto my-12" />
+        ),
+        desc: "Save named snapshots of your plan at any point and compare differences between versions side-by-side. Restore any previous state with a single click.",
+      },
+    ],
+  },
+  {
+    title: "Mobile",
+    icon: <Smartphone className="w-5 h-5 text-sky-500" />,
+    items: [
+      {
+        title: "Mobile Card View",
+        itemIcon: (
+          <Smartphone className="w-16 h-16 text-slate-300 mx-auto my-12" />
+        ),
+        desc: "On mobile devices, the Visualiser switches to a card-based layout — one card per asset, grouped by Timeline, Quarter, Year, Programme, or Strategy. Tap any initiative row to open the edit panel.",
       },
     ],
   },
