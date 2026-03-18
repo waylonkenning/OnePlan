@@ -25,7 +25,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard, GitCommit } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard, GitCommit, Palette, Box, Boxes, Target } from 'lucide-react';
 import { ReportsView } from './components/ReportsView';
 
 type AppState = {
@@ -319,7 +319,7 @@ export default function App() {
         </div>
 
         {/* ── Desktop header ── */}
-        <div data-testid="desktop-header-controls" className="hidden md:flex items-center gap-3 px-4 py-2">
+        <div data-testid="desktop-header-controls" className="hidden md:flex flex-wrap items-center gap-3 px-4 py-2">
         {/* Logo */}
         <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">OnePlan</h1>
 
@@ -573,6 +573,68 @@ export default function App() {
             </div>
           );
         })()}
+
+        {/* Color-by and Group-by selectors (visualiser only) */}
+        {view === 'visualiser' && (
+          <>
+            <div className="w-px h-6 bg-slate-200 shrink-0" />
+            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0">
+              <button
+                onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'programme' })}
+                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.colorBy || 'programme') === 'programme' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+              >
+                <Palette size={14} />
+                By Programme
+              </button>
+              <button
+                onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'strategy' })}
+                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.colorBy || 'programme') === 'strategy' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+              >
+                <Palette size={14} />
+                By Strategy
+              </button>
+              <button
+                onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'status' })}
+                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.colorBy || 'programme') === 'status' ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+              >
+                <Palette size={14} />
+                By Status
+              </button>
+            </div>
+            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0">
+              <button
+                data-testid="group-by-asset"
+                aria-pressed={(timelineSettings.groupBy || 'asset') === 'asset'}
+                onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'asset' })}
+                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.groupBy || 'asset') === 'asset' ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                title="Group by Asset"
+              >
+                <Box size={14} />
+                Asset
+              </button>
+              <button
+                data-testid="group-by-programme"
+                aria-pressed={(timelineSettings.groupBy || 'asset') === 'programme'}
+                onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'programme' })}
+                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.groupBy || 'asset') === 'programme' ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                title="Group by Programme"
+              >
+                <Boxes size={14} />
+                Programme
+              </button>
+              <button
+                data-testid="group-by-strategy"
+                aria-pressed={(timelineSettings.groupBy || 'asset') === 'strategy'}
+                onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'strategy' })}
+                className={cn("px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5", (timelineSettings.groupBy || 'asset') === 'strategy' ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                title="Group by Strategy"
+              >
+                <Target size={14} />
+                Strategy
+              </button>
+            </div>
+          </>
+        )}
 
         {/* Spacer */}
         <div className="flex-1" />

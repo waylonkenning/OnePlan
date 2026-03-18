@@ -3,7 +3,7 @@ import { useMediaQuery } from '../lib/useMediaQuery';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth, endOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
-import { AlertTriangle, Star, Info, Palette, ChevronRight, ChevronDown, Settings, Grid, Calendar, Target, Box, Boxes, Ungroup, Group } from 'lucide-react';
+import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, Boxes } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
 import { DependencyPanel } from './DependencyPanel';
 import { ArrowDisambiguator } from './ArrowDisambiguator';
@@ -35,7 +35,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
 
-  const [colorBy, setColorBy] = useState<'programme' | 'strategy' | 'status'>('programme');
+  const colorBy = settings.colorBy || 'programme';
 
   const STATUS_COLORS: Record<string, string> = {
     planned: 'bg-slate-400',
@@ -882,86 +882,6 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
       {/* Legend & Controls Bar */}
       <div className="flex-shrink-0 border-b border-slate-200 bg-white p-3 flex flex-wrap gap-x-6 gap-y-3 items-center text-sm overflow-x-auto">
-        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
-          <button
-            onClick={() => setColorBy('programme')}
-            className={cn(
-              "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
-              colorBy === 'programme' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-            )}
-          >
-            <Palette size={14} />
-            By Programme
-          </button>
-          <button
-            onClick={() => setColorBy('strategy')}
-            className={cn(
-              "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
-              colorBy === 'strategy' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-            )}
-          >
-            <Palette size={14} />
-            By Strategy
-          </button>
-          <button
-            onClick={() => setColorBy('status')}
-            className={cn(
-              "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
-              colorBy === 'status' ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-            )}
-          >
-            <Palette size={14} />
-            By Status
-          </button>
-        </div>
-
-        <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-
-        {/* Group-by selector */}
-        {(() => {
-          const groupBy = settings.groupBy || 'asset';
-          const btnClass = (active: boolean) => cn(
-            "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
-            active ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"
-          );
-          return (
-            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
-              <button
-                data-testid="group-by-asset"
-                aria-pressed={groupBy === 'asset'}
-                onClick={() => onUpdateSettings?.({ ...settings, groupBy: 'asset' })}
-                className={btnClass(groupBy === 'asset')}
-                title="Group by Asset"
-              >
-                <Box size={14} />
-                Asset
-              </button>
-              <button
-                data-testid="group-by-programme"
-                aria-pressed={groupBy === 'programme'}
-                onClick={() => onUpdateSettings?.({ ...settings, groupBy: 'programme' })}
-                className={btnClass(groupBy === 'programme')}
-                title="Group by Programme"
-              >
-                <Boxes size={14} />
-                Programme
-              </button>
-              <button
-                data-testid="group-by-strategy"
-                aria-pressed={groupBy === 'strategy'}
-                onClick={() => onUpdateSettings?.({ ...settings, groupBy: 'strategy' })}
-                className={btnClass(groupBy === 'strategy')}
-                title="Group by Strategy"
-              >
-                <Target size={14} />
-                Strategy
-              </button>
-            </div>
-          );
-        })()}
-
-        <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-
         <div data-testid="colour-legend" className="flex flex-wrap gap-x-4 gap-y-2 items-center">
           {colorBy === 'status' ? (
             <>
@@ -1008,7 +928,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         <div className="relative w-max min-w-full">
           <div className="flex sticky top-0 z-40 bg-white shadow-sm border-b border-slate-200">
             <div className="sticky left-0 flex-shrink-0 p-4 font-bold text-slate-700 border-r border-slate-200 bg-slate-50 z-50 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]" style={{ width: SIDEBAR_WIDTH }}>
-              IT Asset
+              {groupBy === 'programme' ? 'Programme' : groupBy === 'strategy' ? 'Strategy' : 'Asset'}
             </div>
             <div className="flex" style={{ width: totalWidth }}>
               {timeColumns.map((col, idx) => (
@@ -1032,7 +952,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             <div
               data-testid="today-indicator"
               className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
-              style={{ left: `calc(16rem + ${currentPos} %)` }}
+              style={{ left: `${SIDEBAR_WIDTH + (currentPos / 100) * totalWidth}px` }}
             >
               <div className="absolute top-8 -translate-x-1/2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded whitespace-nowrap">Today</div>
             </div>
