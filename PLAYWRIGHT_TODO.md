@@ -196,10 +196,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify the undo history stack limit is raised from 10 to at least 50 operations.
     - [x] Verify operations beyond the new limit correctly drop the oldest entry.
 
-- [ ] **Keyboard Shortcuts Reference:**
-    - [ ] Verify a discoverable shortcuts modal or panel can be opened (e.g. via a "?" button or keyboard shortcut).
-    - [ ] Verify the modal lists all active keyboard shortcuts with their descriptions.
-    - [ ] Verify the modal can be dismissed with Escape.
+- [x] **Keyboard Shortcuts Reference:**
+    - [x] Verify a keyboard shortcuts button is visible in the header.
+    - [x] Verify clicking it opens a modal listing all active shortcuts (Undo, Redo, Escape, Tab).
+    - [x] Verify the modal can be dismissed with Escape or the close button.
 
 ### Medium Effort
 

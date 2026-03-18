@@ -11,6 +11,7 @@ import { DataControls } from './components/DataControls';
 import { DataManager } from './components/DataManager';
 import { TutorialModal } from './components/TutorialModal';
 import { FeaturesModal } from './components/FeaturesModal';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { LandingPage } from './components/LandingPage';
 import { VersionManager } from './components/VersionManager';
 import {
@@ -24,7 +25,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard } from 'lucide-react';
 import { ReportsView } from './components/ReportsView';
 
 type AppState = {
@@ -47,6 +48,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [showLandingPage, setShowLandingPage] = useState(
     !localStorage.getItem('oneplan_has_seen_landing') && !localStorage.getItem('oneplan-e2e')
   );
@@ -266,6 +268,10 @@ export default function App() {
       // Ignore if user is typing in an input or textarea
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
+      }
+
+      if (e.key === 'Escape') {
+        setShowShortcuts(false);
       }
 
       if (e.metaKey || e.ctrlKey) {
@@ -621,6 +627,15 @@ export default function App() {
           >
             <HelpCircle size={16} />
           </button>
+          <div className="w-px h-3.5 bg-slate-200 my-auto mx-0.5" />
+          <button
+            onClick={() => setShowShortcuts(true)}
+            data-testid="keyboard-shortcuts-btn"
+            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-white rounded-md transition-colors"
+            title="Keyboard Shortcuts"
+          >
+            <Keyboard size={16} />
+          </button>
         </div>
         </div>{/* end desktop-header-controls */}
       </header>
@@ -806,6 +821,8 @@ export default function App() {
       {showFeatures && (
         <FeaturesModal onClose={() => setShowFeatures(false)} />
       )}
+
+      <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
       {showTutorial && (
         <TutorialModal 
