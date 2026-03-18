@@ -61,7 +61,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           >
             IT Portfolio Planning, <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
-              Visualised.
+              All in One Place.
             </span>
           </motion.h1>
 
@@ -71,7 +71,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-xl text-slate-400 max-w-2xl mb-12 leading-relaxed"
           >
-            Map your IT portfolio across assets, programmes, and strategies. Detect conflicts, sequence dependencies, and keep your entire team aligned—all running privately in your browser.
+            Map initiatives across time, sequence dependencies, track costs, and report on progress — all running privately in your browser, with no data leaving your device.
           </motion.p>
 
           <motion.div
@@ -120,32 +120,32 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <FeatureCard
                 icon={GitMerge}
                 title="Dependency Mapping"
-                description="Draw visual links between initiatives and understand sequencing. Reverse, edit, or remove dependencies interactively directly on the canvas."
+                description="Draw visual links between initiatives to sequence work and understand what blocks what. Edit, reverse, or remove relationships directly on the canvas and trace the full critical path."
               />
               <FeatureCard
                 icon={MousePointer2}
                 title="Intuitive Canvas"
-                description="Drag, drop, and resize initiatives directly on the timeline. Double-click any empty space to create a new initiative instantly."
+                description="Drag and resize initiatives directly on the timeline. Double-click to create, click to edit — set dates, status, progress percentage, owner, and budget without leaving the view."
               />
               <FeatureCard
                 icon={Building2}
                 title="Conflict Detection"
-                description="Automatically highlights overlapping initiatives on the same asset to prevent delivery collisions and change fatigue before they happen."
+                description="Automatically highlights overlapping initiatives on the same asset to flag delivery collisions before they happen. Toggle it on or off to suit your planning style."
               />
               <FeatureCard
                 icon={History}
                 title="Version History"
-                description="Save named snapshots at any point in time, compare differences between versions, and restore a previous state with a single click."
+                description="Save named snapshots at any point, compare differences between versions side-by-side, and restore any previous state with a single click."
               />
               <FeatureCard
                 icon={FileSpreadsheet}
                 title="Excel & PDF Export"
-                description="Import existing plans from Excel, export full data sets for stakeholders, and generate PDF reports of your timeline view."
+                description="Import existing plans from Excel and export full datasets for stakeholders. Generate PDF or SVG snapshots of your timeline, and review budget totals by programme, strategy, and category in the Reports view."
               />
               <FeatureCard
                 icon={ShieldCheck}
                 title="100% Private"
-                description="Your strategic planning data never leaves your browser. No cloud, no account, no risk—stored locally via IndexedDB."
+                description="Your planning data never leaves your browser. No cloud, no account, no risk — stored locally via IndexedDB so your strategy stays yours alone."
               />
             </div>
           </div>
