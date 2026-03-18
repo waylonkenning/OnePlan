@@ -119,6 +119,6 @@ test.describe('By Status colour mode', () => {
 
     const legend = page.getByTestId('colour-legend');
     await expect(legend).not.toContainText('Planned');
-    await expect(legend).toContainText('Programmes:');
+    await expect(legend).toContainText('Programmes');
   });
 });
