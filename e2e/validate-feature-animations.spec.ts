@@ -14,12 +14,12 @@ test.describe('Feature Animation Validation', () => {
     // Open Features Modal
     await page.getByTestId('nav-features').click();
 
-    // Verify "Drag and Drop" animation
-    const dragAndDropImg = page.locator('img[src="/features/drag_and_drop_fixed_v3.webp"]');
+    // Verify "Drag, Drop & Resize" screenshot
+    const dragAndDropImg = page.locator('img[src="/features/move-resize.png"]');
     await expect(dragAndDropImg).toBeVisible();
 
-    // Verify "Grouping Projects" animation
-    const groupingImg = page.locator('img[src="/features/grouping_projects_fixed_v3.webp"]');
+    // Verify "Grouping & Collapsing" screenshot
+    const groupingImg = page.locator('img[src="/features/grouped.png"]');
     await expect(groupingImg).toBeVisible();
 
     // Close modal
