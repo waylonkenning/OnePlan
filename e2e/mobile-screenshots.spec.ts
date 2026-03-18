@@ -31,19 +31,14 @@ test.describe('Mobile Screenshots', () => {
     await page.screenshot({ path: `${OUT}/4-initiative-panel.png`, fullPage: false });
     await page.keyboard.press('Escape');
 
-    // 5. Data Manager
-    await page.locator('[data-testid="mobile-tab-data"]').click();
-    await page.waitForSelector('[data-testid="data-manager"]');
-    await page.screenshot({ path: `${OUT}/5-data-manager.png`, fullPage: false });
-
-    // 6. Reports
+    // 5. Reports
     await page.locator('[data-testid="mobile-tab-reports"]').click();
     await page.waitForSelector('[data-testid="reports-view"]');
-    await page.screenshot({ path: `${OUT}/6-reports.png`, fullPage: false });
+    await page.screenshot({ path: `${OUT}/5-reports.png`, fullPage: false });
 
-    // 7. Back to visualiser — bottom tab bar focus
+    // 6. Back to visualiser — bottom tab bar focus
     await page.locator('[data-testid="mobile-tab-visualiser"]').click();
-    await page.waitForSelector('[data-testid="asset-row-content"]');
+    await page.waitForSelector('[data-testid="mobile-card-view"]');
     // Scroll to bottom to show tab bar clearly
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await page.screenshot({ path: `${OUT}/7-tab-bar.png`, fullPage: false });
