@@ -231,17 +231,17 @@ This document outlines the critical functionality of **OnePlan** that should be 
 ### Codebase Cleanup
 
 - [x] **Remove stale / unused files:**
-    - [ ] `GEMINI.md` — duplicate of `CLAUDE.md`; references AI Studio / Gemini workflow no longer in use.
-    - [ ] `.env.example` — references `GEMINI_API_KEY` and `APP_URL`; no longer relevant (app has no server-side secrets).
-    - [ ] `VERSIONING_PLAN.md` — the version history feature is fully shipped; this planning doc is now dead weight.
-    - [ ] `BACKLOG.md` — superseded by `PLAYWRIGHT_TODO.md` (all items have been carried over); safe to delete.
-    - [ ] `OPEN_SOURCE_TODO.md` — all items checked off; the open-source transition is complete.
-    - [ ] `docs/enhancement-report.md` and `docs/mobile-research.md` — one-off research docs; no longer needed.
-    - [ ] `e2e/mock-bad-file.txt` — leftover test fixture sitting loose in the e2e root.
-    - [ ] `e2e/take-screenshot.spec.ts` and `e2e/capture-feature-screenshots.spec.ts` / `capture-tutorial-screenshots.spec.ts` / `mobile-screenshots.spec.ts` — screenshot capture scripts that aren't part of the test suite; review whether they should be kept, moved to a `scripts/` folder, or deleted.
-    - [ ] `metadata.json` — likely an AI Studio project artifact; verify it's unused before deleting.
-    - [ ] `dist/` — built output should not be in version control; confirm it's in `.gitignore`.
-    - [ ] Review `package.json` for any unused dependencies that crept in during feature development.
+    - [x] `GEMINI.md` — already deleted.
+    - [x] `.env.example` — already deleted.
+    - [x] `VERSIONING_PLAN.md` — already deleted.
+    - [x] `BACKLOG.md` — already deleted.
+    - [x] `OPEN_SOURCE_TODO.md` — already deleted.
+    - [x] `docs/enhancement-report.md` and `docs/mobile-research.md` — `docs/` directory already deleted.
+    - [x] `e2e/mock-bad-file.txt` — already deleted.
+    - [x] `e2e/take-screenshot.spec.ts` and screenshot capture scripts — already deleted.
+    - [x] `metadata.json` — already deleted.
+    - [x] `dist/` — confirmed in `.gitignore`.
+    - [x] `package.json` dependencies audited — all packages are actively used; nothing to remove.
 
 ### Documentation & Marketing
 
@@ -264,8 +264,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
 ### Larger Features
 
 - [ ] **Resource / Capacity Planning:**
-    - [ ] Verify initiatives support team/headcount fields in addition to budget.
-    - [ ] Verify a capacity report shows allocation per team across the timeline.
+    - [x] Verify initiatives support resource assignment (owner dropdown + assigned resources checklist from a Resources table in Data Manager).
+    - [x] Verify resource names appear on initiative bars when the Show Resources toggle is on.
+    - [x] Verify owner initials badge derives from the linked resource record.
+    - [ ] Verify a capacity report shows allocation per resource across the timeline.
 
 - [ ] **Dependency Graph View:**
     - [ ] Verify a network diagram view of all dependencies is accessible from the Reports tab.
