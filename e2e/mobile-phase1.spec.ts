@@ -11,13 +11,13 @@ test.describe('Mobile Phase 1 — Foundation', () => {
     await page.goto('/');
   });
 
-  test('timeline sidebar is narrower on mobile', async ({ page }) => {
-    // On mobile the sidebar should be 120px, not 256px
-    const sidebar = page.locator('#timeline-visualiser .sticky.left-0').first();
-    await expect(sidebar).toBeVisible();
-    const box = await sidebar.boundingBox();
-    expect(box!.width).toBeLessThanOrEqual(128); // 120px ± rounding
-    expect(box!.width).toBeGreaterThanOrEqual(112);
+  test('mobile shows card view (not timeline) on mobile viewport', async ({ page }) => {
+    // Phase 4: on mobile the Visualiser tab renders MobileCardView, not the timeline.
+    // The asset sidebar / timeline grid are not present on mobile — the card view replaces them.
+    await page.waitForSelector('[data-testid="mobile-card-view"]', { timeout: 15000 });
+    await expect(page.locator('[data-testid="mobile-card-view"]')).toBeVisible();
+    // The desktop timeline should not be present
+    await expect(page.locator('#timeline-visualiser')).toBeHidden();
   });
 
   test('app outer padding is reduced on mobile', async ({ page }) => {
@@ -27,12 +27,10 @@ test.describe('Mobile Phase 1 — Foundation', () => {
     expect(paddingLeft).toBeLessThanOrEqual(16); // p-3 = 12px or p-4 = 16px
   });
 
-  test('default zoom is reduced on mobile', async ({ page }) => {
-    // At 0.75x zoom the timeline content width should be less than at 1.0x
-    // Verify by checking the scrollable content is not excessively wide
-    // relative to the viewport (shouldn't require >5x scroll)
-    const scrollable = page.locator('#timeline-visualiser .overflow-auto');
-    const scrollWidth = await scrollable.evaluate(el => el.scrollWidth);
-    expect(scrollWidth).toBeLessThan(393 * 5);
+  test('card view has at least one asset card on mobile', async ({ page }) => {
+    // Phase 4: mobile shows asset cards; verify at least one card is rendered
+    await page.waitForSelector('[data-testid="mobile-card-view"]', { timeout: 15000 });
+    const cards = page.locator('[data-testid^="asset-card-"]');
+    await expect(cards.first()).toBeVisible();
   });
 });

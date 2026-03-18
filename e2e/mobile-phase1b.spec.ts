@@ -19,7 +19,7 @@ test.describe('Mobile Phase 1b — Horizontal Scroll', () => {
 
   test('mobile settings sheet is accessible via settings button', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="asset-row-content"]');
+    await page.waitForSelector('[data-testid="mobile-card-view"]', { timeout: 15000 });
 
     // On Phase 2 mobile, Import is desktop-only; mobile has a settings bottom sheet
     const settingsBtn = page.locator('[data-testid="mobile-settings-btn"]');
@@ -32,11 +32,12 @@ test.describe('Mobile Phase 1b — Horizontal Scroll', () => {
 
   test('data manager table is horizontally scrollable', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="asset-row-content"]');
+    await page.waitForSelector('[data-testid="mobile-card-view"]', { timeout: 15000 });
 
-    // On Phase 2 mobile, navigate via the bottom tab bar (not desktop nav button)
-    // Data tab removed from mobile nav; navigate via desktop nav at mobile viewport (hidden but functional)
-    await page.locator('[data-testid="nav-data-manager"]').click({ force: true });
+    // Navigate to Data Manager via JS click (desktop nav is hidden on mobile but still functional)
+    await page.evaluate(() => {
+      (document.querySelector('[data-testid="nav-data-manager"]') as HTMLElement)?.click();
+    });
     await page.waitForSelector('[data-testid="data-manager"]');
 
     // The EditableTable wrapper div (overflow-auto) should be present

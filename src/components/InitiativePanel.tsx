@@ -232,9 +232,9 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
                                             const other = initiatives.find(i => i.id === otherId);
                                             const isSource = dep.sourceId === formData.id;
                                             const label = dep.type === 'blocks'
-                                                ? (isSource ? 'Blocks' : 'Blocked by')
+                                                ? (isSource ? 'Blocking' : 'Blocked')
                                                 : dep.type === 'requires'
-                                                ? (isSource ? 'Requires' : 'Required by')
+                                                ? (isSource ? 'Required' : 'Required by')
                                                 : 'Related to';
                                             return (
                                                 <li key={dep.id} className="flex items-center gap-2 text-sm text-slate-700">

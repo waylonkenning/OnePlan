@@ -10,9 +10,16 @@ interface ReportsViewProps {
   currentData: Version['data'];
 }
 
-function depSentence(dep: Dependency, src: Initiative, tgt: Initiative): string {
-  if (dep.type === 'blocks') return `${src.name} must finish before ${tgt.name} can start.`;
-  if (dep.type === 'requires') return `${src.name} requires ${tgt.name} to finish first.`;
+function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspectiveId: string): string {
+  const isSource = src.id === perspectiveId;
+  if (dep.type === 'blocks') {
+    if (isSource) return `Blocking: ${src.name} must finish before ${tgt.name} can start.`;
+    return `Blocked: ${tgt.name} can't start until ${src.name} has finished.`;
+  }
+  if (dep.type === 'requires') {
+    if (isSource) return `Required: ${src.name} requires ${tgt.name} to start first.`;
+    return `Required by: ${src.name} requires this to start first.`;
+  }
   return `${src.name} and ${tgt.name} are related.`;
 }
 
@@ -199,7 +206,7 @@ export function ReportsView({ assets, initiatives, dependencies, currentData }: 
                               if (!src || !tgt) return null;
                               return (
                                 <li key={dep.id} className="text-xs text-slate-600">
-                                  {depSentence(dep, src, tgt)}
+                                  {depSentence(dep, src, tgt, init.id)}
                                 </li>
                               );
                             })}
