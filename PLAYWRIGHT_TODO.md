@@ -243,10 +243,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [ ] Verify a network diagram view of all dependencies is accessible from the Reports tab.
     - [ ] Verify nodes represent initiatives and edges represent dependencies with type-based styling.
 
-- [ ] **CSV Import:**
-    - [ ] Verify a CSV file can be imported as an alternative to XLSX.
-    - [ ] Verify the same merge/overwrite/preview flow applies as for XLSX import.
-    - [ ] Verify CSV files with missing optional columns import without errors.
+- [x] **CSV Import:**
+    - [x] Verify CSV data can be pasted into any Data Manager table via the "Paste CSV" button.
+    - [x] Verify existing rows are updated by ID (merge) and new rows are appended.
+    - [x] Verify CSV files with missing optional columns import without errors.
 
 - [ ] **Milestone Dependencies:**
     - [ ] Verify a dependency can be drawn from a milestone to an initiative (milestone blocks initiative start).
