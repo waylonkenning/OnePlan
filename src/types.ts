@@ -112,6 +112,7 @@ export interface TimelineSettings {
   mobileBucketMode?: 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy';
   criticalPath?: 'on' | 'off';
   groupBy?: 'asset' | 'programme' | 'strategy';
+  colorBy?: 'programme' | 'strategy' | 'status';
 }
 
 /**
