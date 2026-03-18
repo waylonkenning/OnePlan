@@ -77,9 +77,7 @@ const featureSections = [
       },
       {
         title: "Colour by Status",
-        itemIcon: (
-          <Palette className="w-16 h-16 text-slate-300 mx-auto my-12" />
-        ),
+        image: "/features/colour-by-status.png",
         desc: "Switch initiative bar colouring from Programme or Strategy to Status — Planned, Active, Done, or Cancelled — for an instant health-check view of your portfolio.",
       },
     ],
@@ -95,9 +93,7 @@ const featureSections = [
       },
       {
         title: "Milestone Dependencies",
-        itemIcon: (
-          <Flag className="w-16 h-16 text-slate-300 mx-auto my-12" />
-        ),
+        image: "/features/milestone-dependency.png",
         desc: "Draw a dependency from a milestone to an initiative to indicate the initiative can't start until that date milestone is reached. Milestone dependencies appear as arrows and are included in the dependency report.",
       },
     ],
@@ -113,9 +109,7 @@ const featureSections = [
       },
       {
         title: "Resources & Capacity",
-        itemIcon: (
-          <User className="w-16 h-16 text-slate-300 mx-auto my-12" />
-        ),
+        image: "/features/capacity.png",
         desc: "Define your team in the Resources tab — named people or generic roles. Assign an owner and additional team members to each initiative. The Capacity Report in Reports view shows every resource's initiative assignments at a glance.",
       },
       {
@@ -143,9 +137,7 @@ const featureSections = [
       },
       {
         title: "Version History",
-        itemIcon: (
-          <History className="w-16 h-16 text-slate-300 mx-auto my-12" />
-        ),
+        image: "/features/version-history.png",
         desc: "Save named snapshots of your plan at any point and compare differences between versions side-by-side. Restore any previous state with a single click.",
       },
     ],
@@ -208,37 +200,55 @@ export function FeaturesModal({ onClose }: FeaturesModalProps) {
                 </div>
 
                 <div className="flex flex-col gap-8">
-                  {section.items.map((item, itemIdx) => (
-                    <div
-                      key={itemIdx}
-                      className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      {(item as any).image ? (
-                        <div className="w-full h-48 bg-slate-100 border-b border-slate-100 overflow-hidden">
-                          <img
-                            src={(item as any).image}
-                            alt={item.title}
-                            className="w-full h-full object-cover object-top"
-                          />
+                  {section.items.map((item, itemIdx) => {
+                    const hasImage = !!(item as any).image;
+                    const hasIcon = !!(item as any).itemIcon;
+                    if (hasImage) {
+                      return (
+                        <div
+                          key={itemIdx}
+                          data-testid="feature-card-image"
+                          className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <div className="w-full h-48 bg-slate-100 border-b border-slate-100 overflow-hidden">
+                            <img
+                              src={(item as any).image}
+                              alt={item.title}
+                              className="w-full h-full object-cover object-top"
+                            />
+                          </div>
+                          <div className="flex items-start gap-4 p-5">
+                            <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0 shadow-sm" />
+                            <div>
+                              <h4 className="text-base font-bold text-slate-900 mb-1">{item.title}</h4>
+                              <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+                            </div>
+                          </div>
                         </div>
-                      ) : (item as any).itemIcon ? (
-                        <div className="w-full h-48 bg-slate-50 border-b border-slate-100 overflow-hidden flex items-center justify-center">
-                          {(item as any).itemIcon}
-                        </div>
-                      ) : null}
-                      <div className="flex items-start gap-4 p-5">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0 shadow-sm" />
-                        <div>
-                          <h4 className="text-base font-bold text-slate-900 mb-1">
-                            {item.title}
-                          </h4>
-                          <p className="text-sm text-slate-600 leading-relaxed">
-                            {item.desc}
-                          </p>
+                      );
+                    }
+                    // Compact card — icon-only feature, no screenshot
+                    return (
+                      <div
+                        key={itemIdx}
+                        data-testid="feature-card-compact"
+                        className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-start gap-4 p-5">
+                          <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                            {hasIcon
+                              ? React.cloneElement((item as any).itemIcon as React.ReactElement, { className: 'w-5 h-5 text-slate-400' })
+                              : <div className="w-2 h-2 rounded-full bg-blue-500" />
+                            }
+                          </div>
+                          <div>
+                            <h4 className="text-base font-bold text-slate-900 mb-1">{item.title}</h4>
+                            <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}
