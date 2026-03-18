@@ -63,21 +63,15 @@ test.describe('Mobile Phase 2 — Mobile Header', () => {
     await expect(page.locator('[data-testid="mobile-tab-bar"]')).toBeVisible();
   });
 
-  test('bottom tab bar switches to Data Manager view', async ({ page }) => {
-    await page.locator('[data-testid="mobile-tab-data"]').click();
-    await expect(page.locator('[data-testid="data-manager"]')).toBeVisible();
-  });
-
   test('bottom tab bar switches to Reports view', async ({ page }) => {
     await page.locator('[data-testid="mobile-tab-reports"]').click();
-    // Reports view container
     await expect(page.locator('[data-testid="reports-view"]')).toBeVisible();
   });
 
   test('bottom tab bar switches back to Visualiser', async ({ page }) => {
-    await page.locator('[data-testid="mobile-tab-data"]').click();
+    await page.locator('[data-testid="mobile-tab-reports"]').click();
     await page.locator('[data-testid="mobile-tab-visualiser"]').click();
-    await expect(page.locator('#timeline-visualiser')).toBeVisible();
+    await expect(page.locator('[data-testid="mobile-card-view"]')).toBeVisible();
   });
 
   // ── Desktop unchanged ─────────────────────────────────────────────────────

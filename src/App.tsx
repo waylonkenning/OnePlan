@@ -720,7 +720,6 @@ export default function App() {
       <div data-testid="mobile-tab-bar" className="flex md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 shadow-lg">
         {([
           { id: 'visualiser', testid: 'mobile-tab-visualiser', icon: <LayoutGrid size={20} />, label: 'Visualiser' },
-          { id: 'data',       testid: 'mobile-tab-data',       icon: <Table size={20} />,      label: 'Data' },
           { id: 'reports',    testid: 'mobile-tab-reports',    icon: <BarChart2 size={20} />,  label: 'Reports' },
         ] as const).map(tab => (
           <button

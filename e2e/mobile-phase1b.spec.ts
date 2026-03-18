@@ -35,7 +35,8 @@ test.describe('Mobile Phase 1b — Horizontal Scroll', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]');
 
     // On Phase 2 mobile, navigate via the bottom tab bar (not desktop nav button)
-    await page.locator('[data-testid="mobile-tab-data"]').click();
+    // Data tab removed from mobile nav; navigate via desktop nav at mobile viewport (hidden but functional)
+    await page.locator('[data-testid="nav-data-manager"]').click({ force: true });
     await page.waitForSelector('[data-testid="data-manager"]');
 
     // The EditableTable wrapper div (overflow-auto) should be present
