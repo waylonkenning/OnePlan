@@ -13,22 +13,22 @@ const slides = [
   },
   {
     title: 'The Timeline',
-    text: 'Your plan lives on a scrollable timeline grouped by asset or team. Zoom in for a quarterly view or out for a three-year picture. A "Today" line keeps you oriented, and overlapping work on the same row is flagged automatically.',
+    text: 'Your plan lives on a scrollable timeline grouped by asset or team. Zoom in for a quarterly view or out for a three-year picture. Colour initiatives by programme, strategy, or status; highlight the critical path; and toggle on resource names or conflict markers to suit your planning style.',
     image: '/tutorial/2-visualiser.png',
   },
   {
     title: 'Adding & Editing Initiatives',
-    text: 'Double-click anywhere on the timeline to create a new initiative at that date. Click any bar to open the edit panel — set the status, track progress, assign an owner, record a budget, and draw dependencies to related work.',
+    text: 'Double-click anywhere on the timeline to create a new initiative at that date. Click any bar to open the edit panel — set the status, track progress, assign an owner and team resources, record a budget, and draw dependencies to related work.',
     image: '/tutorial/3-interactive.png',
   },
   {
     title: 'Data Manager',
-    text: 'Switch to the Data Manager for spreadsheet-style editing across all your data: initiatives, assets, programmes, strategies, and milestones. Paste CSV rows, sort columns, and import or export to Excel.',
+    text: 'Switch to the Data Manager for spreadsheet-style editing across all your data: initiatives, assets, programmes, strategies, milestones, and resources. Paste CSV rows, sort columns, and import or export to Excel.',
     image: '/tutorial/5-data-manager.png',
   },
   {
     title: 'Reports',
-    text: 'The Reports view gives you budget summaries broken down by programme, strategy, and category; a full dependency report for every initiative; and a version history so you can compare your plan over time.',
+    text: 'The Reports view gives you budget summaries by programme, strategy, and category; a capacity report showing initiative assignments per resource; a full dependency report; and a version history to compare your plan over time. On mobile, initiatives appear as scrollable cards grouped by timeline, quarter, or programme.',
     image: '/tutorial/4-insights.png',
   },
 ];

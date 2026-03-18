@@ -247,7 +247,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
 
 - [ ] **Feature Documentation / Help Guide:**
     - [ ] Review git commit history and compile a comprehensive `FEATURES.md` covering all features added since launch.
-    - [ ] Update in-app tutorial content and help guide to reflect new features (grouping modes, milestone dependencies, progress tracking, owner field, critical path, colour-by-status, zoom, keyboard shortcuts, mobile card view, etc.).
+    - [x] Update in-app tutorial content to reflect new features — colour modes, critical path, resource assignment, Resources tab in Data Manager, capacity report, and mobile card view.
 
 - [ ] **Update Screenshots & Animations:**
     - [ ] Re-run `scripts/capture-feature-screenshots.spec.ts` after reviewing whether the 6 feature card images (dependency, conflict, column-resize, global-search, grouped, inline-editing, move-resize, view-switching) still represent the best showcase of current capabilities.
