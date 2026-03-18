@@ -178,10 +178,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
 
 ### Quick Wins
 
-- [ ] **Today Indicator Line:**
-    - [ ] Verify a vertical line is rendered at today's date in the timeline.
-    - [ ] Verify the line is visually distinct (e.g. red/orange) and labelled "Today".
-    - [ ] Verify the indicator updates correctly when the timeline start date is changed.
+- [x] **Today Indicator Line:**
+    - [x] Verify a vertical line is rendered at today's date in the timeline.
+    - [x] Verify the line is visually distinct (red) and labelled "Today".
+    - [x] Verify the indicator updates correctly when the timeline start date is changed.
 
 - [ ] **Colour-by-Status:**
     - [ ] Verify a new "By Status" colour mode option is available alongside "By Programme" and "By Strategy".

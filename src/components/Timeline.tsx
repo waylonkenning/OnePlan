@@ -941,10 +941,11 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
 
           {isCurrentTimeVisible && (
             <div
+              data-testid="today-indicator"
               className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
               style={{ left: `calc(16rem + ${currentPos} %)` }}
             >
-              <div className="absolute top-0 -translate-y-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] px-1 rounded">Now</div>
+              <div className="absolute top-8 -translate-x-1/2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded whitespace-nowrap">Today</div>
             </div>
           )}
 
