@@ -875,6 +875,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
   const now = new Date();
   const currentPos = getPosition(now.toISOString());
   const isCurrentTimeVisible = currentPos >= 0 && currentPos <= 100;
+  const groupBy = settings.groupBy || 'asset';
 
   return (
     <div id="timeline-visualiser" ref={timelineRef} className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
@@ -913,6 +914,51 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
             By Status
           </button>
         </div>
+
+        <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+        {/* Group-by selector */}
+        {(() => {
+          const groupBy = settings.groupBy || 'asset';
+          const btnClass = (active: boolean) => cn(
+            "px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5",
+            active ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"
+          );
+          return (
+            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
+              <button
+                data-testid="group-by-asset"
+                aria-pressed={groupBy === 'asset'}
+                onClick={() => onUpdateSettings?.({ ...settings, groupBy: 'asset' })}
+                className={btnClass(groupBy === 'asset')}
+                title="Group by Asset"
+              >
+                <Box size={14} />
+                Asset
+              </button>
+              <button
+                data-testid="group-by-programme"
+                aria-pressed={groupBy === 'programme'}
+                onClick={() => onUpdateSettings?.({ ...settings, groupBy: 'programme' })}
+                className={btnClass(groupBy === 'programme')}
+                title="Group by Programme"
+              >
+                <Boxes size={14} />
+                Programme
+              </button>
+              <button
+                data-testid="group-by-strategy"
+                aria-pressed={groupBy === 'strategy'}
+                onClick={() => onUpdateSettings?.({ ...settings, groupBy: 'strategy' })}
+                className={btnClass(groupBy === 'strategy')}
+                title="Group by Strategy"
+              >
+                <Target size={14} />
+                Strategy
+              </button>
+            </div>
+          );
+        })()}
 
         <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
@@ -1251,7 +1297,76 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               </div>
             )}
 
-            {sortedCategoryIds.map((catId) => {
+            {/* Swimlane view: group by Programme or Strategy */}
+            {groupBy !== 'asset' && (groupBy === 'programme' ? programmes : strategies).map(group => {
+              const groupInits = localInitiatives.filter(i =>
+                (groupBy === 'programme' ? i.programmeId === group.id : i.strategyId === group.id) && !i.isPlaceholder
+              );
+              if (groupInits.length === 0) return null;
+              const { items: swimlaneItems, height: swimlaneHeight } = layoutAsset(groupInits);
+              return (
+                <div key={group.id} data-testid={`swimlane-row-${groupBy}-${group.id}`}>
+                  {/* Group header */}
+                  <div className="flex z-30 bg-slate-100 border-y border-slate-200 w-max">
+                    <div className="sticky left-0 flex-shrink-0 px-4 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-100 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]" style={{ width: SIDEBAR_WIDTH }}>
+                      {group.name}
+                      <span className="ml-2 text-[10px] font-medium tracking-normal normal-case text-slate-400">({groupInits.length})</span>
+                    </div>
+                    <div className="flex-shrink-0" style={{ width: totalWidth }} />
+                  </div>
+                  {/* Row */}
+                  <div className="flex border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                    <div className="sticky left-0 flex-shrink-0 bg-white border-r border-slate-200 px-3 flex items-center z-20 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)]" style={{ width: SIDEBAR_WIDTH, height: swimlaneHeight }}>
+                      <span className="text-xs text-slate-400 truncate">{groupInits.length} initiative{groupInits.length !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="relative bg-white" style={{ width: totalWidth, height: swimlaneHeight }}>
+                      {isCurrentTimeVisible && (
+                        <div className="absolute top-0 bottom-0 w-0.5 bg-emerald-400/80 z-10 pointer-events-none" style={{ left: `${currentPos}%` }} />
+                      )}
+                      {swimlaneItems.map(({ init, top, height: barH, left, width: barW }: any) => {
+                        if (left + barW < 0 || left > 100) return null;
+                        const prog = programmes.find(p => p.id === init.programmeId);
+                        const strat = strategies.find(s => s.id === init.strategyId);
+                        const colorClass = colorBy === 'status'
+                          ? (STATUS_COLORS[init.status || 'planned'])
+                          : colorBy === 'programme'
+                          ? (prog?.color || 'bg-slate-500')
+                          : (strat?.color || 'bg-slate-400');
+                        const isOnCriticalPath = criticalPathInitIds.has(init.id);
+                        return (
+                          <div
+                            key={init.id}
+                            data-initiative-id={init.id}
+                            data-testid="initiative-bar"
+                            onClick={() => setSelectedInitiativeId(init.id)}
+                            className={cn(
+                              "absolute rounded-md shadow-sm border flex items-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
+                              cn(colorClass, "text-white border-white/20"),
+                              isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10"
+                            )}
+                            style={{ left: `${left}%`, width: `${barW}%`, height: barH, top }}
+                            title={`${init.name}\n${prog?.name ?? ''}`}
+                          >
+                            {!init.isPlaceholder && (init.progress ?? 0) > 0 && (
+                              <div data-testid="progress-overlay" className="absolute left-0 top-0 bottom-0 pointer-events-none rounded-l-md bg-white/25" style={{ width: `${init.progress}%`, zIndex: 1 }} />
+                            )}
+                            <span className="font-bold text-[11px] leading-tight truncate drop-shadow-md relative z-10">{init.name}</span>
+                            {init.owner && barW > 6 && (
+                              <div data-testid="owner-badge" className="flex-shrink-0 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white ml-auto" title={init.owner}>
+                                {init.owner.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Default view: group by Asset/Category */}
+            {groupBy === 'asset' && sortedCategoryIds.map((catId) => {
               const category = assetCategories.find(c => c.id === catId);
               const categoryName = category?.name || 'Uncategorized';
               const isCollapsed = collapsedCategories.has(catId);

@@ -228,10 +228,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [ ] Verify baseline bars are rendered as ghost/outline bars behind the live bars.
     - [ ] Verify the overlay can be toggled on and off.
 
-- [ ] **Swimlane Grouping by Strategy / Programme:**
-    - [ ] Verify the timeline can be grouped by Strategy or Programme (in addition to the default asset/category grouping).
-    - [ ] Verify switching grouping mode re-renders rows correctly with the appropriate labels.
-    - [ ] Verify the selected grouping mode persists across page reloads.
+- [x] **Swimlane Grouping by Strategy / Programme:**
+    - [x] Verify the timeline can be grouped by Strategy or Programme (in addition to the default asset/category grouping).
+    - [x] Verify switching grouping mode re-renders rows correctly with the appropriate labels.
+    - [x] Verify the selected grouping mode persists across page reloads.
 
 ### Larger Features
 
