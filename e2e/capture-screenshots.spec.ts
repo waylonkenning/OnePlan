@@ -19,6 +19,25 @@ async function loadAppWithDemoData(page: import('@playwright/test').Page) {
   await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 }
 
+/** Y coordinate where the scrollable timeline content starts (below all header rows). */
+async function timelineContentY(page: import('@playwright/test').Page): Promise<number> {
+  return page.evaluate(() => {
+    const el = document.querySelector('.flex-1.overflow-auto');
+    return el ? Math.round(el.getBoundingClientRect().top) : 170;
+  });
+}
+
+/** Y coordinate where the data-manager table content starts (including tab strip). */
+async function dataManagerContentY(page: import('@playwright/test').Page): Promise<number> {
+  return page.evaluate(() => {
+    // Tab strip sits above the table — find it
+    const tabs = document.querySelector('[data-testid="data-manager-tabs"], .border-b.border-slate-200');
+    if (tabs) return Math.max(0, Math.round(tabs.getBoundingClientRect().top) - 4);
+    const table = document.querySelector('table');
+    return table ? Math.max(0, Math.round(table.getBoundingClientRect().top) - 50) : 130;
+  });
+}
+
 // ─── TUTORIAL SCREENSHOTS ────────────────────────────────────────────────────
 
 test('tutorial/1-overview — full timeline', async ({ page }) => {
@@ -94,9 +113,10 @@ test('features/dependency — dependency arrows on timeline', async ({ page }) =
   await loadAppWithDemoData(page);
   await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
   await page.waitForTimeout(600);
+  const y = await timelineContentY(page);
   await page.screenshot({
     path: `${OUT}/features/dependency.png`,
-    clip: { x: 0, y: 0, width: 1200, height: 700 },
+    clip: { x: 0, y, width: 1200, height: 400 },
   });
 });
 
@@ -104,16 +124,16 @@ test('features/conflict — overlapping initiatives flagged', async ({ page }) =
   await page.setViewportSize({ width: 1200, height: 700 });
   await loadAppWithDemoData(page);
   await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-  // Scroll the timeline scroll container to reveal Core Ledger / Payments Engine rows
+  // Scroll to Core Ledger / Payments Engine rows which have overlapping initiatives
   await page.evaluate(() => {
-    // The timeline uses a flex-1 overflow-auto container
     const container = document.querySelector('.flex-1.overflow-auto');
     if (container) container.scrollTop = 800;
   });
   await page.waitForTimeout(500);
+  const y = await timelineContentY(page);
   await page.screenshot({
     path: `${OUT}/features/conflict.png`,
-    clip: { x: 0, y: 0, width: 1200, height: 700 },
+    clip: { x: 0, y, width: 1200, height: 400 },
   });
 });
 
@@ -127,9 +147,10 @@ test('features/grouped — collapsed asset row', async ({ page }) => {
     await collapseBtn.click();
     await page.waitForTimeout(400);
   }
+  const y = await timelineContentY(page);
   await page.screenshot({
     path: `${OUT}/features/grouped.png`,
-    clip: { x: 0, y: 0, width: 1200, height: 700 },
+    clip: { x: 0, y, width: 1200, height: 400 },
   });
 });
 
@@ -138,13 +159,13 @@ test('features/inline-editing — data manager table', async ({ page }) => {
   await loadAppWithDemoData(page);
   await page.getByTestId('nav-data-manager').click();
   await page.waitForSelector('table tbody tr[data-real="true"]', { timeout: 10000 });
-  // Click into first cell to show editing
   const firstInput = page.locator('table tbody tr[data-real="true"]').first().locator('input').first();
   await firstInput.click();
   await page.waitForTimeout(300);
+  const y = await dataManagerContentY(page);
   await page.screenshot({
     path: `${OUT}/features/inline-editing.png`,
-    clip: { x: 0, y: 0, width: 1200, height: 700 },
+    clip: { x: 0, y, width: 1200, height: 400 },
   });
 });
 
@@ -153,17 +174,16 @@ test('features/column-resize — data manager column resize handle', async ({ pa
   await loadAppWithDemoData(page);
   await page.getByTestId('nav-data-manager').click();
   await page.waitForSelector('table tbody tr[data-real="true"]', { timeout: 10000 });
-  // Hover over the border between first and second column headers to show resize cursor
   const firstTh = page.locator('table thead th').first();
   const box = await firstTh.boundingBox();
   if (box) {
-    // Hover right at the right edge of the first header (resize handle zone)
     await page.mouse.move(box.x + box.width - 2, box.y + box.height / 2);
   }
   await page.waitForTimeout(300);
+  const y = await dataManagerContentY(page);
   await page.screenshot({
     path: `${OUT}/features/column-resize.png`,
-    clip: { x: 0, y: 0, width: 1200, height: 700 },
+    clip: { x: 0, y, width: 1200, height: 400 },
   });
 });
 
@@ -171,40 +191,31 @@ test('features/global-search — search bar with results', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 700 });
   await loadAppWithDemoData(page);
   await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-  // Open search if there's a search input/button
   const searchInput = page.locator('input[placeholder*="Search"], input[type="search"]').first();
   if (await searchInput.isVisible()) {
     await searchInput.click();
     await searchInput.fill('Cloud');
     await page.waitForTimeout(400);
-  } else {
-    // Try clicking a search button
-    const searchBtn = page.locator('[data-testid="search-btn"], [aria-label*="Search"]').first();
-    if (await searchBtn.isVisible()) {
-      await searchBtn.click();
-      await page.waitForTimeout(200);
-      const input = page.locator('input[placeholder*="Search"], input[type="search"]').first();
-      await input.fill('Cloud');
-      await page.waitForTimeout(400);
-    }
   }
+  // For search: show the nav bar (search input) + filtered timeline results below it
+  const y = await timelineContentY(page);
   await page.screenshot({
     path: `${OUT}/features/global-search.png`,
-    clip: { x: 0, y: 0, width: 1200, height: 700 },
+    clip: { x: 0, y: 0, width: 1200, height: y + 280 },
   });
 });
 
-test('features/move-resize — initiative bar selected/focused', async ({ page }) => {
+test('features/move-resize — initiative bar hovered', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 700 });
   await loadAppWithDemoData(page);
   await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-  // Hover over an initiative bar to show resize handles
   const bar = page.locator('[data-testid="initiative-bar"]').first();
   await bar.hover();
   await page.waitForTimeout(300);
+  const y = await timelineContentY(page);
   await page.screenshot({
     path: `${OUT}/features/move-resize.png`,
-    clip: { x: 0, y: 0, width: 1200, height: 700 },
+    clip: { x: 0, y, width: 1200, height: 400 },
   });
 });
 
