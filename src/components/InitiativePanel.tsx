@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Initiative, Asset, Programme, Strategy, Dependency } from '../types';
+import { Initiative, Asset, Programme, Strategy, Dependency, Resource } from '../types';
 import { X, Save, Trash2 } from 'lucide-react';
 import { validateInitiative, ValidationErrors } from '../lib/validation';
 import { ConfirmModal } from './ConfirmModal';
@@ -12,13 +12,14 @@ interface InitiativePanelProps {
     strategies: Strategy[];
     dependencies?: Dependency[];
     initiatives?: Initiative[];
+    resources?: Resource[];
     onClose: () => void;
     onSave: (initiative: Initiative) => void;
     onDelete?: (initiative: Initiative) => void;
     isOpen: boolean;
 }
 
-export function InitiativePanel({ initiative, assets, programmes, strategies, dependencies = [], initiatives = [], onClose, onSave, onDelete, isOpen }: InitiativePanelProps) {
+export function InitiativePanel({ initiative, assets, programmes, strategies, dependencies = [], initiatives = [], resources = [], onClose, onSave, onDelete, isOpen }: InitiativePanelProps) {
     const [formData, setFormData] = useState<Initiative | null>(null);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -244,19 +245,62 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
                         </div>
 
                         <div>
-                            <label htmlFor="owner" className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor="ownerId" className="block text-sm font-medium text-slate-700 mb-1">
                                 Owner
                             </label>
-                            <input
-                                id="owner"
-                                data-testid="initiative-owner"
-                                type="text"
-                                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                                placeholder="e.g. Jane Smith"
-                                value={formData.owner || ''}
-                                onChange={(e) => setFormData({ ...formData, owner: e.target.value || undefined })}
-                            />
+                            {resources.length > 0 ? (
+                                <select
+                                    id="ownerId"
+                                    data-testid="initiative-owner-select"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+                                    value={formData.ownerId || ''}
+                                    onChange={(e) => setFormData({ ...formData, ownerId: e.target.value || undefined })}
+                                >
+                                    <option value="">No owner</option>
+                                    {resources.map(r => (
+                                        <option key={r.id} value={r.id}>{r.name}{r.role ? ` (${r.role})` : ''}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <input
+                                    id="owner"
+                                    data-testid="initiative-owner"
+                                    type="text"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                    placeholder="e.g. Jane Smith"
+                                    value={formData.owner || ''}
+                                    onChange={(e) => setFormData({ ...formData, owner: e.target.value || undefined })}
+                                />
+                            )}
                         </div>
+
+                        {resources.length > 0 && (
+                            <div data-testid="initiative-resources-section">
+                                <p className="block text-sm font-medium text-slate-700 mb-2">Assigned Resources</p>
+                                <div className="space-y-1 max-h-40 overflow-y-auto border border-slate-200 rounded-md p-2">
+                                    {resources.map(r => {
+                                        const isAssigned = (formData.resourceIds || []).includes(r.id);
+                                        return (
+                                            <label key={r.id} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isAssigned}
+                                                    onChange={(e) => {
+                                                        const current = formData.resourceIds || [];
+                                                        const updated = e.target.checked
+                                                            ? [...current, r.id]
+                                                            : current.filter(id => id !== r.id);
+                                                        setFormData({ ...formData, resourceIds: updated.length > 0 ? updated : undefined });
+                                                    }}
+                                                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                                                />
+                                                {r.name}{r.role ? <span className="text-slate-400 text-xs ml-1">({r.role})</span> : null}
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="flex items-center gap-2 py-2">
                             <input

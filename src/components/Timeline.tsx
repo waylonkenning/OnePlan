@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { useMediaQuery } from '../lib/useMediaQuery';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth, endOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, Boxes } from 'lucide-react';
@@ -17,6 +17,7 @@ interface TimelineProps {
   strategies: Strategy[];
   dependencies: Dependency[];
   assetCategories: AssetCategory[];
+  resources?: Resource[];
   settings: TimelineSettings;
   onUpdateInitiative?: (initiative: Initiative) => void;
   onAddInitiative?: (initiative: Initiative) => void;
@@ -31,7 +32,7 @@ interface TimelineProps {
 const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
 const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery }: TimelineProps) {
+export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery }: TimelineProps) {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
 
@@ -1408,11 +1409,27 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                               <div data-testid="progress-overlay" className="absolute left-0 top-0 bottom-0 pointer-events-none rounded-l-md bg-white/25" style={{ width: `${init.progress}%`, zIndex: 1 }} />
                             )}
                             <span className="font-bold text-[11px] leading-tight truncate drop-shadow-md relative z-10">{init.name}</span>
-                            {init.owner && barW > 6 && (
-                              <div data-testid="owner-badge" className="flex-shrink-0 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white ml-auto" title={init.owner}>
-                                {init.owner.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                              </div>
-                            )}
+                            {settings.showResources === 'on' && barW > 8 && (() => {
+                              const assignedNames = (init.resourceIds || [])
+                                .map(rid => resources.find(r => r.id === rid)?.name)
+                                .filter(Boolean);
+                              if (assignedNames.length === 0) return null;
+                              return (
+                                <span data-testid="initiative-resource-names" className="text-[9px] text-white/80 truncate ml-1 relative z-10">
+                                  {assignedNames.join(', ')}
+                                </span>
+                              );
+                            })()}
+                            {(() => {
+                              const ownerResource = init.ownerId ? resources.find(r => r.id === init.ownerId) : null;
+                              const ownerName = ownerResource?.name || init.owner;
+                              if (!ownerName || barW <= 6) return null;
+                              return (
+                                <div data-testid="owner-badge" className="flex-shrink-0 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white ml-auto" title={ownerName}>
+                                  {ownerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                                </div>
+                              );
+                            })()}
                           </div>
                         );
                       })}
@@ -1622,15 +1639,31 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                                         : `${Math.round(init.budget / 1000)}k`}
                                     </div>
                                   )}
-                                  {!init.isPlaceholder && !isGroup && init.owner && width > 6 && (
-                                    <div
-                                      data-testid="owner-badge"
-                                      className="flex-shrink-0 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white self-center"
-                                      title={init.owner}
-                                    >
-                                      {init.owner.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                                    </div>
-                                  )}
+                                  {settings.showResources === 'on' && !isGroup && width > 8 && (() => {
+                                    const assignedNames = (init.resourceIds || [])
+                                      .map(rid => resources.find(r => r.id === rid)?.name)
+                                      .filter(Boolean);
+                                    if (assignedNames.length === 0) return null;
+                                    return (
+                                      <span data-testid="initiative-resource-names" className="text-[9px] text-white/80 truncate self-center">
+                                        {assignedNames.join(', ')}
+                                      </span>
+                                    );
+                                  })()}
+                                  {!init.isPlaceholder && !isGroup && width > 6 && (() => {
+                                    const ownerResource = init.ownerId ? resources.find(r => r.id === init.ownerId) : null;
+                                    const ownerName = ownerResource?.name || init.owner;
+                                    if (!ownerName) return null;
+                                    return (
+                                      <div
+                                        data-testid="owner-badge"
+                                        className="flex-shrink-0 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white self-center"
+                                        title={ownerName}
+                                      >
+                                        {ownerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                      </div>
+                                    );
+                                  })()}
                                 </div>
 
                                 {/* Ungroup Button for summary bars */}
@@ -1793,6 +1826,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
         strategies={strategies}
         dependencies={dependencies}
         initiatives={initiatives}
+        resources={resources}
         onSave={(initiative) => {
           if (selectedInitiativeId) {
             if (onUpdateInitiative) onUpdateInitiative(initiative);

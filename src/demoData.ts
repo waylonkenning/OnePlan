@@ -1,4 +1,4 @@
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
 
 /**
  * Returns a date string (YYYY-MM-DD) relative to the current calendar year.
@@ -79,11 +79,13 @@ export const demoInitiatives: Initiative[] = [
         id: 'i-ciam-passkey', name: 'Passkey Rollout', programmeId: 'prog-dtp', strategyId: 'strat-zero',
         assetId: 'a-ciam', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), budget: 350000,
         description: 'Replace SMS OTP with FIDO2 passkeys for all customer-facing channels.',
+        ownerId: 'res-4', resourceIds: ['res-2', 'res-3'],
     },
     {
         id: 'i-ciam-sso', name: 'SSO Consolidation', programmeId: 'prog-dtp', strategyId: 'strat-cust',
         assetId: 'a-ciam', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), budget: 600000,
         description: 'Unify 12 legacy identity providers into a single CIAM platform.',
+        ownerId: 'res-1', resourceIds: ['res-3'],
     },
     // Employee IAM
     {
@@ -228,4 +230,13 @@ export const demoMilestones: Milestone[] = [
     { id: 'ms-6', assetId: 'a-esb', date: relDate(2, 7, 1), name: 'ESB End of Life', type: 'critical' },
     { id: 'ms-7', assetId: 'a-lake', date: relDate(1, 1, 1), name: 'Batch ETL Sunset', type: 'warning' },
     { id: 'ms-8', assetId: 'a-lend', date: relDate(1, 10, 1), name: 'Open Banking Phase 3', type: 'info' },
+];
+
+export const demoResources: Resource[] = [
+    { id: 'res-1', name: 'Sarah Chen', role: 'Programme Manager' },
+    { id: 'res-2', name: 'James Okafor', role: 'Enterprise Architect' },
+    { id: 'res-3', name: 'Business Analyst' },
+    { id: 'res-4', name: 'Maria Santos', role: 'Security Architect' },
+    { id: 'res-5', name: 'Cloud Engineer' },
+    { id: 'res-6', name: 'Tom Wright', role: 'Tech Lead' },
 ];

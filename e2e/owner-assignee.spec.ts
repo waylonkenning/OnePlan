@@ -11,14 +11,14 @@ test.describe('Owner / Assignee', () => {
 
   test('owner field is visible in InitiativePanel', async ({ page }) => {
     await page.locator('[data-testid="initiative-bar"]').first().click();
-    await expect(page.getByTestId('initiative-owner')).toBeVisible();
+    await expect(page.getByTestId('initiative-owner-select')).toBeVisible();
   });
 
-  test('owner field accepts a text value', async ({ page }) => {
+  test('owner dropdown accepts a selection', async ({ page }) => {
     await page.locator('[data-testid="initiative-bar"]').first().click();
-    const field = page.getByTestId('initiative-owner');
-    await field.fill('Jane Smith');
-    await expect(field).toHaveValue('Jane Smith');
+    const field = page.getByTestId('initiative-owner-select');
+    await field.selectOption({ index: 1 });
+    await expect(field).toHaveValue(/.+/);
   });
 
   test('owner field is visible in Data Manager', async ({ page }) => {
@@ -30,33 +30,36 @@ test.describe('Owner / Assignee', () => {
     await page.locator('[data-testid="initiative-bar"]').first().click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
-    await page.getByTestId('initiative-owner').fill('Alex Johnson');
+    const ownerSelect = page.getByTestId('initiative-owner-select');
+    await ownerSelect.selectOption({ index: 1 });
+    const selectedValue = await ownerSelect.inputValue();
     await panel.getByRole('button', { name: 'Save Changes' }).click();
     await expect(panel).toBeHidden();
 
     await page.reload();
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.locator('[data-testid="initiative-bar"]').first().click();
-    await expect(page.getByTestId('initiative-owner')).toHaveValue('Alex Johnson');
+    await expect(page.getByTestId('initiative-owner-select')).toHaveValue(selectedValue);
   });
 
   test('owner initials are shown on the bar when owner is set', async ({ page }) => {
     await page.locator('[data-testid="initiative-bar"]').first().click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
-    await page.getByTestId('initiative-owner').fill('Sam Taylor');
+    const ownerSelect = page.getByTestId('initiative-owner-select');
+    await ownerSelect.selectOption({ index: 1 });
     await panel.getByRole('button', { name: 'Save Changes' }).click();
     await expect(panel).toBeHidden();
 
-    // The bar should show owner initials
+    // The bar should show owner initials derived from the resource name
     const ownerBadge = page.locator('[data-testid="owner-badge"]').first();
     await expect(ownerBadge).toBeVisible();
-    await expect(ownerBadge).toContainText('ST');
+    await expect(ownerBadge).toHaveText(/^[A-Z]{1,2}$/);
   });
 
-  test('no owner badge shown when owner is not set', async ({ page }) => {
-    // Default data has no owners set
+  test('owner badges appear for initiatives with ownerId set', async ({ page }) => {
+    // Demo data has 2 initiatives with ownerId set
     const badges = page.locator('[data-testid="owner-badge"]');
-    await expect(badges).toHaveCount(0);
+    await expect(badges).toHaveCount(2);
   });
 });

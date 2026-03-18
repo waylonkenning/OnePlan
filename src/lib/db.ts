@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Version } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Version, Resource } from '../types';
 
 interface ITMapDB extends DBSchema {
   assets: {
@@ -38,10 +38,14 @@ interface ITMapDB extends DBSchema {
     key: string;
     value: Version;
   };
+  resources: {
+    key: string;
+    value: Resource;
+  };
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
@@ -70,6 +74,9 @@ export const initDB = () => {
         if (oldVersion < 6 && !db.objectStoreNames.contains('versions')) {
           db.createObjectStore('versions', { keyPath: 'id' });
         }
+        if (oldVersion < 7 && !db.objectStoreNames.contains('resources')) {
+          db.createObjectStore('resources', { keyPath: 'id' });
+        }
       },
     });
   }
@@ -85,6 +92,7 @@ export const getAppData = async () => {
   const strategies = await db.getAll('strategies');
   const dependencies = await db.getAll('dependencies');
   const assetCategories = await db.getAll('assetCategories');
+  const resources = db.objectStoreNames.contains('resources') ? await db.getAll('resources') : [];
 
   // Settings is not a standard list of entities, it's just one config object
   let settingsFromDb = null;
@@ -102,6 +110,7 @@ export const getAppData = async () => {
     dependencies,
     assetCategories,
     timelineSettings,
+    resources,
   };
 };
 
@@ -114,13 +123,17 @@ export const saveAppData = async (data: {
   dependencies: Dependency[];
   assetCategories: AssetCategory[];
   timelineSettings: TimelineSettings;
+  resources: Resource[];
 }) => {
   const db = await initDB();
-  const stores: ("assets" | "initiatives" | "milestones" | "programmes" | "strategies" | "dependencies" | "assetCategories" | "settings")[] = [
+  const stores: ("assets" | "initiatives" | "milestones" | "programmes" | "strategies" | "dependencies" | "assetCategories" | "settings" | "resources")[] = [
     'assets', 'initiatives', 'milestones', 'programmes', 'strategies', 'dependencies', 'assetCategories'
   ];
   if (db.objectStoreNames.contains('settings')) {
     stores.push('settings');
+  }
+  if (db.objectStoreNames.contains('resources')) {
+    stores.push('resources');
   }
   const tx = db.transaction(stores, 'readwrite');
 
@@ -146,6 +159,10 @@ export const saveAppData = async (data: {
   if (db.objectStoreNames.contains('settings')) {
     allPromises.push(tx.objectStore('settings').clear());
     allPromises.push(tx.objectStore('settings').put(data.timelineSettings, 'timelineSettings'));
+  }
+  if (db.objectStoreNames.contains('resources')) {
+    allPromises.push(tx.objectStore('resources').clear());
+    (data.resources || []).forEach(item => allPromises.push(tx.objectStore('resources').add(item)));
   }
   await Promise.all(allPromises);
 
