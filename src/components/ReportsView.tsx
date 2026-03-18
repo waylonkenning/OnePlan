@@ -12,7 +12,7 @@ interface ReportsViewProps {
 
 function depSentence(dep: Dependency, src: Initiative, tgt: Initiative): string {
   if (dep.type === 'blocks') return `${src.name} must finish before ${tgt.name} can start.`;
-  if (dep.type === 'requires') return `${tgt.name} must be complete before ${src.name} can start.`;
+  if (dep.type === 'requires') return `${src.name} requires ${tgt.name} to finish first.`;
   return `${src.name} and ${tgt.name} are related.`;
 }
 
