@@ -263,11 +263,11 @@ This document outlines the critical functionality of **OnePlan** that should be 
 
 ### Larger Features
 
-- [ ] **Resource / Capacity Planning:**
+- [x] **Resource / Capacity Planning:**
     - [x] Verify initiatives support resource assignment (owner dropdown + assigned resources checklist from a Resources table in Data Manager).
     - [x] Verify resource names appear on initiative bars when the Show Resources toggle is on.
     - [x] Verify owner initials badge derives from the linked resource record.
-    - [ ] Verify a capacity report shows allocation per resource across the timeline.
+    - [x] Verify a capacity report shows allocation per resource across the timeline.
 
 
 - [x] **CSV Import:**

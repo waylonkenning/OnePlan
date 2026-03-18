@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Asset, Initiative, Dependency, Milestone, Version, Programme, Strategy, AssetCategory } from '../types';
+import { Asset, Initiative, Dependency, Milestone, Version, Programme, Strategy, AssetCategory, Resource } from '../types';
 import { getAllVersions } from '../lib/db';
 import { computeDiff, DiffResult } from '../lib/diff';
 
@@ -12,6 +12,7 @@ interface ReportsViewProps {
   programmes: Programme[];
   strategies: Strategy[];
   assetCategories: AssetCategory[];
+  resources?: Resource[];
 }
 
 function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspectiveId: string): string {
@@ -27,7 +28,7 @@ function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspect
   return `${src.name} and ${tgt.name} are related.`;
 }
 
-export function ReportsView({ assets, initiatives, milestones, dependencies, currentData, programmes, strategies, assetCategories }: ReportsViewProps) {
+export function ReportsView({ assets, initiatives, milestones, dependencies, currentData, programmes, strategies, assetCategories, resources = [] }: ReportsViewProps) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
   const [diffResult, setDiffResult] = useState<DiffResult | null>(null);
@@ -309,6 +310,87 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
             );
           })}
         </div>
+
+        {/* Capacity Report */}
+        {(() => {
+          const fmt = (iso: string) => new Date(iso).toLocaleDateString('en-NZ', { month: 'short', year: 'numeric' });
+
+          const realInitiatives = initiatives.filter(i => !i.isPlaceholder);
+
+          const assignmentsFor = (resourceId: string) =>
+            realInitiatives.filter(i =>
+              i.ownerId === resourceId || (i.resourceIds ?? []).includes(resourceId)
+            );
+
+          return (
+            <div data-testid="capacity-report" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+                <h2 className="text-base font-semibold text-slate-800">Capacity Report</h2>
+              </div>
+              <div className="p-4">
+                {resources.length === 0 ? (
+                  <p data-testid="capacity-no-resources" className="text-sm text-slate-400">
+                    No resources defined. Add resources in Data Manager → Resources to track capacity.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {resources.map(resource => {
+                      const assigned = assignmentsFor(resource.id);
+                      return (
+                        <div
+                          key={resource.id}
+                          data-testid="capacity-resource-row"
+                          className="border border-slate-100 rounded-lg overflow-hidden"
+                        >
+                          <div
+                            data-testid={`capacity-resource-row-${resource.id}`}
+                            className="px-4 py-3"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <div>
+                                <span className="text-sm font-semibold text-slate-800">{resource.name}</span>
+                                {resource.role && (
+                                  <span className="ml-2 text-xs text-slate-400">({resource.role})</span>
+                                )}
+                              </div>
+                              <span
+                                data-testid="capacity-assignment-count"
+                                className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                  assigned.length === 0
+                                    ? 'bg-slate-100 text-slate-400'
+                                    : assigned.length >= 3
+                                    ? 'bg-red-100 text-red-700'
+                                    : 'bg-blue-100 text-blue-700'
+                                }`}
+                              >
+                                {assigned.length}
+                              </span>
+                            </div>
+                            {assigned.length === 0 ? (
+                              <p data-testid="capacity-no-assignments" className="text-xs text-slate-400 italic">No initiatives assigned</p>
+                            ) : (
+                              <ul className="space-y-1">
+                                {assigned.map(init => (
+                                  <li key={init.id} className="flex items-center gap-2 text-xs text-slate-600">
+                                    {init.ownerId === resource.id && (
+                                      <span className="text-[10px] font-bold bg-slate-200 text-slate-600 px-1 rounded uppercase">Owner</span>
+                                    )}
+                                    <span className="font-medium text-slate-700">{init.name}</span>
+                                    <span className="text-slate-400">{fmt(init.startDate)} → {fmt(init.endDate)}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Milestone Dependencies */}
         {(() => {

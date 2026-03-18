@@ -892,7 +892,7 @@ export default function App() {
             searchQuery={searchQuery}
           />
         ) : (
-          <ReportsView assets={assets} initiatives={initiatives} milestones={milestones} dependencies={dependencies} currentData={getCurrentState()} programmes={programmes} strategies={strategies} assetCategories={assetCategories} />
+          <ReportsView assets={assets} initiatives={initiatives} milestones={milestones} dependencies={dependencies} currentData={getCurrentState()} programmes={programmes} strategies={strategies} assetCategories={assetCategories} resources={resources} />
         )}
       </main>
 
