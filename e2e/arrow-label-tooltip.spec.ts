@@ -20,7 +20,7 @@ test('clicking a dependency label shows a tooltip with the relationship sentence
   expect(text).toBeTruthy();
   expect(text!.length).toBeGreaterThan(20);
   // Must reference initiative names (not just "blocks" / "requires")
-  expect(text).toMatch(/must finish|requires|general connection/i);
+  expect(text).toMatch(/must finish before|requires .+ to finish|are related/i);
 });
 
 test('clicking the tooltip dismisses it', async ({ page }) => {
