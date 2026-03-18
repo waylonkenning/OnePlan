@@ -203,10 +203,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
 
 ### Medium Effort
 
-- [ ] **Critical Path Highlighting:**
-    - [ ] Verify the critical path (longest dependency chain) can be highlighted in the timeline.
-    - [ ] Verify highlighted path bars and arrows are visually distinct from non-critical items.
-    - [ ] Verify the critical path updates when dependencies change.
+- [x] **Critical Path Highlighting:**
+    - [x] Verify the critical path (longest dependency chain) can be highlighted in the timeline.
+    - [x] Verify highlighted path bars and arrows are visually distinct from non-critical items.
+    - [x] Verify the critical path toggle persists across page reloads.
 
 - [ ] **Progress Tracking:**
     - [ ] Verify a % complete field is available on each initiative in the InitiativePanel and Data Manager.

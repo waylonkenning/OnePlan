@@ -25,7 +25,7 @@ import {
   demoTimelineSettings as defaultTimelineSettings
 } from './demoData';
 import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard, GitCommit } from 'lucide-react';
 import { ReportsView } from './components/ReportsView';
 
 type AppState = {
@@ -423,6 +423,7 @@ export default function App() {
           const relationshipsOn = (timelineSettings.showRelationships || 'on') === 'on';
           const descriptionsOn = (timelineSettings.descriptionDisplay || 'off') === 'on';
           const budgetMode = timelineSettings.budgetVisualisation || 'off';
+          const criticalPathOn = (timelineSettings.criticalPath || 'off') === 'on';
           const budgetCycle: Array<'off' | 'label' | 'bar-height'> = ['off', 'label', 'bar-height'];
           const nextBudget = budgetCycle[(budgetCycle.indexOf(budgetMode as 'off' | 'label' | 'bar-height') + 1) % 3];
 
@@ -478,6 +479,17 @@ export default function App() {
                 title={`Budget: ${budgetMode}`}
               >
                 <DollarSign size={13} />
+              </button>
+              <button
+                data-testid="toggle-critical-path"
+                data-active={criticalPathOn ? 'true' : 'false'}
+                aria-label="Critical Path"
+                aria-pressed={criticalPathOn}
+                onClick={() => handleUpdate({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, criticalPath: criticalPathOn ? 'off' : 'on' } })}
+                className={toggleClass(criticalPathOn)}
+                title="Critical Path"
+              >
+                <GitCommit size={13} />
               </button>
 
               {/* Zoom controls */}
