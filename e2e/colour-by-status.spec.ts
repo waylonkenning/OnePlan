@@ -77,18 +77,30 @@ test.describe('By Status colour mode', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
   });
 
-  test('"By Status" button is available in the colour mode selector', async ({ page }) => {
+  // Helper: ensure View Options popover is open
+  async function openViewOptions(page: Parameters<Parameters<typeof test>[1]>[0]) {
+    const popover = page.getByTestId('view-options-popover');
+    if (!await popover.isVisible()) {
+      await page.getByTestId('view-options-btn').click();
+      await expect(popover).toBeVisible();
+    }
+  }
+
+  test('"By Status" button is available inside the View Options popover', async ({ page }) => {
+    await openViewOptions(page);
     await expect(page.getByRole('button', { name: 'By Status' })).toBeVisible();
   });
 
   test('clicking "By Status" activates the mode', async ({ page }) => {
+    await openViewOptions(page);
     await page.getByRole('button', { name: 'By Status' }).click();
     // The button should become visually active (highlighted)
     const btn = page.getByRole('button', { name: 'By Status' });
-    await expect(btn).toHaveClass(/bg-white|shadow/);
+    await expect(btn).toHaveClass(/bg-emerald|shadow/);
   });
 
   test('legend shows status entries when "By Status" is active', async ({ page }) => {
+    await openViewOptions(page);
     await page.getByRole('button', { name: 'By Status' }).click();
 
     // Legend must list each status label
@@ -100,7 +112,9 @@ test.describe('By Status colour mode', () => {
   });
 
   test('legend reverts to programmes when "By Programme" is re-selected', async ({ page }) => {
+    await openViewOptions(page);
     await page.getByRole('button', { name: 'By Status' }).click();
+    await openViewOptions(page);
     await page.getByRole('button', { name: 'By Programme' }).click();
 
     const legend = page.getByTestId('colour-legend');

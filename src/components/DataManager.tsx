@@ -254,14 +254,14 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
 
   return (
     <div data-testid="data-manager" className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-      <div className="flex border-b border-slate-200 bg-white overflow-x-auto">
+      <div className="flex flex-wrap border-b border-slate-200 bg-white">
         {tabs.map(tab => (
           <button
             key={tab.id}
             data-testid={`data-manager-tab-${tab.id}`}
             onClick={() => setActiveTab(tab.id as Tab)}
             className={cn(
-              "flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+              "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
               activeTab === tab.id
                 ? "border-blue-500 text-blue-600 bg-blue-50"
                 : "border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50"
