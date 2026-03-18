@@ -47,6 +47,7 @@ export interface Initiative {
   budget: number;    // Numeric value, also used to scale bar height in some views
   description?: string;
   isPlaceholder?: boolean;
+  status?: 'planned' | 'active' | 'done' | 'cancelled';
 }
 
 /**

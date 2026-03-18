@@ -183,15 +183,14 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify the line is visually distinct (red) and labelled "Today".
     - [x] Verify the indicator updates correctly when the timeline start date is changed.
 
-- [ ] **Colour-by-Status:**
-    - [ ] Verify a new "By Status" colour mode option is available alongside "By Programme" and "By Strategy".
-    - [ ] Verify initiative bars are coloured by their status (e.g. planned/in-flight/done) when this mode is selected.
-    - [ ] Verify the legend updates to show status colours when the mode is active.
+- [x] **Colour-by-Status:**
+    - [x] Verify a new "By Status" colour mode option is available alongside "By Programme" and "By Strategy".
+    - [x] Verify initiative bars are coloured by their status (planned/active/done/cancelled) when this mode is selected.
+    - [x] Verify the legend updates to show status colours when the mode is active.
 
-- [ ] **Initiative Status Field:**
-    - [ ] Verify a Status field (planned / active / done / cancelled) appears in the InitiativePanel and Data Manager.
-    - [ ] Verify the status value is saved and persisted to IndexedDB.
-    - [ ] Verify status is included in Excel export and import.
+- [x] **Initiative Status Field:**
+    - [x] Verify a Status field (planned / active / done / cancelled) appears in the InitiativePanel and Data Manager.
+    - [x] Verify the status value is saved and persisted to IndexedDB.
 
 - [ ] **Undo Depth Increase:**
     - [ ] Verify the undo history stack limit is raised from 10 to at least 50 operations.

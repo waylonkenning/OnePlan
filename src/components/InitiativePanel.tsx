@@ -205,6 +205,24 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
                             />
                         </div>
 
+                        <div>
+                            <label htmlFor="status" className="block text-sm font-medium text-slate-700 mb-1">
+                                Status
+                            </label>
+                            <select
+                                id="status"
+                                data-testid="initiative-status"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+                                value={formData.status || 'planned'}
+                                onChange={(e) => setFormData({ ...formData, status: e.target.value as Initiative['status'] })}
+                            >
+                                <option value="planned">Planned</option>
+                                <option value="active">Active</option>
+                                <option value="done">Done</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+
                         <div className="flex items-center gap-2 py-2">
                             <input
                                 id="isPlaceholder"
