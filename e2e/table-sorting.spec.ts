@@ -35,15 +35,15 @@ test.describe('Table Column Sorting', () => {
     await budgetHeader.click();
     
     const realRows = page.locator('table tbody tr[data-real="true"]');
-    const firstBudget = await realRows.first().locator('input[type="number"]').inputValue();
-    const lastBudget = await realRows.last().locator('input[type="number"]').inputValue();
-    
+    const firstBudget = await realRows.first().getByTestId('real-input-budget').inputValue();
+    const lastBudget = await realRows.last().getByTestId('real-input-budget').inputValue();
+
     expect(parseFloat(firstBudget)).toBeLessThanOrEqual(parseFloat(lastBudget));
 
     // Sort Descending
     await budgetHeader.click();
-    const firstBudgetDesc = await realRows.first().locator('input[type="number"]').inputValue();
-    const lastBudgetDesc = await realRows.last().locator('input[type="number"]').inputValue();
+    const firstBudgetDesc = await realRows.first().getByTestId('real-input-budget').inputValue();
+    const lastBudgetDesc = await realRows.last().getByTestId('real-input-budget').inputValue();
     
     expect(parseFloat(firstBudgetDesc)).toBeGreaterThanOrEqual(parseFloat(lastBudgetDesc));
   });

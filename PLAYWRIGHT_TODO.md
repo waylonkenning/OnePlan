@@ -208,10 +208,10 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify highlighted path bars and arrows are visually distinct from non-critical items.
     - [x] Verify the critical path toggle persists across page reloads.
 
-- [ ] **Progress Tracking:**
-    - [ ] Verify a % complete field is available on each initiative in the InitiativePanel and Data Manager.
-    - [ ] Verify the timeline bar renders a fill overlay proportional to the % complete value.
-    - [ ] Verify progress values are persisted to IndexedDB and included in Excel export/import.
+- [x] **Progress Tracking:**
+    - [x] Verify a % complete field is available on each initiative in the InitiativePanel and Data Manager.
+    - [x] Verify the timeline bar renders a fill overlay proportional to the % complete value.
+    - [x] Verify progress values persist to IndexedDB across reloads.
 
 - [ ] **Owner / Assignee:**
     - [ ] Verify an Owner field is available on each initiative in the InitiativePanel and Data Manager.

@@ -477,7 +477,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                       ) : (
                         <input
                           type={col.type}
-                          value={col.type === 'number' ? Number(row[col.key]) : String(row[col.key] || '')}
+                          value={col.type === 'number' ? (row[col.key] == null ? '' : Number(row[col.key])) : String(row[col.key] || '')}
                           onChange={(e) => handleChange(rowIndex, col.key, col.type === 'number' ? Number(e.target.value) : e.target.value, false)}
                           placeholder={col.placeholder}
                           aria-label={col.label}

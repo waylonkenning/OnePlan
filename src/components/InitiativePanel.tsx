@@ -223,6 +223,26 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
                             </select>
                         </div>
 
+                        <div>
+                            <label htmlFor="progress" className="block text-sm font-medium text-slate-700 mb-1">
+                                Progress (%)
+                            </label>
+                            <input
+                                id="progress"
+                                data-testid="initiative-progress"
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="1"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                value={formData.progress ?? ''}
+                                onChange={(e) => {
+                                    const val = e.target.value === '' ? undefined : Math.min(100, Math.max(0, Number(e.target.value)));
+                                    setFormData({ ...formData, progress: val });
+                                }}
+                            />
+                        </div>
+
                         <div className="flex items-center gap-2 py-2">
                             <input
                                 id="isPlaceholder"
