@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useMediaQuery } from '../lib/useMediaQuery';
 import { Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
-import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth, endOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
+import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, addDays, isValid, startOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
@@ -90,7 +90,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const [movingSegment, setMovingSegment] = useState<{ id: string; initialX: number; initialStart: string; initialEnd: string } | null>(null);
   const [resizingSegment, setResizingSegment] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
-  const [creatingSegmentParams, setCreatingSegmentParams] = useState<{ applicationId: string; startDate: string; endDate: string } | null>(null);
+  const [creatingSegmentParams, setCreatingSegmentParams] = useState<{ id: string; applicationId: string; startDate: string; endDate: string } | null>(null);
+  const segIdCounter = useRef(0);
+  const initIdCounter = useRef(0);
   const [drawingDependency, setDrawingDependency] = useState<{
     sourceId: string;
     sourceType: 'initiative' | 'milestone';
@@ -334,13 +336,15 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     return cols;
   }, [settings.startDate, settings.monthsToShow, localInitiatives, milestones]);
 
-  if (timeColumns.length === 0) return null;
-  const startDate = timeColumns[0].date;
-  const endDate = timeColumns[timeColumns.length - 1].endDate;
-  const totalDays = differenceInDays(endDate, startDate);
+  // These are computed before any early return so that hook calls below are unconditional.
+  // timeColumns is always non-empty (the useMemo guarantees at least 8–12 columns), so the
+  // fallback values here are defensive only and will never be reached in practice.
+  const startDate = timeColumns.length > 0 ? timeColumns[0].date : new Date();
+  const endDate = timeColumns.length > 0 ? timeColumns[timeColumns.length - 1].endDate : new Date();
+  const totalDays = Math.max(1, differenceInDays(endDate, startDate));
   const zoom = settings.columnZoom ?? 1.0;
   const totalWidth = Math.max(containerWidth, timeColumns.length * 80 * zoom); // Min 80px per column, scaled by zoom
-  const columnWidth = totalWidth / timeColumns.length;
+  const columnWidth = timeColumns.length > 0 ? totalWidth / timeColumns.length : 80;
 
   // Helper to get position and width
   const getPosition = (dateStr: string) => {
@@ -350,7 +354,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       const daysFromStart = differenceInDays(date, startDate);
       const percentage = (daysFromStart / totalDays) * 100;
       return percentage;
-    } catch (e) {
+    } catch (_e) {
       return 0;
     }
   };
@@ -363,7 +367,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       const days = differenceInDays(end, start);
       const percentage = (days / totalDays) * 100;
       return Math.max(0.5, percentage);
-    } catch (e) {
+    } catch (_e) {
       return 0.5;
     }
   };
@@ -379,7 +383,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     const calculatedEndDate = format(addDays(startDate, daysFromStart + 90), 'yyyy-MM-dd'); // 90 days default duration
 
     setCreatingInitiativeParams({
-      id: `init-new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `init-new-${initIdCounter.current++}`,
       assetId,
       startDate: calculatedStartDate,
       endDate: calculatedEndDate
@@ -391,20 +395,6 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     e.preventDefault();
     isDraggingRef.current = false;
     setResizing({ id, edge, initialX: e.clientX, initialDate });
-  };
-
-  const handleMouseDown = (e: React.MouseEvent, init: Initiative) => {
-    // If we click on the edge, handleResizeStart will be called via its own onMouseDown
-    // which has e.stopPropagation(). So here we handle move or dependency draw.
-    isDraggingRef.current = false;
-    console.log('MouseDown on initiative:', init.id, e.clientX, e.clientY);
-    setMoving({
-      id: init.id,
-      initialX: e.clientX,
-      initialY: e.clientY,
-      initialStart: init.startDate,
-      initialEnd: init.endDate
-    });
   };
 
   const handleMilestoneMouseDown = (e: React.MouseEvent, mile: Milestone) => {
@@ -952,21 +942,6 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     return groups;
   };
 
-  const toggleGroupCollapse = (groupId: string) => {
-    if (!onUpdateInitiative) return;
-    const currentCollapsed = settings.collapsedGroups || [];
-    let nextCollapsed: string[];
-    if (currentCollapsed.includes(groupId)) {
-      nextCollapsed = currentCollapsed.filter(id => id !== groupId);
-    } else {
-      nextCollapsed = [...currentCollapsed, groupId];
-    }
-    // We trigger a dummy update to persist settings via handleUpdate in App.tsx
-    // Since settings are passed in separately, we should ideally use a dedicated callback
-    // But TimelineProps doesn't have onUpdateSettings. I'll check App.tsx again.
-    // App.tsx uses handleUpdate(data), where data is the whole state.
-    // I might need to add onUpdateSettings to TimelineProps.
-  };
 
   const getAssetLayout = (asset: Asset, assetInitiatives: Initiative[]) => {
     const isOperating = !!resizing || !!moving;
@@ -1096,6 +1071,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const isCurrentTimeVisible = currentPos >= 0 && currentPos <= 100;
   const groupBy = settings.groupBy || 'asset';
 
+  if (timeColumns.length === 0) return null;
+
   return (
     <div id="timeline-visualiser" ref={timelineRef} className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden relative">
 
@@ -1186,9 +1163,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                 if (!source || !target) return null;
 
                 // Determine if same asset
-                const sourceInit = isMilestoneSource ? null : initiatives.find(i => i.id === dep.sourceId);
-                const targetInit = initiatives.find(i => i.id === dep.targetId);
-                const sameAsset = !isMilestoneSource && sourceInit && targetInit && sourceInit.assetId === targetInit.assetId;
+                const _sourceInit = isMilestoneSource ? null : initiatives.find(i => i.id === dep.sourceId);
+                const _targetInit = initiatives.find(i => i.id === dep.targetId);
 
                 const sStartX = source.x;
                 const sEndX = source.x + source.width;
@@ -1649,7 +1625,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                     initialEnd: init.endDate
                                   });
                                 }}
-                                onClick={(e) => {
+                                onClick={(_e) => {
                                   // Prevent clicking if we just finished a drag
                                   if (isDraggingRef.current) {
                                     isDraggingRef.current = false;
@@ -1910,7 +1886,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 const daysFromStart = Math.round(pct * totalDays);
                                 const newStart = format(addDays(startDate, daysFromStart), 'yyyy-MM-dd');
                                 const newEnd = format(addDays(startDate, daysFromStart + 90), 'yyyy-MM-dd');
-                                setCreatingSegmentParams({ applicationId: app.id, startDate: newStart, endDate: newEnd });
+                                setCreatingSegmentParams({ id: `seg-new-${segIdCounter.current++}`, applicationId: app.id, startDate: newStart, endDate: newEnd });
                                 setSelectedSegmentId(null);
                               }}
                             >
@@ -2021,7 +1997,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             ? localSegments.find(s => s.id === selectedSegmentId) || null
             : creatingSegmentParams
               ? {
-                  id: `seg-new-${Date.now()}`,
+                  id: creatingSegmentParams.id,
                   applicationId: creatingSegmentParams.applicationId,
                   startDate: creatingSegmentParams.startDate,
                   endDate: creatingSegmentParams.endDate,

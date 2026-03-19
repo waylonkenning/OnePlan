@@ -18,6 +18,45 @@ interface ReportsViewProps {
 
 type ReportSlug = 'version-history' | 'budget' | 'initiatives-dependencies' | 'capacity';
 
+function BackButton({ onBack }: { onBack: () => void }) {
+  return (
+    <button
+      data-testid="report-back-btn"
+      onClick={onBack}
+      className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-4"
+    >
+      <ChevronLeft size={16} />
+      All Reports
+    </button>
+  );
+}
+
+const fmt = (n: number) =>
+  n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}m` : n >= 1_000 ? `$${Math.round(n / 1_000)}k` : `$${n.toLocaleString()}`;
+
+function BudgetBar({ total, max, color }: { total: number; max: number; color?: string }) {
+  return (
+    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+      <div className={`h-full rounded-full ${color ?? 'bg-blue-500'}`} style={{ width: `${max > 0 ? Math.round((total / max) * 100) : 0}%` }} />
+    </div>
+  );
+}
+
+function BudgetSection({ testId, title, rows, max }: { testId: string; title: string; rows: { id: string; name: string; total: number; color?: string }[]; max: number }) {
+  return (
+    <div data-testid={testId} className="space-y-2">
+      <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{title}</h3>
+      {rows.map(row => (
+        <div key={row.id} data-testid={`budget-row-${testId.replace('budget-by-', '')}-${row.id}`} className="flex items-center gap-3">
+          <span className="text-sm text-slate-700 w-44 truncate flex-shrink-0">{row.name}</span>
+          <BudgetBar total={row.total} max={max} color={row.color} />
+          <span className="text-sm font-semibold text-slate-800 w-16 text-right flex-shrink-0">{fmt(row.total)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspectiveId: string): string {
   const isSource = src.id === perspectiveId;
   if (dep.type === 'blocks') {
@@ -36,13 +75,14 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
   const [diffResult, setDiffResult] = useState<DiffResult | null>(null);
-  const [versionsError, setVersionsError] = useState<string | null>(null);
+  const [versionsError, setVersionsError] = useState<string | null>(() =>
+    typeof localStorage !== 'undefined' && localStorage.getItem('scenia-test-versions-fail') === 'true'
+      ? 'Failed to load saved versions. Please try reloading.'
+      : null
+  );
 
   useEffect(() => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('scenia-test-versions-fail') === 'true') {
-      setVersionsError('Failed to load saved versions. Please try reloading.');
-      return;
-    }
+    if (versionsError) return;
     getAllVersions().then(loaded => {
       const sorted = loaded.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
       setVersions(sorted);
@@ -109,24 +149,12 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
     );
   }
 
-  // ── Report views ─────────────────────────────────────────────────────────────
-  const BackButton = () => (
-    <button
-      data-testid="report-back-btn"
-      onClick={() => setSelectedReport(null)}
-      className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-4"
-    >
-      <ChevronLeft size={16} />
-      All Reports
-    </button>
-  );
-
   // ── Version History ──────────────────────────────────────────────────────────
   if (selectedReport === 'version-history') {
     return (
       <div data-testid="report-view-version-history" className="h-full overflow-y-auto p-6 bg-slate-50">
         <div className="max-w-3xl mx-auto">
-          <BackButton />
+          <BackButton onBack={() => setSelectedReport(null)} />
           <div data-testid="report-history-diff" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
               <h2 className="text-base font-semibold text-slate-800">History Differences</h2>
@@ -255,9 +283,6 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
     const realInitiatives = initiatives.filter(i => !i.isPlaceholder);
     const grandTotal = realInitiatives.reduce((sum, i) => sum + (i.budget || 0), 0);
 
-    const fmt = (n: number) =>
-      n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}m` : n >= 1_000 ? `$${Math.round(n / 1_000)}k` : `$${n.toLocaleString()}`;
-
     const byProgramme = programmes
       .map(p => ({ id: p.id, name: p.name, color: p.color, total: realInitiatives.filter(i => i.programmeId === p.id).reduce((s, i) => s + (i.budget || 0), 0) }))
       .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
@@ -273,38 +298,19 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
       })
       .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
 
-    const BudgetBar = ({ total, max, color }: { total: number; max: number; color?: string }) => (
-      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${color ?? 'bg-blue-500'}`} style={{ width: `${max > 0 ? Math.round((total / max) * 100) : 0}%` }} />
-      </div>
-    );
-
-    const Section = ({ testId, title, rows, max }: { testId: string; title: string; rows: { id: string; name: string; total: number; color?: string }[]; max: number }) => (
-      <div data-testid={testId} className="space-y-2">
-        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{title}</h3>
-        {rows.map(row => (
-          <div key={row.id} data-testid={`budget-row-${testId.replace('budget-by-', '')}-${row.id}`} className="flex items-center gap-3">
-            <span className="text-sm text-slate-700 w-44 truncate flex-shrink-0">{row.name}</span>
-            <BudgetBar total={row.total} max={max} color={row.color} />
-            <span className="text-sm font-semibold text-slate-800 w-16 text-right flex-shrink-0">{fmt(row.total)}</span>
-          </div>
-        ))}
-      </div>
-    );
-
     return (
       <div data-testid="report-view-budget" className="h-full overflow-y-auto p-6 bg-slate-50">
         <div className="max-w-3xl mx-auto">
-          <BackButton />
+          <BackButton onBack={() => setSelectedReport(null)} />
           <div data-testid="report-budget-summary" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-base font-semibold text-slate-800">Budget Summary</h2>
               <span data-testid="budget-grand-total" className="text-sm font-bold text-slate-700">{fmt(grandTotal)} total</span>
             </div>
             <div className="p-4 space-y-6">
-              <Section testId="budget-by-programme" title="By Programme" rows={byProgramme} max={byProgramme[0]?.total ?? 0} />
-              <Section testId="budget-by-strategy" title="By Strategy" rows={byStrategy} max={byStrategy[0]?.total ?? 0} />
-              <Section testId="budget-by-category" title="By Category" rows={byCategory} max={byCategory[0]?.total ?? 0} />
+              <BudgetSection testId="budget-by-programme" title="By Programme" rows={byProgramme} max={byProgramme[0]?.total ?? 0} />
+              <BudgetSection testId="budget-by-strategy" title="By Strategy" rows={byStrategy} max={byStrategy[0]?.total ?? 0} />
+              <BudgetSection testId="budget-by-category" title="By Category" rows={byCategory} max={byCategory[0]?.total ?? 0} />
             </div>
           </div>
         </div>
@@ -319,7 +325,7 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
     return (
       <div data-testid="report-view-initiatives-dependencies" className="h-full overflow-y-auto p-6 bg-slate-50">
         <div className="max-w-3xl mx-auto space-y-6">
-          <BackButton />
+          <BackButton onBack={() => setSelectedReport(null)} />
           <div data-testid="report-dependencies">
             <h2 className="text-base font-semibold text-slate-800 mb-4">Initiatives &amp; Dependencies</h2>
             {assets.map(asset => {
@@ -394,7 +400,7 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
   return (
     <div data-testid="report-view-capacity" className="h-full overflow-y-auto p-6 bg-slate-50">
       <div className="max-w-3xl mx-auto">
-        <BackButton />
+        <BackButton onBack={() => setSelectedReport(null)} />
         <div data-testid="capacity-report" className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
             <h2 className="text-base font-semibold text-slate-800">Capacity Report</h2>

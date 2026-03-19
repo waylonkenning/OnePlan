@@ -35,16 +35,18 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
   const [pendingConfirm, setPendingConfirm] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
   const panelRef = useFocusTrap(isOpen, onClose);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadVersions();
-    }
-  }, [isOpen]);
-
   const loadVersions = async () => {
     const loaded = await getAllVersions();
     setVersions(loaded.sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      getAllVersions().then(loaded => {
+        setVersions(loaded.sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
+      });
+    }
+  }, [isOpen]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -338,15 +340,7 @@ export function VersionManager({ isOpen, onClose, onRestore, currentData }: Vers
   );
 }
 
-// Sub-component for the Report
-function VersionComparisonReport({ baseVersion, comparisonData, onClose }: { 
-  baseVersion: Version, 
-  comparisonData: Version['data'], 
-  onClose: () => void 
-}) {
-  const diff = useMemo(() => computeDiff(baseVersion, comparisonData), [baseVersion, comparisonData]);
-
-  const DiffSection = ({ title, data, icon: Icon, colorClass }: { title: string, data: any, icon: any, colorClass: string }) => {
+function DiffSection({ title, data, icon: Icon }: { title: string, data: any, icon: any, colorClass?: string }) {
     if (data.added.length === 0 && data.removed.length === 0 && data.modified.length === 0) return null;
 
     return (
@@ -393,7 +387,15 @@ function VersionComparisonReport({ baseVersion, comparisonData, onClose }: {
         </div>
       </div>
     );
-  };
+}
+
+// Sub-component for the Report
+function VersionComparisonReport({ baseVersion, comparisonData, onClose }: {
+  baseVersion: Version,
+  comparisonData: Version['data'],
+  onClose: () => void
+}) {
+  const diff = useMemo(() => computeDiff(baseVersion, comparisonData), [baseVersion, comparisonData]);
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-6">

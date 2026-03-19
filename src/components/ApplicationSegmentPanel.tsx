@@ -34,9 +34,11 @@ export function ApplicationSegmentPanel({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const panelRef = useFocusTrap(isOpen, onClose);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (segment) setFormData({ ...segment });
   }, [segment]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!isOpen || !formData) return null;
 
