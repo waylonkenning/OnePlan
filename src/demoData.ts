@@ -1,4 +1,4 @@
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
+import { Asset, Application, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
 
 /**
  * Returns a date string (YYYY-MM-DD) relative to the current calendar year.
@@ -71,6 +71,20 @@ export const demoAssets: Asset[] = [
     // Integration & APIs
     { id: 'a-apigw', name: 'API Gateway', categoryId: 'cat-int' },
     { id: 'a-esb', name: 'Enterprise Service Bus', categoryId: 'cat-int' },
+];
+
+export const demoApplications: Application[] = [
+    // Customer IAM (CIAM) — a-ciam
+    { id: 'app-okta', assetId: 'a-ciam', name: 'Okta', status: 'in-production' },
+    { id: 'app-azuread', assetId: 'a-ciam', name: 'Azure AD B2C', status: 'sunset' },
+    { id: 'app-keycloak', assetId: 'a-ciam', name: 'Keycloak', status: 'planned' },
+    // Internet Banking — a-web
+    { id: 'app-angular', assetId: 'a-web', name: 'Angular Frontend', status: 'in-production' },
+    { id: 'app-bff', assetId: 'a-web', name: 'BFF Service', status: 'in-production' },
+    // Mobile Banking App — a-mobile
+    { id: 'app-ios', assetId: 'a-mobile', name: 'iOS App', status: 'in-production' },
+    { id: 'app-android', assetId: 'a-mobile', name: 'Android App', status: 'in-production' },
+    { id: 'app-rn', assetId: 'a-mobile', name: 'React Native Shell', status: 'funded' },
 ];
 
 export const demoInitiatives: Initiative[] = [

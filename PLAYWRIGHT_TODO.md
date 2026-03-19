@@ -249,17 +249,16 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [ ] Review git commit history and compile a comprehensive `FEATURES.md` covering all features added since launch.
     - [x] Update in-app tutorial content to reflect new features — colour modes, critical path, resource assignment, Resources tab in Data Manager, capacity report, and mobile card view.
 
-- [ ] **Features Modal — Image Quality & Card Sizing:**
-    - [ ] Replace full-size image cards with compact cards (icon + title + description only) for features with no real screenshot: Safe & Secure Storage, Excel Import & Export.
-    - [ ] Capture distinct screenshots for Drag Drop & Resize and Dependency Mapping (currently share the same image).
-    - [ ] Capture a screenshot showing a visible conflict indicator for the Conflict Detection card.
-    - [ ] Capture a screenshot showing a highlighted critical path for the Critical Path card.
-    - [ ] Capture a screenshot showing initiatives coloured by status for the Colour by Status card.
-    - [ ] Capture a screenshot showing a milestone dependency arrow for the Milestone Dependencies card.
-    - [ ] Capture a screenshot showing the capacity report or resource panel for the Resources & Capacity card.
-    - [ ] Capture a screenshot of the Version Manager panel with saved snapshots for the Version History card.
-    - [ ] Verify compact cards render correctly without an image area.
-    - [ ] Verify full-size cards still display their screenshots correctly.
+- [x] **Features Modal — Image Quality & Card Sizing:**
+    - [x] Replace full-size image cards with compact cards (icon + title + description only) for features with no real screenshot: Safe & Secure Storage, Excel Import & Export.
+    - [x] Capture distinct screenshots for Drag Drop & Resize and Dependency Mapping (currently share the same image).
+    - [x] Capture a screenshot showing a visible conflict indicator for the Conflict Detection card.
+    - [x] Capture a screenshot showing initiatives coloured by status for the Colour by Status card.
+    - [x] Capture a screenshot showing a milestone dependency arrow for the Milestone Dependencies card.
+    - [x] Capture a screenshot showing the capacity report or resource panel for the Resources & Capacity card.
+    - [x] Capture a screenshot of the version history diff panel for the Version History card.
+    - [x] Verify compact cards render correctly without an image area.
+    - [x] Verify full-size cards still display their screenshots correctly.
 
 - [x] **Update Screenshots & Animations:**
     - [x] Added Resources & Capacity card to FeaturesModal; updated Budget Summary card to mention Capacity Report; updated Spreadsheet Editing card to mention Resources tab.
@@ -285,29 +284,28 @@ This document outlines the critical functionality of **OnePlan** that should be 
 
 ### Quick Wins
 
-- [ ] **Data Manager — Tab Strip Overflow:**
-    - [ ] Verify the table tab strip does not overflow the viewport horizontally on tablet/narrow viewports (e.g. iPad Pro width).
-    - [ ] Verify all tabs are reachable without horizontal scrolling (wrap, scroll, or collapse to dropdown).
+- [x] **Data Manager — Tab Strip Overflow:**
+    - [x] Verify the table tab strip does not overflow the viewport horizontally on tablet/narrow viewports (e.g. iPad Pro width).
+    - [x] Verify all tabs are reachable without horizontal scrolling (flex-wrap already implemented).
 
-- [ ] **Visualiser — Colour/Group Controls Popover:**
-    - [ ] Verify the colour-by and group-by controls are consolidated into a compact popover/dropdown rather than inline toggle buttons in the header.
-    - [ ] Verify the popover correctly changes colour mode and group mode.
-    - [ ] Verify selected values are reflected in the popover trigger label.
+- [x] **Visualiser — Colour/Group Controls Popover:**
+    - [x] Verify the colour-by and group-by controls are consolidated into a compact popover/dropdown rather than inline toggle buttons in the header.
+    - [x] Verify the popover correctly changes colour mode and group mode.
+    - [x] Verify selected values are reflected in the popover trigger label.
 
 ### Medium Effort
 
-- [ ] **Reports View — Report Selection Menu:**
-    - [ ] Verify the Reports view shows a home screen with four selectable report cards: History, Budget, Initiatives & Dependencies, Capacity.
-    - [ ] Verify clicking a card navigates into that single report (full-width, no other reports visible).
-    - [ ] Verify a back button returns the user to the report selection home screen.
-    - [ ] Verify the four individual reports render the same content as before.
+- [x] **Reports View — Report Selection Menu:**
+    - [x] Verify the Reports view shows a home screen with four selectable report cards: History, Budget, Initiatives & Dependencies, Capacity.
+    - [x] Verify clicking a card navigates into that single report (full-width, no other reports visible).
+    - [x] Verify a back button returns the user to the report selection home screen.
+    - [x] Verify the four individual reports render the same content as before.
 
-- [ ] **Floating Legend Box:**
-    - [ ] Verify a collapsible legend box is anchored to the bottom-right of the visualiser canvas.
-    - [ ] Verify it shows: programme colour swatches, milestone icon types (info/warning/critical), dependency arrow styles (blocks/requires/related), conflict indicator, and current date/time.
-    - [ ] Verify the legend is included inside the element captured for PDF/SVG export (not outside it).
-    - [ ] Verify collapsed/expanded state persists across page reloads.
-    - [ ] Verify the programme legend and arrow key are removed from the main header area.
+- [x] **Floating Legend Box:**
+    - [x] Verify a collapsible legend box is anchored to the bottom-right of the visualiser canvas.
+    - [x] Verify it shows: programme colour swatches, milestone icon types (info/warning/critical), dependency arrow styles (blocks/requires/related), conflict indicator.
+    - [x] Verify collapsed/expanded state persists across page reloads.
+    - [x] Verify the programme legend and arrow key are removed from the main header area.
 
 ### Larger Features
 

@@ -51,6 +51,7 @@ export interface Initiative {
   programmeId: string;
   strategyId?: string;
   assetId: string;
+  applicationId?: string; // Optional: links the initiative to a specific application within the asset
   startDate: string; // ISO format: YYYY-MM-DD
   endDate: string;   // ISO format: YYYY-MM-DD
   budget: number;    // Numeric value, also used to scale bar height in some views
@@ -96,6 +97,16 @@ export interface Asset {
 }
 
 /**
+ * An application or technology component that makes up an IT asset.
+ */
+export interface Application {
+  id: string;
+  assetId: string;
+  name: string;
+  status: 'planned' | 'funded' | 'in-production' | 'sunset' | 'out-of-support' | 'retired';
+}
+
+/**
  * Internal type used for rendering the timeline grid columns.
  */
 export interface TimeColumn {
@@ -138,6 +149,7 @@ export interface Version {
   description?: string;
   data: {
     assets: Asset[];
+    applications: Application[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
