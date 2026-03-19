@@ -22,12 +22,11 @@ test.describe('Applications — Data Manager tab', () => {
     await expect(page.getByTestId('data-manager-tab-applications')).toBeVisible();
   });
 
-  test('Applications tab shows Name, Asset and Status columns', async ({ page }) => {
+  test('Applications tab shows Name and Asset columns', async ({ page }) => {
     await page.getByTestId('data-manager-tab-applications').click();
     const table = page.getByTestId('data-manager');
     await expect(table.locator('th').filter({ hasText: 'Name' })).toBeVisible();
     await expect(table.locator('th').filter({ hasText: 'Asset' })).toBeVisible();
-    await expect(table.locator('th').filter({ hasText: 'Status' })).toBeVisible();
   });
 
   test('Applications tab shows demo application rows', async ({ page }) => {
@@ -46,37 +45,13 @@ test.describe('Applications — Data Manager tab', () => {
     expect(newCount).toBe(initialCount + 1);
   });
 
-  test('can edit an application status inline', async ({ page }) => {
+  test('can open an application name for editing', async ({ page }) => {
     await page.getByTestId('data-manager-tab-applications').click();
-    // Find the status select using the data-key attribute on the td
-    const statusSelect = page.locator('[data-testid="data-manager"] tbody tr:not(.ghost-row) td[data-key="status"] select').first();
-    await expect(statusSelect).toBeVisible();
-    await statusSelect.selectOption('sunset');
-    await expect(statusSelect).toHaveValue('sunset');
-  });
-
-  test('application status persists after reload', async ({ page }) => {
-    await page.getByTestId('data-manager-tab-applications').click();
-
-    // Find the first application row (tr[data-id] excludes ghost rows which have no data-id)
-    const firstRow = page.locator('[data-testid="data-manager"] tbody tr[data-id]').first();
-    const rowId = await firstRow.getAttribute('data-id');
-    const statusSelect = firstRow.locator('td[data-key="status"] select');
-    await statusSelect.selectOption('funded');
-
-    // Wait for the async IndexedDB save to complete before reloading
-    await page.waitForTimeout(1000);
-
-    await page.reload();
-    await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
-
-    await page.getByTestId('nav-data-manager').click();
-    await page.getByTestId('data-manager-tab-applications').click();
-
-    // After reload, IndexedDB returns records sorted by key — find the same row by its data-id
-    const rowAfter = page.locator(`[data-testid="data-manager"] tbody tr[data-id="${rowId}"]`);
-    const statusSelectAfter = rowAfter.locator('td[data-key="status"] select');
-    await expect(statusSelectAfter).toHaveValue('funded');
+    // Double-clicking the name cell should open an inline text input
+    const nameCell = page.locator('[data-testid="data-manager"] tbody tr:not(.ghost-row) td[data-key="name"]').first();
+    await nameCell.dblclick();
+    const nameInput = nameCell.locator('input');
+    await expect(nameInput).toBeVisible();
   });
 });
 
@@ -176,45 +151,34 @@ test.describe('Applications — Visualiser sub-rows', () => {
     expect(text?.trim().length).toBeGreaterThan(0);
   });
 
-  test('application sub-row shows a status badge', async ({ page }) => {
+  test('application sub-row shows lifecycle segment bars from demo data', async ({ page }) => {
+    // Demo data includes segments for each application; at least one bar should be visible
     const appRow = page.locator('[data-testid^="application-row-"]').first();
     await expect(appRow).toBeVisible();
-    await expect(appRow.locator('[data-testid="application-status-badge"]')).toBeVisible();
+    const segmentBar = appRow.locator('[data-testid^="segment-bar-"]').first();
+    await expect(segmentBar).toBeVisible();
   });
 
-  test('initiatives linked to an application render inside its sub-row', async ({ page }) => {
-    // Link the passkey initiative to a CIAM application via Data Manager setup
-    // First, get the first application id from the a-ciam asset via data manager
-    await page.getByTestId('nav-data-manager').click();
-    await page.getByTestId('data-manager-tab-applications').click();
+  test('initiatives linked to an application remain visible at the asset level', async ({ page }) => {
+    // Link i-ciam-passkey to an application and verify it still renders in the asset row
+    await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+    const panel = page.getByTestId('initiative-panel');
+    await expect(panel).toBeVisible();
 
-    // Read the first application row's name to know which one is linked to a-ciam
-    const firstRow = page.locator('[data-testid="data-manager"] tbody tr:not(.ghost-row)').first();
-    const appIdCell = await firstRow.getAttribute('data-row-id');
+    const appDropdown = panel.locator('[data-testid="initiative-application"]');
+    const allOptions = await appDropdown.locator('option').all();
+    const nonBlankOptions = [];
+    for (const opt of allOptions) {
+      const val = await opt.getAttribute('value');
+      if (val) nonBlankOptions.push(val);
+    }
+    if (nonBlankOptions.length > 0) {
+      await appDropdown.selectOption(nonBlankOptions[0]);
+      await panel.getByRole('button', { name: 'Save Changes' }).click();
+      await expect(panel).toBeHidden();
 
-    if (appIdCell) {
-      // Link i-ciam-passkey to this application
-      await page.getByTestId('nav-visualiser').click();
-      await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 10000 });
-      await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
-      const panel = page.getByTestId('initiative-panel');
-      await expect(panel).toBeVisible();
-
-      const appDropdown = panel.locator('[data-testid="initiative-application"]');
-      const appOptions = await appDropdown.locator('option[value!=""]').all();
-      if (appOptions.length > 0) {
-        const firstAppValue = await appOptions[0].getAttribute('value');
-        if (firstAppValue) {
-          await appDropdown.selectOption(firstAppValue);
-          await panel.getByRole('button', { name: 'Save Changes' }).click();
-          await expect(panel).toBeHidden();
-
-          // The initiative bar should now appear inside an application sub-row
-          const appSubRow = page.locator(`[data-testid="application-row-${firstAppValue}"]`);
-          await expect(appSubRow).toBeVisible();
-          await expect(appSubRow.locator('[data-initiative-id="i-ciam-passkey"]')).toBeVisible();
-        }
-      }
+      // The initiative bar should still appear in the main timeline (at asset level)
+      await expect(page.locator('[data-initiative-id="i-ciam-passkey"]').first()).toBeVisible();
     }
   });
 

@@ -1,4 +1,4 @@
-import { Asset, Application, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
+import { Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
 
 /**
  * Returns a date string (YYYY-MM-DD) relative to the current calendar year.
@@ -75,16 +75,42 @@ export const demoAssets: Asset[] = [
 
 export const demoApplications: Application[] = [
     // Customer IAM (CIAM) — a-ciam
-    { id: 'app-okta', assetId: 'a-ciam', name: 'Okta', status: 'in-production' },
-    { id: 'app-azuread', assetId: 'a-ciam', name: 'Azure AD B2C', status: 'sunset' },
-    { id: 'app-keycloak', assetId: 'a-ciam', name: 'Keycloak', status: 'planned' },
+    { id: 'app-okta', assetId: 'a-ciam', name: 'Okta' },
+    { id: 'app-azuread', assetId: 'a-ciam', name: 'Azure AD B2C' },
+    { id: 'app-keycloak', assetId: 'a-ciam', name: 'Keycloak' },
     // Internet Banking — a-web
-    { id: 'app-angular', assetId: 'a-web', name: 'Angular Frontend', status: 'in-production' },
-    { id: 'app-bff', assetId: 'a-web', name: 'BFF Service', status: 'in-production' },
+    { id: 'app-angular', assetId: 'a-web', name: 'Angular Frontend' },
+    { id: 'app-bff', assetId: 'a-web', name: 'BFF Service' },
     // Mobile Banking App — a-mobile
-    { id: 'app-ios', assetId: 'a-mobile', name: 'iOS App', status: 'in-production' },
-    { id: 'app-android', assetId: 'a-mobile', name: 'Android App', status: 'in-production' },
-    { id: 'app-rn', assetId: 'a-mobile', name: 'React Native Shell', status: 'funded' },
+    { id: 'app-ios', assetId: 'a-mobile', name: 'iOS App' },
+    { id: 'app-android', assetId: 'a-mobile', name: 'Android App' },
+    { id: 'app-rn', assetId: 'a-mobile', name: 'React Native Shell' },
+];
+
+export const demoApplicationSegments: ApplicationSegment[] = [
+    // Okta — in production across the full visible range
+    { id: 'seg-okta-prod', applicationId: 'app-okta', status: 'in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
+    // Azure AD B2C — in production, then sunset as CIAM migrates to Okta
+    { id: 'seg-azuread-prod', applicationId: 'app-azuread', status: 'in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 6, 30) },
+    { id: 'seg-azuread-sunset', applicationId: 'app-azuread', status: 'sunset', startDate: relDate(0, 7, 1), endDate: relDate(1, 6, 30) },
+    { id: 'seg-azuread-oos', applicationId: 'app-azuread', status: 'out-of-support', startDate: relDate(1, 7, 1), endDate: relDate(2, 6, 30) },
+    // Keycloak — planned then funded as a potential alternative
+    { id: 'seg-keycloak-planned', applicationId: 'app-keycloak', status: 'planned', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30) },
+    { id: 'seg-keycloak-funded', applicationId: 'app-keycloak', status: 'funded', startDate: relDate(0, 10, 1), endDate: relDate(1, 12, 31) },
+    // Angular Frontend — long-running in production
+    { id: 'seg-angular-prod', applicationId: 'app-angular', status: 'in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
+    // BFF Service — in production, moving to sunset as architecture evolves
+    { id: 'seg-bff-prod', applicationId: 'app-bff', status: 'in-production', startDate: relDate(-1, 1, 1), endDate: relDate(1, 6, 30) },
+    { id: 'seg-bff-sunset', applicationId: 'app-bff', status: 'sunset', startDate: relDate(1, 7, 1), endDate: relDate(2, 12, 31) },
+    // iOS App — in production, then eventual React Native consolidation
+    { id: 'seg-ios-prod', applicationId: 'app-ios', status: 'in-production', startDate: relDate(-1, 1, 1), endDate: relDate(1, 6, 30) },
+    { id: 'seg-ios-sunset', applicationId: 'app-ios', status: 'sunset', startDate: relDate(1, 7, 1), endDate: relDate(2, 6, 30) },
+    // Android App — in production throughout
+    { id: 'seg-android-prod', applicationId: 'app-android', status: 'in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
+    // React Native Shell — planned, funded, then in production as consolidation succeeds
+    { id: 'seg-rn-planned', applicationId: 'app-rn', status: 'planned', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30) },
+    { id: 'seg-rn-funded', applicationId: 'app-rn', status: 'funded', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31) },
+    { id: 'seg-rn-prod', applicationId: 'app-rn', status: 'in-production', startDate: relDate(1, 4, 1), endDate: relDate(2, 12, 31) },
 ];
 
 export const demoInitiatives: Initiative[] = [

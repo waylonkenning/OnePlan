@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { useMediaQuery } from '../lib/useMediaQuery';
-import { Asset, Application, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth, endOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
+import { ApplicationSegmentPanel } from './ApplicationSegmentPanel';
 import { DependencyPanel } from './DependencyPanel';
 import { ArrowDisambiguator } from './ArrowDisambiguator';
 import { computeCriticalPath } from '../lib/criticalPath';
@@ -28,12 +29,15 @@ interface TimelineProps {
   onDeleteInitiative?: (initiative: Initiative) => void;
   onUpdateSettings?: (settings: TimelineSettings) => void;
   searchQuery?: string;
+  applicationSegments?: ApplicationSegment[];
+  onSaveApplicationSegment?: (segment: ApplicationSegment) => void;
+  onDeleteApplicationSegment?: (segment: ApplicationSegment) => void;
 }
 
 const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
 const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
-export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery }: TimelineProps) {
+export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment }: TimelineProps) {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
 
@@ -45,6 +49,25 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     done: 'bg-emerald-500',
     cancelled: 'bg-red-400',
   };
+
+  const SEGMENT_COLORS: Record<string, string> = {
+    planned:        'bg-slate-400',
+    funded:         'bg-blue-400',
+    'in-production':'bg-emerald-500',
+    sunset:         'bg-amber-500',
+    'out-of-support':'bg-orange-500',
+    retired:        'bg-slate-300',
+  };
+  const SEGMENT_LABELS: Record<string, string> = {
+    planned:        'Planned',
+    funded:         'Funded',
+    'in-production':'In Production',
+    sunset:         'Sunset',
+    'out-of-support':'Out of Support',
+    retired:        'Retired',
+  };
+  const SEG_BAR_HEIGHT = 36;
+  const SEG_ROW_HEIGHT = 52;
   const STATUS_LABELS: Record<string, string> = {
     planned: 'Planned',
     active: 'Active',
@@ -63,6 +86,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
   const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialY: number; initialDate: string } | null>(null);
   const [movingDependency, setMovingDependency] = useState<{ id: string; initialX: number; initialOffset: number } | null>(null);
+  const [localSegments, setLocalSegments] = useState<ApplicationSegment[]>(applicationSegmentsProp);
+  const [movingSegment, setMovingSegment] = useState<{ id: string; initialX: number; initialStart: string; initialEnd: string } | null>(null);
+  const [resizingSegment, setResizingSegment] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
+  const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
+  const [creatingSegmentParams, setCreatingSegmentParams] = useState<{ applicationId: string; startDate: string; endDate: string } | null>(null);
   const [drawingDependency, setDrawingDependency] = useState<{
     sourceId: string;
     sourceType: 'initiative' | 'milestone';
@@ -220,6 +248,12 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       setLocalInitiatives(filteredInitiatives);
     }
   }, [filteredInitiatives, resizing, moving]);
+
+  useEffect(() => {
+    if (!movingSegment && !resizingSegment) {
+      setLocalSegments(applicationSegmentsProp);
+    }
+  }, [applicationSegmentsProp, movingSegment, resizingSegment]);
 
   useEffect(() => {
     if (!movingMilestone) {
@@ -609,6 +643,37 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             d.id === movingDependency.id ? { ...d, midXOffset: newOffset } : d
           ));
         }
+      } else if (resizingSegment) {
+        const deltaX = e.clientX - resizingSegment.initialX;
+        if (Math.abs(deltaX) > 3) isDraggingRef.current = true;
+        const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
+        const seg = localSegments.find(s => s.id === resizingSegment.id);
+        if (!seg) return;
+        const rawNewDate = addDays(parseISO(resizingSegment.initialDate), deltaDays);
+        const snappedDate = settings.snapToPeriod === 'month'
+          ? (resizingSegment.edge === 'start' ? startOfMonth(rawNewDate) : lastDayOfMonth(rawNewDate))
+          : rawNewDate;
+        const newDate = format(snappedDate, 'yyyy-MM-dd');
+        setLocalSegments(localSegments.map(s => {
+          if (s.id !== resizingSegment.id) return s;
+          if (resizingSegment.edge === 'start') return newDate < s.endDate ? { ...s, startDate: newDate } : s;
+          return newDate > s.startDate ? { ...s, endDate: newDate } : s;
+        }));
+      } else if (movingSegment) {
+        const deltaX = e.clientX - movingSegment.initialX;
+        if (Math.abs(deltaX) > 3) isDraggingRef.current = true;
+        if (Math.abs(deltaX) > 5) {
+          const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
+          setLocalSegments(localSegments.map(s => {
+            if (s.id !== movingSegment.id) return s;
+            const rawStart = addDays(parseISO(movingSegment.initialStart), deltaDays);
+            const snappedStart = settings.snapToPeriod === 'month' ? startOfMonth(rawStart) : rawStart;
+            const actualDelta = differenceInDays(snappedStart, parseISO(movingSegment.initialStart));
+            const rawEnd = addDays(parseISO(movingSegment.initialEnd), actualDelta);
+            const snappedEnd = settings.snapToPeriod === 'month' ? lastDayOfMonth(rawEnd) : rawEnd;
+            return { ...s, startDate: format(snappedStart, 'yyyy-MM-dd'), endDate: format(snappedEnd, 'yyyy-MM-dd') };
+          }));
+        }
       }
     };
 
@@ -657,15 +722,24 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
           onUpdateDependencies([...dependencies, newDependency]);
         }
       }
+      if (resizingSegment && onSaveApplicationSegment) {
+        const updated = localSegments.find(s => s.id === resizingSegment.id);
+        if (updated) onSaveApplicationSegment(updated);
+      } else if (movingSegment && onSaveApplicationSegment) {
+        const updated = localSegments.find(s => s.id === movingSegment.id);
+        if (updated) onSaveApplicationSegment(updated);
+      }
       setResizing(null);
       setMoving(null);
       setMovingMilestone(null);
       setMovingDependency(null);
       setDrawingDependency(null);
       setDraggingCategory(null);
+      setResizingSegment(null);
+      setMovingSegment(null);
     };
 
-    if (resizing || moving || movingMilestone || drawingDependency || movingDependency) {
+    if (resizing || moving || movingMilestone || drawingDependency || movingDependency || resizingSegment || movingSegment) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     }
@@ -674,7 +748,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, localInitiatives, localMilestones, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, dependencies, initiativePositions, milestonePositions]);
+  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, resizingSegment, movingSegment, localInitiatives, localMilestones, localSegments, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, onSaveApplicationSegment, dependencies, initiativePositions, milestonePositions]);
 
   const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
     setDraggingCategory(category);
@@ -1495,8 +1569,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                   {!isCollapsed && categoryAssets.map(asset => {
                     const allAssetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
                     const assetApplications = applications.filter(a => a.assetId === asset.id);
-                    // Initiatives with no applicationId render at the asset level
-                    const assetLevelInitiatives = allAssetInitiatives.filter(i => !i.applicationId);
+                    // All initiatives render at the asset level; applicationId is metadata only
+                    const assetLevelInitiatives = allAssetInitiatives;
                     const assetMilestones = milestones.filter(m => m.assetId === asset.id);
                     const conflictPoints = getConflictPoints(asset.id);
                     const { items: layoutItems, height: rowHeight } = getAssetLayout(asset, assetLevelInitiatives);
@@ -1800,26 +1874,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
 
                       {/* Application sub-rows — one per application belonging to this asset */}
                       {assetApplications.map(app => {
-                        const appInitiatives = allAssetInitiatives.filter(i => i.applicationId === app.id);
-                        // Use layoutAsset directly (not getAssetLayout) to avoid polluting the asset-level
-                        // stable layout cache (which is keyed by asset.id and used during drag operations)
-                        const { items: appLayoutItems, height: appRowHeight } = layoutAsset(appInitiatives);
-                        const APP_STATUS_COLORS: Record<string, string> = {
-                          'planned': 'bg-slate-100 text-slate-600',
-                          'funded': 'bg-blue-100 text-blue-700',
-                          'in-production': 'bg-emerald-100 text-emerald-700',
-                          'sunset': 'bg-amber-100 text-amber-700',
-                          'out-of-support': 'bg-orange-100 text-orange-700',
-                          'retired': 'bg-slate-100 text-slate-400',
-                        };
-                        const APP_STATUS_LABELS: Record<string, string> = {
-                          'planned': 'Planned',
-                          'funded': 'Funded',
-                          'in-production': 'In Production',
-                          'sunset': 'Sunset',
-                          'out-of-support': 'Out of Support',
-                          'retired': 'Retired',
-                        };
+                        const appSegments = localSegments.filter(s => s.applicationId === app.id);
                         return (
                           <div
                             key={app.id}
@@ -1828,34 +1883,36 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                           >
                             {/* Application Sidebar */}
                             <div
-                              className="sticky left-0 flex-shrink-0 px-3 py-2 border-r border-slate-100 bg-slate-50/80 z-30 flex flex-col justify-center"
-                              style={{ height: appRowHeight, width: SIDEBAR_WIDTH }}
+                              className="sticky left-0 flex-shrink-0 px-3 border-r border-slate-100 bg-slate-50/80 z-30 flex items-center"
+                              style={{ height: SEG_ROW_HEIGHT, width: SIDEBAR_WIDTH }}
                             >
                               <div className="flex items-center gap-1.5 pl-4 min-w-0">
                                 <div className="w-1.5 h-1.5 rounded-full bg-slate-300 flex-shrink-0" />
                                 <div
                                   data-testid="application-row-label"
-                                  className="text-sm font-medium text-slate-700 truncate min-w-0"
+                                  className="text-xs font-medium text-slate-600 truncate min-w-0"
                                 >
                                   {app.name}
                                 </div>
                               </div>
-                              <div className="pl-4 mt-1">
-                                <span
-                                  data-testid="application-status-badge"
-                                  className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${APP_STATUS_COLORS[app.status] || 'bg-slate-100 text-slate-500'}`}
-                                >
-                                  {APP_STATUS_LABELS[app.status] || app.status}
-                                </span>
-                              </div>
                             </div>
 
-                            {/* Application Row Content */}
+                            {/* Application Row Content — lifecycle segments */}
                             <div
                               data-testid="application-row-content"
                               className="relative flex-shrink-0 bg-slate-50/30"
-                              style={{ width: totalWidth, height: appRowHeight }}
-                              onDoubleClick={(e) => handleRowDoubleClick(e, asset.id)}
+                              style={{ width: totalWidth, height: SEG_ROW_HEIGHT }}
+                              onDoubleClick={(e) => {
+                                if (!onSaveApplicationSegment) return;
+                                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                const offsetX = e.clientX - rect.left;
+                                const pct = offsetX / totalWidth;
+                                const daysFromStart = Math.round(pct * totalDays);
+                                const newStart = format(addDays(startDate, daysFromStart), 'yyyy-MM-dd');
+                                const newEnd = format(addDays(startDate, daysFromStart + 90), 'yyyy-MM-dd');
+                                setCreatingSegmentParams({ applicationId: app.id, startDate: newStart, endDate: newEnd });
+                                setSelectedSegmentId(null);
+                              }}
                             >
                               <div className="absolute inset-0 flex pointer-events-none">
                                 {timeColumns.map((col, idx) => (
@@ -1863,80 +1920,37 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 ))}
                               </div>
 
-                              {appLayoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
-                                const prog = programmes.find(p => p.id === init.programmeId);
-                                const strat = strategies.find(s => s.id === init.strategyId);
-                                const colorClass = colorBy === 'status'
-                                  ? (STATUS_COLORS[init.status || 'planned'])
-                                  : colorBy === 'programme'
-                                  ? (prog?.color || 'bg-slate-500')
-                                  : (strat?.color || 'bg-slate-400');
-                                const subtitle = colorBy === 'status'
-                                  ? STATUS_LABELS[init.status || 'planned']
-                                  : isGroup
-                                  ? (colorBy === 'programme' ? groupProgrammeNames : groupStrategyNames)
-                                  : (colorBy === 'programme' ? prog?.name : strat?.name);
-
-                                if (left + width < 0 || left > 100) return null;
-
-                                const isOnCriticalPath = criticalPathInitIds.has(init.id);
-
+                              {appSegments.map(seg => {
+                                const segLeft = (differenceInDays(parseISO(seg.startDate), startDate) / totalDays) * 100;
+                                const segWidth = (differenceInDays(parseISO(seg.endDate), parseISO(seg.startDate)) / totalDays) * 100;
+                                if (segLeft + segWidth < 0 || segLeft > 100) return null;
+                                const colorClass = SEGMENT_COLORS[seg.status] || 'bg-slate-400';
+                                const displayLabel = seg.label || SEGMENT_LABELS[seg.status];
                                 return (
                                   <div
-                                    key={init.id}
-                                    data-initiative-id={init.id}
-                                    data-critical-path={isOnCriticalPath ? 'true' : 'false'}
-                                    data-testid={isGroup ? "project-group-bar" : "initiative-bar"}
+                                    key={seg.id}
+                                    data-testid={`segment-bar-${seg.id}`}
                                     onMouseDown={(e) => {
                                       isDraggingRef.current = false;
-                                      setMoving({
-                                        id: init.id,
-                                        initialX: e.clientX,
-                                        initialY: e.clientY,
-                                        initialStart: init.startDate,
-                                        initialEnd: init.endDate
-                                      });
+                                      setMovingSegment({ id: seg.id, initialX: e.clientX, initialStart: seg.startDate, initialEnd: seg.endDate });
                                     }}
-                                    onClick={(e) => {
-                                      if (isDraggingRef.current) {
-                                        isDraggingRef.current = false;
-                                        return;
-                                      }
-                                      setSelectedInitiativeId(init.id);
+                                    onClick={() => {
+                                      if (isDraggingRef.current) { isDraggingRef.current = false; return; }
+                                      setSelectedSegmentId(seg.id);
+                                      setCreatingSegmentParams(null);
                                     }}
                                     className={cn(
-                                      "absolute rounded-md shadow-sm cursor-pointer transition-shadow select-none overflow-hidden group/bar",
-                                      colorClass,
-                                      "hover:shadow-md hover:z-10",
-                                      isOnCriticalPath && "ring-2 ring-offset-1 ring-rose-500",
-                                      !isMobile && "hover:z-20"
+                                      "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none group/seg",
+                                      colorClass, "text-white"
                                     )}
-                                    style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
-                                    title={init.name}
+                                    style={{ left: `${segLeft}%`, width: `${Math.max(segWidth, 0.5)}%`, height: SEG_BAR_HEIGHT, top: (SEG_ROW_HEIGHT - SEG_BAR_HEIGHT) / 2 }}
+                                    title={`${displayLabel}\n${seg.startDate} → ${seg.endDate}`}
                                   >
-                                    {init.progress !== undefined && init.progress > 0 && (
-                                      <div
-                                        data-testid="progress-overlay"
-                                        className="absolute inset-y-0 left-0 bg-black/10 rounded-l-md"
-                                        style={{ width: `${Math.min(100, init.progress)}%` }}
-                                      />
-                                    )}
-                                    {!isMobile && (
-                                      <>
-                                        <div className="absolute inset-y-0 left-0 w-2 cursor-ew-resize opacity-0 group-hover/bar:opacity-100 hover:bg-black/10 rounded-l-md transition-opacity"
-                                          onMouseDown={(e) => { e.stopPropagation(); setResizing({ id: init.id, edge: 'start', initialX: e.clientX, initialDate: init.startDate }); }} />
-                                        <div className="absolute inset-y-0 right-0 w-2 cursor-ew-resize opacity-0 group-hover/bar:opacity-100 hover:bg-black/10 rounded-r-md transition-opacity"
-                                          onMouseDown={(e) => { e.stopPropagation(); setResizing({ id: init.id, edge: 'end', initialX: e.clientX, initialDate: init.endDate }); }} />
-                                      </>
-                                    )}
-                                    <div className="px-2 py-1 h-full flex flex-col justify-center pointer-events-none overflow-hidden">
-                                      <div className="flex items-center gap-1.5 min-w-0">
-                                        <span className="text-xs font-semibold text-white/95 truncate leading-tight">{init.name}</span>
-                                      </div>
-                                      {subtitle && (
-                                        <span className="text-[10px] text-white/70 truncate leading-tight">{subtitle}</span>
-                                      )}
-                                    </div>
+                                    <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10"
+                                      onMouseDown={(e) => { e.stopPropagation(); setResizingSegment({ id: seg.id, edge: 'start', initialX: e.clientX, initialDate: seg.startDate }); }} />
+                                    <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10"
+                                      onMouseDown={(e) => { e.stopPropagation(); setResizingSegment({ id: seg.id, edge: 'end', initialX: e.clientX, initialDate: seg.endDate }); }} />
+                                    <div className="font-bold text-[11px] leading-tight truncate drop-shadow-md">{displayLabel}</div>
                                   </div>
                                 );
                               })}
@@ -1997,6 +2011,40 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
           if (onDeleteInitiative) onDeleteInitiative(initiative);
           setSelectedInitiativeId(null);
           setCreatingInitiativeParams(null);
+        }}
+      />
+
+      <ApplicationSegmentPanel
+        isOpen={selectedSegmentId !== null || creatingSegmentParams !== null}
+        segment={
+          selectedSegmentId
+            ? localSegments.find(s => s.id === selectedSegmentId) || null
+            : creatingSegmentParams
+              ? {
+                  id: `seg-new-${Date.now()}`,
+                  applicationId: creatingSegmentParams.applicationId,
+                  startDate: creatingSegmentParams.startDate,
+                  endDate: creatingSegmentParams.endDate,
+                  status: 'planned',
+                }
+              : null
+        }
+        application={
+          (selectedSegmentId
+            ? applications.find(a => a.id === localSegments.find(s => s.id === selectedSegmentId)?.applicationId)
+            : creatingSegmentParams
+              ? applications.find(a => a.id === creatingSegmentParams.applicationId)
+              : null) || null
+        }
+        onClose={() => { setSelectedSegmentId(null); setCreatingSegmentParams(null); }}
+        onSave={(seg) => {
+          if (onSaveApplicationSegment) onSaveApplicationSegment(seg);
+          setSelectedSegmentId(null);
+          setCreatingSegmentParams(null);
+        }}
+        onDelete={(seg) => {
+          if (onDeleteApplicationSegment) onDeleteApplicationSegment(seg);
+          setSelectedSegmentId(null);
         }}
       />
 
