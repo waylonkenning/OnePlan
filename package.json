@@ -40,6 +40,8 @@
     "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.14",
     "@types/node": "^22.14.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",

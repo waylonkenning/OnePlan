@@ -58,7 +58,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const isDraggingRef = useRef(false);
   const milestoneDepDirectRef = useRef(false); // true when direct listener is handling milestone dep creation
   const [labelTooltip, setLabelTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
-  const labelTooltipTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const labelTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [resizing, setResizing] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [moving, setMoving] = useState<{ id: string; initialX: number; initialY: number; initialStart: string; initialEnd: string } | null>(null);
   const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialY: number; initialDate: string } | null>(null);
@@ -94,7 +94,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     });
   };
 
-  const [creatingInitiativeParams, setCreatingInitiativeParams] = useState<{ assetId: string, startDate: string, endDate: string } | null>(null);
+  const [creatingInitiativeParams, setCreatingInitiativeParams] = useState<{ id: string, assetId: string, startDate: string, endDate: string } | null>(null);
 
   const [initiativePositions, setInitiativePositions] = useState<Map<string, { x: number; y: number; width: number; height: number }>>(new Map());
   const [milestonePositions, setMilestonePositions] = useState<Map<string, { x: number; y: number }>>(new Map());
