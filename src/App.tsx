@@ -278,7 +278,8 @@ export default function App() {
 
   const handleSaveApplicationSegment = useCallback((seg: import('./types').ApplicationSegment) => {
     const exists = applicationSegments.some(s => s.id === seg.id);
-    const next = exists ? applicationSegments.map(s => s.id === seg.id ? seg : s) : [...applicationSegments, seg];
+    const savedSeg = exists ? seg : { ...seg, id: `seg-${Date.now()}` };
+    const next = exists ? applicationSegments.map(s => s.id === seg.id ? savedSeg : s) : [...applicationSegments, savedSeg];
     handleUpdate({ assets, applications, applicationSegments: next, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources });
   }, [assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, handleUpdate]);
 
