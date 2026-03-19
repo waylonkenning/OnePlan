@@ -59,9 +59,9 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight"
           >
-            IT Portfolio Planning, <br />
+            Your IT Portfolio, <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
-              All in One Place.
+              The Complete Scene.
             </span>
           </motion.h1>
 
@@ -71,7 +71,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-xl text-slate-400 max-w-2xl mb-12 leading-relaxed"
           >
-            Map initiatives across time, sequence dependencies, track costs, and report on progress — all running privately in your browser, with no data leaving your device.
+            Scenia gives you the full view — map initiatives across time, sequence dependencies, track costs, and report on progress. Free, private, and running entirely in your browser.
           </motion.p>
 
           <motion.div
@@ -116,6 +116,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         {/* Features Section */}
         <section className="bg-slate-950 py-32 border-t border-slate-800 relative z-10">
           <div className="container mx-auto px-6 max-w-7xl">
+            <div className="text-center mb-20">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">The full picture of your portfolio</h2>
+              <p className="text-slate-400 max-w-xl mx-auto">Every tool you need to survey, plan, and report on your IT landscape — all in one place.</p>
+            </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
               <FeatureCard
                 icon={GitMerge}
@@ -154,7 +158,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         {/* Footer CTA */}
         <footer className="bg-slate-900 border-t border-slate-800 py-24 text-center relative z-10">
           <div className="container mx-auto px-6">
-            <h2 className="text-3xl font-bold mb-6">Ready to plan your roadmap?</h2>
+            <h2 className="text-3xl font-bold mb-6">Ready to see the full picture?</h2>
             <p className="text-slate-400 mb-10">No signup. No servers. Instantly ready.</p>
             <button
               onClick={onGetStarted}
