@@ -90,7 +90,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const [movingSegment, setMovingSegment] = useState<{ id: string; initialX: number; initialStart: string; initialEnd: string } | null>(null);
   const [resizingSegment, setResizingSegment] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
-  const [creatingSegmentParams, setCreatingSegmentParams] = useState<{ id: string; applicationId: string; startDate: string; endDate: string } | null>(null);
+  const [creatingSegmentParams, setCreatingSegmentParams] = useState<{ id: string; assetId: string; startDate: string; endDate: string } | null>(null);
   const segIdCounter = useRef(0);
   const initIdCounter = useRef(0);
   const [drawingDependency, setDrawingDependency] = useState<{
@@ -1551,6 +1551,15 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                     const assetMilestones = milestones.filter(m => m.assetId === asset.id);
                     const conflictPoints = getConflictPoints(asset.id);
                     const { items: layoutItems, height: rowHeight } = getAssetLayout(asset, assetLevelInitiatives);
+                    // Collect all segments for this asset's applications swimlane
+                    const assetSegments = localSegments.filter(s =>
+                      s.assetId === asset.id ||
+                      assetApplications.some(a => a.id === s.applicationId)
+                    );
+
+                    // When in applications-only mode, skip assets with no applications
+                    if (display === 'applications' && assetApplications.length === 0) return null;
+
                     return (
                       <React.Fragment key={asset.id}>
                       <div
@@ -1562,13 +1571,13 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                         )}
                         onDragOver={(e) => handleAssetDragOver(e, asset)}
                       >
-                        {/* Asset Name Sidebar (Sticky Left) */}
+                        {/* Asset Name Sidebar — spans both Initiatives and Applications swimlanes */}
                         <div
                           draggable
                           onDragStart={(e) => handleAssetDragStart(e, asset.id)}
                           onDragEnd={handleAssetDragEnd}
-                          className={cn("sticky left-0 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center", !isMobile && "cursor-grab active:cursor-grabbing")}
-                          style={{ height: rowHeight, width: SIDEBAR_WIDTH }}
+                          className={cn("sticky left-0 flex-shrink-0 p-4 border-r border-slate-200 bg-white z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex flex-col justify-center self-stretch", !isMobile && "cursor-grab active:cursor-grabbing")}
+                          style={{ width: SIDEBAR_WIDTH }}
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             {!isMobile && <div className="p-0.5 hover:bg-slate-100 rounded text-slate-300 group-hover:text-slate-400 flex-shrink-0">
@@ -1579,7 +1588,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                           <div className={cn("text-xs text-slate-400 mt-1", !isMobile && "ml-4")}>{allAssetInitiatives.length} Initiative{allAssetInitiatives.length !== 1 ? 's' : ''}</div>
                         </div>
 
+                        {/* Swimlanes stacked vertically */}
+                        <div className="flex flex-col">
 
+                        {/* Initiatives swimlane — hidden when display is 'applications' */}
+                        {display !== 'applications' && (
                         <div
                           data-testid="asset-row-content"
                           className="relative flex-shrink-0"
@@ -1592,7 +1605,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             ))}
                           </div>
 
-                          {display !== 'applications' && layoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
+                          {layoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
                             const prog = programmes.find(p => p.id === init.programmeId);
                             const strat = strategies.find(s => s.id === init.strategyId);
                             const colorClass = colorBy === 'status'
@@ -1752,7 +1765,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                           })}
 
                           {/* Groups UI */}
-                          {display !== 'applications' && !resizing && !moving && getGroupsForAsset(assetLevelInitiatives).map(group => {
+                          {!resizing && !moving && getGroupsForAsset(assetLevelInitiatives).map(group => {
                             const groupItems = layoutItems.filter(it => group.includes(it.init.id));
                             if (groupItems.length === 0) return null;
 
@@ -1847,34 +1860,14 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             );
                           })}
                         </div>
-                      </div>
+                        )} {/* end initiatives swimlane */}
 
-                      {/* Application sub-rows — one per application belonging to this asset */}
-                      {display !== 'initiatives' && assetApplications.map(app => {
-                        const appSegments = localSegments.filter(s => s.applicationId === app.id);
-                        return (
+                        {/* Applications swimlane — single merged row per asset, hidden when display is 'initiatives' */}
+                        {display !== 'initiatives' && assetApplications.length > 0 && (
                           <div
-                            key={app.id}
-                            data-testid={`application-row-${app.id}`}
-                            className="flex border-b border-slate-100"
+                            data-testid={`application-swimlane-${asset.id}`}
+                            className="border-t border-slate-100"
                           >
-                            {/* Application Sidebar */}
-                            <div
-                              className="sticky left-0 flex-shrink-0 px-3 border-r border-slate-100 bg-slate-50/80 z-30 flex items-center"
-                              style={{ height: SEG_ROW_HEIGHT, width: SIDEBAR_WIDTH }}
-                            >
-                              <div className="flex items-center gap-1.5 pl-4 min-w-0">
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-300 flex-shrink-0" />
-                                <div
-                                  data-testid="application-row-label"
-                                  className="text-xs font-medium text-slate-600 truncate min-w-0"
-                                >
-                                  {app.name}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Application Row Content — lifecycle segments */}
                             <div
                               data-testid="application-row-content"
                               className="relative flex-shrink-0 bg-slate-50/30"
@@ -1887,7 +1880,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 const daysFromStart = Math.round(pct * totalDays);
                                 const newStart = format(addDays(startDate, daysFromStart), 'yyyy-MM-dd');
                                 const newEnd = format(addDays(startDate, daysFromStart + 90), 'yyyy-MM-dd');
-                                setCreatingSegmentParams({ id: `seg-new-${segIdCounter.current++}`, applicationId: app.id, startDate: newStart, endDate: newEnd });
+                                setCreatingSegmentParams({ id: `seg-new-${segIdCounter.current++}`, assetId: asset.id, startDate: newStart, endDate: newEnd });
                                 setSelectedSegmentId(null);
                               }}
                             >
@@ -1897,12 +1890,14 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 ))}
                               </div>
 
-                              {appSegments.map(seg => {
+                              {assetSegments.map(seg => {
                                 const segLeft = (differenceInDays(parseISO(seg.startDate), startDate) / totalDays) * 100;
                                 const segWidth = (differenceInDays(parseISO(seg.endDate), parseISO(seg.startDate)) / totalDays) * 100;
                                 if (segLeft + segWidth < 0 || segLeft > 100) return null;
                                 const colorClass = SEGMENT_COLORS[seg.status] || 'bg-slate-400';
-                                const displayLabel = seg.label || SEGMENT_LABELS[seg.status];
+                                const displayLabel = seg.label
+                                  || applications.find(a => a.id === seg.applicationId)?.name
+                                  || SEGMENT_LABELS[seg.status];
                                 return (
                                   <div
                                     key={seg.id}
@@ -1933,8 +1928,10 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                               })}
                             </div>
                           </div>
-                        );
-                      })}
+                        )} {/* end applications swimlane */}
+
+                        </div> {/* end swimlanes stack */}
+                      </div>
                       </React.Fragment>
                     );
                   })}
@@ -1999,7 +1996,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             : creatingSegmentParams
               ? {
                   id: creatingSegmentParams.id,
-                  applicationId: creatingSegmentParams.applicationId,
+                  assetId: creatingSegmentParams.assetId,
                   startDate: creatingSegmentParams.startDate,
                   endDate: creatingSegmentParams.endDate,
                   status: 'planned',
@@ -2009,9 +2006,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         application={
           (selectedSegmentId
             ? applications.find(a => a.id === localSegments.find(s => s.id === selectedSegmentId)?.applicationId)
-            : creatingSegmentParams
-              ? applications.find(a => a.id === creatingSegmentParams.applicationId)
-              : null) || null
+            : null) || null
         }
         onClose={() => { setSelectedSegmentId(null); setCreatingSegmentParams(null); }}
         onSave={(seg) => {

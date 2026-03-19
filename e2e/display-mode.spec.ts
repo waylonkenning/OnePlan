@@ -36,7 +36,7 @@ test.describe('Display Mode Picker', () => {
 
   test('AC2 – default mode is Both: initiative bars and application rows are visible', async ({ page }) => {
     await expect(page.locator('[data-testid="initiative-bar"]').first()).toBeVisible();
-    await expect(page.locator('[data-testid^="application-row-"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid^="application-swimlane-"]').first()).toBeVisible();
   });
 
   test('AC3 – Initiatives mode hides application lifecycle rows', async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe('Display Mode Picker', () => {
     await page.mouse.click(100, 100); // close popover
 
     await expect(page.locator('[data-testid="initiative-bar"]').first()).toBeVisible();
-    await expect(page.locator('[data-testid^="application-row-"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid^="application-swimlane-"]')).toHaveCount(0);
   });
 
   test('AC4 – Applications mode hides initiative bars', async ({ page }) => {
@@ -54,7 +54,7 @@ test.describe('Display Mode Picker', () => {
     await page.mouse.click(100, 100); // close popover
 
     await expect(page.locator('[data-testid="initiative-bar"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid^="application-row-"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid^="application-swimlane-"]').first()).toBeVisible();
   });
 
   test('AC5 – switching back to Both restores both layers', async ({ page }) => {
@@ -65,7 +65,7 @@ test.describe('Display Mode Picker', () => {
     await page.mouse.click(100, 100); // close popover
 
     await expect(page.locator('[data-testid="initiative-bar"]').first()).toBeVisible();
-    await expect(page.locator('[data-testid^="application-row-"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid^="application-swimlane-"]').first()).toBeVisible();
   });
 
   test('AC6 – button label reflects active display mode', async ({ page }) => {

@@ -27,9 +27,8 @@ test.describe('Timeline Create Functionality', () => {
         // const timelineRows = page.locator('.group.relative').filter({ hasText: 'Initiatives' });
         await expect(timelineRows.first()).toBeVisible();
 
-        // Find the first row's background tracking area. 
-        // It is the div that has the double-click handler.
-        const firstRowContent = timelineRows.first().locator('.relative.flex-shrink-0');
+        // Find the first row's initiative content area (has the double-click handler for creating initiatives).
+        const firstRowContent = timelineRows.first().locator('[data-testid="asset-row-content"]');
         await expect(firstRowContent).toBeVisible();
 
         // In a real scenario, we double click in an empty spot on the right side of the timeline
