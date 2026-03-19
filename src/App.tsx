@@ -573,9 +573,14 @@ export default function App() {
                 >
                   <MoreHorizontal size={13} />
                 </button>
-                {showMoreSettingsPanel && (
+                {showMoreSettingsPanel && moreSettingsPanelRef.current && (() => {
+                  const r = moreSettingsPanelRef.current!.getBoundingClientRect();
+                  const w = 192; // w-48
+                  const left = Math.min(r.left, window.innerWidth - w - 4);
+                  return (
                   <div
-                    className="absolute top-full left-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-3 w-48"
+                    className="fixed bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-3 w-48"
+                    style={{ top: r.bottom + 6, left }}
                     onMouseDown={(e) => e.stopPropagation()}
                   >
                     <div className="space-y-2">
@@ -605,7 +610,8 @@ export default function App() {
                       ))}
                     </div>
                   </div>
-                )}
+                  );
+                })()}
               </div>
             </div>
           );
@@ -638,10 +644,15 @@ export default function App() {
                 {groupLabel}
               </button>
 
-              {showViewOptionsPanel && (
+              {showViewOptionsPanel && viewOptionsPanelRef.current && (() => {
+                const r = viewOptionsPanelRef.current!.getBoundingClientRect();
+                const w = 208; // w-52
+                const left = Math.min(r.left, window.innerWidth - w - 4);
+                return (
                 <div
                   data-testid="view-options-popover"
-                  className="absolute top-full left-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-3 w-52"
+                  className="fixed bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-3 w-52"
+                  style={{ top: r.bottom + 6, left }}
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   {/* Colour by */}
@@ -702,7 +713,8 @@ export default function App() {
                     </button>
                   </div>
                 </div>
-              )}
+                );
+              })()}
             </div>
           );
         })()}
