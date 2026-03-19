@@ -19,11 +19,11 @@ export function DependencyPanel({ dependency, initiatives, milestones, onClose, 
     const [confirmDelete, setConfirmDelete] = useState(false);
     const panelRef = useFocusTrap(isOpen, onClose);
 
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
-        if (dependency) {
-            setFormData({ ...dependency });
-        }
+        if (dependency) setFormData({ ...dependency });
     }, [dependency]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     if (!isOpen || !formData) return null;
 

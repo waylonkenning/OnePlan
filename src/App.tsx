@@ -270,7 +270,7 @@ export default function App() {
 
   const handleUpdateSettings = useCallback((updatedSettings: TimelineSettings) => {
     handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: updatedSettings, resources });
-  }, [assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, handleUpdate]);
+  }, [assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources, handleUpdate]);
 
   const handleRestoreVersion = useCallback((version: { data: AppState }) => {
     handleUpdate(version.data);

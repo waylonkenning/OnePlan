@@ -104,18 +104,6 @@ function bucketInitiatives(
   return map;
 }
 
-// ── Conflict detection ────────────────────────────────────────────────────────
-
-function hasConflicts(assetInitiatives: Initiative[]): boolean {
-  for (let i = 0; i < assetInitiatives.length; i++) {
-    for (let j = i + 1; j < assetInitiatives.length; j++) {
-      const a = assetInitiatives[i];
-      const b = assetInitiatives[j];
-      if (a.startDate < b.endDate && a.endDate > b.startDate) return true;
-    }
-  }
-  return false;
-}
 
 function conflictCount(assetInitiatives: Initiative[]): number {
   let count = 0;
@@ -287,7 +275,7 @@ const AssetCard: React.FC<{
   initiatives,
   programmes,
   strategies,
-  dependencies,
+  dependencies: _dependencies,
   resources,
   bucketMode,
   onSelectInitiative,

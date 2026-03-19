@@ -7,15 +7,18 @@ import { useState, useEffect } from 'react';
  * @returns      true while the query matches, false otherwise
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia(query).matches;
-  });
+  const getSnapshot = () => typeof window === 'undefined' ? false : window.matchMedia(query).matches;
+  const [matches, setMatches] = useState(getSnapshot);
+  const [prevQuery, setPrevQuery] = useState(query);
+
+  if (query !== prevQuery) {
+    setPrevQuery(query);
+    setMatches(getSnapshot());
+  }
 
   useEffect(() => {
     const mql = window.matchMedia(query);
     const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
-    setMatches(mql.matches);
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);
   }, [query]);

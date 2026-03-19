@@ -26,12 +26,14 @@ export function InitiativePanel({ initiative, assets, applications = [], program
     const [confirmDelete, setConfirmDelete] = useState(false);
     const panelRef = useFocusTrap(isOpen, onClose);
 
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (initiative) {
             setFormData({ ...initiative });
             setErrors({});
         }
     }, [initiative]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     if (!isOpen || !formData) return null;
 
@@ -177,7 +179,7 @@ export function InitiativePanel({ initiative, assets, applications = [], program
                                     required
                                     className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${errors.startDate ? 'border-red-400' : 'border-slate-300'}`}
                                     value={formData.startDate}
-                                    onChange={(e) => { setFormData({ ...formData, startDate: e.target.value }); setErrors(prev => { const { startDate, ...rest } = prev; return rest; }); }}
+                                    onChange={(e) => { setFormData({ ...formData, startDate: e.target.value }); setErrors(prev => { const { startDate: _s, ...rest } = prev; return rest; }); }}
                                 />
                                 {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate}</p>}
                             </div>
@@ -191,7 +193,7 @@ export function InitiativePanel({ initiative, assets, applications = [], program
                                     required
                                     className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${errors.endDate ? 'border-red-400' : 'border-slate-300'}`}
                                     value={formData.endDate}
-                                    onChange={(e) => { setFormData({ ...formData, endDate: e.target.value }); setErrors(prev => { const { endDate, ...rest } = prev; return rest; }); }}
+                                    onChange={(e) => { setFormData({ ...formData, endDate: e.target.value }); setErrors(prev => { const { endDate: _e, ...rest } = prev; return rest; }); }}
                                 />
                                 {errors.endDate && <p className="text-xs text-red-500 mt-1">{errors.endDate}</p>}
                             </div>
@@ -212,7 +214,7 @@ export function InitiativePanel({ initiative, assets, applications = [], program
                                     step="1000"
                                     className={`w-full pl-7 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${errors.budget ? 'border-red-400' : 'border-slate-300'}`}
                                     value={formData.budget ?? ''}
-                                    onChange={(e) => { const val = e.target.value === '' ? 0 : Number(e.target.value); setFormData({ ...formData, budget: val }); setErrors(prev => { const { budget, ...rest } = prev; return rest; }); }}
+                                    onChange={(e) => { const val = e.target.value === '' ? 0 : Number(e.target.value); setFormData({ ...formData, budget: val }); setErrors(prev => { const { budget: _b, ...rest } = prev; return rest; }); }}
                                 />
                             </div>
                             {errors.budget && <p className="text-xs text-red-500 mt-1">{errors.budget}</p>}

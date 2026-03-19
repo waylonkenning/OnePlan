@@ -63,6 +63,7 @@ export function EditableTable<T extends { [key: string]: any }>({
   // Column Resizing State
   const [resizing, setResizing] = useState<{ key: string; startX: number; startWidth: number } | null>(null);
   const tableRef = useRef<HTMLTableElement>(null);
+  const rowIdCounter = useRef(0);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -214,7 +215,7 @@ export function EditableTable<T extends { [key: string]: any }>({
 
   const handleChange = (index: number, key: keyof T, value: any, isGhost: boolean = false) => {
     if (isGhost) {
-      const newId = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const newId = `new-${rowIdCounter.current++}`;
       const newRow: any = {};
       newRow[idField] = newId;
 
@@ -254,7 +255,7 @@ export function EditableTable<T extends { [key: string]: any }>({
   };
 
   const handleAdd = () => {
-    const newId = `new-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const newId = `new-${rowIdCounter.current++}`;
     const newRow: any = {};
     newRow[idField] = newId;
 
@@ -290,7 +291,7 @@ export function EditableTable<T extends { [key: string]: any }>({
     if (!csvText.trim()) return;
 
     const lines = csvText.trim().split('\n');
-    let updatedRows = [...rows];
+    const updatedRows = [...rows];
     let hasHeader = false;
     let headerMapping: (keyof T | null)[] = [];
 
@@ -348,7 +349,7 @@ export function EditableTable<T extends { [key: string]: any }>({
         });
       }
 
-      const targetId = rowData[idField] || `csv-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+      const targetId = rowData[idField] || `csv-${rowIdCounter.current++}`;
       rowData[idField] = targetId;
 
       const existingIndex = updatedRows.findIndex(r => String(r[idField]) === String(targetId));
@@ -408,7 +409,7 @@ export function EditableTable<T extends { [key: string]: any }>({
               const rowIndex = rows.findIndex(r => r[idField] === row[idField]);
               return (
                 <tr key={String(row[idField])} data-real="true" data-id={String(row[idField])} className="hover:bg-slate-50 group">
-                  {columns.map((col, colIndex) => (
+                  {columns.map((col) => (
                     <td key={`${String(row[idField])}-${String(col.key)}`} data-key={String(col.key)} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
                       {col.type === 'select' ? (
                         <select
