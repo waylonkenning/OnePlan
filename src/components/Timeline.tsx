@@ -1070,6 +1070,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const currentPos = getPosition(now.toISOString());
   const isCurrentTimeVisible = currentPos >= 0 && currentPos <= 100;
   const groupBy = settings.groupBy || 'asset';
+  const display = settings.display || 'both';
 
   if (timeColumns.length === 0) return null;
 
@@ -1591,7 +1592,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             ))}
                           </div>
 
-                          {layoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
+                          {display !== 'applications' && layoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
                             const prog = programmes.find(p => p.id === init.programmeId);
                             const strat = strategies.find(s => s.id === init.strategyId);
                             const colorClass = colorBy === 'status'
@@ -1751,7 +1752,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                           })}
 
                           {/* Groups UI */}
-                          {!resizing && !moving && getGroupsForAsset(assetLevelInitiatives).map(group => {
+                          {display !== 'applications' && !resizing && !moving && getGroupsForAsset(assetLevelInitiatives).map(group => {
                             const groupItems = layoutItems.filter(it => group.includes(it.init.id));
                             if (groupItems.length === 0) return null;
 
@@ -1849,7 +1850,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                       </div>
 
                       {/* Application sub-rows — one per application belonging to this asset */}
-                      {assetApplications.map(app => {
+                      {display !== 'initiatives' && assetApplications.map(app => {
                         const appSegments = localSegments.filter(s => s.applicationId === app.id);
                         return (
                           <div

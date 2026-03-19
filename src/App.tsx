@@ -28,7 +28,7 @@ import {
   demoApplicationSegments as initialApplicationSegments,
 } from './demoData';
 import { Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
-import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard, GitCommit, Palette, Box, Boxes, Target, Users } from 'lucide-react';
+import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard, GitCommit, GitCommitHorizontal, Palette, Box, Boxes, Target, Users, Layers, AppWindow } from 'lucide-react';
 import { ReportsView } from './components/ReportsView';
 
 type AppState = {
@@ -640,8 +640,10 @@ export default function App() {
         {view === 'visualiser' && (() => {
           const colorBy = timelineSettings.colorBy || 'programme';
           const groupBy = timelineSettings.groupBy || 'asset';
+          const display = timelineSettings.display || 'both';
           const colorLabel = colorBy === 'programme' ? 'Programme' : colorBy === 'strategy' ? 'Strategy' : 'Status';
           const groupLabel = groupBy === 'asset' ? 'Asset' : groupBy === 'programme' ? 'Programme' : 'Strategy';
+          const displayLabel = display === 'initiatives' ? 'Initiatives' : display === 'applications' ? 'Applications' : 'Both';
           return (
             <div className="relative shrink-0" ref={viewOptionsPanelRef}>
               <button
@@ -653,13 +655,15 @@ export default function App() {
                     ? "bg-blue-50 border-blue-200 text-blue-600"
                     : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                 )}
-                title="View options: colour and grouping"
+                title="View options: colour, grouping and display"
               >
                 <Palette size={13} />
                 {colorLabel}
                 <span className="text-slate-300">·</span>
                 <Box size={13} />
                 {groupLabel}
+                <span className="text-slate-300">·</span>
+                {displayLabel}
               </button>
 
               {showViewOptionsPanel && viewOptionsPanelRef.current && (() => {
@@ -701,7 +705,7 @@ export default function App() {
 
                   {/* Group by */}
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Group by</p>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 mb-3">
                     <button
                       data-testid="group-by-asset"
                       aria-pressed={groupBy === 'asset'}
@@ -728,6 +732,38 @@ export default function App() {
                     >
                       <Target size={13} />
                       Strategy
+                    </button>
+                  </div>
+
+                  {/* Show */}
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Show</p>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      data-testid="show-both"
+                      aria-pressed={display === 'both'}
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, display: 'both' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", display === 'both' ? "bg-slate-100 text-slate-800" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <Layers size={13} />
+                      Both
+                    </button>
+                    <button
+                      data-testid="show-initiatives"
+                      aria-pressed={display === 'initiatives'}
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, display: 'initiatives' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", display === 'initiatives' ? "bg-slate-100 text-slate-800" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <GitCommitHorizontal size={13} />
+                      Initiatives
+                    </button>
+                    <button
+                      data-testid="show-applications"
+                      aria-pressed={display === 'applications'}
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, display: 'applications' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", display === 'applications' ? "bg-slate-100 text-slate-800" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <AppWindow size={13} />
+                      Applications
                     </button>
                   </div>
                 </div>

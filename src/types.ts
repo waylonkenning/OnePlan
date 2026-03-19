@@ -150,6 +150,7 @@ export interface TimelineSettings {
   groupBy?: 'asset' | 'programme' | 'strategy';
   colorBy?: 'programme' | 'strategy' | 'status';
   showResources?: 'on' | 'off';
+  display?: 'both' | 'initiatives' | 'applications';
 }
 
 /**
