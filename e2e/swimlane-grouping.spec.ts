@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
 /**
  * Swimlane Grouping — group timeline rows by Programme or Strategy
@@ -11,7 +11,7 @@ test.describe('Swimlane Grouping', () => {
   });
 
   // Helper: ensure View Options popover is open
-  async function openViewOptions(page: Parameters<Parameters<typeof test>[1]>[0]) {
+  async function openViewOptions(page: Page) {
     const popover = page.getByTestId('view-options-popover');
     if (!await popover.isVisible()) {
       await page.getByTestId('view-options-btn').click();
