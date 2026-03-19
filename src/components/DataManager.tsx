@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Application, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
-import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree, Trash2, RotateCcw, Users } from 'lucide-react';
+import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree, Trash2, RotateCcw, Users, Box } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import {
-  demoAssets, demoInitiatives, demoMilestones, demoProgrammes, demoStrategies,
+  demoAssets, demoApplications, demoInitiatives, demoMilestones, demoProgrammes, demoStrategies,
   demoDependencies, demoAssetCategories, demoTimelineSettings, demoResources
 } from '../demoData';
 
 interface DataManagerProps {
   data: {
     assets: Asset[];
+    applications: Application[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
@@ -23,6 +24,7 @@ interface DataManagerProps {
   };
   onUpdate: (data: {
     assets: Asset[];
+    applications: Application[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
@@ -35,7 +37,7 @@ interface DataManagerProps {
   searchQuery?: string;
 }
 
-type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'programmes' | 'strategies' | 'milestones' | 'resources';
+type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'programmes' | 'strategies' | 'milestones' | 'resources' | 'applications';
 
 export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>('initiatives');
@@ -241,10 +243,30 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
     { key: 'role', label: 'Role', type: 'text', width: '50%' },
   ];
 
+  const applicationColumns: Column<Application>[] = [
+    { key: 'name', label: 'Name', type: 'text', width: '40%' },
+    {
+      key: 'assetId', label: 'Asset', type: 'select', width: '30%',
+      options: data.assets.map(a => ({ value: a.id, label: a.name })),
+    },
+    {
+      key: 'status', label: 'Status', type: 'select', width: '30%',
+      options: [
+        { value: 'planned', label: 'Planned' },
+        { value: 'funded', label: 'Funded' },
+        { value: 'in-production', label: 'In Production' },
+        { value: 'sunset', label: 'Sunset' },
+        { value: 'out-of-support', label: 'Out of Support' },
+        { value: 'retired', label: 'Retired' },
+      ],
+    },
+  ];
+
   const tabs = [
     { id: 'initiatives', label: 'Initiatives', icon: Layers, count: data.initiatives.length },
     { id: 'dependencies', label: 'Dependencies', icon: Link2, count: data.dependencies.length },
     { id: 'assets', label: 'Assets', icon: Database, count: data.assets.length },
+    { id: 'applications', label: 'Applications', icon: Box, count: (data.applications || []).length },
     { id: 'assetCategories', label: 'Categories', icon: FolderTree, count: data.assetCategories.length },
     { id: 'programmes', label: 'Programmes', icon: Calendar, count: data.programmes.length },
     { id: 'strategies', label: 'Strategies', icon: Target, count: data.strategies.length },
@@ -370,6 +392,17 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
             onColumnResize={(key, width) => handleColumnResize('resources', key, width)}
           />
         )}
+        {activeTab === 'applications' && (
+          <EditableTable
+            data={data.applications || []}
+            columns={getColumnsWithWidths('applications', applicationColumns)}
+            onUpdate={(newData) => updateData('applications', newData)}
+            idField="id"
+            searchQuery={searchQuery}
+            tableId="applications"
+            onColumnResize={(key, width) => handleColumnResize('applications', key, width)}
+          />
+        )}
       </div>
 
       <div className="flex items-center gap-3 mt-3 pt-3 border-t border-slate-200">
@@ -377,7 +410,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
           onClick={() => confirm(
             'Reset — delete all data',
             'This will permanently delete ALL data across every table (Initiatives, Assets, Programmes, etc.). This cannot be undone.',
-            () => onUpdate({ ...data, assets: [], initiatives: [], milestones: [], programmes: [], strategies: [], dependencies: [], assetCategories: [], resources: [] }),
+            () => onUpdate({ ...data, assets: [], applications: [], initiatives: [], milestones: [], programmes: [], strategies: [], dependencies: [], assetCategories: [], resources: [] }),
           )}
           className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-all shadow-sm font-medium text-sm"
         >
@@ -388,7 +421,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
           onClick={() => confirm(
             'Reset — use demo data',
             'This will replace ALL current data with the demo dataset. Your existing data will be lost.',
-            () => onUpdate({ assets: demoAssets, initiatives: demoInitiatives, milestones: demoMilestones, programmes: demoProgrammes, strategies: demoStrategies, dependencies: demoDependencies, assetCategories: demoAssetCategories, timelineSettings: demoTimelineSettings, resources: demoResources }),
+            () => onUpdate({ assets: demoAssets, applications: demoApplications, initiatives: demoInitiatives, milestones: demoMilestones, programmes: demoProgrammes, strategies: demoStrategies, dependencies: demoDependencies, assetCategories: demoAssetCategories, timelineSettings: demoTimelineSettings, resources: demoResources }),
           )}
           className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all shadow-sm font-medium text-sm"
         >

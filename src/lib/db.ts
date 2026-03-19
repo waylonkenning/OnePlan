@@ -1,10 +1,14 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Version, Resource } from '../types';
+import { Asset, Application, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Version, Resource } from '../types';
 
 interface ITMapDB extends DBSchema {
   assets: {
     key: string;
     value: Asset;
+  };
+  applications: {
+    key: string;
+    value: Application;
   };
   initiatives: {
     key: string;
@@ -45,7 +49,7 @@ interface ITMapDB extends DBSchema {
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 7;
+const DB_VERSION = 8;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
@@ -77,6 +81,9 @@ export const initDB = () => {
         if (oldVersion < 7 && !db.objectStoreNames.contains('resources')) {
           db.createObjectStore('resources', { keyPath: 'id' });
         }
+        if (oldVersion < 8 && !db.objectStoreNames.contains('applications')) {
+          db.createObjectStore('applications', { keyPath: 'id' });
+        }
       },
     });
   }
@@ -86,6 +93,7 @@ export const initDB = () => {
 export const getAppData = async () => {
   const db = await initDB();
   const assets = await db.getAll('assets');
+  const applications = db.objectStoreNames.contains('applications') ? await db.getAll('applications') : [];
   const initiatives = await db.getAll('initiatives');
   const milestones = await db.getAll('milestones');
   const programmes = await db.getAll('programmes');
@@ -103,6 +111,7 @@ export const getAppData = async () => {
 
   return {
     assets,
+    applications,
     initiatives,
     milestones,
     programmes,
@@ -116,6 +125,7 @@ export const getAppData = async () => {
 
 export const saveAppData = async (data: {
   assets: Asset[];
+  applications: Application[];
   initiatives: Initiative[];
   milestones: Milestone[];
   programmes: Programme[];
@@ -126,7 +136,7 @@ export const saveAppData = async (data: {
   resources: Resource[];
 }) => {
   const db = await initDB();
-  const stores: ("assets" | "initiatives" | "milestones" | "programmes" | "strategies" | "dependencies" | "assetCategories" | "settings" | "resources")[] = [
+  const stores: ("assets" | "applications" | "initiatives" | "milestones" | "programmes" | "strategies" | "dependencies" | "assetCategories" | "settings" | "resources")[] = [
     'assets', 'initiatives', 'milestones', 'programmes', 'strategies', 'dependencies', 'assetCategories'
   ];
   if (db.objectStoreNames.contains('settings')) {
@@ -134,6 +144,9 @@ export const saveAppData = async (data: {
   }
   if (db.objectStoreNames.contains('resources')) {
     stores.push('resources');
+  }
+  if (db.objectStoreNames.contains('applications')) {
+    stores.push('applications');
   }
   const tx = db.transaction(stores, 'readwrite');
 
@@ -163,6 +176,10 @@ export const saveAppData = async (data: {
   if (db.objectStoreNames.contains('resources')) {
     allPromises.push(tx.objectStore('resources').clear());
     (data.resources || []).forEach(item => allPromises.push(tx.objectStore('resources').add(item)));
+  }
+  if (db.objectStoreNames.contains('applications')) {
+    allPromises.push(tx.objectStore('applications').clear());
+    (data.applications || []).forEach(item => allPromises.push(tx.objectStore('applications').add(item)));
   }
   await Promise.all(allPromises);
 

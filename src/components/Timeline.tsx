@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { useMediaQuery } from '../lib/useMediaQuery';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Application, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, startOfYear, addDays, isValid, startOfMonth, endOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes } from 'lucide-react';
@@ -11,6 +11,7 @@ import { computeCriticalPath } from '../lib/criticalPath';
 
 interface TimelineProps {
   assets: Asset[];
+  applications?: Application[];
   initiatives: Initiative[];
   milestones: Milestone[];
   programmes: Programme[];
@@ -32,7 +33,7 @@ interface TimelineProps {
 const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
 const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
-export function Timeline({ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery }: TimelineProps) {
+export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery }: TimelineProps) {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
 
@@ -1470,13 +1471,16 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                   </div>
 
                   {!isCollapsed && categoryAssets.map(asset => {
-                    const assetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
+                    const allAssetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
+                    const assetApplications = applications.filter(a => a.assetId === asset.id);
+                    // Initiatives with no applicationId render at the asset level
+                    const assetLevelInitiatives = allAssetInitiatives.filter(i => !i.applicationId);
                     const assetMilestones = milestones.filter(m => m.assetId === asset.id);
                     const conflictPoints = getConflictPoints(asset.id);
-                    const { items: layoutItems, height: rowHeight } = getAssetLayout(asset, assetInitiatives);
+                    const { items: layoutItems, height: rowHeight } = getAssetLayout(asset, assetLevelInitiatives);
                     return (
+                      <React.Fragment key={asset.id}>
                       <div
-                        key={asset.id}
                         data-testid={`asset-row-${asset.id}`}
                         data-asset-id={asset.id}
                         className={cn(
@@ -1499,7 +1503,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                             </div>}
                             <div className="font-semibold text-slate-800 truncate min-w-0">{asset.name}</div>
                           </div>
-                          <div className={cn("text-xs text-slate-400 mt-1", !isMobile && "ml-4")}>{assetInitiatives.length} Initiatives</div>
+                          <div className={cn("text-xs text-slate-400 mt-1", !isMobile && "ml-4")}>{allAssetInitiatives.length} Initiative{allAssetInitiatives.length !== 1 ? 's' : ''}</div>
                         </div>
 
 
@@ -1675,7 +1679,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                           })}
 
                           {/* Groups UI */}
-                          {!resizing && !moving && getGroupsForAsset(assetInitiatives).map(group => {
+                          {!resizing && !moving && getGroupsForAsset(assetLevelInitiatives).map(group => {
                             const groupItems = layoutItems.filter(it => group.includes(it.init.id));
                             if (groupItems.length === 0) return null;
 
@@ -1771,6 +1775,154 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
                           })}
                         </div>
                       </div>
+
+                      {/* Application sub-rows — one per application belonging to this asset */}
+                      {assetApplications.map(app => {
+                        const appInitiatives = allAssetInitiatives.filter(i => i.applicationId === app.id);
+                        // Use layoutAsset directly (not getAssetLayout) to avoid polluting the asset-level
+                        // stable layout cache (which is keyed by asset.id and used during drag operations)
+                        const { items: appLayoutItems, height: appRowHeight } = layoutAsset(appInitiatives);
+                        const APP_STATUS_COLORS: Record<string, string> = {
+                          'planned': 'bg-slate-100 text-slate-600',
+                          'funded': 'bg-blue-100 text-blue-700',
+                          'in-production': 'bg-emerald-100 text-emerald-700',
+                          'sunset': 'bg-amber-100 text-amber-700',
+                          'out-of-support': 'bg-orange-100 text-orange-700',
+                          'retired': 'bg-slate-100 text-slate-400',
+                        };
+                        const APP_STATUS_LABELS: Record<string, string> = {
+                          'planned': 'Planned',
+                          'funded': 'Funded',
+                          'in-production': 'In Production',
+                          'sunset': 'Sunset',
+                          'out-of-support': 'Out of Support',
+                          'retired': 'Retired',
+                        };
+                        return (
+                          <div
+                            key={app.id}
+                            data-testid={`application-row-${app.id}`}
+                            className="flex border-b border-slate-100"
+                          >
+                            {/* Application Sidebar */}
+                            <div
+                              className="sticky left-0 flex-shrink-0 px-3 py-2 border-r border-slate-100 bg-slate-50/80 z-30 flex flex-col justify-center"
+                              style={{ height: appRowHeight, width: SIDEBAR_WIDTH }}
+                            >
+                              <div className="flex items-center gap-1.5 pl-4 min-w-0">
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-300 flex-shrink-0" />
+                                <div
+                                  data-testid="application-row-label"
+                                  className="text-sm font-medium text-slate-700 truncate min-w-0"
+                                >
+                                  {app.name}
+                                </div>
+                              </div>
+                              <div className="pl-4 mt-1">
+                                <span
+                                  data-testid="application-status-badge"
+                                  className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${APP_STATUS_COLORS[app.status] || 'bg-slate-100 text-slate-500'}`}
+                                >
+                                  {APP_STATUS_LABELS[app.status] || app.status}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Application Row Content */}
+                            <div
+                              data-testid="application-row-content"
+                              className="relative flex-shrink-0 bg-slate-50/30"
+                              style={{ width: totalWidth, height: appRowHeight }}
+                              onDoubleClick={(e) => handleRowDoubleClick(e, asset.id)}
+                            >
+                              <div className="absolute inset-0 flex pointer-events-none">
+                                {timeColumns.map((col, idx) => (
+                                  <div key={idx} className={cn("border-r border-slate-100/70 h-full", idx === 0 && "border-l-2 border-l-slate-200")} style={{ width: columnWidth }} />
+                                ))}
+                              </div>
+
+                              {appLayoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
+                                const prog = programmes.find(p => p.id === init.programmeId);
+                                const strat = strategies.find(s => s.id === init.strategyId);
+                                const colorClass = colorBy === 'status'
+                                  ? (STATUS_COLORS[init.status || 'planned'])
+                                  : colorBy === 'programme'
+                                  ? (prog?.color || 'bg-slate-500')
+                                  : (strat?.color || 'bg-slate-400');
+                                const subtitle = colorBy === 'status'
+                                  ? STATUS_LABELS[init.status || 'planned']
+                                  : isGroup
+                                  ? (colorBy === 'programme' ? groupProgrammeNames : groupStrategyNames)
+                                  : (colorBy === 'programme' ? prog?.name : strat?.name);
+
+                                if (left + width < 0 || left > 100) return null;
+
+                                const isOnCriticalPath = criticalPathInitIds.has(init.id);
+
+                                return (
+                                  <div
+                                    key={init.id}
+                                    data-initiative-id={init.id}
+                                    data-critical-path={isOnCriticalPath ? 'true' : 'false'}
+                                    data-testid={isGroup ? "project-group-bar" : "initiative-bar"}
+                                    onMouseDown={(e) => {
+                                      isDraggingRef.current = false;
+                                      setMoving({
+                                        id: init.id,
+                                        initialX: e.clientX,
+                                        initialY: e.clientY,
+                                        initialStart: init.startDate,
+                                        initialEnd: init.endDate
+                                      });
+                                    }}
+                                    onClick={(e) => {
+                                      if (isDraggingRef.current) {
+                                        isDraggingRef.current = false;
+                                        return;
+                                      }
+                                      setSelectedInitiativeId(init.id);
+                                    }}
+                                    className={cn(
+                                      "absolute rounded-md shadow-sm cursor-pointer transition-shadow select-none overflow-hidden group/bar",
+                                      colorClass,
+                                      "hover:shadow-md hover:z-10",
+                                      isOnCriticalPath && "ring-2 ring-offset-1 ring-rose-500",
+                                      !isMobile && "hover:z-20"
+                                    )}
+                                    style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
+                                    title={init.name}
+                                  >
+                                    {init.progress !== undefined && init.progress > 0 && (
+                                      <div
+                                        data-testid="progress-overlay"
+                                        className="absolute inset-y-0 left-0 bg-black/10 rounded-l-md"
+                                        style={{ width: `${Math.min(100, init.progress)}%` }}
+                                      />
+                                    )}
+                                    {!isMobile && (
+                                      <>
+                                        <div className="absolute inset-y-0 left-0 w-2 cursor-ew-resize opacity-0 group-hover/bar:opacity-100 hover:bg-black/10 rounded-l-md transition-opacity"
+                                          onMouseDown={(e) => { e.stopPropagation(); setResizing({ id: init.id, edge: 'start', initialX: e.clientX, initialDate: init.startDate }); }} />
+                                        <div className="absolute inset-y-0 right-0 w-2 cursor-ew-resize opacity-0 group-hover/bar:opacity-100 hover:bg-black/10 rounded-r-md transition-opacity"
+                                          onMouseDown={(e) => { e.stopPropagation(); setResizing({ id: init.id, edge: 'end', initialX: e.clientX, initialDate: init.endDate }); }} />
+                                      </>
+                                    )}
+                                    <div className="px-2 py-1 h-full flex flex-col justify-center pointer-events-none overflow-hidden">
+                                      <div className="flex items-center gap-1.5 min-w-0">
+                                        <span className="text-xs font-semibold text-white/95 truncate leading-tight">{init.name}</span>
+                                      </div>
+                                      {subtitle && (
+                                        <span className="text-[10px] text-white/70 truncate leading-tight">{subtitle}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      </React.Fragment>
                     );
                   })}
                 </div>
@@ -1804,6 +1956,7 @@ export function Timeline({ assets, initiatives, milestones, programmes, strategi
               : null
         }
         assets={assets}
+        applications={applications}
         programmes={programmes}
         strategies={strategies}
         dependencies={dependencies}

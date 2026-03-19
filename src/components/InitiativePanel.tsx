@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Initiative, Asset, Programme, Strategy, Dependency, Resource } from '../types';
+import { Initiative, Asset, Application, Programme, Strategy, Dependency, Resource } from '../types';
 import { X, Save, Trash2 } from 'lucide-react';
 import { validateInitiative, ValidationErrors } from '../lib/validation';
 import { ConfirmModal } from './ConfirmModal';
@@ -8,6 +8,7 @@ import { useFocusTrap } from '../lib/useFocusTrap';
 interface InitiativePanelProps {
     initiative: Initiative | null;
     assets: Asset[];
+    applications?: Application[];
     programmes: Programme[];
     strategies: Strategy[];
     dependencies?: Dependency[];
@@ -19,7 +20,7 @@ interface InitiativePanelProps {
     isOpen: boolean;
 }
 
-export function InitiativePanel({ initiative, assets, programmes, strategies, dependencies = [], initiatives = [], resources = [], onClose, onSave, onDelete, isOpen }: InitiativePanelProps) {
+export function InitiativePanel({ initiative, assets, applications = [], programmes, strategies, dependencies = [], initiatives = [], resources = [], onClose, onSave, onDelete, isOpen }: InitiativePanelProps) {
     const [formData, setFormData] = useState<Initiative | null>(null);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -97,7 +98,7 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
                                 required
                                 className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
                                 value={formData.assetId}
-                                onChange={(e) => setFormData({ ...formData, assetId: e.target.value })}
+                                onChange={(e) => setFormData({ ...formData, assetId: e.target.value, applicationId: undefined })}
                             >
                                 <option value="">Select an Asset...</option>
                                 {assets.map(asset => (
@@ -105,6 +106,30 @@ export function InitiativePanel({ initiative, assets, programmes, strategies, de
                                 ))}
                             </select>
                         </div>
+
+                        {(() => {
+                            const assetApps = applications.filter(a => a.assetId === formData.assetId);
+                            return (
+                                <div>
+                                    <label htmlFor="applicationId" className="block text-sm font-medium text-slate-700 mb-1">
+                                        Application <span className="text-slate-400 font-normal">(optional)</span>
+                                    </label>
+                                    <select
+                                        id="applicationId"
+                                        data-testid="initiative-application"
+                                        className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+                                        value={formData.applicationId || ''}
+                                        onChange={(e) => setFormData({ ...formData, applicationId: e.target.value || undefined })}
+                                        disabled={assetApps.length === 0}
+                                    >
+                                        <option value="">{assetApps.length === 0 ? 'No applications for this asset' : 'None (asset-level)'}</option>
+                                        {assetApps.map(app => (
+                                            <option key={app.id} value={app.id}>{app.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            );
+                        })()}
 
                         <div>
                             <label htmlFor="programmeId" className="block text-sm font-medium text-slate-700 mb-1">

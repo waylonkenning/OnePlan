@@ -12,18 +12,29 @@ test.describe('Category Reordering', () => {
     await expect(categoryLabels.nth(0)).toContainText('Identity & Access Management');
     await expect(categoryLabels.nth(1)).toContainText('Data Platform');
 
-    const iamHandle = page.getByTestId('category-drag-handle-cat-iam');
-    const dataHandle = page.getByTestId('category-drag-handle-cat-data');
+    // Application sub-rows in the IAM section push Data Platform off-screen, making
+    // mouse-based drag unreliable. Dispatch drag events directly, with waits between
+    // each event so React can process state updates (e.g. setDraggingCategory) before
+    // the next event fires.
+    await page.evaluate(() => {
+      const source = document.querySelector('[data-testid="category-drag-handle-cat-iam"]') as HTMLElement;
+      if (!source) throw new Error('IAM drag handle not found');
+      source.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true, dataTransfer: new DataTransfer() }));
+    });
+    await page.waitForTimeout(100); // let React process setDraggingCategory state update
 
-    const iamBox = await iamHandle.boundingBox();
-    const dataBox = await dataHandle.boundingBox();
-    if (!iamBox || !dataBox) throw new Error('Could not find category bounding boxes');
+    await page.evaluate(() => {
+      const target = document.querySelector('[data-testid="category-row-cat-data"]') as HTMLElement;
+      if (!target) throw new Error('Data Platform category row not found');
+      target.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true }));
+    });
+    await page.waitForTimeout(100); // let React process setCategoryOrder state update
 
-    // Drag IAM down over Data Platform
-    await page.mouse.move(iamBox.x + 20, iamBox.y + iamBox.height / 2);
-    await page.mouse.down();
-    await page.mouse.move(dataBox.x + 20, dataBox.y + dataBox.height / 2, { steps: 20 });
-    await page.mouse.up();
+    await page.evaluate(() => {
+      const source = document.querySelector('[data-testid="category-drag-handle-cat-iam"]') as HTMLElement;
+      if (!source) throw new Error('IAM drag handle not found');
+      source.dispatchEvent(new DragEvent('dragend', { bubbles: true }));
+    });
 
     await page.waitForTimeout(300);
 
