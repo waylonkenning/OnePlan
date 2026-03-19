@@ -4,7 +4,7 @@
 **New name:** Scenia
 **Old domain:** https://oneplan.website
 **New domain:** https://scenia.website
-**GitHub repo:** https://github.com/waylonkenning/OnePlan (rename pending)
+**GitHub repo:** https://github.com/waylonkenning/Scenia (renamed ✓)
 
 ---
 
