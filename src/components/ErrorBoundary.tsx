@@ -49,7 +49,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
 // Test hook: renders a component that throws if the localStorage flag is set
 export function TestErrorThrower() {
-  if (typeof localStorage !== 'undefined' && localStorage.getItem('oneplan-test-throw') === 'true') {
+  if (typeof localStorage !== 'undefined' && localStorage.getItem('scenia-test-throw') === 'true') {
     throw new Error('Test-induced render error');
   }
   return null;

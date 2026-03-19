@@ -20,7 +20,7 @@ test.describe('Landing Page', () => {
 
     // Verify app elements are fundamentally hiding beneath / not focusable while landing page is up
     // Actually the landing page is over them within the DOM, but let's just make sure
-    // OnePlan header is in the landing page too so we look for 'Visualiser' nav
+    // Scenia header is in the landing page too so we look for 'Visualiser' nav
     const visualiserButton = page.getByTestId('nav-visualiser');
 
     // Click Get Started
@@ -46,7 +46,7 @@ test.describe('Landing Page', () => {
     // GitHub link in nav header
     const navGitHubLink = page.getByRole('link', { name: 'GitHub' }).first();
     await expect(navGitHubLink).toBeVisible();
-    await expect(navGitHubLink).toHaveAttribute('href', 'https://github.com/waylonkenning/OnePlan');
+    await expect(navGitHubLink).toHaveAttribute('href', 'https://github.com/waylonkenning/scenia');
 
     // "No signup" tagline under CTA
     await expect(page.getByText('No signup. No servers. Instantly ready.').first()).toBeVisible();
@@ -88,8 +88,8 @@ test.describe('App Footer', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => {
-      localStorage.setItem('oneplan_has_seen_landing', 'true');
-      localStorage.setItem('oneplan-e2e', 'true');
+      localStorage.setItem('scenia_has_seen_landing', 'true');
+      localStorage.setItem('scenia-e2e', 'true');
     });
     await page.reload();
   });
@@ -98,13 +98,13 @@ test.describe('App Footer', () => {
     const footer = page.locator('footer').last();
 
     // Static text
-    await expect(footer).toContainText('OnePlan IT Initiative Planner');
+    await expect(footer).toContainText('Scenia IT Initiative Planner');
     await expect(footer).toContainText('an open source tool from');
 
     // "open source" links to GitHub
     const openSourceLink = footer.getByRole('link', { name: 'open source' });
     await expect(openSourceLink).toBeVisible();
-    await expect(openSourceLink).toHaveAttribute('href', 'https://github.com/waylonkenning/OnePlan');
+    await expect(openSourceLink).toHaveAttribute('href', 'https://github.com/waylonkenning/scenia');
 
     // "Waylon Kenning" links to kenning.co.nz
     const kenningLink = footer.getByRole('link', { name: 'Waylon Kenning' });

@@ -5,7 +5,7 @@ test.describe('Capture Feature Screenshots', () => {
   test.beforeEach(async ({ page }) => {
     // E2E flag skips initial tutorial
     await page.addInitScript(() => {
-      window.localStorage.setItem('oneplan-e2e', 'true');
+      window.localStorage.setItem('scenia-e2e', 'true');
     });
     // Set a consistent viewport for standard aspect ratios
     await page.setViewportSize({ width: 1280, height: 800 });

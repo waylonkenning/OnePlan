@@ -20,7 +20,7 @@ export default defineConfig({
           origin: 'http://localhost:3000',
           localStorage: [
             {
-              name: 'oneplan-e2e',
+              name: 'scenia-e2e',
               value: 'true',
             },
           ],

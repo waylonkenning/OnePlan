@@ -19,9 +19,9 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         <header className="container mx-auto px-6 py-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white text-lg shadow-lg">
-              OP
+              S
             </div>
-            <span className="text-xl font-bold tracking-tight">OnePlan</span>
+            <span className="text-xl font-bold tracking-tight">Scenia</span>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -31,7 +31,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               Launch App
             </button>
             <a
-              href="https://github.com/waylonkenning/OnePlan"
+              href="https://github.com/waylonkenning/scenia"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
@@ -106,7 +106,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </div>
               <img
                 src="/tutorial/2-visualiser.png"
-                alt="OnePlan Visualiser"
+                alt="Scenia Visualiser"
                 className="w-full h-auto object-cover"
               />
             </div>
@@ -166,7 +166,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <div className="mt-16 flex flex-col items-center gap-3">
               <div className="flex items-center gap-4 text-slate-500 text-sm">
                 <a
-                  href="https://github.com/waylonkenning/OnePlan"
+                  href="https://github.com/waylonkenning/scenia"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 hover:text-slate-300 transition-colors"
@@ -188,7 +188,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   Kenning Corporation Limited
                 </a>
               </p>
-              <p className="text-slate-700 text-sm">&copy; {new Date().getFullYear()} OnePlan.</p>
+              <p className="text-slate-700 text-sm">&copy; {new Date().getFullYear()} Scenia.</p>
             </div>
           </div>
         </footer>

@@ -4,8 +4,8 @@ test.describe('Resources', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => {
-      localStorage.setItem('oneplan-e2e', 'true');
-      localStorage.setItem('oneplan_has_seen_landing', 'true');
+      localStorage.setItem('scenia-e2e', 'true');
+      localStorage.setItem('scenia_has_seen_landing', 'true');
     });
     await page.reload();
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });

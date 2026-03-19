@@ -1,6 +1,6 @@
-# Contributing to OnePlan
+# Contributing to Scenia
 
-Thank you for your interest in contributing to **OnePlan**! We welcome contributions from the community to help make this roadmap visualiser even better.
+Thank you for your interest in contributing to **Scenia**! We welcome contributions from the community to help make this roadmap visualiser even better.
 
 ## 🚀 How to Contribute
 
@@ -39,4 +39,4 @@ npm test
 Please be respectful and professional in all interactions. We aim to foster an inclusive and welcoming environment for everyone.
 
 ---
-*By contributing to OnePlan, you agree that your contributions will be licensed under the Apache License 2.0.*
+*By contributing to Scenia, you agree that your contributions will be licensed under the Apache License 2.0.*

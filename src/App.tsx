@@ -54,7 +54,7 @@ export default function App() {
   const [showFeatures, setShowFeatures] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showLandingPage, setShowLandingPage] = useState(
-    !localStorage.getItem('oneplan_has_seen_landing') && !localStorage.getItem('oneplan-e2e')
+    !localStorage.getItem('scenia_has_seen_landing') && !localStorage.getItem('scenia-e2e')
   );
 
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -126,7 +126,7 @@ export default function App() {
           setTimelineSettings(defaults.timelineSettings);
           setResources(defaults.resources);
           
-          if (!defaults.timelineSettings.hasSeenTutorial && !localStorage.getItem('oneplan-e2e')) {
+          if (!defaults.timelineSettings.hasSeenTutorial && !localStorage.getItem('scenia-e2e')) {
             setShowTutorial(true);
           }
         } else {
@@ -147,7 +147,7 @@ export default function App() {
           const mergedSettings = { ...defaultTimelineSettings, ...rawSettings, ...migratedSettings };
           setTimelineSettings(mergedSettings);
 
-          if (!mergedSettings.hasSeenTutorial && !localStorage.getItem('oneplan-e2e')) {
+          if (!mergedSettings.hasSeenTutorial && !localStorage.getItem('scenia-e2e')) {
             setShowTutorial(true);
           }
         }
@@ -325,7 +325,7 @@ export default function App() {
 
         {/* ── Mobile header ── */}
         <div data-testid="mobile-header" className="flex md:hidden items-center gap-3 px-4 py-2">
-          <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">OnePlan</h1>
+          <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">Scenia</h1>
           <div className="flex-1" />
           <button
             data-testid="mobile-settings-btn"
@@ -340,7 +340,7 @@ export default function App() {
         {/* ── Desktop header ── */}
         <div data-testid="desktop-header-controls" className="hidden md:flex flex-wrap items-center gap-3 px-4 py-2 overflow-x-auto">
         {/* Logo */}
-        <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">OnePlan</h1>
+        <h1 className="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">Scenia</h1>
 
         <div className="w-px h-6 bg-slate-200 shrink-0" />
 
@@ -946,9 +946,9 @@ export default function App() {
       </main>
 
       <footer className="hidden md:flex flex-shrink-0 pt-2 items-center justify-center gap-1 text-xs text-slate-400">
-        OnePlan IT Initiative Planner — an{' '}
+        Scenia IT Initiative Planner — an{' '}
         <a
-          href="https://github.com/waylonkenning/OnePlan"
+          href="https://github.com/waylonkenning/scenia"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:text-slate-600 transition-colors"
@@ -991,7 +991,7 @@ export default function App() {
         <LandingPage
           onGetStarted={() => {
             setShowLandingPage(false);
-            localStorage.setItem('oneplan_has_seen_landing', 'true');
+            localStorage.setItem('scenia_has_seen_landing', 'true');
           }}
         />
       )}

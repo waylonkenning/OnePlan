@@ -4,7 +4,7 @@ test.describe('Features Modal', () => {
   test.beforeEach(async ({ page }) => {
     // E2E flag skips initial tutorial
     await page.addInitScript(() => {
-      window.localStorage.setItem('oneplan-e2e', 'true');
+      window.localStorage.setItem('scenia-e2e', 'true');
     });
     await page.goto('/');
     
@@ -14,7 +14,7 @@ test.describe('Features Modal', () => {
 
   test('should show Resources & Capacity card', async ({ page }) => {
     await page.getByTestId('nav-features').click();
-    await expect(page.getByText('OnePlan Features & Capabilities')).toBeVisible();
+    await expect(page.getByText('Scenia Features & Capabilities')).toBeVisible();
     await expect(page.getByText('Resources & Capacity')).toBeVisible();
   });
 
@@ -23,7 +23,7 @@ test.describe('Features Modal', () => {
     await page.getByTestId('nav-features').click();
     
     // Verify modal is visible
-    await expect(page.getByText('OnePlan Features & Capabilities')).toBeVisible();
+    await expect(page.getByText('Scenia Features & Capabilities')).toBeVisible();
 
     // Verify some content
     await expect(page.getByText('Navigation & Setup')).toBeVisible();
@@ -33,6 +33,6 @@ test.describe('Features Modal', () => {
     await page.locator('button[aria-label="Close Features"]').click();
 
     // Verify modal is closed
-    await expect(page.getByText('OnePlan Features & Capabilities')).toBeHidden();
+    await expect(page.getByText('Scenia Features & Capabilities')).toBeHidden();
   });
 });

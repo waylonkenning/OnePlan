@@ -39,7 +39,7 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
   const [versionsError, setVersionsError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('oneplan-test-versions-fail') === 'true') {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('scenia-test-versions-fail') === 'true') {
       setVersionsError('Failed to load saved versions. Please try reloading.');
       return;
     }

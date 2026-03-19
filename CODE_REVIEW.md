@@ -1,4 +1,4 @@
-# OnePlan Code Review
+# Scenia Code Review
 
 Generated 2026-03-19. Issues are ordered by recommended fix priority.
 

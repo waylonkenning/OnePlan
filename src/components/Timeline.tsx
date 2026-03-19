@@ -74,12 +74,12 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
   const [draggingAssetId, setDraggingAssetId] = useState<string | null>(null);
   const [legendExpanded, setLegendExpanded] = useState<boolean>(() => {
-    try { return localStorage.getItem('oneplan_legend_expanded') !== 'false'; } catch { return true; }
+    try { return localStorage.getItem('scenia_legend_expanded') !== 'false'; } catch { return true; }
   });
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(() => {
     try {
-      const saved = sessionStorage.getItem('oneplan_collapsed_categories');
+      const saved = sessionStorage.getItem('scenia_collapsed_categories');
       return saved ? new Set(JSON.parse(saved)) : new Set();
     } catch { return new Set(); }
   });
@@ -89,7 +89,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       const next = new Set(prev);
       if (next.has(catId)) next.delete(catId);
       else next.add(catId);
-      sessionStorage.setItem('oneplan_collapsed_categories', JSON.stringify([...next]));
+      sessionStorage.setItem('scenia_collapsed_categories', JSON.stringify([...next]));
       return next;
     });
   };
@@ -2011,7 +2011,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             onClick={() => {
               const next = !legendExpanded;
               setLegendExpanded(next);
-              try { localStorage.setItem('oneplan_legend_expanded', String(next)); } catch { /* noop */ }
+              try { localStorage.setItem('scenia_legend_expanded', String(next)); } catch { /* noop */ }
             }}
             className="p-0.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
             aria-label={legendExpanded ? 'Collapse legend' : 'Expand legend'}

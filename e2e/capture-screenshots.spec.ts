@@ -11,8 +11,8 @@ async function loadAppWithDemoData(page: import('@playwright/test').Page) {
   // Skip landing page and tutorial, use demo data
   await page.goto('/');
   await page.evaluate(() => {
-    localStorage.setItem('oneplan-e2e', 'true');
-    localStorage.setItem('oneplan_has_seen_landing', 'true');
+    localStorage.setItem('scenia-e2e', 'true');
+    localStorage.setItem('scenia_has_seen_landing', 'true');
   });
   await page.reload();
   // Wait for timeline to be ready

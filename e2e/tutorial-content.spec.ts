@@ -8,8 +8,8 @@ test.describe('Tutorial Content', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.evaluate(async () => {
-      localStorage.removeItem('oneplan-e2e');
-      localStorage.setItem('oneplan_has_seen_landing', 'true');
+      localStorage.removeItem('scenia-e2e');
+      localStorage.setItem('scenia_has_seen_landing', 'true');
       const dbs = await indexedDB.databases();
       await Promise.all(dbs.map(db => db.name && new Promise<void>(res => {
         const req = indexedDB.deleteDatabase(db.name!);
@@ -18,7 +18,7 @@ test.describe('Tutorial Content', () => {
       })));
     });
     await page.reload();
-    await expect(page.getByRole('heading', { name: 'Welcome to OnePlan' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to Scenia' })).toBeVisible();
   });
 
   const nextSlide = (page: import('@playwright/test').Page) =>

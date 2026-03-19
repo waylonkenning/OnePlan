@@ -1,6 +1,6 @@
 # Playwright Test Development Todo List
 
-This document outlines the critical functionality of **OnePlan** that should be covered by automated end-to-end tests using Playwright.
+This document outlines the critical functionality of **Scenia** that should be covered by automated end-to-end tests using Playwright.
 
 ## 1. Navigation & State Management
 - [x] **Timeline Click Creation:**
@@ -170,7 +170,7 @@ This document outlines the critical functionality of **OnePlan** that should be 
     - [x] Verify all six feature cards are present: Dependency Mapping, Intuitive Canvas, Conflict Detection, Version History, Excel & PDF Export, 100% Private.
 - [x] **Kenning Corporation branding:**
     - [x] Verify the landing page footer links to kenning.co.nz.
-    - [x] Verify the in-app footer reads "OnePlan IT Initiative Planner — an open source tool from Waylon Kenning" with correct links.
+    - [x] Verify the in-app footer reads "Scenia IT Initiative Planner — an open source tool from Waylon Kenning" with correct links.
 
 ---
 

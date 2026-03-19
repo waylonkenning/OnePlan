@@ -1,5 +1,5 @@
 {
-  "name": "oneplan",
+  "name": "scenia",
   "version": "1.0.0",
   "private": false,
   "description": "Strategic roadmap visualiser for IT planning",
@@ -7,12 +7,12 @@
   "author": "Waylon Kenning",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/waylonkenning/OnePlan.git"
+    "url": "git+https://github.com/waylonkenning/scenia.git"
   },
   "bugs": {
-    "url": "https://github.com/waylonkenning/OnePlan/issues"
+    "url": "https://github.com/waylonkenning/scenia/issues"
   },
-  "homepage": "https://github.com/waylonkenning/OnePlan#readme",
+  "homepage": "https://github.com/waylonkenning/scenia#readme",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",

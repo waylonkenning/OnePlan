@@ -1,6 +1,6 @@
-# OnePlan Development Standards
+# Scenia Development Standards
 
-This document defines the foundational mandates for all automated engineering tasks within the **OnePlan** repository.
+This document defines the foundational mandates for all automated engineering tasks within the **Scenia** repository.
 
 ## 1. CI/CD Development Lifecycle
 
@@ -29,6 +29,6 @@ All feature development and bug fixes must follow this strict sequence:
 
 ## 3. Deployment Targets
 
-- **Production URL:** https://oneplan.website
+- **Production URL:** https://scenia.website
 - **CI/CD Configuration:** `cloudbuild.yaml`
 - **Environment:** Containerised via `Dockerfile` (Nginx on port 8080)
