@@ -13,8 +13,11 @@ test.describe('Mobile Phase 1b — Horizontal Scroll', () => {
     await page.goto('/');
     const header = page.locator('header');
     await expect(header).toBeVisible();
+    // Phase 2 mobile uses a compact header (logo + settings icon only) so the header
+    // itself no longer needs to scroll. overflow-x-auto is on the desktop header div
+    // (hidden on mobile). The header must not be overflow-hidden (which would clip popovers).
     const overflowX = await header.evaluate(el => getComputedStyle(el).overflowX);
-    expect(['auto', 'scroll']).toContain(overflowX);
+    expect(['auto', 'scroll', 'visible']).toContain(overflowX);
   });
 
   test('mobile settings sheet is accessible via settings button', async ({ page }) => {
