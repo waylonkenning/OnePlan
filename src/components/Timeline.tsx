@@ -1373,6 +1373,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                           : colorBy === 'programme'
                           ? (prog?.color || 'bg-slate-500')
                           : (strat?.color || 'bg-slate-400');
+                        const subtitle = colorBy === 'status'
+                          ? STATUS_LABELS[init.status || 'planned']
+                          : colorBy === 'programme'
+                          ? prog?.name
+                          : strat?.name;
                         const isOnCriticalPath = criticalPathInitIds.has(init.id);
                         return (
                           <div
@@ -1381,38 +1386,55 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             data-testid="initiative-bar"
                             onClick={() => setSelectedInitiativeId(init.id)}
                             className={cn(
-                              "absolute rounded-md shadow-sm border flex items-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
+                              "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
                               cn(colorClass, "text-white border-white/20"),
                               isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10"
                             )}
                             style={{ left: `${left}%`, width: `${barW}%`, height: barH, top }}
-                            title={`${init.name}\n${prog?.name ?? ''}`}
+                            title={`${init.name}\nProgramme: ${prog?.name ?? ''}\nStrategy: ${strat?.name ?? ''}${init.description ? `\n${init.description}` : ''}`}
                           >
                             {!init.isPlaceholder && (init.progress ?? 0) > 0 && (
                               <div data-testid="progress-overlay" className="absolute left-0 top-0 bottom-0 pointer-events-none rounded-l-md bg-white/25" style={{ width: `${init.progress}%`, zIndex: 1 }} />
                             )}
-                            <span className="font-bold text-[11px] leading-tight truncate drop-shadow-md relative z-10">{init.name}</span>
-                            {settings.showResources === 'on' && barW > 8 && (() => {
-                              const assignedNames = (init.resourceIds || [])
-                                .map(rid => resources.find(r => r.id === rid)?.name)
-                                .filter(Boolean);
-                              if (assignedNames.length === 0) return null;
-                              return (
-                                <span data-testid="initiative-resource-names" className="text-[9px] text-white/80 truncate ml-1 relative z-10">
-                                  {assignedNames.join(', ')}
-                                </span>
-                              );
-                            })()}
-                            {(() => {
-                              const ownerResource = init.ownerId ? resources.find(r => r.id === init.ownerId) : null;
-                              const ownerName = ownerResource?.name || init.owner;
-                              if (!ownerName || barW <= 6) return null;
-                              return (
-                                <div data-testid="owner-badge" className="flex-shrink-0 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white ml-auto" title={ownerName}>
-                                  {ownerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                            <div className="flex items-start justify-between gap-2 overflow-hidden h-full py-0.5">
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <div className="font-bold text-[11px] leading-tight line-clamp-2 drop-shadow-md">{init.name}</div>
+                                {subtitle && barW > 5 && (
+                                  <div className="text-[9px] italic opacity-70 truncate mt-0.5 drop-shadow-md">{subtitle}</div>
+                                )}
+                                {settings.descriptionDisplay === 'on' && init.description && barW > 8 && (
+                                  <div className="text-[9px] leading-[12px] opacity-90 mt-1 pt-1 border-t border-white/30 whitespace-pre-wrap break-words line-clamp-3 drop-shadow-md">{init.description}</div>
+                                )}
+                              </div>
+                              {settings.budgetVisualisation === 'label' && init.budget > 0 && (
+                                <div className="flex-shrink-0 text-[10px] font-bold px-1 rounded backdrop-blur-[2px] self-center bg-white/20 text-white">
+                                  ${init.budget >= 1000000
+                                    ? `${(init.budget / 1000000).toFixed(1)}m`
+                                    : `${Math.round(init.budget / 1000)}k`}
                                 </div>
-                              );
-                            })()}
+                              )}
+                              {settings.showResources === 'on' && barW > 8 && (() => {
+                                const assignedNames = (init.resourceIds || [])
+                                  .map(rid => resources.find(r => r.id === rid)?.name)
+                                  .filter(Boolean);
+                                if (assignedNames.length === 0) return null;
+                                return (
+                                  <span data-testid="initiative-resource-names" className="text-[9px] text-white/80 truncate self-center">
+                                    {assignedNames.join(', ')}
+                                  </span>
+                                );
+                              })()}
+                              {barW > 6 && (() => {
+                                const ownerResource = init.ownerId ? resources.find(r => r.id === init.ownerId) : null;
+                                const ownerName = ownerResource?.name || init.owner;
+                                if (!ownerName) return null;
+                                return (
+                                  <div data-testid="owner-badge" className="flex-shrink-0 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white self-center" title={ownerName}>
+                                    {ownerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                                  </div>
+                                );
+                              })()}
+                            </div>
                           </div>
                         );
                       })}
