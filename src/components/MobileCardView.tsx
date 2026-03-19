@@ -164,17 +164,17 @@ function getInitials(name: string): string {
 
 // ── Initiative row ────────────────────────────────────────────────────────────
 
-function InitiativeRow({
-  initiative,
-  programmes,
-  resources,
-  onClick,
-}: {
+const InitiativeRow: React.FC<{
   initiative: Initiative;
   programmes: Programme[];
   resources: Resource[];
   onClick: () => void;
-}) {
+}> = ({
+  initiative,
+  programmes,
+  resources,
+  onClick,
+}) => {
   const prog = programmes.find(p => p.id === initiative.programmeId);
   const dateRange = `${formatDate(initiative.startDate)} → ${formatDate(initiative.endDate)}`;
 
@@ -231,19 +231,19 @@ function InitiativeRow({
 
 // ── Bucket section ────────────────────────────────────────────────────────────
 
-function BucketSection({
-  label,
-  initiatives,
-  programmes,
-  resources,
-  onSelectInitiative,
-}: {
+const BucketSection: React.FC<{
   label: string;
   initiatives: Initiative[];
   programmes: Programme[];
   resources: Resource[];
   onSelectInitiative: (i: Initiative) => void;
-}) {
+}> = ({
+  label,
+  initiatives,
+  programmes,
+  resources,
+  onSelectInitiative,
+}) => {
   const [expanded, setExpanded] = useState(true);
 
   return (
@@ -273,16 +273,7 @@ function BucketSection({
 
 // ── Asset card ────────────────────────────────────────────────────────────────
 
-function AssetCard({
-  asset,
-  initiatives,
-  programmes,
-  strategies,
-  dependencies,
-  resources,
-  bucketMode,
-  onSelectInitiative,
-}: {
+const AssetCard: React.FC<{
   asset: Asset;
   initiatives: Initiative[];
   programmes: Programme[];
@@ -291,7 +282,16 @@ function AssetCard({
   resources: Resource[];
   bucketMode: BucketMode;
   onSelectInitiative: (i: Initiative) => void;
-}) {
+}> = ({
+  asset,
+  initiatives,
+  programmes,
+  strategies,
+  dependencies,
+  resources,
+  bucketMode,
+  onSelectInitiative,
+}) => {
   const [collapsed, setCollapsed] = useState(false);
   const conflicts = conflictCount(initiatives);
   const activeCount = initiatives.filter(i => {
