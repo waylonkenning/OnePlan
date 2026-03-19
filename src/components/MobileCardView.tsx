@@ -132,8 +132,34 @@ function conflictCount(assetInitiatives: Initiative[]): number {
 // ── Programme colour dot ──────────────────────────────────────────────────────
 
 function ProgrammeDot({ colorClass }: { colorClass: string }) {
-  // colorClass is a Tailwind bg-* class e.g. "bg-blue-500"
   return <span className={`inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 ${colorClass}`} />;
+}
+
+// ── Status badge ──────────────────────────────────────────────────────────────
+
+const STATUS_STYLES: Record<string, string> = {
+  planned:   'bg-slate-100 text-slate-500',
+  active:    'bg-blue-50 text-blue-600',
+  done:      'bg-green-50 text-green-600',
+  cancelled: 'bg-red-50 text-red-500',
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  planned: 'Planned', active: 'Active', done: 'Done', cancelled: 'Cancelled',
+};
+
+function StatusBadge({ status }: { status: string }) {
+  return (
+    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 ${STATUS_STYLES[status] ?? STATUS_STYLES.planned}`}>
+      {STATUS_LABELS[status] ?? status}
+    </span>
+  );
+}
+
+// ── Owner initials ────────────────────────────────────────────────────────────
+
+function getInitials(name: string): string {
+  return name.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
 // ── Initiative row ────────────────────────────────────────────────────────────
@@ -141,14 +167,22 @@ function ProgrammeDot({ colorClass }: { colorClass: string }) {
 function InitiativeRow({
   initiative,
   programmes,
+  resources,
   onClick,
 }: {
   initiative: Initiative;
   programmes: Programme[];
+  resources: Resource[];
   onClick: () => void;
 }) {
   const prog = programmes.find(p => p.id === initiative.programmeId);
   const dateRange = `${formatDate(initiative.startDate)} → ${formatDate(initiative.endDate)}`;
+
+  const ownerResource = resources.find(r => r.id === initiative.ownerId);
+  const ownerLabel = ownerResource?.name ?? initiative.owner ?? null;
+  const ownerInitials = ownerLabel ? getInitials(ownerLabel) : null;
+
+  const hasProgress = typeof initiative.progress === 'number' && initiative.progress > 0;
 
   return (
     <button
@@ -158,8 +192,37 @@ function InitiativeRow({
     >
       {prog && <div className={`w-1 self-stretch rounded-full flex-shrink-0 mt-0.5 ${prog.color}`} />}
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-slate-800 truncate">{initiative.name}</div>
-        <div className="text-xs text-slate-500 mt-0.5">{dateRange}</div>
+        {/* Name + owner */}
+        <div className="flex items-center gap-2">
+          <span className={`text-sm font-medium text-slate-800 truncate flex-1 ${initiative.status === 'cancelled' ? 'line-through text-slate-400' : ''}`}>
+            {initiative.name}
+          </span>
+          {ownerInitials && (
+            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-[9px] font-bold flex items-center justify-center">
+              {ownerInitials}
+            </span>
+          )}
+        </div>
+        {/* Date + status */}
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-xs text-slate-500 flex-1">{dateRange}</span>
+          {initiative.status && initiative.status !== 'planned' && (
+            <StatusBadge status={initiative.status} />
+          )}
+        </div>
+        {/* Progress bar */}
+        {hasProgress && (
+          <div className="mt-1.5 flex items-center gap-2">
+            <div className="flex-1 h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-blue-400 rounded-full"
+                style={{ width: `${initiative.progress}%` }}
+              />
+            </div>
+            <span className="text-[10px] text-slate-400 flex-shrink-0">{initiative.progress}%</span>
+          </div>
+        )}
+        {/* Programme name */}
         {prog && <div className="text-xs text-slate-400 mt-0.5">{prog.name}</div>}
       </div>
     </button>
@@ -172,11 +235,13 @@ function BucketSection({
   label,
   initiatives,
   programmes,
+  resources,
   onSelectInitiative,
 }: {
   label: string;
   initiatives: Initiative[];
   programmes: Programme[];
+  resources: Resource[];
   onSelectInitiative: (i: Initiative) => void;
 }) {
   const [expanded, setExpanded] = useState(true);
@@ -198,6 +263,7 @@ function BucketSection({
           key={init.id}
           initiative={init}
           programmes={programmes}
+          resources={resources}
           onClick={() => onSelectInitiative(init)}
         />
       ))}
@@ -213,6 +279,7 @@ function AssetCard({
   programmes,
   strategies,
   dependencies,
+  resources,
   bucketMode,
   onSelectInitiative,
 }: {
@@ -221,6 +288,7 @@ function AssetCard({
   programmes: Programme[];
   strategies: Strategy[];
   dependencies: Dependency[];
+  resources: Resource[];
   bucketMode: BucketMode;
   onSelectInitiative: (i: Initiative) => void;
 }) {
@@ -284,6 +352,7 @@ function AssetCard({
                 label={label}
                 initiatives={inits}
                 programmes={programmes}
+                resources={resources}
                 onSelectInitiative={onSelectInitiative}
               />
             ))}
@@ -367,6 +436,7 @@ export function MobileCardView({
                   programmes={programmes}
                   strategies={strategies}
                   dependencies={dependencies}
+                  resources={resources}
                   bucketMode={bucketMode}
                   onSelectInitiative={handleSelectInitiative}
                 />
@@ -385,6 +455,7 @@ export function MobileCardView({
                 programmes={programmes}
                 strategies={strategies}
                 dependencies={dependencies}
+                resources={resources}
                 bucketMode={bucketMode}
                 onSelectInitiative={handleSelectInitiative}
               />
