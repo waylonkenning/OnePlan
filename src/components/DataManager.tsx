@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Asset, Application, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
 import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree, Trash2, RotateCcw, Users, Box } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import {
-  demoAssets, demoApplications, demoInitiatives, demoMilestones, demoProgrammes, demoStrategies,
+  demoAssets, demoApplications, demoApplicationSegments, demoInitiatives, demoMilestones, demoProgrammes, demoStrategies,
   demoDependencies, demoAssetCategories, demoTimelineSettings, demoResources
 } from '../demoData';
 
@@ -13,6 +13,7 @@ interface DataManagerProps {
   data: {
     assets: Asset[];
     applications: Application[];
+    applicationSegments: ApplicationSegment[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
@@ -25,6 +26,7 @@ interface DataManagerProps {
   onUpdate: (data: {
     assets: Asset[];
     applications: Application[];
+    applicationSegments: ApplicationSegment[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
@@ -244,21 +246,10 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
   ];
 
   const applicationColumns: Column<Application>[] = [
-    { key: 'name', label: 'Name', type: 'text', width: '40%' },
+    { key: 'name', label: 'Name', type: 'text', width: '60%' },
     {
-      key: 'assetId', label: 'Asset', type: 'select', width: '30%',
+      key: 'assetId', label: 'Asset', type: 'select', width: '40%',
       options: data.assets.map(a => ({ value: a.id, label: a.name })),
-    },
-    {
-      key: 'status', label: 'Status', type: 'select', width: '30%',
-      options: [
-        { value: 'planned', label: 'Planned' },
-        { value: 'funded', label: 'Funded' },
-        { value: 'in-production', label: 'In Production' },
-        { value: 'sunset', label: 'Sunset' },
-        { value: 'out-of-support', label: 'Out of Support' },
-        { value: 'retired', label: 'Retired' },
-      ],
     },
   ];
 
@@ -421,7 +412,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
           onClick={() => confirm(
             'Reset — use demo data',
             'This will replace ALL current data with the demo dataset. Your existing data will be lost.',
-            () => onUpdate({ assets: demoAssets, applications: demoApplications, initiatives: demoInitiatives, milestones: demoMilestones, programmes: demoProgrammes, strategies: demoStrategies, dependencies: demoDependencies, assetCategories: demoAssetCategories, timelineSettings: demoTimelineSettings, resources: demoResources }),
+            () => onUpdate({ assets: demoAssets, applications: demoApplications, applicationSegments: demoApplicationSegments, initiatives: demoInitiatives, milestones: demoMilestones, programmes: demoProgrammes, strategies: demoStrategies, dependencies: demoDependencies, assetCategories: demoAssetCategories, timelineSettings: demoTimelineSettings, resources: demoResources }),
           )}
           className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all shadow-sm font-medium text-sm"
         >

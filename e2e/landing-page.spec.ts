@@ -16,7 +16,7 @@ test.describe('Landing Page', () => {
     await expect(getStartedButton).toBeVisible();
 
     // Verify hero text
-    await expect(page.getByText('IT Portfolio Planning,')).toBeVisible();
+    await expect(page.getByText('Your IT Portfolio,')).toBeVisible();
 
     // Verify app elements are fundamentally hiding beneath / not focusable while landing page is up
     // Actually the landing page is over them within the DOM, but let's just make sure

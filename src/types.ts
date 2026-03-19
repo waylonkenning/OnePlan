@@ -103,7 +103,20 @@ export interface Application {
   id: string;
   assetId: string;
   name: string;
+}
+
+/**
+ * A time-bounded lifecycle phase for an Application.
+ * An application may have many segments representing its progression
+ * through planned → in-production → sunset → retired etc.
+ */
+export interface ApplicationSegment {
+  id: string;
+  applicationId: string;
+  startDate: string; // ISO format: YYYY-MM-DD
+  endDate: string;   // ISO format: YYYY-MM-DD
   status: 'planned' | 'funded' | 'in-production' | 'sunset' | 'out-of-support' | 'retired';
+  label?: string;    // Optional display override; defaults to the status label
 }
 
 /**
@@ -150,6 +163,7 @@ export interface Version {
   data: {
     assets: Asset[];
     applications: Application[];
+    applicationSegments: ApplicationSegment[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
