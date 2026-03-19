@@ -11,8 +11,8 @@ test.describe('Capacity Report', () => {
         req.onsuccess = () => res();
         req.onerror = () => res();
       })));
-      localStorage.setItem('oneplan-e2e', 'true');
-      localStorage.setItem('oneplan_has_seen_landing', 'true');
+      localStorage.setItem('scenia-e2e', 'true');
+      localStorage.setItem('scenia_has_seen_landing', 'true');
     });
     await page.reload();
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });

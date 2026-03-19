@@ -4,7 +4,7 @@ test.describe('Error Boundary', () => {
   test('shows friendly error UI when a component throws, not a blank screen', async ({ page }) => {
     // Set a test flag that causes the app to throw during render
     await page.addInitScript(() => {
-      localStorage.setItem('oneplan-test-throw', 'true');
+      localStorage.setItem('scenia-test-throw', 'true');
     });
 
     await page.goto('/');

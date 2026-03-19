@@ -1,11 +1,11 @@
 steps:
   # Build and Push the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/oneplan-app', '-t', 'gcr.io/$PROJECT_ID/oneplan-app:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/scenia-app', '-t', 'gcr.io/$PROJECT_ID/scenia-app:$COMMIT_SHA', '.']
 
   # Push the container images to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '--all-tags', 'gcr.io/$PROJECT_ID/oneplan-app']
+    args: ['push', '--all-tags', 'gcr.io/$PROJECT_ID/scenia-app']
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -13,9 +13,9 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'oneplan-service'
+      - 'scenia-service'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/oneplan-app'
+      - 'gcr.io/$PROJECT_ID/scenia-app'
       - '--region'
       - 'us-central1'
       - '--allow-unauthenticated'
@@ -26,4 +26,4 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 images:
-  - 'gcr.io/$PROJECT_ID/oneplan-app'
+  - 'gcr.io/$PROJECT_ID/scenia-app'

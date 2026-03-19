@@ -5,7 +5,7 @@ test.describe('Feature Animation Validation', () => {
   test.beforeEach(async ({ page }) => {
     // E2E flag skips initial tutorial
     await page.addInitScript(() => {
-      window.localStorage.setItem('oneplan-e2e', 'true');
+      window.localStorage.setItem('scenia-e2e', 'true');
     });
     await page.goto('/');
   });

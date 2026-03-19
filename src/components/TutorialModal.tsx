@@ -7,8 +7,8 @@ interface TutorialModalProps {
 
 const slides = [
   {
-    title: 'Welcome to OnePlan',
-    text: 'OnePlan is a complete initiative planning tool. Map your work across time, track costs and sequencing, understand dependencies, and report on progress — all in one place, with no data leaving your browser.',
+    title: 'Welcome to Scenia',
+    text: 'Scenia is a complete initiative planning tool. Map your work across time, track costs and sequencing, understand dependencies, and report on progress — all in one place, with no data leaving your browser.',
     image: '/tutorial/1-overview.png',
   },
   {

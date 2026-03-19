@@ -1,10 +1,10 @@
-# OnePlan: Strategic Roadmap & Visualiser
+# Scenia: Strategic Roadmap & Visualiser
 
-**OnePlan is now open source!** We've made the full codebase publicly available under the Apache 2.0 licence. Whether you want to self-host, contribute, or just explore — you're welcome here.
+**Scenia is now open source!** We've made the full codebase publicly available under the Apache 2.0 licence. Whether you want to self-host, contribute, or just explore — you're welcome here.
 
-OnePlan is a powerful, interactive visualiser designed for IT strategic planning. It allows teams to map out initiatives across different IT assets, track dependencies, and identify scheduling conflicts in a clean, timeline-based interface.
+Scenia is a powerful, interactive visualiser designed for IT strategic planning. It allows teams to map out initiatives across different IT assets, track dependencies, and identify scheduling conflicts in a clean, timeline-based interface.
 
-**[🌐 View Live Demo](https://oneplan.website)** · **[⭐ Star on GitHub](https://github.com/waylonkenning/OnePlan)**
+**[🌐 View Live Demo](https://scenia.website)** · **[⭐ Star on GitHub](https://github.com/waylonkenning/scenia)**
 
 ## 🚀 Key Features
 
@@ -38,7 +38,7 @@ Manages the connection to IndexedDB, providing a local-first experience that wor
 
 ## 🚢 Deployment
 
-OnePlan is containerised using Docker and deployed to **Google Cloud Run** via **Google Cloud Build**.
+Scenia is containerised using Docker and deployed to **Google Cloud Run** via **Google Cloud Build**.
 
 ### Continuous Deployment
 The deployment pipeline is defined in `cloudbuild.yaml`:
@@ -50,8 +50,8 @@ The deployment pipeline is defined in `cloudbuild.yaml`:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/waylonkenning/OnePlan.git
-    cd OnePlan
+    git clone https://github.com/waylonkenning/scenia.git
+    cd scenia
     ```
 2.  **Install dependencies:**
     ```bash

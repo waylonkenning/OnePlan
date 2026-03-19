@@ -9,7 +9,7 @@ test.describe('ReportsView — versions load error handling', () => {
   test('shows an error message when versions cannot be loaded from IndexedDB', async ({ page }) => {
     // Set a test hook flag before the page loads so the useEffect simulates a failure
     await page.addInitScript(() => {
-      localStorage.setItem('oneplan-test-versions-fail', 'true');
+      localStorage.setItem('scenia-test-versions-fail', 'true');
     });
 
     await page.goto('/');

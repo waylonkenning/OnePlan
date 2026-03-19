@@ -1,6 +1,6 @@
-# OnePlan — Product Feature Reference
+# Scenia — Product Feature Reference
 
-Internal reference document. Plain-language master list of everything OnePlan can do, grouped by product area. Use this to audit tutorial and help content.
+Internal reference document. Plain-language master list of everything Scenia can do, grouped by product area. Use this to audit tutorial and help content.
 
 ---
 

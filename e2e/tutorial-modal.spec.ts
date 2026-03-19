@@ -6,10 +6,10 @@ test.describe('Tutorial Modal', () => {
     // Clear IndexedDB and local storage to simulate a fresh load without the bypass flag
     await page.goto('/');
     await page.evaluate(async () => {
-      localStorage.removeItem('oneplan-e2e');
-      localStorage.setItem('oneplan_has_seen_landing', 'true');
+      localStorage.removeItem('scenia-e2e');
+      localStorage.setItem('scenia_has_seen_landing', 'true');
       return new Promise<void>((resolve, reject) => {
-        const req = indexedDB.deleteDatabase('oneplan-e2e');
+        const req = indexedDB.deleteDatabase('scenia-e2e');
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);
         req.onblocked = () => resolve(); // sometimes it's blocked, we just proceed
@@ -23,11 +23,11 @@ test.describe('Tutorial Modal', () => {
     await page.goto('/');
 
     // Ensure the modal is visible
-    const modalHeading = page.getByRole('heading', { name: 'Welcome to OnePlan' });
+    const modalHeading = page.getByRole('heading', { name: 'Welcome to Scenia' });
     await expect(modalHeading).toBeVisible();
 
     // Verify content of first slide
-    await expect(page.getByText('OnePlan is a complete initiative planning tool')).toBeVisible();
+    await expect(page.getByText('Scenia is a complete initiative planning tool')).toBeVisible();
 
     // Click 'Skip' button
     await page.getByRole('button', { name: 'Skip' }).click();
@@ -42,7 +42,7 @@ test.describe('Tutorial Modal', () => {
 
   test('can be navigated via next and prev buttons', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Welcome to OnePlan' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to Scenia' })).toBeVisible();
 
     // Click Next
     await page.getByRole('button', { name: 'Next' }).click();
@@ -54,7 +54,7 @@ test.describe('Tutorial Modal', () => {
     await page.locator('button').filter({ has: page.locator('.lucide-chevron-left') }).click(); // target the chevron left
     
     // Ensure slide 1 is back
-    await expect(page.getByRole('heading', { name: 'Welcome to OnePlan' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to Scenia' })).toBeVisible();
   });
 
   test('can be opened via help button', async ({ page }) => {
@@ -62,12 +62,12 @@ test.describe('Tutorial Modal', () => {
     
     // Close the initial modal
     await page.getByRole('button', { name: 'Skip' }).click();
-    await expect(page.getByRole('heading', { name: 'Welcome to OnePlan' })).toBeHidden();
+    await expect(page.getByRole('heading', { name: 'Welcome to Scenia' })).toBeHidden();
 
     // Click Help Button
     await page.getByRole('button', { name: 'Tutorial' }).click();
 
     // Ensure modal is visible again
-    await expect(page.getByRole('heading', { name: 'Welcome to OnePlan' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to Scenia' })).toBeVisible();
   });
 });

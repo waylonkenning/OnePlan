@@ -171,7 +171,7 @@ export function FeaturesModal({ onClose }: FeaturesModalProps) {
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-900">
-                OnePlan Features & Capabilities
+                Scenia Features & Capabilities
               </h2>
               <p className="text-sm text-slate-500">
                 Comprehensive overview of application functionality
@@ -257,7 +257,7 @@ export function FeaturesModal({ onClose }: FeaturesModalProps) {
 
         <div className="p-6 border-t border-slate-100 bg-slate-50 shrink-0 rounded-b-2xl">
           <p className="text-xs text-center text-slate-500">
-            OnePlan is continually evolving. Additional capabilities and
+            Scenia is continually evolving. Additional capabilities and
             refinements are added regularly.
           </p>
         </div>
