@@ -112,7 +112,8 @@ export interface Application {
  */
 export interface ApplicationSegment {
   id: string;
-  applicationId: string;
+  applicationId?: string; // Optional: links segment to a specific application within the asset
+  assetId?: string;       // Optional: links segment directly to an asset (when applicationId is absent)
   startDate: string; // ISO format: YYYY-MM-DD
   endDate: string;   // ISO format: YYYY-MM-DD
   status: 'planned' | 'funded' | 'in-production' | 'sunset' | 'out-of-support' | 'retired';

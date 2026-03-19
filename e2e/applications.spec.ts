@@ -138,22 +138,18 @@ test.describe('Applications — Visualiser sub-rows', () => {
 
   test('application sub-rows are visible in the timeline for assets with applications', async ({ page }) => {
     // a-ciam should have application sub-rows based on demo data
-    await expect(page.locator('[data-testid^="application-row-"]').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid^="application-swimlane-"]').first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('application sub-row shows the application name in the sidebar', async ({ page }) => {
-    const appRow = page.locator('[data-testid^="application-row-"]').first();
-    await expect(appRow).toBeVisible();
-    // The sidebar within the row should show a name
-    const label = appRow.locator('[data-testid="application-row-label"]');
-    await expect(label).toBeVisible();
-    const text = await label.textContent();
-    expect(text?.trim().length).toBeGreaterThan(0);
+  test('one applications swimlane per asset with applications (3 in demo data)', async ({ page }) => {
+    // Demo data has 3 assets with applications: a-ciam, a-web, a-mobile
+    const appSwimlanes = page.locator('[data-testid^="application-swimlane-"]');
+    await expect(appSwimlanes).toHaveCount(3);
   });
 
   test('application sub-row shows lifecycle segment bars from demo data', async ({ page }) => {
     // Demo data includes segments for each application; at least one bar should be visible
-    const appRow = page.locator('[data-testid^="application-row-"]').first();
+    const appRow = page.locator('[data-testid^="application-swimlane-"]').first();
     await expect(appRow).toBeVisible();
     const segmentBar = appRow.locator('[data-testid^="segment-bar-"]').first();
     await expect(segmentBar).toBeVisible();
@@ -182,12 +178,10 @@ test.describe('Applications — Visualiser sub-rows', () => {
     }
   });
 
-  test('assets with no applications render without any application sub-rows', async ({ page }) => {
+  test('assets with no applications render without an applications swimlane', async ({ page }) => {
     // a-k8s (Kubernetes Platform) has no applications in demo data
-    const k8sRow = page.locator('[data-testid="asset-row-a-k8s"]');
-    await expect(k8sRow).toBeVisible();
-    // No application rows nested inside this specific asset
-    await expect(k8sRow.locator('[data-testid^="application-row-"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="asset-row-a-k8s"]')).toBeVisible();
+    await expect(page.locator('[data-testid="application-swimlane-a-k8s"]')).toHaveCount(0);
   });
 
   test('milestones remain visible at the asset level alongside application sub-rows', async ({ page }) => {
