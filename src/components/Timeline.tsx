@@ -38,6 +38,16 @@ interface TimelineProps {
 const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
 const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
+// Layout constants — defined at module scope so they are stable references
+// and do not appear as missing useEffect dependencies.
+const SEG_BAR_HEIGHT = 36;
+const SEG_ROW_HEIGHT = 52;
+const MIN_ROW_HEIGHT = 60;
+const BAR_HEIGHT = 44;
+const BAR_GAP = 4;
+const ROW_PADDING = 8;
+const SEG_ROW_UNIT = SEG_BAR_HEIGHT + BAR_GAP; // 40px: one segment row height + gap
+
 export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment, onUpdateApplicationSegments }: TimelineProps) {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
@@ -67,8 +77,6 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     'out-of-support':'Out of Support',
     retired:        'Retired',
   };
-  const SEG_BAR_HEIGHT = 36;
-  const SEG_ROW_HEIGHT = 52;
   const STATUS_LABELS: Record<string, string> = {
     planned: 'Planned',
     active: 'Active',
@@ -766,7 +774,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, resizingSegment, resizingSegmentVertical, movingSegment, localInitiatives, localMilestones, localSegments, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, onSaveApplicationSegment, dependencies, initiativePositions, milestonePositions]);
+  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, resizingSegment, resizingSegmentVertical, movingSegment, localInitiatives, localMilestones, localSegments, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, onSaveApplicationSegment, onUpdateApplicationSegments, dependencies, initiativePositions, milestonePositions, settings.showRelationships, settings.snapToPeriod]);
 
   const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
     setDraggingCategory(category);
@@ -792,11 +800,6 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     setDraggingCategory(null);
   };
 
-  const MIN_ROW_HEIGHT = 60;
-  const BAR_HEIGHT = 44;
-  const BAR_GAP = 4;
-  const ROW_PADDING = 8;
-  const SEG_ROW_UNIT = SEG_BAR_HEIGHT + BAR_GAP; // 40px: one segment row height + gap
 
   const layoutAsset = (assetInitiatives: Initiative[]) => {
     const groups = getGroupsForAsset(assetInitiatives);

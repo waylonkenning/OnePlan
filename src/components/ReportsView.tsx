@@ -89,7 +89,7 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
     }).catch(() => {
       setVersionsError('Failed to load saved versions. Please try reloading.');
     });
-  }, []);
+  }, [versionsError]);
 
   const handleRunDiff = () => {
     const base = versions.find(v => v.id === selectedVersionId);
