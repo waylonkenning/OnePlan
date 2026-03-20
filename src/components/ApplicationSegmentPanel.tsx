@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { ApplicationSegment, Application } from '../types';
+import { ApplicationSegment, Application, ApplicationStatus } from '../types';
 import { X, Trash2 } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import { useFocusTrap } from '../lib/useFocusTrap';
 
-const STATUS_OPTIONS: { value: ApplicationSegment['status']; label: string }[] = [
-  { value: 'planned',        label: 'Planned' },
-  { value: 'funded',         label: 'Funded' },
-  { value: 'in-production',  label: 'In Production' },
-  { value: 'sunset',         label: 'Sunset' },
-  { value: 'out-of-support', label: 'Out of Support' },
-  { value: 'retired',        label: 'Retired' },
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+  { value: 'appstatus-planned',        label: 'Planned' },
+  { value: 'appstatus-funded',         label: 'Funded' },
+  { value: 'appstatus-in-production',  label: 'In Production' },
+  { value: 'appstatus-sunset',         label: 'Sunset' },
+  { value: 'appstatus-out-of-support', label: 'Out of Support' },
+  { value: 'appstatus-retired',        label: 'Retired' },
 ];
 
 interface ApplicationSegmentPanelProps {
@@ -20,6 +20,7 @@ interface ApplicationSegmentPanelProps {
   onClose: () => void;
   onSave: (segment: ApplicationSegment) => void;
   onDelete?: (segment: ApplicationSegment) => void;
+  applicationStatuses?: ApplicationStatus[];
 }
 
 export function ApplicationSegmentPanel({
@@ -29,10 +30,15 @@ export function ApplicationSegmentPanel({
   onClose,
   onSave,
   onDelete,
+  applicationStatuses,
 }: ApplicationSegmentPanelProps) {
   const [formData, setFormData] = useState<ApplicationSegment | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const panelRef = useFocusTrap(isOpen, onClose);
+
+  const statusOptions = applicationStatuses && applicationStatuses.length > 0
+    ? applicationStatuses.map(s => ({ value: s.id, label: s.name }))
+    : STATUS_OPTIONS;
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -94,10 +100,10 @@ export function ApplicationSegmentPanel({
                 <select
                   data-testid="segment-status"
                   value={formData.status}
-                  onChange={e => setFormData({ ...formData, status: e.target.value as ApplicationSegment['status'] })}
+                  onChange={e => setFormData({ ...formData, status: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {STATUS_OPTIONS.map(o => (
+                  {statusOptions.map(o => (
                     <option key={o.value} value={o.value}>{o.label}</option>
                   ))}
                 </select>
@@ -176,7 +182,7 @@ export function ApplicationSegmentPanel({
         <ConfirmModal
           isOpen={confirmDelete}
           title="Delete Segment"
-          message={`Remove the "${formData.label || STATUS_OPTIONS.find(o => o.value === formData.status)?.label}" segment? This cannot be undone.`}
+          message={`Remove the "${formData.label || statusOptions.find(o => o.value === formData.status)?.label}" segment? This cannot be undone.`}
           confirmLabel="Delete"
           onConfirm={() => { onDelete(formData); setConfirmDelete(false); }}
           onCancel={() => setConfirmDelete(false)}
