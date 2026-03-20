@@ -91,6 +91,31 @@ test.describe('Floating Legend Box', () => {
     await expect(content.locator('[data-testid="legend-conflict"]')).toBeVisible();
   });
 
+  test('legend shows current date and time', async ({ page }) => {
+    const timestamp = page.locator('[data-testid="legend-timestamp"]');
+    await expect(timestamp).toBeVisible();
+    // Should contain a year (4 digits) and a time separator ':'
+    const text = await timestamp.textContent();
+    expect(text).toMatch(/\d{4}/);
+    expect(text).toContain(':');
+  });
+
+  test('legend appears behind initiative panel (lower z-index)', async ({ page }) => {
+    // Open initiative panel
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
+    await expect(page.getByTestId('initiative-panel')).toBeVisible();
+
+    // Legend should still be in the DOM but visually behind the panel
+    const legend = page.locator('[data-testid="timeline-legend"]');
+    await expect(legend).toBeAttached();
+    const legendZ = await legend.evaluate(el => getComputedStyle(el).zIndex);
+    const panelOverlay = page.getByTestId('initiative-panel');
+    const panelZ = await panelOverlay.evaluate(el => getComputedStyle(el).zIndex);
+    expect(Number(legendZ)).toBeLessThan(Number(panelZ));
+  });
+
   test('colour-legend is inside the floating legend, not the header bar', async ({ page }) => {
     // The colour-legend testid must live inside #timeline-visualiser (floating legend),
     // not in the header bar above the timeline
