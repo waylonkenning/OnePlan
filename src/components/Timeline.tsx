@@ -76,6 +76,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     cancelled: 'Cancelled',
   };
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
+  const [initiativePanelId, setInitiativePanelId] = useState<string | null>(null); // separate from selectedInitiativeId — panel only opens when this is set
   const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null);
   const [disambiguateAt, setDisambiguateAt] = useState<{ x: number; y: number; candidates: Dependency[] } | null>(null);
   const depSegmentsRef = useRef<Map<string, number[][]>>(new Map()); // depId → [[x1,y1,x2,y2], ...]
@@ -93,6 +94,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const [resizingSegmentVertical, setResizingSegmentVertical] = useState<{ id: string; initialY: number; initialRowSpan: number } | null>(null);
   const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
   const [creatingSegmentParams, setCreatingSegmentParams] = useState<{ id: string; assetId: string; startDate: string; endDate: string; row: number } | null>(null);
+  const [segmentPanelId, setSegmentPanelId] = useState<string | null>(null); // separate from selectedSegmentId — panel only opens when this is set
   const segIdCounter = useRef(0);
   const initIdCounter = useRef(0);
   const [drawingDependency, setDrawingDependency] = useState<{
@@ -1016,6 +1018,27 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     return 0;
   };
 
+  // Move a segment up or down one row, cascading conflicts if needed
+  const handleSegmentRowMove = (segId: string, delta: number) => {
+    const seg = localSegments.find(s => s.id === segId);
+    if (!seg) return;
+    const newRow = Math.max(0, (seg.row ?? 0) + delta);
+    if (newRow === (seg.row ?? 0)) return;
+    const updated = localSegments.map(s => s.id === segId ? { ...s, row: newRow } : s);
+    const resolved = resolveSegmentConflicts(segId, updated);
+    setLocalSegments(resolved);
+    const hasConflicts = resolved.some(s => {
+      const orig = updated.find(u => u.id === s.id);
+      return orig && s.row !== orig.row && s.id !== segId;
+    });
+    if (hasConflicts && onUpdateApplicationSegments) {
+      onUpdateApplicationSegments(resolved);
+    } else if (onSaveApplicationSegment) {
+      const movedSeg = resolved.find(s => s.id === segId);
+      if (movedSeg) onSaveApplicationSegment(movedSeg);
+    }
+  };
+
   // After a horizontal drag, push any segments that now overlap the moved segment
   // down to the next available row. Cascades until all conflicts are resolved.
   const resolveSegmentConflicts = (movedId: string, segments: ApplicationSegment[]): ApplicationSegment[] => {
@@ -1223,7 +1246,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   if (timeColumns.length === 0) return null;
 
   return (
-    <div id="timeline-visualiser" ref={timelineRef} className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden relative">
+    <div id="timeline-visualiser" ref={timelineRef} className="flex flex-col h-full bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden relative"
+      onClick={() => { setSelectedInitiativeId(null); setInitiativePanelId(null); setSelectedSegmentId(null); setSegmentPanelId(null); }}
+    >
 
 
       <div className="flex-1 overflow-auto scroll-smooth" ref={scrollContainerRef}>
@@ -1776,7 +1801,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 key={init.id}
                                 data-initiative-id={init.id}
                                 data-critical-path={isOnCriticalPath ? 'true' : 'false'}
-                                data-testid={isGroup ? "project-group-bar" : "initiative-bar"}
+                                data-testid={isGroup ? "project-group-bar" : `initiative-bar-${init.id}`}
+                                data-selected={selectedInitiativeId === init.id ? 'true' : undefined}
                                 onMouseDown={(e) => {
                                   isDraggingRef.current = false;
                                   setMoving({
@@ -1787,7 +1813,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                     initialEnd: init.endDate
                                   });
                                 }}
-                                onClick={(_e) => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   // Prevent clicking if we just finished a drag
                                   if (isDraggingRef.current) {
                                     isDraggingRef.current = false;
@@ -1802,7 +1829,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                     : isGroup
                                       ? "border-2 border-dashed border-blue-400/60 text-slate-900 font-bold"
                                       : cn(colorClass, "text-white border-white/20"),
-                                  isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10"
+                                  isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10",
+                                  selectedInitiativeId === init.id && "ring-2 ring-white/80 ring-offset-1 z-20"
                                 )}
                                 style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
                                 title={(init as any).isGroup 
@@ -1885,6 +1913,17 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                     );
                                   })()}
                                 </div>
+
+                                {/* Edit Button for selected non-group initiatives */}
+                                {selectedInitiativeId === init.id && !isGroup && (
+                                  <button
+                                    data-testid="initiative-edit"
+                                    className="absolute top-0.5 right-0.5 w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none z-20"
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
+                                    title="Edit initiative"
+                                  >✎</button>
+                                )}
 
                                 {/* Ungroup Button for summary bars */}
                                 {isGroup && (
@@ -2047,22 +2086,26 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 const displayLabel = seg.label
                                   || applications.find(a => a.id === seg.applicationId)?.name
                                   || SEGMENT_LABELS[seg.status];
+                                const isSegSelected = selectedSegmentId === seg.id;
                                 return (
                                   <div
                                     key={seg.id}
                                     data-testid={`segment-bar-${seg.id}`}
+                                    data-selected={isSegSelected ? 'true' : undefined}
                                     onMouseDown={(e) => {
                                       isDraggingRef.current = false;
                                       setMovingSegment({ id: seg.id, initialX: e.clientX, initialStart: seg.startDate, initialEnd: seg.endDate });
                                     }}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       if (isDraggingRef.current) { isDraggingRef.current = false; return; }
                                       setSelectedSegmentId(seg.id);
                                       setCreatingSegmentParams(null);
                                     }}
                                     className={cn(
                                       "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none group/seg",
-                                      colorClass, "text-white"
+                                      colorClass, "text-white",
+                                      isSegSelected && "ring-2 ring-white/80 ring-offset-1 z-20"
                                     )}
                                     style={{ left: `${left}%`, width: `${Math.max(width, 0.5)}%`, height, top }}
                                     title={`${displayLabel}\n${seg.startDate} → ${seg.endDate}`}
@@ -2072,10 +2115,33 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                     <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10"
                                       onMouseDown={(e) => { e.stopPropagation(); setResizingSegment({ id: seg.id, edge: 'end', initialX: e.clientX, initialDate: seg.endDate }); }} />
                                     <div draggable="false" data-testid="segment-resize-bottom"
-                                      className="absolute left-2 right-2 bottom-0 h-2 cursor-ns-resize flex items-center justify-center opacity-0 group-hover/seg:opacity-100 transition-opacity z-10"
+                                      className={`absolute left-2 right-2 bottom-0 h-2 cursor-ns-resize flex items-center justify-center transition-opacity z-10 ${isSegSelected ? 'opacity-100' : 'opacity-0 group-hover/seg:opacity-100'}`}
                                       onMouseDown={(e) => { e.stopPropagation(); setResizingSegmentVertical({ id: seg.id, initialY: e.clientY, initialRowSpan: rowSpan }); }}>
                                       <div className="w-8 h-0.5 bg-white/60 rounded-full" />
                                     </div>
+                                    {isSegSelected && (
+                                      <div className="absolute top-0.5 right-0.5 flex flex-col gap-0.5 z-20" onClick={(e) => e.stopPropagation()}>
+                                        <button
+                                          data-testid="segment-row-up"
+                                          className="w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none"
+                                          onMouseDown={(e) => e.stopPropagation()}
+                                          onClick={(e) => { e.stopPropagation(); handleSegmentRowMove(seg.id, -1); }}
+                                        >↑</button>
+                                        <button
+                                          data-testid="segment-row-down"
+                                          className="w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none"
+                                          onMouseDown={(e) => e.stopPropagation()}
+                                          onClick={(e) => { e.stopPropagation(); handleSegmentRowMove(seg.id, +1); }}
+                                        >↓</button>
+                                        <button
+                                          data-testid="segment-edit"
+                                          className="w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none"
+                                          onMouseDown={(e) => e.stopPropagation()}
+                                          onClick={(e) => { e.stopPropagation(); setSegmentPanelId(seg.id); }}
+                                          title="Edit segment"
+                                        >✎</button>
+                                      </div>
+                                    )}
                                     <div className="font-bold text-[11px] leading-tight truncate drop-shadow-md">{displayLabel}</div>
                                   </div>
                                 );
@@ -2098,14 +2164,15 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       </div>
 
       <InitiativePanel
-        isOpen={selectedInitiativeId !== null || creatingInitiativeParams !== null}
+        isOpen={initiativePanelId !== null || creatingInitiativeParams !== null}
         onClose={() => {
+          setInitiativePanelId(null);
           setSelectedInitiativeId(null);
           setCreatingInitiativeParams(null);
         }}
         initiative={
-          selectedInitiativeId
-            ? initiatives.find(i => i.id === selectedInitiativeId) || null
+          initiativePanelId
+            ? initiatives.find(i => i.id === initiativePanelId) || null
             : creatingInitiativeParams
               ? {
                 id: creatingInitiativeParams.id,
@@ -2128,26 +2195,28 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         initiatives={initiatives}
         resources={resources}
         onSave={(initiative) => {
-          if (selectedInitiativeId) {
+          if (initiativePanelId) {
             if (onUpdateInitiative) onUpdateInitiative(initiative);
           } else {
             if (onAddInitiative) onAddInitiative(initiative);
           }
+          setInitiativePanelId(null);
           setSelectedInitiativeId(null);
           setCreatingInitiativeParams(null);
         }}
         onDelete={(initiative) => {
           if (onDeleteInitiative) onDeleteInitiative(initiative);
+          setInitiativePanelId(null);
           setSelectedInitiativeId(null);
           setCreatingInitiativeParams(null);
         }}
       />
 
       <ApplicationSegmentPanel
-        isOpen={selectedSegmentId !== null || creatingSegmentParams !== null}
+        isOpen={segmentPanelId !== null || creatingSegmentParams !== null}
         segment={
-          selectedSegmentId
-            ? localSegments.find(s => s.id === selectedSegmentId) || null
+          segmentPanelId
+            ? localSegments.find(s => s.id === segmentPanelId) || null
             : creatingSegmentParams
               ? {
                   id: creatingSegmentParams.id,
@@ -2161,18 +2230,20 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
               : null
         }
         application={
-          (selectedSegmentId
-            ? applications.find(a => a.id === localSegments.find(s => s.id === selectedSegmentId)?.applicationId)
+          (segmentPanelId
+            ? applications.find(a => a.id === localSegments.find(s => s.id === segmentPanelId)?.applicationId)
             : null) || null
         }
-        onClose={() => { setSelectedSegmentId(null); setCreatingSegmentParams(null); }}
+        onClose={() => { setSegmentPanelId(null); setSelectedSegmentId(null); setCreatingSegmentParams(null); }}
         onSave={(seg) => {
           if (onSaveApplicationSegment) onSaveApplicationSegment(seg);
+          setSegmentPanelId(null);
           setSelectedSegmentId(null);
           setCreatingSegmentParams(null);
         }}
         onDelete={(seg) => {
           if (onDeleteApplicationSegment) onDeleteApplicationSegment(seg);
+          setSegmentPanelId(null);
           setSelectedSegmentId(null);
         }}
       />
