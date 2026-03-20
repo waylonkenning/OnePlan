@@ -89,8 +89,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const [localSegments, setLocalSegments] = useState<ApplicationSegment[]>(applicationSegmentsProp);
   const [movingSegment, setMovingSegment] = useState<{ id: string; initialX: number; initialStart: string; initialEnd: string } | null>(null);
   const [resizingSegment, setResizingSegment] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
+  const [resizingSegmentVertical, setResizingSegmentVertical] = useState<{ id: string; initialY: number; initialRowSpan: number } | null>(null);
   const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
-  const [creatingSegmentParams, setCreatingSegmentParams] = useState<{ id: string; assetId: string; startDate: string; endDate: string } | null>(null);
+  const [creatingSegmentParams, setCreatingSegmentParams] = useState<{ id: string; assetId: string; startDate: string; endDate: string; row: number } | null>(null);
   const segIdCounter = useRef(0);
   const initIdCounter = useRef(0);
   const [drawingDependency, setDrawingDependency] = useState<{
@@ -252,10 +253,10 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   }, [filteredInitiatives, resizing, moving]);
 
   useEffect(() => {
-    if (!movingSegment && !resizingSegment) {
+    if (!movingSegment && !resizingSegment && !resizingSegmentVertical) {
       setLocalSegments(applicationSegmentsProp);
     }
-  }, [applicationSegmentsProp, movingSegment, resizingSegment]);
+  }, [applicationSegmentsProp, movingSegment, resizingSegment, resizingSegmentVertical]);
 
   useEffect(() => {
     if (!movingMilestone) {
@@ -633,6 +634,14 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             d.id === movingDependency.id ? { ...d, midXOffset: newOffset } : d
           ));
         }
+      } else if (resizingSegmentVertical) {
+        const deltaY = e.clientY - resizingSegmentVertical.initialY;
+        if (Math.abs(deltaY) > 3) isDraggingRef.current = true;
+        const deltaRows = Math.round(deltaY / SEG_ROW_UNIT);
+        const newRowSpan = Math.max(1, resizingSegmentVertical.initialRowSpan + deltaRows);
+        setLocalSegments(localSegments.map(s =>
+          s.id === resizingSegmentVertical.id ? { ...s, rowSpan: newRowSpan } : s
+        ));
       } else if (resizingSegment) {
         const deltaX = e.clientX - resizingSegment.initialX;
         if (Math.abs(deltaX) > 3) isDraggingRef.current = true;
@@ -712,7 +721,10 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
           onUpdateDependencies([...dependencies, newDependency]);
         }
       }
-      if (resizingSegment && onSaveApplicationSegment) {
+      if (resizingSegmentVertical && onSaveApplicationSegment) {
+        const updated = localSegments.find(s => s.id === resizingSegmentVertical.id);
+        if (updated) onSaveApplicationSegment(updated);
+      } else if (resizingSegment && onSaveApplicationSegment) {
         const updated = localSegments.find(s => s.id === resizingSegment.id);
         if (updated) onSaveApplicationSegment(updated);
       } else if (movingSegment && onSaveApplicationSegment) {
@@ -726,10 +738,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       setDrawingDependency(null);
       setDraggingCategory(null);
       setResizingSegment(null);
+      setResizingSegmentVertical(null);
       setMovingSegment(null);
     };
 
-    if (resizing || moving || movingMilestone || drawingDependency || movingDependency || resizingSegment || movingSegment) {
+    if (resizing || moving || movingMilestone || drawingDependency || movingDependency || resizingSegment || resizingSegmentVertical || movingSegment) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     }
@@ -738,7 +751,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, resizingSegment, movingSegment, localInitiatives, localMilestones, localSegments, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, onSaveApplicationSegment, dependencies, initiativePositions, milestonePositions]);
+  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, resizingSegment, resizingSegmentVertical, movingSegment, localInitiatives, localMilestones, localSegments, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, onSaveApplicationSegment, dependencies, initiativePositions, milestonePositions]);
 
   const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
     setDraggingCategory(category);
@@ -768,6 +781,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const BAR_HEIGHT = 44;
   const BAR_GAP = 4;
   const ROW_PADDING = 8;
+  const SEG_ROW_UNIT = SEG_BAR_HEIGHT + BAR_GAP; // 40px: one segment row height + gap
 
   const layoutAsset = (assetInitiatives: Initiative[]) => {
     const groups = getGroupsForAsset(assetInitiatives);
@@ -906,42 +920,87 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     return { items: finalItems, height: contentHeight };
   };
 
-  // Layout segments for the Applications swimlane — overlapping segments shift downward
+  // Layout segments for the Applications swimlane.
+  // Segments with an explicit `row` are placed there; segments without one are auto-packed
+  // into the first available row. `rowSpan` controls how many rows tall a segment is.
   const layoutSegments = (segments: ApplicationSegment[]) => {
-    const sorted = [...segments].sort((a, b) => a.startDate.localeCompare(b.startDate));
-    const finalItems: { seg: ApplicationSegment; top: number; left: number; width: number }[] = [];
-    const placedRects: { start: number; end: number; top: number; bottom: number }[] = [];
+    type PlacedItem = {
+      seg: ApplicationSegment;
+      row: number;
+      rowSpan: number;
+      left: number;
+      right: number;
+    };
 
-    sorted.forEach(seg => {
-      const left = getPosition(seg.startDate);
-      const width = getWidth(seg.startDate, seg.endDate);
-      const right = left + width;
+    const allItems: PlacedItem[] = [];
 
-      const candidateTops = [ROW_PADDING];
-      placedRects.forEach(r => candidateTops.push(r.bottom + BAR_GAP));
-      candidateTops.sort((a, b) => a - b);
+    // Place explicit-row segments first so auto-pack respects them
+    const explicitSegs = segments.filter(s => s.row !== undefined);
+    const autoSegs = [...segments.filter(s => s.row === undefined)]
+      .sort((a, b) => a.startDate.localeCompare(b.startDate));
 
-      let top = ROW_PADDING;
-      for (const candidateTop of candidateTops) {
-        const candidateBottom = candidateTop + SEG_BAR_HEIGHT;
-        let overlaps = false;
-        for (const rect of placedRects) {
-          const xOverlap = !(rect.end <= left || rect.start >= right);
-          const yOverlap = !(rect.bottom <= candidateTop || rect.top >= candidateBottom);
-          if (xOverlap && yOverlap) { overlaps = true; break; }
-        }
-        if (!overlaps) { top = candidateTop; break; }
-      }
-
-      finalItems.push({ seg, top, left, width });
-      placedRects.push({ start: left, end: right, top, bottom: top + SEG_BAR_HEIGHT });
+    explicitSegs.forEach(seg => {
+      allItems.push({
+        seg,
+        row: seg.row!,
+        rowSpan: seg.rowSpan ?? 1,
+        left: getPosition(seg.startDate),
+        right: getPosition(seg.startDate) + getWidth(seg.startDate, seg.endDate),
+      });
     });
 
-    const contentHeight = finalItems.length > 0
-      ? Math.max(SEG_ROW_HEIGHT, Math.max(...finalItems.map(i => i.top + SEG_BAR_HEIGHT)) + ROW_PADDING)
-      : SEG_ROW_HEIGHT;
+    // Auto-assign rows using greedy first-fit per row
+    autoSegs.forEach(seg => {
+      const left = getPosition(seg.startDate);
+      const right = left + getWidth(seg.startDate, seg.endDate);
+      const span = seg.rowSpan ?? 1;
 
-    return { items: finalItems, height: contentHeight };
+      let bestRow = 0;
+      while (true) {
+        const conflicts = allItems.filter(item => {
+          const rowOverlap = item.row < bestRow + span && item.row + item.rowSpan > bestRow;
+          if (!rowOverlap) return false;
+          return !(item.right <= left || item.left >= right);
+        });
+        if (conflicts.length === 0) break;
+        bestRow++;
+      }
+      allItems.push({ seg, row: bestRow, rowSpan: span, left, right });
+    });
+
+    // Compute pixel geometry from row assignments
+    const maxRowEnd = allItems.reduce((max, item) => Math.max(max, item.row + item.rowSpan), 0);
+    const swimlaneHeight = maxRowEnd === 0
+      ? SEG_ROW_HEIGHT
+      : Math.max(SEG_ROW_HEIGHT, ROW_PADDING + maxRowEnd * SEG_ROW_UNIT - BAR_GAP + ROW_PADDING);
+
+    const finalItems = allItems.map(({ seg, row, rowSpan, left }) => ({
+      seg,
+      row,
+      rowSpan,
+      top: ROW_PADDING + row * SEG_ROW_UNIT,
+      height: rowSpan * SEG_BAR_HEIGHT + (rowSpan - 1) * BAR_GAP,
+      left,
+      width: getWidth(seg.startDate, seg.endDate),
+    }));
+
+    return { items: finalItems, height: swimlaneHeight };
+  };
+
+  // Compute the first row without a time-conflict for a new segment being created
+  const computeAutoRow = (newStart: string, newEnd: string, existingSegments: ApplicationSegment[]) => {
+    const { items } = layoutSegments(existingSegments);
+    const newLeft = getPosition(newStart);
+    const newRight = newLeft + getWidth(newStart, newEnd);
+    for (let row = 0; row <= 20; row++) {
+      const conflict = items.some(item => {
+        const rowOverlap = item.row < row + 1 && item.row + item.rowSpan > row;
+        if (!rowOverlap) return false;
+        return !(item.left + item.width <= newLeft || item.left >= newRight);
+      });
+      if (!conflict) return row;
+    }
+    return 0;
   };
 
   const getGroupsForAsset = (assetInitiatives: Initiative[]) => {
@@ -1920,7 +1979,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 const daysFromStart = Math.round(pct * totalDays);
                                 const newStart = format(addDays(startDate, daysFromStart), 'yyyy-MM-dd');
                                 const newEnd = format(addDays(startDate, daysFromStart + 90), 'yyyy-MM-dd');
-                                setCreatingSegmentParams({ id: `seg-new-${segIdCounter.current++}`, assetId: asset.id, startDate: newStart, endDate: newEnd });
+                                const autoRow = computeAutoRow(newStart, newEnd, assetSegments);
+                                setCreatingSegmentParams({ id: `seg-new-${segIdCounter.current++}`, assetId: asset.id, startDate: newStart, endDate: newEnd, row: autoRow });
                                 setSelectedSegmentId(null);
                               }}
                             >
@@ -1930,7 +1990,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 ))}
                               </div>
 
-                              {segLayoutItems.map(({ seg, top, left, width }) => {
+                              {segLayoutItems.map(({ seg, top, height, left, width, rowSpan }) => {
                                 if (left + width < 0 || left > 100) return null;
                                 const colorClass = SEGMENT_COLORS[seg.status] || 'bg-slate-400';
                                 const displayLabel = seg.label
@@ -1953,13 +2013,18 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                       "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none group/seg",
                                       colorClass, "text-white"
                                     )}
-                                    style={{ left: `${left}%`, width: `${Math.max(width, 0.5)}%`, height: SEG_BAR_HEIGHT, top }}
+                                    style={{ left: `${left}%`, width: `${Math.max(width, 0.5)}%`, height, top }}
                                     title={`${displayLabel}\n${seg.startDate} → ${seg.endDate}`}
                                   >
                                     <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10"
                                       onMouseDown={(e) => { e.stopPropagation(); setResizingSegment({ id: seg.id, edge: 'start', initialX: e.clientX, initialDate: seg.startDate }); }} />
                                     <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10"
                                       onMouseDown={(e) => { e.stopPropagation(); setResizingSegment({ id: seg.id, edge: 'end', initialX: e.clientX, initialDate: seg.endDate }); }} />
+                                    <div draggable="false" data-testid="segment-resize-bottom"
+                                      className="absolute left-2 right-2 bottom-0 h-2 cursor-ns-resize flex items-center justify-center opacity-0 group-hover/seg:opacity-100 transition-opacity z-10"
+                                      onMouseDown={(e) => { e.stopPropagation(); setResizingSegmentVertical({ id: seg.id, initialY: e.clientY, initialRowSpan: rowSpan }); }}>
+                                      <div className="w-8 h-0.5 bg-white/60 rounded-full" />
+                                    </div>
                                     <div className="font-bold text-[11px] leading-tight truncate drop-shadow-md">{displayLabel}</div>
                                   </div>
                                 );
@@ -2039,6 +2104,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                   startDate: creatingSegmentParams.startDate,
                   endDate: creatingSegmentParams.endDate,
                   status: 'planned',
+                  row: creatingSegmentParams.row,
+                  rowSpan: 1,
                 }
               : null
         }
