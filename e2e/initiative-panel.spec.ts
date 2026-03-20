@@ -24,8 +24,9 @@ test.describe('Initiative Panel', () => {
         const initiative = page.locator('div[data-initiative-id]').filter({ hasText: 'Passkey Rollout' });
         await expect(initiative).toBeVisible();
 
-        // Click it to open the panel
+        // Click to select, then open the edit panel
         await initiative.click();
+        await initiative.locator('[data-testid="initiative-edit"]').click();
 
         // The panel should appear
         const panel = page.getByTestId('initiative-panel');
@@ -61,8 +62,9 @@ test.describe('Initiative Panel', () => {
         // In Programme color mode, subtitle should say Regulatory Programme
         await expect(updatedInitiative.locator('text=Regulatory Programme')).toBeVisible();
 
-        // Reopen to check budget
+        // Reopen to check budget: click to select, then open edit panel
         await updatedInitiative.click();
+        await updatedInitiative.locator('[data-testid="initiative-edit"]').click();
         await expect(panel).toBeVisible();
         await expect(panel.getByLabel('Budget ($)')).toHaveValue('600000');
     });

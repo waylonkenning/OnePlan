@@ -44,7 +44,7 @@ test('tutorial/1-overview — full timeline', async ({ page }) => {
   await page.setViewportSize({ width: 1400, height: 820 });
   await loadAppWithDemoData(page);
   // Ensure Today indicator and some initiatives are visible
-  await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+  await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
   // Let SVG arrows settle
   await page.waitForTimeout(500);
   await page.screenshot({
@@ -56,7 +56,7 @@ test('tutorial/1-overview — full timeline', async ({ page }) => {
 test('tutorial/2-visualiser — timeline zoomed in', async ({ page }) => {
   await page.setViewportSize({ width: 1400, height: 820 });
   await loadAppWithDemoData(page);
-  await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+  await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
   // Zoom in to 12 months for a more detailed, intimate timeline view
   await page.getByTestId('zoom-in').click();
   await page.getByTestId('zoom-in').click();
@@ -71,9 +71,11 @@ test('tutorial/2-visualiser — timeline zoomed in', async ({ page }) => {
 test('tutorial/3-interactive — initiative edit panel open', async ({ page }) => {
   await page.setViewportSize({ width: 1400, height: 820 });
   await loadAppWithDemoData(page);
-  await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-  // Click the first initiative to open edit panel
-  await page.locator('[data-testid="initiative-bar"]').first().click();
+  await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
+  // Click the first initiative to select it, then open edit panel
+  const initBar = page.locator('[data-testid^="initiative-bar"]').first();
+  await initBar.click();
+  await initBar.locator('[data-testid="initiative-edit"]').click();
   await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
   await page.waitForTimeout(300);
   await page.screenshot({
@@ -111,7 +113,7 @@ test('tutorial/4-insights — reports view', async ({ page }) => {
 test('features/dependency — dependency arrows on timeline', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 700 });
   await loadAppWithDemoData(page);
-  await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+  await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
   await page.waitForTimeout(600);
   const y = await timelineContentY(page);
   await page.screenshot({
@@ -123,7 +125,7 @@ test('features/dependency — dependency arrows on timeline', async ({ page }) =
 test('features/conflict — overlapping initiatives flagged', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 700 });
   await loadAppWithDemoData(page);
-  await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+  await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
   // Scroll to Core Ledger / Payments Engine rows which have overlapping initiatives
   await page.evaluate(() => {
     const container = document.querySelector('.flex-1.overflow-auto');
@@ -190,7 +192,7 @@ test('features/column-resize — data manager column resize handle', async ({ pa
 test('features/global-search — search bar with results', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 700 });
   await loadAppWithDemoData(page);
-  await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+  await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
   const searchInput = page.locator('input[placeholder*="Search"], input[type="search"]').first();
   if (await searchInput.isVisible()) {
     await searchInput.click();
@@ -208,8 +210,8 @@ test('features/global-search — search bar with results', async ({ page }) => {
 test('features/move-resize — initiative bar hovered', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 700 });
   await loadAppWithDemoData(page);
-  await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-  const bar = page.locator('[data-testid="initiative-bar"]').first();
+  await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
+  const bar = page.locator('[data-testid^="initiative-bar"]').first();
   await bar.hover();
   await page.waitForTimeout(300);
   const y = await timelineContentY(page);
@@ -222,7 +224,7 @@ test('features/move-resize — initiative bar hovered', async ({ page }) => {
 test('features/view-switching — header navigation tabs', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 700 });
   await loadAppWithDemoData(page);
-  await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+  await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
   // Capture just the header area showing nav tabs
   const header = await page.locator('header, [data-testid="app-header"]').first().boundingBox();
   if (header) {

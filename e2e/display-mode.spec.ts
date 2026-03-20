@@ -35,7 +35,7 @@ test.describe('Display Mode Picker', () => {
   });
 
   test('AC2 – default mode is Both: initiative bars and application rows are visible', async ({ page }) => {
-    await expect(page.locator('[data-testid="initiative-bar"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid^="initiative-bar"]').first()).toBeVisible();
     await expect(page.locator('[data-testid^="application-swimlane-"]').first()).toBeVisible();
   });
 
@@ -44,7 +44,7 @@ test.describe('Display Mode Picker', () => {
     await page.getByTestId('show-initiatives').click();
     await page.mouse.click(100, 100); // close popover
 
-    await expect(page.locator('[data-testid="initiative-bar"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid^="initiative-bar"]').first()).toBeVisible();
     await expect(page.locator('[data-testid^="application-swimlane-"]')).toHaveCount(0);
   });
 
@@ -53,7 +53,7 @@ test.describe('Display Mode Picker', () => {
     await page.getByTestId('show-applications').click();
     await page.mouse.click(100, 100); // close popover
 
-    await expect(page.locator('[data-testid="initiative-bar"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid^="initiative-bar"]')).toHaveCount(0);
     await expect(page.locator('[data-testid^="application-swimlane-"]').first()).toBeVisible();
   });
 
@@ -64,7 +64,7 @@ test.describe('Display Mode Picker', () => {
     await page.getByTestId('show-both').click();
     await page.mouse.click(100, 100); // close popover
 
-    await expect(page.locator('[data-testid="initiative-bar"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid^="initiative-bar"]').first()).toBeVisible();
     await expect(page.locator('[data-testid^="application-swimlane-"]').first()).toBeVisible();
   });
 

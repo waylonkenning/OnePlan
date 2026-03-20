@@ -105,11 +105,15 @@ test.describe('Capture feature screenshots', () => {
     await page.getByRole('button', { name: 'Save Version' }).click();
     await page.getByTestId('close-version-manager').click();
 
-    // Make a change
-    await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+    // Make a change — select the initiative bar then open edit panel
+    const passkeyBar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
+    await passkeyBar.click();
+    await passkeyBar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
-    await expect(panel).toBeVisible();
-    await panel.getByLabel('Initiative Name').fill('Passkey Rollout (Updated)');
+    await expect(panel).toBeVisible({ timeout: 5000 });
+    const nameInput = panel.getByLabel('Initiative Name');
+    await expect(nameInput).toHaveValue('Passkey Rollout', { timeout: 3000 });
+    await nameInput.fill('Passkey Rollout (Updated)');
     await panel.getByRole('button', { name: 'Save Changes' }).click();
 
     // Go to version history report and run diff

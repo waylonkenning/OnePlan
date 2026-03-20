@@ -62,7 +62,9 @@ test.describe('Applications — InitiativePanel dropdown', () => {
   });
 
   test('Application dropdown appears in the InitiativePanel', async ({ page }) => {
-    await page.locator('[data-testid^="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
     await expect(panel.locator('[data-testid="initiative-application"]')).toBeVisible();
@@ -70,7 +72,9 @@ test.describe('Applications — InitiativePanel dropdown', () => {
 
   test('Application dropdown is filtered to the selected asset', async ({ page }) => {
     // Open an initiative on an asset that has applications (a-ciam in demo data)
-    await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+    const bar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 
@@ -84,7 +88,9 @@ test.describe('Applications — InitiativePanel dropdown', () => {
   });
 
   test('Changing asset resets the application selection', async ({ page }) => {
-    await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+    const bar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 
@@ -106,7 +112,9 @@ test.describe('Applications — InitiativePanel dropdown', () => {
   });
 
   test('Application assignment saves and persists after reload', async ({ page }) => {
-    await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+    const bar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 
@@ -121,7 +129,9 @@ test.describe('Applications — InitiativePanel dropdown', () => {
 
         await page.reload();
         await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
-        await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+        const bar2 = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
+        await bar2.click();
+        await bar2.locator('[data-testid="initiative-edit"]').click();
         const panel2 = page.getByTestId('initiative-panel');
         await expect(panel2).toBeVisible();
         await expect(panel2.locator('[data-testid="initiative-application"]')).toHaveValue(appValue);
@@ -157,7 +167,9 @@ test.describe('Applications — Visualiser sub-rows', () => {
 
   test('initiatives linked to an application remain visible at the asset level', async ({ page }) => {
     // Link i-ciam-passkey to an application and verify it still renders in the asset row
-    await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+    const bar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 

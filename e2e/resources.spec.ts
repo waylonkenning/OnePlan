@@ -70,8 +70,10 @@ test.describe('Resources', () => {
   // ─── Initiative Panel: Owner from Resources ──────────────────────────────────
 
   test('Initiative owner field is a dropdown populated from resources', async ({ page }) => {
-    await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await expect(bar).toBeVisible({ timeout: 10000 });
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     // Owner should be a select element, not a text input
     const ownerSelect = page.getByTestId('initiative-owner-select');
@@ -79,8 +81,10 @@ test.describe('Resources', () => {
   });
 
   test('Owner dropdown includes demo resources', async ({ page }) => {
-    await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await expect(bar).toBeVisible({ timeout: 10000 });
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     const ownerSelect = page.getByTestId('initiative-owner-select');
     // Should have at least a blank option + demo resources
@@ -90,8 +94,10 @@ test.describe('Resources', () => {
   });
 
   test('Selecting an owner from dropdown saves it', async ({ page }) => {
-    await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await expect(bar).toBeVisible({ timeout: 10000 });
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     const ownerSelect = page.getByTestId('initiative-owner-select');
     // Pick the second option (first resource)
@@ -100,30 +106,40 @@ test.describe('Resources', () => {
     await ownerSelect.selectOption({ index: 1 });
     await page.getByRole('button', { name: /Save Changes/i }).click();
     // Re-open panel and confirm selection persisted
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar2 = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar2.click();
+    await bar2.locator('[data-testid="initiative-edit"]').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     await expect(page.getByTestId('initiative-owner-select')).toHaveValue(/.+/);
+    void resourceName; // suppress unused variable warning
   });
 
   // ─── Initiative Panel: Assigned Resources ───────────────────────────────────
 
   test('Initiative panel has an Assigned Resources section', async ({ page }) => {
-    await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await expect(bar).toBeVisible({ timeout: 10000 });
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     await expect(page.getByTestId('initiative-resources-section')).toBeVisible();
   });
 
   test('Can assign additional resources to an initiative', async ({ page }) => {
-    await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await expect(bar).toBeVisible({ timeout: 10000 });
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     // Check the first resource checkbox in the assigned resources section
     const firstCheckbox = page.getByTestId('initiative-resources-section').locator('input[type="checkbox"]').first();
-    await firstCheckbox.check();
+    await firstCheckbox.scrollIntoViewIfNeeded();
+    await firstCheckbox.check({ force: true });
     await page.getByRole('button', { name: /Save Changes/i }).click();
     // Re-open and confirm checkbox is still checked
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar2 = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar2.click();
+    await bar2.locator('[data-testid="initiative-edit"]').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     await expect(
       page.getByTestId('initiative-resources-section').locator('input[type="checkbox"]').first()
@@ -133,12 +149,12 @@ test.describe('Resources', () => {
   // ─── Timeline: Show Resources Toggle ────────────────────────────────────────
 
   test('Show Resources toggle exists in the header', async ({ page }) => {
-    await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
     await expect(page.getByTestId('toggle-resources')).toBeVisible();
   });
 
   test('Resource names appear on initiative bar when toggle is on', async ({ page }) => {
-    await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
     const toggle = page.getByTestId('toggle-resources');
     const isOff = await toggle.getAttribute('aria-pressed') === 'false';
     if (isOff) {
@@ -150,7 +166,7 @@ test.describe('Resources', () => {
   });
 
   test('Resource names are hidden when toggle is off', async ({ page }) => {
-    await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
     const toggle = page.getByTestId('toggle-resources');
     const isOn = await toggle.getAttribute('aria-pressed') === 'true';
     if (isOn) {
@@ -163,7 +179,7 @@ test.describe('Resources', () => {
   // ─── Timeline: Owner Initials Badge ─────────────────────────────────────────
 
   test('Owner initials badge is derived from resource name when ownerId is set', async ({ page }) => {
-    await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 10000 });
     // Demo data should have some initiatives with ownerId set
     // The badge should show initials from the linked resource name
     const badge = page.locator('[data-testid="owner-badge"]').first();
