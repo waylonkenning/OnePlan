@@ -32,12 +32,13 @@ interface TimelineProps {
   applicationSegments?: ApplicationSegment[];
   onSaveApplicationSegment?: (segment: ApplicationSegment) => void;
   onDeleteApplicationSegment?: (segment: ApplicationSegment) => void;
+  onUpdateApplicationSegments?: (segments: ApplicationSegment[]) => void;
 }
 
 const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
 const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
-export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment }: TimelineProps) {
+export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment, onUpdateApplicationSegments }: TimelineProps) {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
 
@@ -727,9 +728,21 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       } else if (resizingSegment && onSaveApplicationSegment) {
         const updated = localSegments.find(s => s.id === resizingSegment.id);
         if (updated) onSaveApplicationSegment(updated);
-      } else if (movingSegment && onSaveApplicationSegment) {
+      } else if (movingSegment) {
         const updated = localSegments.find(s => s.id === movingSegment.id);
-        if (updated) onSaveApplicationSegment(updated);
+        if (updated) {
+          // Assign a persistent row to the moved segment so conflict resolution anchors it
+          const movedWithRow = { ...updated, row: updated.row ?? 0 };
+          const segmentsWithRow = localSegments.map(s => s.id === movingSegment.id ? movedWithRow : s);
+          const resolved = resolveSegmentConflicts(movingSegment.id, segmentsWithRow);
+          const changed = resolved.filter((s, i) => s.row !== segmentsWithRow[i]?.row || s.id === movingSegment.id);
+          if (changed.length > 1 && onUpdateApplicationSegments) {
+            setLocalSegments(resolved);
+            onUpdateApplicationSegments(resolved);
+          } else if (onSaveApplicationSegment) {
+            onSaveApplicationSegment(updated);
+          }
+        }
       }
       setResizing(null);
       setMoving(null);
@@ -1001,6 +1014,44 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       if (!conflict) return row;
     }
     return 0;
+  };
+
+  // After a horizontal drag, push any segments that now overlap the moved segment
+  // down to the next available row. Cascades until all conflicts are resolved.
+  const resolveSegmentConflicts = (movedId: string, segments: ApplicationSegment[]): ApplicationSegment[] => {
+    const result = segments.map(s => ({ ...s }));
+    const queue: string[] = [movedId];
+    const processed = new Set<string>();
+
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      if (processed.has(currentId)) continue;
+      processed.add(currentId);
+
+      const current = result.find(s => s.id === currentId);
+      if (!current) continue;
+
+      const currentRow = current.row ?? 0;
+      const currentRowSpan = current.rowSpan ?? 1;
+      const currentRowEnd = currentRow + currentRowSpan;
+
+      // Find segments in the same swimlane that time-overlap and row-overlap with current
+      const conflicts = result.filter(s => {
+        if (s.id === currentId) return false;
+        const sRow = s.row ?? 0;
+        const sRowSpan = s.rowSpan ?? 1;
+        const rowOverlap = sRow < currentRowEnd && sRow + sRowSpan > currentRow;
+        if (!rowOverlap) return false;
+        return s.startDate < current.endDate && s.endDate > current.startDate;
+      });
+
+      for (const conflict of conflicts) {
+        conflict.row = currentRowEnd;
+        queue.push(conflict.id);
+      }
+    }
+
+    return result;
   };
 
   const getGroupsForAsset = (assetInitiatives: Initiative[]) => {

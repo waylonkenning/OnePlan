@@ -287,6 +287,10 @@ export default function App() {
     handleUpdate({ assets, applications, applicationSegments: applicationSegments.filter(s => s.id !== seg.id), initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources });
   }, [assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, handleUpdate]);
 
+  const handleUpdateApplicationSegments = useCallback((segs: import('./types').ApplicationSegment[]) => {
+    handleUpdate({ assets, applications, applicationSegments: segs, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources });
+  }, [assets, applications, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, handleUpdate]);
+
   useEffect(() => {
     if (!showMoreSettingsPanel && !showViewOptionsPanel) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -1002,6 +1006,7 @@ export default function App() {
             applicationSegments={applicationSegments}
             onSaveApplicationSegment={handleSaveApplicationSegment}
             onDeleteApplicationSegment={handleDeleteApplicationSegment}
+            onUpdateApplicationSegments={handleUpdateApplicationSegments}
           />
           )
         ) : view === 'data' ? (
