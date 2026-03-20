@@ -118,6 +118,8 @@ export interface ApplicationSegment {
   endDate: string;   // ISO format: YYYY-MM-DD
   status: 'planned' | 'funded' | 'in-production' | 'sunset' | 'out-of-support' | 'retired';
   label?: string;    // Optional display override; defaults to the status label
+  row?: number;      // Which row within the swimlane (0-indexed). Auto-assigned if absent.
+  rowSpan?: number;  // How many rows tall this segment is (default 1). Controlled by bottom-edge drag.
 }
 
 /**
