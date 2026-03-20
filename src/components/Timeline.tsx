@@ -9,6 +9,21 @@ import { ApplicationSegmentPanel } from './ApplicationSegmentPanel';
 import { DependencyPanel } from './DependencyPanel';
 import { ArrowDisambiguator } from './ArrowDisambiguator';
 import { computeCriticalPath } from '../lib/criticalPath';
+import {
+  SEG_BAR_HEIGHT,
+  SEG_ROW_HEIGHT,
+  MIN_ROW_HEIGHT,
+  BAR_HEIGHT,
+  BAR_GAP,
+  ROW_PADDING,
+  SEG_ROW_UNIT,
+  getPosition as tlGetPosition,
+  getWidth as tlGetWidth,
+  resolveSegmentConflicts,
+  getGroupsForAsset as tlGetGroupsForAsset,
+  layoutSegments as tlLayoutSegments,
+  computeAutoRow as tlComputeAutoRow,
+} from '../lib/timelineLayout';
 
 interface TimelineProps {
   assets: Asset[];
@@ -38,15 +53,6 @@ interface TimelineProps {
 const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
 const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
-// Layout constants — defined at module scope so they are stable references
-// and do not appear as missing useEffect dependencies.
-const SEG_BAR_HEIGHT = 36;
-const SEG_ROW_HEIGHT = 52;
-const MIN_ROW_HEIGHT = 60;
-const BAR_HEIGHT = 44;
-const BAR_GAP = 4;
-const ROW_PADDING = 8;
-const SEG_ROW_UNIT = SEG_BAR_HEIGHT + BAR_GAP; // 40px: one segment row height + gap
 
 export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment, onUpdateApplicationSegments }: TimelineProps) {
   const isMobile = useMediaQuery('(max-width: 767px)');
@@ -118,6 +124,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const [legendExpanded, setLegendExpanded] = useState<boolean>(() => {
     try { return localStorage.getItem('scenia_legend_expanded') !== 'false'; } catch { return true; }
   });
+  const [legendNow, setLegendNow] = useState<Date>(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setLegendNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(() => {
     try {
@@ -358,31 +369,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const totalWidth = Math.max(containerWidth, timeColumns.length * 80 * zoom); // Min 80px per column, scaled by zoom
   const columnWidth = timeColumns.length > 0 ? totalWidth / timeColumns.length : 80;
 
-  // Helper to get position and width
-  const getPosition = (dateStr: string) => {
-    try {
-      const date = parseISO(dateStr);
-      if (!isValid(date)) return 0;
-      const daysFromStart = differenceInDays(date, startDate);
-      const percentage = (daysFromStart / totalDays) * 100;
-      return percentage;
-    } catch (_e) {
-      return 0;
-    }
-  };
-
-  const getWidth = (startStr: string, endStr: string) => {
-    try {
-      const start = parseISO(startStr);
-      const end = parseISO(endStr);
-      if (!isValid(start) || !isValid(end)) return 0.5;
-      const days = differenceInDays(end, start);
-      const percentage = (days / totalDays) * 100;
-      return Math.max(0.5, percentage);
-    } catch (_e) {
-      return 0.5;
-    }
-  };
+  // Convenience closures so existing call sites don't need to pass startDate/totalDays explicitly.
+  const getPosition = (dateStr: string) => tlGetPosition(dateStr, startDate, totalDays);
+  const getWidth = (startStr: string, endStr: string) => tlGetWidth(startStr, endStr, totalDays);
 
   const handleRowDoubleClick = (e: React.MouseEvent, assetId: string) => {
     // Avoid triggering if clicking on an existing initiative or milestone
@@ -938,88 +927,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     return { items: finalItems, height: contentHeight };
   };
 
-  // Layout segments for the Applications swimlane.
-  // Segments with an explicit `row` are placed there; segments without one are auto-packed
-  // into the first available row. `rowSpan` controls how many rows tall a segment is.
-  const layoutSegments = (segments: ApplicationSegment[]) => {
-    type PlacedItem = {
-      seg: ApplicationSegment;
-      row: number;
-      rowSpan: number;
-      left: number;
-      right: number;
-    };
-
-    const allItems: PlacedItem[] = [];
-
-    // Place explicit-row segments first so auto-pack respects them
-    const explicitSegs = segments.filter(s => s.row !== undefined);
-    const autoSegs = [...segments.filter(s => s.row === undefined)]
-      .sort((a, b) => a.startDate.localeCompare(b.startDate));
-
-    explicitSegs.forEach(seg => {
-      allItems.push({
-        seg,
-        row: seg.row!,
-        rowSpan: seg.rowSpan ?? 1,
-        left: getPosition(seg.startDate),
-        right: getPosition(seg.startDate) + getWidth(seg.startDate, seg.endDate),
-      });
-    });
-
-    // Auto-assign rows using greedy first-fit per row
-    autoSegs.forEach(seg => {
-      const left = getPosition(seg.startDate);
-      const right = left + getWidth(seg.startDate, seg.endDate);
-      const span = seg.rowSpan ?? 1;
-
-      let bestRow = 0;
-      while (true) {
-        const conflicts = allItems.filter(item => {
-          const rowOverlap = item.row < bestRow + span && item.row + item.rowSpan > bestRow;
-          if (!rowOverlap) return false;
-          return !(item.right <= left || item.left >= right);
-        });
-        if (conflicts.length === 0) break;
-        bestRow++;
-      }
-      allItems.push({ seg, row: bestRow, rowSpan: span, left, right });
-    });
-
-    // Compute pixel geometry from row assignments
-    const maxRowEnd = allItems.reduce((max, item) => Math.max(max, item.row + item.rowSpan), 0);
-    const swimlaneHeight = maxRowEnd === 0
-      ? SEG_ROW_HEIGHT
-      : Math.max(SEG_ROW_HEIGHT, ROW_PADDING + maxRowEnd * SEG_ROW_UNIT - BAR_GAP + ROW_PADDING);
-
-    const finalItems = allItems.map(({ seg, row, rowSpan, left }) => ({
-      seg,
-      row,
-      rowSpan,
-      top: ROW_PADDING + row * SEG_ROW_UNIT,
-      height: rowSpan * SEG_BAR_HEIGHT + (rowSpan - 1) * BAR_GAP,
-      left,
-      width: getWidth(seg.startDate, seg.endDate),
-    }));
-
-    return { items: finalItems, height: swimlaneHeight };
-  };
-
-  // Compute the first row without a time-conflict for a new segment being created
-  const computeAutoRow = (newStart: string, newEnd: string, existingSegments: ApplicationSegment[]) => {
-    const { items } = layoutSegments(existingSegments);
-    const newLeft = getPosition(newStart);
-    const newRight = newLeft + getWidth(newStart, newEnd);
-    for (let row = 0; row <= 20; row++) {
-      const conflict = items.some(item => {
-        const rowOverlap = item.row < row + 1 && item.row + item.rowSpan > row;
-        if (!rowOverlap) return false;
-        return !(item.left + item.width <= newLeft || item.left >= newRight);
-      });
-      if (!conflict) return row;
-    }
-    return 0;
-  };
+  // Closures delegating to pure functions in ../lib/timelineLayout
+  const layoutSegments = (segments: ApplicationSegment[]) =>
+    tlLayoutSegments(segments, startDate, totalDays);
+  const computeAutoRow = (newStart: string, newEnd: string, existingSegments: ApplicationSegment[]) =>
+    tlComputeAutoRow(newStart, newEnd, existingSegments, startDate, totalDays);
 
   // Move a segment up or down one row, cascading conflicts if needed
   const handleSegmentRowMove = (segId: string, delta: number) => {
@@ -1042,79 +954,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     }
   };
 
-  // After a horizontal drag, push any segments that now overlap the moved segment
-  // down to the next available row. Cascades until all conflicts are resolved.
-  const resolveSegmentConflicts = (movedId: string, segments: ApplicationSegment[]): ApplicationSegment[] => {
-    const result = segments.map(s => ({ ...s }));
-    const queue: string[] = [movedId];
-    const processed = new Set<string>();
-
-    while (queue.length > 0) {
-      const currentId = queue.shift()!;
-      if (processed.has(currentId)) continue;
-      processed.add(currentId);
-
-      const current = result.find(s => s.id === currentId);
-      if (!current) continue;
-
-      const currentRow = current.row ?? 0;
-      const currentRowSpan = current.rowSpan ?? 1;
-      const currentRowEnd = currentRow + currentRowSpan;
-
-      // Find segments in the same swimlane that time-overlap and row-overlap with current
-      const conflicts = result.filter(s => {
-        if (s.id === currentId) return false;
-        const sRow = s.row ?? 0;
-        const sRowSpan = s.rowSpan ?? 1;
-        const rowOverlap = sRow < currentRowEnd && sRow + sRowSpan > currentRow;
-        if (!rowOverlap) return false;
-        return s.startDate < current.endDate && s.endDate > current.startDate;
-      });
-
-      for (const conflict of conflicts) {
-        conflict.row = currentRowEnd;
-        queue.push(conflict.id);
-      }
-    }
-
-    return result;
-  };
-
-  const getGroupsForAsset = (assetInitiatives: Initiative[]) => {
-    const ids = assetInitiatives.map(i => i.id);
-    const adj = new Map<string, string[]>();
-    ids.forEach(id => adj.set(id, []));
-
-    dependencies.forEach(dep => {
-      if (ids.includes(dep.sourceId) && ids.includes(dep.targetId)) {
-        adj.get(dep.sourceId)!.push(dep.targetId);
-        adj.get(dep.targetId)!.push(dep.sourceId);
-      }
-    });
-
-    const groups: string[][] = [];
-    const visited = new Set<string>();
-
-    ids.forEach(id => {
-      if (!visited.has(id)) {
-        const group: string[] = [];
-        const stack = [id];
-        while (stack.length > 0) {
-          const u = stack.pop()!;
-          if (!visited.has(u)) {
-            visited.add(u);
-            group.push(u);
-            adj.get(u)!.forEach(v => stack.push(v));
-          }
-        }
-        if (group.length > 1) {
-          groups.push(group);
-        }
-      }
-    });
-
-    return groups;
-  };
+  // Closure to bind `dependencies` for getGroupsForAsset (imported pure fn)
+  const getGroupsForAsset = (assetInitiatives: Initiative[]) =>
+    tlGetGroupsForAsset(assetInitiatives, dependencies);
 
 
   const getAssetLayout = (asset: Asset, assetInitiatives: Initiative[]) => {
@@ -2274,7 +2116,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       {/* Floating Legend — anchored to bottom-right of the visualiser canvas */}
       <div
         data-testid="timeline-legend"
-        className="absolute bottom-3 right-3 z-50 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-lg shadow-md text-xs select-none"
+        className="absolute bottom-3 right-3 z-[40] bg-white/95 backdrop-blur-sm border border-slate-200 rounded-lg shadow-md text-xs select-none"
         style={{ maxWidth: '220px' }}
       >
         <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-slate-100">
@@ -2368,6 +2210,15 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                 <AlertTriangle size={12} className="text-red-500 flex-shrink-0" />
                 <span className="text-slate-600">Conflict</span>
               </div>
+            </div>
+
+            {/* Timestamp */}
+            <div data-testid="legend-timestamp" className="border-t border-slate-100 pt-2">
+              <span className="text-[10px] text-slate-400">
+                {legendNow.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                {' · '}
+                {legendNow.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+              </span>
             </div>
           </div>
         )}
