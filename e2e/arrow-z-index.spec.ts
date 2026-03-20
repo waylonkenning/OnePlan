@@ -19,9 +19,9 @@ test('dependency SVG z-index is above initiative bar hover z-index', async ({ pa
 
 test('dependency arrows are visually above a hovered initiative bar', async ({ page }) => {
   await page.goto('/');
-  await page.waitForSelector('[data-testid="initiative-bar"]', { timeout: 20000 });
+  await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 20000 });
 
-  const bar = page.locator('[data-testid="initiative-bar"]').first();
+  const bar = page.locator('[data-testid^="initiative-bar"]').first();
   await bar.hover();
 
   const [svgZ, barZ] = await Promise.all([

@@ -25,17 +25,17 @@ test.describe('Resize Initiative Edit Panel', () => {
         await expect(editPanelHeading).not.toBeVisible();
     });
 
-    test('normal click opens the edit panel', async ({ page }) => {
-        const init = page.getByText('Passkey Rollout');
+    test('normal click selects initiative; edit button opens panel', async ({ page }) => {
+        const init = page.locator('[data-initiative-id]').filter({ hasText: 'Passkey Rollout' }).first();
         await expect(init).toBeVisible();
 
-        const box = await init.boundingBox();
-        expect(box).not.toBeNull();
-
-        // Click the middle of the initiative
+        // Single click selects (tap-to-select) but does NOT open the panel
         await init.click();
+        await expect(init).toHaveAttribute('data-selected', 'true');
+        await expect(page.getByRole('heading', { name: 'Edit Initiative' })).not.toBeVisible();
 
-        // The edit panel should be visible
+        // Clicking the ✎ edit button opens the panel
+        await init.locator('[data-testid="initiative-edit"]').click();
         const editPanelHeading = page.getByRole('heading', { name: 'Edit Initiative' });
         await expect(editPanelHeading).toBeVisible();
     });

@@ -9,8 +9,9 @@ test.describe('Initiative Deletion', () => {
         const initiative = page.locator(`div[title*="${initiativeName}"]`).first();
         await expect(initiative).toBeVisible();
 
-        // Click to open the edit panel
+        // Click to select, then open the edit panel via the ✎ button
         await initiative.click();
+        await initiative.locator('[data-testid="initiative-edit"]').click();
 
         // Check for "Delete Initiative" button
         const deleteBtn = page.getByRole('button', { name: 'Delete Initiative' });

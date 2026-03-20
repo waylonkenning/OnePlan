@@ -11,8 +11,10 @@ test.describe('Panel focus trap and Escape key', () => {
   });
 
   test('InitiativePanel closes on Escape', async ({ page }) => {
-    // Open the initiative panel by clicking a bar
-    await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+    // Select the initiative bar, then open the edit panel
+    const passkey = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
+    await passkey.click();
+    await passkey.locator('[data-testid="initiative-edit"]').click();
     await expect(page.getByTestId('initiative-panel')).toBeVisible({ timeout: 5000 });
 
     await page.keyboard.press('Escape');
@@ -20,7 +22,9 @@ test.describe('Panel focus trap and Escape key', () => {
   });
 
   test('InitiativePanel traps focus — Tab does not leave the panel', async ({ page }) => {
-    await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+    const passkey2 = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
+    await passkey2.click();
+    await passkey2.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible({ timeout: 5000 });
 

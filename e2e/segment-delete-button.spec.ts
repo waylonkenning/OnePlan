@@ -43,8 +43,10 @@ test.describe('Segment delete button after double-click creation', () => {
     // A new bar should appear
     await expect(segmentBars).toHaveCount(countBefore + 1);
 
-    // Click the newly created segment bar
-    await segmentBars.last().click();
+    // Click to select the segment, then open edit panel via the ✎ button
+    const newBar = segmentBars.last();
+    await newBar.click();
+    await newBar.locator('[data-testid="segment-edit"]').click();
     await expect(panel).toBeVisible();
     await expect(panel.getByRole('button', { name: 'Save Changes' })).toBeVisible();
 

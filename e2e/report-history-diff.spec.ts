@@ -52,9 +52,14 @@ test.describe('History Differences report', () => {
     await page.getByTestId('close-version-manager').click();
 
     // Rename an initiative to create a difference
-    await page.locator('[data-initiative-id="i-ciam-passkey"]').first().click();
+    const passkeyBar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
+    await passkeyBar.click();
+    await passkeyBar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
-    await panel.getByLabel('Initiative Name').fill('Passkey Rollout MODIFIED');
+    await expect(panel).toBeVisible({ timeout: 5000 });
+    const nameInput = panel.getByLabel('Initiative Name');
+    await expect(nameInput).toHaveValue('Passkey Rollout', { timeout: 3000 });
+    await nameInput.fill('Passkey Rollout MODIFIED');
     await panel.getByRole('button', { name: 'Save Changes' }).click();
 
     // Navigate to Reports and run diff
