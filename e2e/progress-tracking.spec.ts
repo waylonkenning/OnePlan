@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 /**
  * Progress Tracking — % complete field on initiatives with a bar fill overlay.
  */
+
 test.describe('Progress Tracking', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -10,12 +11,16 @@ test.describe('Progress Tracking', () => {
   });
 
   test('progress field is visible in InitiativePanel', async ({ page }) => {
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     await expect(page.getByTestId('initiative-progress')).toBeVisible();
   });
 
   test('progress field accepts a value between 0 and 100', async ({ page }) => {
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     const field = page.getByTestId('initiative-progress');
     await field.fill('75');
     await expect(field).toHaveValue('75');
@@ -28,23 +33,35 @@ test.describe('Progress Tracking', () => {
   });
 
   test('progress value persists across reloads', async ({ page }) => {
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
-    await page.getByTestId('initiative-progress').fill('60');
+    const progressInput = page.getByTestId('initiative-progress');
+    await expect(progressInput).toBeVisible({ timeout: 3000 });
+    await progressInput.fill('60');
+    await expect(progressInput).toHaveValue('60');
     await panel.getByRole('button', { name: 'Save Changes' }).click();
     await expect(panel).toBeHidden();
     await page.reload();
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar2 = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar2.click();
+    await bar2.locator('[data-testid="initiative-edit"]').click();
     await expect(page.getByTestId('initiative-progress')).toHaveValue('60');
   });
 
   test('bar renders a progress fill overlay when progress > 0', async ({ page }) => {
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
-    await page.getByTestId('initiative-progress').fill('50');
+    const progressInput = page.getByTestId('initiative-progress');
+    await expect(progressInput).toBeVisible({ timeout: 3000 });
+    await progressInput.fill('50');
+    await expect(progressInput).toHaveValue('50');
     await panel.getByRole('button', { name: 'Save Changes' }).click();
     await expect(panel).toBeHidden();
     const overlay = page.locator('[data-testid="progress-overlay"]').first();
@@ -52,10 +69,15 @@ test.describe('Progress Tracking', () => {
   });
 
   test('progress fill overlay width is proportional to progress value', async ({ page }) => {
-    await page.locator('[data-testid="initiative-bar"]').first().click();
+    const bar = page.locator('[data-testid^="initiative-bar"]').first();
+    await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
-    await page.getByTestId('initiative-progress').fill('40');
+    const progressInput = page.getByTestId('initiative-progress');
+    await expect(progressInput).toBeVisible({ timeout: 3000 });
+    await progressInput.fill('40');
+    await expect(progressInput).toHaveValue('40');
     await panel.getByRole('button', { name: 'Save Changes' }).click();
     await expect(panel).toBeHidden();
     const overlay = page.locator('[data-testid="progress-overlay"]').first();

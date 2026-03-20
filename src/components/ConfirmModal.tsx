@@ -31,7 +31,7 @@ export function ConfirmModal({
   return (
     <div
       className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
+      onClick={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) onCancel(); }}
       data-testid="confirm-modal"
     >
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col animate-in zoom-in-95 duration-150">

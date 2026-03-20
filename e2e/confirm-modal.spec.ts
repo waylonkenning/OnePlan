@@ -93,7 +93,9 @@ test.describe('In-app ConfirmModal — no browser dialogs', () => {
   test('InitiativePanel delete shows confirm modal', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('[data-initiative-id]');
-    await page.locator('[data-initiative-id]').first().click({ force: true });
+    const initBar = page.locator('[data-initiative-id]').first();
+    await initBar.click({ force: true });
+    await initBar.locator('[data-testid="initiative-edit"]').click();
 
     const panel = page.locator('[data-testid="initiative-panel"]');
     await expect(panel).toBeVisible();

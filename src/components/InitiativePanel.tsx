@@ -49,6 +49,7 @@ export function InitiativePanel({ initiative, assets, applications = [], program
     };
 
     const handleOverlayClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (e.target === e.currentTarget) {
             onClose();
         }

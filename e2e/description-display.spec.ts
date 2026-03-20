@@ -7,10 +7,11 @@ test.describe('Description Display', () => {
     });
 
     test('can edit description in initiative panel', async ({ page }) => {
-        // Click an initiative to open the panel
+        // Click an initiative to select it, then open edit panel
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await expect(bar).toBeVisible();
         await bar.click();
+        await bar.locator('[data-testid="initiative-edit"]').click();
 
         // Panel should be open
         const panel = page.getByTestId('initiative-panel');
@@ -25,9 +26,11 @@ test.describe('Description Display', () => {
 
         // Save
         await panel.getByRole('button', { name: 'Save Changes' }).click();
+        await expect(panel).toBeHidden();
 
         // Re-open the panel and verify description persists
         await bar.click();
+        await bar.locator('[data-testid="initiative-edit"]').click();
         await expect(panel).toBeVisible();
         await expect(panel.getByLabel('Description')).toHaveValue('This is a test description for the initiative.');
     });
@@ -36,10 +39,13 @@ test.describe('Description Display', () => {
         // First, add a description to i-ciam-passkey
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
+        await bar.locator('[data-testid="initiative-edit"]').click();
 
         const panel = page.getByTestId('initiative-panel');
+        await expect(panel).toBeVisible();
         await panel.getByLabel('Description').fill('My tooltip description');
         await panel.getByRole('button', { name: 'Save Changes' }).click();
+        await expect(panel).toBeHidden();
 
         // Now check the title attribute on the bar includes the description
         await expect(bar).toHaveAttribute('title', /My tooltip description/);
@@ -49,10 +55,13 @@ test.describe('Description Display', () => {
         // First add a description to i-ciam-passkey
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
+        await bar.locator('[data-testid="initiative-edit"]').click();
 
         const panel = page.getByTestId('initiative-panel');
+        await expect(panel).toBeVisible();
         await panel.getByLabel('Description').fill('A long description that should cause the bar to expand vertically to show the full text.');
         await panel.getByRole('button', { name: 'Save Changes' }).click();
+        await expect(panel).toBeHidden();
 
         // Get initial bar height with description display off
         const initialBox = await bar.boundingBox();

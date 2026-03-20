@@ -7,9 +7,10 @@ test.describe('Data Validation', () => {
     });
 
     test('prevents saving initiative with end date before start date', async ({ page }) => {
-        // Click an initiative to open the panel
+        // Click an initiative to select it, then open the edit panel
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
+        await bar.locator('[data-testid="initiative-edit"]').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();
@@ -31,6 +32,7 @@ test.describe('Data Validation', () => {
     test('prevents saving initiative with negative budget', async ({ page }) => {
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
+        await bar.locator('[data-testid="initiative-edit"]').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();
@@ -51,6 +53,7 @@ test.describe('Data Validation', () => {
     test('allows saving initiative with valid data', async ({ page }) => {
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
+        await bar.locator('[data-testid="initiative-edit"]').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();

@@ -62,9 +62,10 @@ test.describe('Perspective-aware labels in InitiativePanel', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 
-    // Click Developer Portal Launch bar to open its panel
+    // Click Developer Portal Launch bar to select it, then open edit panel
     const bar = page.locator('[data-initiative-id="i-apigw-portal"]').first();
     await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
 
     const section = page.getByTestId('related-initiatives-section');
     await expect(section).toBeVisible();
@@ -75,9 +76,10 @@ test.describe('Perspective-aware labels in InitiativePanel', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 
-    // Click API Gateway v2 Migration bar
+    // Click API Gateway v2 Migration bar to select it, then open edit panel
     const bar = page.locator('[data-initiative-id="i-apigw-v2"]').first();
     await bar.click();
+    await bar.locator('[data-testid="initiative-edit"]').click();
 
     const section = page.getByTestId('related-initiatives-section');
     await expect(section).toBeVisible();
