@@ -906,6 +906,44 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     return { items: finalItems, height: contentHeight };
   };
 
+  // Layout segments for the Applications swimlane — overlapping segments shift downward
+  const layoutSegments = (segments: ApplicationSegment[]) => {
+    const sorted = [...segments].sort((a, b) => a.startDate.localeCompare(b.startDate));
+    const finalItems: { seg: ApplicationSegment; top: number; left: number; width: number }[] = [];
+    const placedRects: { start: number; end: number; top: number; bottom: number }[] = [];
+
+    sorted.forEach(seg => {
+      const left = getPosition(seg.startDate);
+      const width = getWidth(seg.startDate, seg.endDate);
+      const right = left + width;
+
+      const candidateTops = [ROW_PADDING];
+      placedRects.forEach(r => candidateTops.push(r.bottom + BAR_GAP));
+      candidateTops.sort((a, b) => a - b);
+
+      let top = ROW_PADDING;
+      for (const candidateTop of candidateTops) {
+        const candidateBottom = candidateTop + SEG_BAR_HEIGHT;
+        let overlaps = false;
+        for (const rect of placedRects) {
+          const xOverlap = !(rect.end <= left || rect.start >= right);
+          const yOverlap = !(rect.bottom <= candidateTop || rect.top >= candidateBottom);
+          if (xOverlap && yOverlap) { overlaps = true; break; }
+        }
+        if (!overlaps) { top = candidateTop; break; }
+      }
+
+      finalItems.push({ seg, top, left, width });
+      placedRects.push({ start: left, end: right, top, bottom: top + SEG_BAR_HEIGHT });
+    });
+
+    const contentHeight = finalItems.length > 0
+      ? Math.max(SEG_ROW_HEIGHT, Math.max(...finalItems.map(i => i.top + SEG_BAR_HEIGHT)) + ROW_PADDING)
+      : SEG_ROW_HEIGHT;
+
+    return { items: finalItems, height: contentHeight };
+  };
+
   const getGroupsForAsset = (assetInitiatives: Initiative[]) => {
     const ids = assetInitiatives.map(i => i.id);
     const adj = new Map<string, string[]>();
@@ -1863,7 +1901,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                         )} {/* end initiatives swimlane */}
 
                         {/* Applications swimlane — single merged row per asset, hidden when display is 'initiatives' */}
-                        {display !== 'initiatives' && assetApplications.length > 0 && (
+                        {display !== 'initiatives' && assetApplications.length > 0 && (() => {
+                          const { items: segLayoutItems, height: swimlaneHeight } = layoutSegments(assetSegments);
+                          return (
                           <div
                             data-testid={`application-swimlane-${asset.id}`}
                             className="border-t border-slate-100"
@@ -1871,7 +1911,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             <div
                               data-testid="application-row-content"
                               className="relative flex-shrink-0 bg-slate-50/30"
-                              style={{ width: totalWidth, height: SEG_ROW_HEIGHT }}
+                              style={{ width: totalWidth, height: swimlaneHeight }}
                               onDoubleClick={(e) => {
                                 if (!onSaveApplicationSegment) return;
                                 const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -1890,10 +1930,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 ))}
                               </div>
 
-                              {assetSegments.map(seg => {
-                                const segLeft = (differenceInDays(parseISO(seg.startDate), startDate) / totalDays) * 100;
-                                const segWidth = (differenceInDays(parseISO(seg.endDate), parseISO(seg.startDate)) / totalDays) * 100;
-                                if (segLeft + segWidth < 0 || segLeft > 100) return null;
+                              {segLayoutItems.map(({ seg, top, left, width }) => {
+                                if (left + width < 0 || left > 100) return null;
                                 const colorClass = SEGMENT_COLORS[seg.status] || 'bg-slate-400';
                                 const displayLabel = seg.label
                                   || applications.find(a => a.id === seg.applicationId)?.name
@@ -1915,7 +1953,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                       "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none group/seg",
                                       colorClass, "text-white"
                                     )}
-                                    style={{ left: `${segLeft}%`, width: `${Math.max(segWidth, 0.5)}%`, height: SEG_BAR_HEIGHT, top: (SEG_ROW_HEIGHT - SEG_BAR_HEIGHT) / 2 }}
+                                    style={{ left: `${left}%`, width: `${Math.max(width, 0.5)}%`, height: SEG_BAR_HEIGHT, top }}
                                     title={`${displayLabel}\n${seg.startDate} → ${seg.endDate}`}
                                   >
                                     <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10"
@@ -1928,7 +1966,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                               })}
                             </div>
                           </div>
-                        )} {/* end applications swimlane */}
+                          );
+                        })()} {/* end applications swimlane */}
 
                         </div> {/* end swimlanes stack */}
                       </div>

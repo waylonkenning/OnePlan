@@ -85,4 +85,30 @@ test.describe('Single Applications Swimlane Per Asset', () => {
     // a-k8s (Kubernetes Platform) has no applications in demo data
     await expect(page.locator('[data-testid="application-swimlane-a-k8s"]')).toHaveCount(0);
   });
+
+  test('AC8 – overlapping segments shift down instead of rendering on top of each other', async ({ page }) => {
+    // The a-ciam swimlane has overlapping segments (Okta spans the full window
+    // and overlaps with Azure AD B2C and Keycloak segments). The swimlane must
+    // grow taller than a single bar row to accommodate them.
+    const ciamSwimlane = page.locator('[data-testid="application-swimlane-a-ciam"]');
+    await expect(ciamSwimlane).toBeVisible();
+
+    // Single-row height is 52px. With overlapping segments the swimlane must be taller.
+    const box = await ciamSwimlane.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.height).toBeGreaterThan(52);
+
+    // Two segment bars that overlap in time must have different vertical positions.
+    const oktaBar = ciamSwimlane.locator('[data-testid="segment-bar-seg-okta-prod"]');
+    const azureBar = ciamSwimlane.locator('[data-testid="segment-bar-seg-azuread-prod"]');
+    await expect(oktaBar).toBeVisible();
+    await expect(azureBar).toBeVisible();
+
+    const oktaBox = await oktaBar.boundingBox();
+    const azureBox = await azureBar.boundingBox();
+    expect(oktaBox).not.toBeNull();
+    expect(azureBox).not.toBeNull();
+    // The top edges must differ — they are on different rows
+    expect(Math.abs(oktaBox!.y - azureBox!.y)).toBeGreaterThan(10);
+  });
 });
