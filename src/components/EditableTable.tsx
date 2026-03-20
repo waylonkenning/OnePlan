@@ -213,19 +213,19 @@ export function EditableTable<T extends { [key: string]: any }>({
     setSortConfig({ key, direction });
   };
 
-  const handleChange = (index: number, key: keyof T, value: any, isGhost: boolean = false) => {
+  const handleChange = (index: number, key: keyof T, value: unknown, isGhost: boolean = false) => {
     if (isGhost) {
       const newId = `new-${rowIdCounter.current++}`;
-      const newRow: any = {};
-      newRow[idField] = newId;
+      const newRow = {} as T;
+      newRow[idField] = newId as T[keyof T];
 
       columns.forEach(col => {
         if (col.key !== idField) {
-          newRow[col.key] = col.type === 'number' ? 0 : (col.type === 'boolean' ? false : '');
+          newRow[col.key] = (col.type === 'number' ? 0 : (col.type === 'boolean' ? false : '')) as T[keyof T];
         }
       });
 
-      newRow[key] = value;
+      newRow[key] = value as T[keyof T];
 
       const updatedRows = [...rows, newRow];
       setRows(updatedRows);
@@ -256,12 +256,12 @@ export function EditableTable<T extends { [key: string]: any }>({
 
   const handleAdd = () => {
     const newId = `new-${rowIdCounter.current++}`;
-    const newRow: any = {};
-    newRow[idField] = newId;
+    const newRow = {} as T;
+    newRow[idField] = newId as T[keyof T];
 
     columns.forEach(col => {
       if (col.key !== idField) {
-        newRow[col.key] = col.type === 'number' ? 0 : (col.type === 'boolean' ? false : '');
+        newRow[col.key] = (col.type === 'number' ? 0 : (col.type === 'boolean' ? false : '')) as T[keyof T];
       }
     });
 
@@ -324,33 +324,37 @@ export function EditableTable<T extends { [key: string]: any }>({
       if (!line) continue;
 
       const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
-      const rowData: any = {};
+      const rowData = {} as T;
 
       if (hasHeader) {
         headerMapping.forEach((key, valIdx) => {
           if (key && valIdx < values.length) {
-            let value: any = values[valIdx];
+            const raw = values[valIdx];
             const col = columns.find(c => c.key === key);
-            if (col?.type === 'number') value = parseFloat(value) || 0;
-            if (col?.type === 'boolean') value = value.toLowerCase() === 'true' || value === '1';
-            rowData[key] = value;
+            const value: string | number | boolean =
+              col?.type === 'number' ? (parseFloat(raw) || 0) :
+              col?.type === 'boolean' ? (raw.toLowerCase() === 'true' || raw === '1') :
+              raw;
+            rowData[key] = value as T[keyof T];
           }
         });
       } else {
         columns.forEach((col, colIdx) => {
           if (colIdx < values.length) {
-            let value: any = values[colIdx];
-            if (col.type === 'number') value = parseFloat(value) || 0;
-            if (col.type === 'boolean') value = value.toLowerCase() === 'true' || value === '1';
-            rowData[col.key] = value;
+            const raw = values[colIdx];
+            const value: string | number | boolean =
+              col.type === 'number' ? (parseFloat(raw) || 0) :
+              col.type === 'boolean' ? (raw.toLowerCase() === 'true' || raw === '1') :
+              raw;
+            rowData[col.key] = value as T[keyof T];
           } else if (rowData[col.key] === undefined) {
-            rowData[col.key] = col.type === 'number' ? 0 : (col.type === 'boolean' ? false : '');
+            rowData[col.key] = (col.type === 'number' ? 0 : (col.type === 'boolean' ? false : '')) as T[keyof T];
           }
         });
       }
 
       const targetId = rowData[idField] || `csv-${rowIdCounter.current++}`;
-      rowData[idField] = targetId;
+      rowData[idField] = targetId as T[keyof T];
 
       const existingIndex = updatedRows.findIndex(r => String(r[idField]) === String(targetId));
       if (existingIndex !== -1) {
