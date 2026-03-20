@@ -14,6 +14,7 @@ interface MobileCardViewProps {
   resources?: Resource[];
   onSaveInitiative: (initiative: Initiative) => void;
   onDeleteInitiative?: (initiative: Initiative) => void;
+  onOpenSettings: () => void;
 }
 
 type BucketMode = 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy';
@@ -264,21 +265,25 @@ const BucketSection: React.FC<{
 const AssetCard: React.FC<{
   asset: Asset;
   initiatives: Initiative[];
+  totalInitiativeCount: number;
   programmes: Programme[];
   strategies: Strategy[];
   dependencies: Dependency[];
   resources: Resource[];
   bucketMode: BucketMode;
   onSelectInitiative: (i: Initiative) => void;
+  onOpenSettings: () => void;
 }> = ({
   asset,
   initiatives,
+  totalInitiativeCount,
   programmes,
   strategies,
   dependencies: _dependencies,
   resources,
   bucketMode,
   onSelectInitiative,
+  onOpenSettings,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const conflicts = conflictCount(initiatives);
@@ -329,9 +334,22 @@ const AssetCard: React.FC<{
       {/* Card body */}
       {!collapsed && (
         initiatives.length === 0 ? (
-          <div data-testid="card-no-initiatives" className="px-4 py-3 text-sm text-slate-400 italic">
-            No initiatives
-          </div>
+          totalInitiativeCount > 0 ? (
+            <div data-testid="card-initiatives-filtered" className="px-4 py-3 text-sm text-slate-400 italic">
+              {totalInitiativeCount} initiative{totalInitiativeCount !== 1 ? 's' : ''} hidden by{' '}
+              <button
+                data-testid="card-filter-link"
+                onClick={onOpenSettings}
+                className="underline text-blue-400 hover:text-blue-600"
+              >
+                filters
+              </button>
+            </div>
+          ) : (
+            <div data-testid="card-no-initiatives" className="px-4 py-3 text-sm text-slate-400 italic">
+              No initiatives
+            </div>
+          )
         ) : (
           <div>
             {[...buckets.entries()].map(([label, inits]) => (
@@ -364,6 +382,7 @@ export function MobileCardView({
   resources = [],
   onSaveInitiative,
   onDeleteInitiative,
+  onOpenSettings,
 }: MobileCardViewProps) {
   const [selectedInitiative, setSelectedInitiative] = useState<Initiative | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -434,12 +453,14 @@ export function MobileCardView({
                   key={asset.id}
                   asset={asset}
                   initiatives={visibleInitiatives.filter(i => i.assetId === asset.id)}
+                  totalInitiativeCount={initiatives.filter(i => i.assetId === asset.id).length}
                   programmes={programmes}
                   strategies={strategies}
                   dependencies={dependencies}
                   resources={resources}
                   bucketMode={bucketMode}
                   onSelectInitiative={handleSelectInitiative}
+                  onOpenSettings={onOpenSettings}
                 />
               ))}
             </div>

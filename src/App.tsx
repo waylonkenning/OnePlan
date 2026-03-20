@@ -982,6 +982,7 @@ export default function App() {
               resources={resources}
               onSaveInitiative={handleUpdateInitiative}
               onDeleteInitiative={handleDeleteInitiative}
+              onOpenSettings={() => setShowMobileSheet(true)}
             />
           ) : (
           <Timeline
