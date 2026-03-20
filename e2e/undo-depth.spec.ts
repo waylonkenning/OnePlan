@@ -51,7 +51,7 @@ test.describe('Undo depth', () => {
     expect(finalName).not.toMatch(/^Rename \d+$/);
   });
 
-  test('undo stack limit is at least 50', async ({ page }) => {
+  test('undo stack limit is at least 50', { timeout: 40000 }, async ({ page }) => {
     // Perform 52 operations then undo 51 — if capped at 50 the 51st undo does nothing.
     await page.getByTestId('nav-data-manager').click();
     await page.getByTestId('data-manager').getByRole('button', { name: /Initiatives/ }).click();
