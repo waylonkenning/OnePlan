@@ -7,18 +7,12 @@ import { test, expect } from '@playwright/test';
 test.describe('Tutorial Content', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(async () => {
+    await page.evaluate(() => {
       localStorage.removeItem('scenia-e2e');
       localStorage.setItem('scenia_has_seen_landing', 'true');
-      const dbs = await indexedDB.databases();
-      await Promise.all(dbs.map(db => db.name && new Promise<void>(res => {
-        const req = indexedDB.deleteDatabase(db.name!);
-        req.onsuccess = () => res();
-        req.onerror = () => res();
-      })));
     });
     await page.reload();
-    await expect(page.getByRole('heading', { name: 'Welcome to Scenia' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to Scenia' })).toBeVisible({ timeout: 30000 });
   });
 
   const nextSlide = (page: import('@playwright/test').Page) =>

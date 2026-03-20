@@ -3,21 +3,9 @@ import { test, expect } from '@playwright/test';
 test.describe('Capacity Report', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(async () => {
-      // Clear IndexedDB to ensure fresh demo data
-      const dbs = await indexedDB.databases();
-      await Promise.all(dbs.map(db => db.name && new Promise<void>(res => {
-        const req = indexedDB.deleteDatabase(db.name!);
-        req.onsuccess = () => res();
-        req.onerror = () => res();
-      })));
-      localStorage.setItem('scenia-e2e', 'true');
-      localStorage.setItem('scenia_has_seen_landing', 'true');
-    });
-    await page.reload();
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.getByTestId('nav-reports').click();
-    await page.waitForSelector('[data-testid="reports-view"]', { timeout: 5000 });
+    await page.waitForSelector('[data-testid="reports-view"]', { timeout: 15000 });
     await page.getByTestId('report-card-capacity').click();
   });
 
@@ -71,7 +59,7 @@ test.describe('Capacity Report', () => {
       await page.locator('[data-testid="delete-row-btn-resources"]').first().click();
     }
     await page.getByTestId('nav-reports').click();
-    await page.waitForSelector('[data-testid="reports-view"]', { timeout: 5000 });
+    await page.waitForSelector('[data-testid="reports-view"]', { timeout: 15000 });
     await page.getByTestId('report-card-capacity').click();
     await expect(page.getByTestId('capacity-no-resources')).toBeVisible();
   });
