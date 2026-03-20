@@ -370,6 +370,19 @@ export function MobileCardView({
 
   const bucketMode: BucketMode = settings.mobileBucketMode ?? 'timeline';
 
+  // Filter initiatives to the window defined by startDate + monthsToShow
+  const windowStart = new Date(settings.startDate);
+  windowStart.setHours(0, 0, 0, 0);
+  const windowEnd = new Date(windowStart);
+  windowEnd.setMonth(windowEnd.getMonth() + settings.monthsToShow);
+
+  const visibleInitiatives = initiatives.filter(i => {
+    const start = new Date(i.startDate);
+    const end = new Date(i.endDate);
+    // Must start on or after windowStart, and end on or before windowEnd
+    return start >= windowStart && end <= windowEnd;
+  });
+
   // Group assets by category, preserving category order
   const sortedCategories = [...assetCategories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const assetsByCategory = sortedCategories.map(cat => ({
@@ -420,7 +433,7 @@ export function MobileCardView({
                 <AssetCard
                   key={asset.id}
                   asset={asset}
-                  initiatives={initiatives.filter(i => i.assetId === asset.id)}
+                  initiatives={visibleInitiatives.filter(i => i.assetId === asset.id)}
                   programmes={programmes}
                   strategies={strategies}
                   dependencies={dependencies}
@@ -439,7 +452,7 @@ export function MobileCardView({
               <AssetCard
                 key={asset.id}
                 asset={asset}
-                initiatives={initiatives.filter(i => i.assetId === asset.id)}
+                initiatives={visibleInitiatives.filter(i => i.assetId === asset.id)}
                 programmes={programmes}
                 strategies={strategies}
                 dependencies={dependencies}
