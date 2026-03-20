@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useMediaQuery } from '../lib/useMediaQuery';
-import { Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, addDays, isValid, startOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes } from 'lucide-react';
@@ -48,13 +48,14 @@ interface TimelineProps {
   onSaveApplicationSegment?: (segment: ApplicationSegment) => void;
   onDeleteApplicationSegment?: (segment: ApplicationSegment) => void;
   onUpdateApplicationSegments?: (segments: ApplicationSegment[]) => void;
+  applicationStatuses?: ApplicationStatus[];
 }
 
 const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
 const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
 
-export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment, onUpdateApplicationSegments }: TimelineProps) {
+export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment, onUpdateApplicationSegments, applicationStatuses = [] }: TimelineProps) {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
 
@@ -67,22 +68,12 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     cancelled: 'bg-red-400',
   };
 
-  const SEGMENT_COLORS: Record<string, string> = {
-    planned:        'bg-slate-400',
-    funded:         'bg-blue-400',
-    'in-production':'bg-emerald-500',
-    sunset:         'bg-amber-500',
-    'out-of-support':'bg-orange-500',
-    retired:        'bg-slate-300',
-  };
-  const SEGMENT_LABELS: Record<string, string> = {
-    planned:        'Planned',
-    funded:         'Funded',
-    'in-production':'In Production',
-    sunset:         'Sunset',
-    'out-of-support':'Out of Support',
-    retired:        'Retired',
-  };
+  const SEGMENT_COLORS: Record<string, string> = {};
+  const SEGMENT_LABELS: Record<string, string> = {};
+  (applicationStatuses ?? []).forEach(s => {
+    SEGMENT_COLORS[s.id] = s.color;
+    SEGMENT_LABELS[s.id] = s.name;
+  });
   const STATUS_LABELS: Record<string, string> = {
     planned: 'Planned',
     active: 'Active',
@@ -1964,6 +1955,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                       onMouseDown={(e) => { e.stopPropagation(); setResizingSegmentVertical({ id: seg.id, initialY: e.clientY, initialRowSpan: rowSpan }); }}>
                                       <div className="w-8 h-0.5 bg-white/60 rounded-full" />
                                     </div>
+                                    <div
+                                      data-testid="segment-stripe"
+                                      className="absolute inset-0 pointer-events-none rounded-md"
+                                      style={{ background: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.12) 4px, transparent 4px, transparent 12px)' }}
+                                    />
                                     {isSegSelected && (
                                       <div className="absolute top-0.5 right-0.5 flex flex-col gap-0.5 z-20" onClick={(e) => e.stopPropagation()}>
                                         <button
@@ -1987,7 +1983,12 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                         >✎</button>
                                       </div>
                                     )}
-                                    <div className="font-bold text-[11px] leading-tight truncate drop-shadow-md">{displayLabel}</div>
+                                    <div className="flex items-center justify-between gap-1 w-full overflow-hidden">
+                                      <div className="font-bold text-[11px] leading-tight truncate drop-shadow-md">{displayLabel}</div>
+                                      <div data-testid="segment-status-label" className="flex-shrink-0 text-[10px] font-semibold px-1 rounded bg-white/20 text-white truncate max-w-[45%]">
+                                        {SEGMENT_LABELS[seg.status] ?? seg.status}
+                                      </div>
+                                    </div>
                                   </div>
                                 );
                               })}
@@ -2068,7 +2069,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                   assetId: creatingSegmentParams.assetId,
                   startDate: creatingSegmentParams.startDate,
                   endDate: creatingSegmentParams.endDate,
-                  status: 'planned',
+                  status: applicationStatuses[0]?.id ?? 'appstatus-planned',
                   row: creatingSegmentParams.row,
                   rowSpan: 1,
                 }
@@ -2091,6 +2092,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
           setSegmentPanelId(null);
           setSelectedSegmentId(null);
         }}
+        applicationStatuses={applicationStatuses}
       />
 
       <DependencyPanel

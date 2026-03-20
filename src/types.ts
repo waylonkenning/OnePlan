@@ -43,6 +43,15 @@ export interface Resource {
 }
 
 /**
+ * A named, coloured status that can be applied to an ApplicationSegment.
+ */
+export interface ApplicationStatus {
+  id: string;
+  name: string;
+  color: string;
+}
+
+/**
  * The core entity representing a specific project or piece of work.
  */
 export interface Initiative {
@@ -116,7 +125,7 @@ export interface ApplicationSegment {
   assetId?: string;       // Optional: links segment directly to an asset (when applicationId is absent)
   startDate: string; // ISO format: YYYY-MM-DD
   endDate: string;   // ISO format: YYYY-MM-DD
-  status: 'planned' | 'funded' | 'in-production' | 'sunset' | 'out-of-support' | 'retired';
+  status: string;
   label?: string;    // Optional display override; defaults to the status label
   row?: number;      // Which row within the swimlane (0-indexed). Auto-assigned if absent.
   rowSpan?: number;  // How many rows tall this segment is (default 1). Controlled by bottom-edge drag.

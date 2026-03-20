@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
 import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree, Trash2, RotateCcw, Users, Box } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import {
   demoAssets, demoApplications, demoApplicationSegments, demoInitiatives, demoMilestones, demoProgrammes, demoStrategies,
-  demoDependencies, demoAssetCategories, demoTimelineSettings, demoResources
+  demoDependencies, demoAssetCategories, demoTimelineSettings, demoResources, demoApplicationStatuses
 } from '../demoData';
 
 interface DataManagerProps {
@@ -22,6 +22,7 @@ interface DataManagerProps {
     assetCategories: AssetCategory[];
     timelineSettings: TimelineSettings;
     resources: Resource[];
+    applicationStatuses: ApplicationStatus[];
   };
   onUpdate: (data: {
     assets: Asset[];
@@ -35,11 +36,12 @@ interface DataManagerProps {
     assetCategories: AssetCategory[];
     timelineSettings: TimelineSettings;
     resources: Resource[];
+    applicationStatuses: ApplicationStatus[];
   }) => void;
   searchQuery?: string;
 }
 
-type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'programmes' | 'strategies' | 'milestones' | 'resources' | 'applications';
+type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'programmes' | 'strategies' | 'milestones' | 'resources' | 'applications' | 'appStatuses';
 
 export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>('initiatives');
@@ -253,6 +255,11 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
     },
   ];
 
+  const appStatusColumns: Column<ApplicationStatus>[] = [
+    { key: 'name', label: 'Status Name', type: 'text', width: '60%' },
+    { key: 'color', label: 'Color', type: 'color', width: '40%' },
+  ];
+
   const tabs = [
     { id: 'initiatives', label: 'Initiatives', icon: Layers, count: data.initiatives.length },
     { id: 'dependencies', label: 'Dependencies', icon: Link2, count: data.dependencies.length },
@@ -263,6 +270,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
     { id: 'strategies', label: 'Strategies', icon: Target, count: data.strategies.length },
     { id: 'milestones', label: 'Milestones', icon: Flag, count: data.milestones.length },
     { id: 'resources', label: 'Resources', icon: Users, count: (data.resources || []).length },
+    { id: 'appStatuses', label: 'App Statuses', icon: Layers, count: (data.applicationStatuses || []).length },
   ];
 
   return (
@@ -394,6 +402,17 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
             onColumnResize={(key, width) => handleColumnResize('applications', key, width)}
           />
         )}
+        {activeTab === 'appStatuses' && (
+          <EditableTable
+            data={data.applicationStatuses || []}
+            columns={getColumnsWithWidths('appStatuses', appStatusColumns)}
+            onUpdate={(newData) => updateData('applicationStatuses', newData)}
+            onDelete={(status) => updateData('applicationStatuses', (data.applicationStatuses || []).filter(s => s.id !== status.id))}
+            idField="id"
+            tableId="appStatuses"
+            onColumnResize={(col, w) => handleColumnResize('appStatuses', col, w)}
+          />
+        )}
       </div>
 
       <div className="flex items-center gap-3 mt-3 pt-3 border-t border-slate-200">
@@ -401,7 +420,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
           onClick={() => confirm(
             'Reset — delete all data',
             'This will permanently delete ALL data across every table (Initiatives, Assets, Programmes, etc.). This cannot be undone.',
-            () => onUpdate({ ...data, assets: [], applications: [], initiatives: [], milestones: [], programmes: [], strategies: [], dependencies: [], assetCategories: [], resources: [] }),
+            () => onUpdate({ ...data, assets: [], applications: [], applicationStatuses: [], initiatives: [], milestones: [], programmes: [], strategies: [], dependencies: [], assetCategories: [], resources: [] }),
           )}
           className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-all shadow-sm font-medium text-sm"
         >
@@ -412,7 +431,7 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
           onClick={() => confirm(
             'Reset — use demo data',
             'This will replace ALL current data with the demo dataset. Your existing data will be lost.',
-            () => onUpdate({ assets: demoAssets, applications: demoApplications, applicationSegments: demoApplicationSegments, initiatives: demoInitiatives, milestones: demoMilestones, programmes: demoProgrammes, strategies: demoStrategies, dependencies: demoDependencies, assetCategories: demoAssetCategories, timelineSettings: demoTimelineSettings, resources: demoResources }),
+            () => onUpdate({ assets: demoAssets, applications: demoApplications, applicationSegments: demoApplicationSegments, initiatives: demoInitiatives, milestones: demoMilestones, programmes: demoProgrammes, strategies: demoStrategies, dependencies: demoDependencies, assetCategories: demoAssetCategories, timelineSettings: demoTimelineSettings, resources: demoResources, applicationStatuses: demoApplicationStatuses }),
           )}
           className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all shadow-sm font-medium text-sm"
         >

@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Version, Resource } from '../types';
+import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Version, Resource } from '../types';
 
 interface ITMapDB extends DBSchema {
   assets: {
@@ -50,10 +50,14 @@ interface ITMapDB extends DBSchema {
     key: string;
     value: Resource;
   };
+  applicationStatuses: {
+    key: string;
+    value: ApplicationStatus;
+  };
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 9;
+const DB_VERSION = 10;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
@@ -91,6 +95,9 @@ export const initDB = () => {
         if (oldVersion < 9 && !db.objectStoreNames.contains('applicationSegments')) {
           db.createObjectStore('applicationSegments', { keyPath: 'id' });
         }
+        if (oldVersion < 10 && !db.objectStoreNames.contains('applicationStatuses')) {
+          db.createObjectStore('applicationStatuses', { keyPath: 'id' });
+        }
       },
     });
   }
@@ -109,6 +116,7 @@ export const getAppData = async () => {
   const dependencies = await db.getAll('dependencies');
   const assetCategories = await db.getAll('assetCategories');
   const resources = db.objectStoreNames.contains('resources') ? await db.getAll('resources') : [];
+  const applicationStatuses = db.objectStoreNames.contains('applicationStatuses') ? await db.getAll('applicationStatuses') : [];
 
   // Settings is not a standard list of entities, it's just one config object
   let settingsFromDb = null;
@@ -129,6 +137,7 @@ export const getAppData = async () => {
     assetCategories,
     timelineSettings,
     resources,
+    applicationStatuses,
   };
 };
 
@@ -144,9 +153,10 @@ export const saveAppData = async (data: {
   assetCategories: AssetCategory[];
   timelineSettings: TimelineSettings;
   resources: Resource[];
+  applicationStatuses: ApplicationStatus[];
 }) => {
   const db = await initDB();
-  const stores: ("assets" | "applications" | "applicationSegments" | "initiatives" | "milestones" | "programmes" | "strategies" | "dependencies" | "assetCategories" | "settings" | "resources")[] = [
+  const stores: ("assets" | "applications" | "applicationSegments" | "applicationStatuses" | "initiatives" | "milestones" | "programmes" | "strategies" | "dependencies" | "assetCategories" | "settings" | "resources")[] = [
     'assets', 'initiatives', 'milestones', 'programmes', 'strategies', 'dependencies', 'assetCategories'
   ];
   if (db.objectStoreNames.contains('settings')) {
@@ -160,6 +170,9 @@ export const saveAppData = async (data: {
   }
   if (db.objectStoreNames.contains('applicationSegments')) {
     stores.push('applicationSegments');
+  }
+  if (db.objectStoreNames.contains('applicationStatuses')) {
+    stores.push('applicationStatuses');
   }
   const tx = db.transaction(stores, 'readwrite');
 
@@ -197,6 +210,10 @@ export const saveAppData = async (data: {
   if (db.objectStoreNames.contains('applicationSegments')) {
     allPromises.push(tx.objectStore('applicationSegments').clear());
     (data.applicationSegments || []).forEach(item => allPromises.push(tx.objectStore('applicationSegments').add(item)));
+  }
+  if (db.objectStoreNames.contains('applicationStatuses')) {
+    allPromises.push(tx.objectStore('applicationStatuses').clear());
+    (data.applicationStatuses || []).forEach(item => allPromises.push(tx.objectStore('applicationStatuses').add(item)));
   }
   await Promise.all(allPromises);
 
