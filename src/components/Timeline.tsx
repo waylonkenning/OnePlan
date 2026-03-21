@@ -2095,6 +2095,12 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             ? applications.find(a => a.id === localSegments.find(s => s.id === segmentPanelId)?.applicationId)
             : null) || null
         }
+        applications={(() => {
+          const assetId = segmentPanelId
+            ? localSegments.find(s => s.id === segmentPanelId)?.assetId
+            : creatingSegmentParams?.assetId;
+          return assetId ? applications.filter(a => a.assetId === assetId) : [];
+        })()}
         onClose={() => { setSegmentPanelId(null); setSelectedSegmentId(null); setCreatingSegmentParams(null); }}
         onSave={(seg) => {
           if (onSaveApplicationSegment) onSaveApplicationSegment(seg);
