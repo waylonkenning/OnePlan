@@ -2003,8 +2003,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                         >✎</button>
                                       </div>
                                     )}
-                                    <div className="flex items-center justify-between gap-1 w-full overflow-hidden">
-                                      <div className="font-bold text-[11px] leading-tight truncate drop-shadow-md">{displayLabel}</div>
+                                    <div
+                                      className="flex items-center justify-between gap-1 w-full overflow-hidden"
+                                      style={left < 0 ? { paddingLeft: `${Math.max(0, (-left / 100) * totalWidth - 8)}px` } : undefined}
+                                    >
+                                      <div data-testid="segment-label" className="font-bold text-[11px] leading-tight truncate drop-shadow-md">{displayLabel}</div>
                                       <div data-testid="segment-status-label" className="flex-shrink-0 text-[10px] font-semibold px-1 rounded bg-white/20 text-white truncate max-w-[45%]">
                                         {SEGMENT_LABELS[seg.status] ?? seg.status}
                                       </div>
