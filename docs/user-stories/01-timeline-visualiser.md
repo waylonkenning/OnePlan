@@ -55,6 +55,7 @@
 - The initiative stays in its vertical row during the drag
 - Changes are persisted to IndexedDB and survive page reload
 - Drag cursor is not shown on mobile viewports
+- Clicking once on an initiative bar selects it; dragging begins only after selection, preventing accidental moves when tapping
 
 ---
 
@@ -141,3 +142,16 @@
 - Collapsed swimlanes reduce the overall timeline height
 - Expanding a swimlane restores the initiative bars
 - Collapsed/expanded state persists across page reloads
+
+---
+
+## US-TV-11: Weekly Columns Align to Monday
+
+**As an** IT portfolio manager,
+**I want** weekly column markers in the 3-month view to start on Monday,
+**so that** column boundaries correspond to the actual start of the work week.
+
+**Acceptance Criteria:**
+- In the 3-month (weekly column) view, the first column always starts on a Monday regardless of the configured timeline start date
+- For example: a Thursday start date shows the preceding Monday as the first column label
+- Column dates shown in the header are accurate Monday dates

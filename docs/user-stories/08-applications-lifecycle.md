@@ -14,16 +14,18 @@
 
 ---
 
-## US-AL-02: View Applications as Sub-Rows in the Timeline
+## US-AL-02: View Applications as a Swimlane in the Timeline
 
 **As an** IT portfolio manager,
-**I want** each application to appear as its own swimlane row beneath its parent asset row,
-**so that** I can see the application landscape alongside the initiatives that affect it.
+**I want** each asset's applications to appear in a single "Applications" swimlane beneath the asset's initiative row,
+**so that** I can see the full application landscape alongside the initiatives that affect it.
 
 **Acceptance Criteria:**
-- For each asset that has applications, one sub-row per application appears immediately below the asset's initiative row
-- The application name is shown in the left sidebar of the sub-row
-- Assets with no applications render without any sub-rows (no regressions)
+- For each asset that has applications, a single "Applications" swimlane appears immediately below the asset's initiative row
+- The swimlane label is shown in the left sidebar
+- Lifecycle segments for different applications within the same swimlane stack vertically into separate rows when their date ranges conflict
+- The swimlane height expands to accommodate stacked rows
+- Assets with no applications render without any swimlane (no regressions)
 - Milestones remain at the asset level
 
 ---
@@ -35,10 +37,11 @@
 **so that** I can show the full lifecycle state of a technology over the planning horizon.
 
 **Acceptance Criteria:**
-- Double-clicking an empty area in an application sub-row opens the segment creation panel pre-filled with the application and approximate dates
+- Double-clicking an empty area in the Applications swimlane opens the segment creation panel pre-filled with the approximate dates
+- The segment creation panel includes an Application dropdown listing all applications for the asset; selecting one associates the segment with that application
 - A segment has: status (Planned / Funded / In Production / Sunset / Out of Support / Retired), optional label, start date, end date
 - End date must be after start date (inline validation shown)
-- Saving a segment renders a coloured bar in the application's sub-row at the correct position
+- Saving a segment renders a coloured bar in the swimlane at the correct position
 - The same application can have multiple non-overlapping (or overlapping) segments representing lifecycle progression
 - Segments are persisted to IndexedDB and survive page reload
 
@@ -51,10 +54,10 @@
 **so that** I can update dates, status, or label, or remove the segment entirely.
 
 **Acceptance Criteria:**
-- Clicking a segment bar opens the ApplicationSegmentPanel slide-in panel
+- Single-clicking a segment bar selects it; double-clicking an existing segment bar opens the Edit Lifecycle Segment panel directly (single-click selects the segment; double-click opens the panel)
 - The panel pre-populates with the segment's current values
 - Saving updates the segment on the timeline
-- A delete button (with confirmation modal) removes the segment
+- A delete button (with confirmation modal) is present for segments created via double-click as well as those created via single-click editing
 
 ---
 
@@ -66,8 +69,11 @@
 
 **Acceptance Criteria:**
 - Dragging a segment bar horizontally moves its start and end dates, preserving duration
+- Dragging a segment bar vertically moves it to the next or previous row within the swimlane (same as the ↑/↓ row buttons)
 - Dragging the left edge changes the start date
 - Dragging the right edge changes the end date
+- Left and right resize edges show a visible white indicator bar so users know they are draggable
+- Row-control buttons are positioned in the top-left of the segment bar so they do not overlap the right-edge resize handle
 - Changes are saved to IndexedDB on mouse release
 - Dragging does not accidentally trigger a click-to-open-panel action
 
@@ -84,3 +90,31 @@
 - Changing the asset resets the application selection
 - The selected application is saved and persists to IndexedDB
 - Linked initiatives continue to render at the asset level on the timeline (applicationId is metadata only)
+
+---
+
+## US-AL-07: Stack Overlapping Segments Without Collision
+
+**As an** IT portfolio manager,
+**I want** overlapping lifecycle segments on the same application to stack into separate rows,
+**so that** I can see all segments even when their date ranges overlap.
+
+**Acceptance Criteria:**
+- Overlapping segments are automatically placed into separate rows within the single Applications swimlane
+- The swimlane height expands to accommodate stacked rows
+- Dragging a segment horizontally resolves conflicts by pushing colliding segments to the nearest free row
+- Row assignments persist to IndexedDB
+
+---
+
+## US-AL-08: Visually Distinguish Segment Statuses
+
+**As an** IT portfolio manager,
+**I want** lifecycle segments to be visually distinct by status,
+**so that** I can immediately see the lifecycle state of each technology at a glance.
+
+**Acceptance Criteria:**
+- Each lifecycle status has a distinct colour (e.g. Planned = slate, Funded = blue, In Production = green, Sunset = amber, Out of Support = orange, Retired = red)
+- Segments use a stripe pattern or other visual treatment to further distinguish statuses
+- The status label or application name is displayed on the segment bar
+- Statuses are editable directly from the segment panel

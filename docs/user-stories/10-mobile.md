@@ -59,6 +59,8 @@
 - Conflict badges are shown on cards where conflicts exist
 - `mobileBucketMode` setting persists to IndexedDB
 - The desktop timeline layout is completely unchanged
+- The card view filters initiatives so that only initiatives within the configured start date and months window are shown
+- When all initiatives are hidden due to the date filter (but initiatives do exist), a distinct 'outside date range' empty state is shown rather than the generic 'no initiatives' message
 
 ---
 
@@ -73,3 +75,18 @@
 - Drag handle icons are hidden on mobile for category and asset rows
 - Legend items wrap correctly so all programme/strategy names are visible
 - Tab bar active state uses a border indicator for clear visual distinction
+
+---
+
+## US-MB-06: View Initiative Details in Mobile Card Rows
+
+**As an** IT portfolio manager on mobile,
+**I want** the display toggles (Descriptions, Budget, Relationships, Conflicts) to affect what is shown on mobile card rows,
+**so that** I get the same control over information density as on the desktop timeline.
+
+**Acceptance Criteria:**
+- When the Descriptions toggle is on, each initiative row in the card view shows the initiative's description text
+- When the Budget toggle is on, each initiative row shows the formatted budget (NZD)
+- When the Relationships toggle is on, each initiative row shows related initiative names and dependency type
+- When the Conflicts toggle is off, conflict badges are hidden from asset card headers
+- All four toggles are accessible via the mobile settings sheet
