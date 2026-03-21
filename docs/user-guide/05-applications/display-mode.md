@@ -1,6 +1,6 @@
 # Display Mode
 
-*Screenshot: "Applications Only" mode showing a clean lifecycle view — to be captured.*
+![](../../public/features/display-mode.png)
 
 The **display mode picker** in the header controls what layers the timeline shows. Use it to tailor the view to your audience or current task.
 

@@ -1,6 +1,6 @@
 # Adding Applications
 
-*Screenshot: Applications tab in the Data Manager showing a list of applications — to be captured.*
+![](../../public/features/adding-applications.png)
 
 ## What applications are
 

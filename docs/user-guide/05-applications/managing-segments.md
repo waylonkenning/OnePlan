@@ -1,6 +1,6 @@
 # Managing Segments
 
-*Screenshot: the Applications swimlane with a selected segment showing the row buttons and resize edge indicators — to be captured.*
+![](../../public/features/managing-segments.png)
 
 ## Selecting and editing
 

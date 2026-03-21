@@ -1,6 +1,6 @@
 # Critical Path
 
-*Screenshot: critical path highlighting active on the timeline — to be captured.*
+![](../../public/features/critical-path.png)
 
 ## What It Is
 

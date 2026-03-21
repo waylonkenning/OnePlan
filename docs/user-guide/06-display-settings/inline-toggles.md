@@ -1,6 +1,6 @@
 # Inline Display Toggles
 
-*Screenshot: the header showing all four toggle buttons annotated — to be captured.*
+![](../../public/features/inline-toggles.png)
 
 Four icon toggle buttons in the header control what detail is shown on the timeline canvas. Each button shows whether it is active or inactive. On mobile, these toggles are available in the settings sheet.
 

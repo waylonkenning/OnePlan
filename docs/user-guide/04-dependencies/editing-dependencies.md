@@ -1,6 +1,6 @@
 # Editing Dependencies
 
-*Screenshot: dependency edit panel open — to be captured.*
+![](../../public/features/editing-dependencies.png)
 
 ## Opening the Panel
 

@@ -1,6 +1,6 @@
 # Lifecycle Segments
 
-*Screenshot: the Applications swimlane showing multiple coloured lifecycle segments — to be captured.*
+![](../../public/features/lifecycle-segments.png)
 
 ## What lifecycle segments are
 

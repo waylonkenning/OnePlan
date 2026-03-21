@@ -1,6 +1,6 @@
 # Editing an Initiative
 
-*Screenshot: the InitiativePanel slide-in panel open on the right side — to be captured.*
+![](../../public/features/editing-an-initiative.png)
 
 ## Opening the panel
 

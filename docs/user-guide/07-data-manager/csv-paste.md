@@ -1,6 +1,6 @@
 # CSV Paste
 
-*Screenshot: the CSV paste dialog open — to be captured.*
+![](../../public/features/csv-paste.png)
 
 The **Paste CSV** button in any table tab lets you bulk-import or update rows by pasting CSV text directly — no file upload required.
 

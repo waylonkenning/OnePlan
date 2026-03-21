@@ -1,6 +1,6 @@
 # Configuring the Timeline Window
 
-*Screenshot: header controls showing Start Date input, Months selector, and zoom buttons — to be captured.*
+![](../../public/features/configuring-the-window.png)
 
 Three controls in the header let you define what portion of the planning horizon you are looking at. All three settings persist across page reloads via IndexedDB.
 
