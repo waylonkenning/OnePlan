@@ -94,7 +94,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const [movingMilestone, setMovingMilestone] = useState<{ id: string; initialX: number; initialY: number; initialDate: string } | null>(null);
   const [movingDependency, setMovingDependency] = useState<{ id: string; initialX: number; initialOffset: number } | null>(null);
   const [localSegments, setLocalSegments] = useState<ApplicationSegment[]>(applicationSegmentsProp);
-  const [movingSegment, setMovingSegment] = useState<{ id: string; initialX: number; initialStart: string; initialEnd: string } | null>(null);
+  const [movingSegment, setMovingSegment] = useState<{ id: string; initialX: number; initialY: number; initialRow: number; initialStart: string; initialEnd: string } | null>(null);
   const [resizingSegment, setResizingSegment] = useState<{ id: string; edge: 'start' | 'end'; initialX: number; initialDate: string } | null>(null);
   const [resizingSegmentVertical, setResizingSegmentVertical] = useState<{ id: string; initialY: number; initialRowSpan: number } | null>(null);
   const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
@@ -654,8 +654,16 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         }));
       } else if (movingSegment) {
         const deltaX = e.clientX - movingSegment.initialX;
-        if (Math.abs(deltaX) > 3) isDraggingRef.current = true;
-        if (Math.abs(deltaX) > 5) {
+        const deltaY = e.clientY - movingSegment.initialY;
+        if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) isDraggingRef.current = true;
+        if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
+          // Vertical drag — move to a different row
+          const deltaRows = Math.round(deltaY / SEG_ROW_UNIT);
+          const newRow = Math.max(0, movingSegment.initialRow + deltaRows);
+          const updated = localSegments.map(s => s.id === movingSegment.id ? { ...s, row: newRow } : s);
+          setLocalSegments(resolveSegmentConflicts(movingSegment.id, updated));
+        } else if (Math.abs(deltaX) > 5) {
+          // Horizontal drag — move dates
           const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
           setLocalSegments(localSegments.map(s => {
             if (s.id !== movingSegment.id) return s;
@@ -1933,7 +1941,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                     data-selected={isSegSelected ? 'true' : undefined}
                                     onMouseDown={(e) => {
                                       isDraggingRef.current = false;
-                                      setMovingSegment({ id: seg.id, initialX: e.clientX, initialStart: seg.startDate, initialEnd: seg.endDate });
+                                      setMovingSegment({ id: seg.id, initialX: e.clientX, initialY: e.clientY, initialRow: seg.row ?? 0, initialStart: seg.startDate, initialEnd: seg.endDate });
                                     }}
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -1949,10 +1957,14 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                     style={{ left: `${left}%`, width: `${Math.max(width, 0.5)}%`, height, top }}
                                     title={`${displayLabel}\n${seg.startDate} → ${seg.endDate}`}
                                   >
-                                    <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10"
-                                      onMouseDown={(e) => { e.stopPropagation(); setResizingSegment({ id: seg.id, edge: 'start', initialX: e.clientX, initialDate: seg.startDate }); }} />
-                                    <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10"
-                                      onMouseDown={(e) => { e.stopPropagation(); setResizingSegment({ id: seg.id, edge: 'end', initialX: e.clientX, initialDate: seg.endDate }); }} />
+                                    <div draggable="false" data-testid="segment-resize-left" className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize z-10 flex items-center justify-center"
+                                      onMouseDown={(e) => { e.stopPropagation(); setResizingSegment({ id: seg.id, edge: 'start', initialX: e.clientX, initialDate: seg.startDate }); }}>
+                                      <div className="w-px h-3/4 bg-white/40 rounded-full group-hover/seg:bg-white/70 transition-colors" />
+                                    </div>
+                                    <div draggable="false" data-testid="segment-resize-right" className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize z-10 flex items-center justify-center"
+                                      onMouseDown={(e) => { e.stopPropagation(); setResizingSegment({ id: seg.id, edge: 'end', initialX: e.clientX, initialDate: seg.endDate }); }}>
+                                      <div className="w-px h-3/4 bg-white/40 rounded-full group-hover/seg:bg-white/70 transition-colors" />
+                                    </div>
                                     <div draggable="false" data-testid="segment-resize-bottom"
                                       className={`absolute left-2 right-2 bottom-0 h-2 cursor-ns-resize flex items-center justify-center transition-opacity z-10 ${isSegSelected ? 'opacity-100' : 'opacity-0 group-hover/seg:opacity-100'}`}
                                       onMouseDown={(e) => { e.stopPropagation(); setResizingSegmentVertical({ id: seg.id, initialY: e.clientY, initialRowSpan: rowSpan }); }}>
@@ -1964,7 +1976,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                       style={{ background: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.12) 4px, transparent 4px, transparent 12px)' }}
                                     />
                                     {isSegSelected && (
-                                      <div className="absolute top-0.5 right-0.5 flex flex-col gap-0.5 z-20" onClick={(e) => e.stopPropagation()}>
+                                      <div className="absolute top-0.5 left-0.5 flex flex-row gap-0.5 z-20" onClick={(e) => e.stopPropagation()}>
                                         <button
                                           data-testid="segment-row-up"
                                           className="w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none"
