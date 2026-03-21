@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Asset, Initiative, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
-import { ChevronDown, ChevronRight, AlertTriangle } from 'lucide-react';
+import { ChevronDown, ChevronRight, AlertTriangle, DollarSign, AlignLeft, GitBranch } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
 
 interface MobileCardViewProps {
@@ -157,11 +157,17 @@ const InitiativeRow: React.FC<{
   initiative: Initiative;
   programmes: Programme[];
   resources: Resource[];
+  settings: TimelineSettings;
+  dependencies: Dependency[];
+  allInitiatives: Initiative[];
   onClick: () => void;
 }> = ({
   initiative,
   programmes,
   resources,
+  settings,
+  dependencies,
+  allInitiatives,
   onClick,
 }) => {
   const prog = programmes.find(p => p.id === initiative.programmeId);
@@ -172,6 +178,16 @@ const InitiativeRow: React.FC<{
   const ownerInitials = ownerLabel ? getInitials(ownerLabel) : null;
 
   const hasProgress = typeof initiative.progress === 'number' && initiative.progress > 0;
+
+  const showDescription = settings.descriptionDisplay === 'on' && !!initiative.description;
+  const showBudget = settings.budgetVisualisation !== 'off' && initiative.budget > 0;
+  const showRelationships = settings.showRelationships === 'on';
+
+  const relatedDeps = showRelationships
+    ? dependencies.filter(d => d.sourceId === initiative.id || d.targetId === initiative.id)
+    : [];
+
+  const DEP_LABELS: Record<string, string> = { blocks: 'blocks', requires: 'requires', related: 'related to' };
 
   return (
     <button
@@ -213,6 +229,43 @@ const InitiativeRow: React.FC<{
         )}
         {/* Programme name */}
         {prog && <div className="text-xs text-slate-400 mt-0.5">{prog.name}</div>}
+        {/* Description */}
+        {showDescription && (
+          <div data-testid={`initiative-description-${initiative.id}`} className="mt-1.5 flex items-start gap-1">
+            <AlignLeft size={10} className="text-slate-400 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-slate-500 line-clamp-3">{initiative.description}</p>
+          </div>
+        )}
+        {/* Budget */}
+        {showBudget && (
+          <div data-testid={`initiative-budget-${initiative.id}`} className="mt-1 flex items-center gap-1">
+            <DollarSign size={10} className="text-slate-400 flex-shrink-0" />
+            <span className="text-xs text-slate-500">
+              {initiative.budget.toLocaleString('en-NZ', { style: 'currency', currency: 'NZD', maximumFractionDigits: 0 })}
+            </span>
+          </div>
+        )}
+        {/* Relationships */}
+        {relatedDeps.length > 0 && (
+          <div data-testid={`initiative-relationships-${initiative.id}`} className="mt-1.5 flex items-start gap-1">
+            <GitBranch size={10} className="text-slate-400 mt-0.5 flex-shrink-0" />
+            <div className="flex flex-col gap-0.5">
+              {relatedDeps.map(dep => {
+                const isSource = dep.sourceId === initiative.id;
+                const otherId = isSource ? dep.targetId : dep.sourceId;
+                const other = allInitiatives.find(i => i.id === otherId);
+                if (!other) return null;
+                const label = isSource ? DEP_LABELS[dep.type] ?? dep.type : `depended on by`;
+                return (
+                  <span key={dep.id} className="text-xs text-slate-500">
+                    <span className="text-slate-400">{label}</span>{' '}
+                    <span className="font-medium text-slate-600">{other.name}</span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </button>
   );
@@ -225,12 +278,18 @@ const BucketSection: React.FC<{
   initiatives: Initiative[];
   programmes: Programme[];
   resources: Resource[];
+  settings: TimelineSettings;
+  dependencies: Dependency[];
+  allInitiatives: Initiative[];
   onSelectInitiative: (i: Initiative) => void;
 }> = ({
   label,
   initiatives,
   programmes,
   resources,
+  settings,
+  dependencies,
+  allInitiatives,
   onSelectInitiative,
 }) => {
   const [expanded, setExpanded] = useState(true);
@@ -253,6 +312,9 @@ const BucketSection: React.FC<{
           initiative={init}
           programmes={programmes}
           resources={resources}
+          settings={settings}
+          dependencies={dependencies}
+          allInitiatives={allInitiatives}
           onClick={() => onSelectInitiative(init)}
         />
       ))}
@@ -270,23 +332,27 @@ const AssetCard: React.FC<{
   strategies: Strategy[];
   dependencies: Dependency[];
   resources: Resource[];
+  settings: TimelineSettings;
+  allInitiatives: Initiative[];
   bucketMode: BucketMode;
   onSelectInitiative: (i: Initiative) => void;
-  onOpenSettings: () => void;
+  onOpenSettings?: () => void;
 }> = ({
   asset,
   initiatives,
   totalInitiativeCount,
   programmes,
   strategies,
-  dependencies: _dependencies,
+  dependencies,
   resources,
+  settings,
+  allInitiatives,
   bucketMode,
   onSelectInitiative,
   onOpenSettings,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const conflicts = conflictCount(initiatives);
+  const conflicts = settings.conflictDetection !== 'off' ? conflictCount(initiatives) : 0;
   const activeCount = initiatives.filter(i => {
     const today = new Date();
     return new Date(i.startDate) <= today && new Date(i.endDate) >= today;
@@ -359,6 +425,9 @@ const AssetCard: React.FC<{
                 initiatives={inits}
                 programmes={programmes}
                 resources={resources}
+                settings={settings}
+                dependencies={dependencies}
+                allInitiatives={allInitiatives}
                 onSelectInitiative={onSelectInitiative}
               />
             ))}
@@ -458,6 +527,8 @@ export function MobileCardView({
                   strategies={strategies}
                   dependencies={dependencies}
                   resources={resources}
+                  settings={settings}
+                  allInitiatives={initiatives}
                   bucketMode={bucketMode}
                   onSelectInitiative={handleSelectInitiative}
                   onOpenSettings={onOpenSettings}
@@ -474,12 +545,16 @@ export function MobileCardView({
                 key={asset.id}
                 asset={asset}
                 initiatives={visibleInitiatives.filter(i => i.assetId === asset.id)}
+                totalInitiativeCount={initiatives.filter(i => i.assetId === asset.id).length}
                 programmes={programmes}
                 strategies={strategies}
                 dependencies={dependencies}
                 resources={resources}
+                settings={settings}
+                allInitiatives={initiatives}
                 bucketMode={bucketMode}
                 onSelectInitiative={handleSelectInitiative}
+                onOpenSettings={onOpenSettings}
               />
             ))}
           </div>
