@@ -15,7 +15,7 @@ the Playwright E2E test suite (`e2e/`) and `PLAYWRIGHT_TODO.md`.
 | [05-version-history.md](05-version-history.md) | Version History & Snapshots | US-VH-01 → US-VH-04 |
 | [06-reports.md](06-reports.md) | Reports | US-RP-01 → US-RP-05 |
 | [07-resources-capacity.md](07-resources-capacity.md) | Resources & Capacity Planning | US-RC-01 → US-RC-03 |
-| [08-applications-lifecycle.md](08-applications-lifecycle.md) | Applications & Lifecycle Segments | US-AL-01 → US-AL-08 |
+| [08-applications-lifecycle.md](08-applications-lifecycle.md) | Applications & Lifecycle Segments | US-AL-01 → US-AL-09 |
 | [09-display-settings.md](09-display-settings.md) | Display Settings & Visualisation Modes | US-DS-01 → US-DS-06 |
 | [10-mobile.md](10-mobile.md) | Mobile Experience | US-MB-01 → US-MB-06 |
 | [11-navigation-ux.md](11-navigation-ux.md) | Navigation, UX & Accessibility | US-UX-01 → US-UX-09 |

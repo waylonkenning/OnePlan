@@ -118,3 +118,16 @@
 - Segments use a stripe pattern or other visual treatment to further distinguish statuses
 - The status label or application name is displayed on the segment bar
 - Statuses are editable directly from the segment panel
+
+---
+
+## US-AL-09: Segment Label Remains Visible When Bar Extends Before the Timeline Window
+
+**As an** IT portfolio manager,
+**I want** to always see the label on a lifecycle segment bar even when the segment started before the visible timeline window,
+**so that** I can identify what each segment represents without having to scroll back in time or hover for a tooltip.
+
+**Acceptance Criteria:**
+- When a segment's start date is before the visible timeline window and its bar extends into the visible area, the label is pinned to the left edge of the content area (not clipped off-screen)
+- When a segment is fully within the visible window, the label sits at the natural start of the bar (no change to normal behaviour)
+- Both the application name / custom label and the status badge remain readable at the clamped position
