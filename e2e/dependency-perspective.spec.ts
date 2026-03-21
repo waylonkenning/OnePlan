@@ -62,12 +62,18 @@ test.describe('Perspective-aware labels in InitiativePanel', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 
-    // Click Developer Portal Launch bar to select it, then open edit panel
-    const bar = page.locator('[data-initiative-id="i-apigw-portal"]').first();
-    await bar.scrollIntoViewIfNeeded();
-    await bar.click({ force: true });
-    // initiative-edit only renders after the bar is selected (conditional render)
-    await page.locator('[data-testid="initiative-edit"]').click({ force: true });
+    // Use evaluate to dispatch click directly, bypassing the SVG overlay
+    // that intercepts pointer events over initiative bars
+    await page.evaluate(() => {
+      const bar = document.querySelector('[data-initiative-id="i-apigw-portal"]');
+      bar?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+    // initiative-edit only renders after bar is selected (conditional render)
+    await expect(page.locator('[data-testid="initiative-edit"]')).toBeVisible({ timeout: 5000 });
+    await page.evaluate(() => {
+      const btn = document.querySelector('[data-testid="initiative-edit"]') as HTMLElement;
+      btn?.click();
+    });
 
     const section = page.getByTestId('related-initiatives-section');
     await expect(section).toBeVisible();
@@ -78,12 +84,17 @@ test.describe('Perspective-aware labels in InitiativePanel', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 
-    // Click API Gateway v2 Migration bar to select it, then open edit panel
-    const bar = page.locator('[data-initiative-id="i-apigw-v2"]').first();
-    await bar.scrollIntoViewIfNeeded();
-    await bar.click({ force: true });
-    // initiative-edit only renders after the bar is selected (conditional render)
-    await page.locator('[data-testid="initiative-edit"]').click({ force: true });
+    // Use evaluate to dispatch click directly, bypassing the SVG overlay
+    await page.evaluate(() => {
+      const bar = document.querySelector('[data-initiative-id="i-apigw-v2"]');
+      bar?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+    // initiative-edit only renders after bar is selected (conditional render)
+    await expect(page.locator('[data-testid="initiative-edit"]')).toBeVisible({ timeout: 5000 });
+    await page.evaluate(() => {
+      const btn = document.querySelector('[data-testid="initiative-edit"]') as HTMLElement;
+      btn?.click();
+    });
 
     const section = page.getByTestId('related-initiatives-section');
     await expect(section).toBeVisible();
