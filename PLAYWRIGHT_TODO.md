@@ -250,8 +250,8 @@ This document outlines the critical functionality of **Scenia** that should be c
 
 ### Documentation & Marketing
 
-- [ ] **Feature Documentation / Help Guide:**
-    - [ ] Review git commit history and compile a comprehensive `FEATURES.md` covering all features added since launch.
+- [x] **Feature Documentation / Help Guide:**
+    - [x] Review git commit history and compile a comprehensive `FEATURES.md` covering all features added since launch.
     - [x] Update in-app tutorial content to reflect new features — colour modes, critical path, resource assignment, Resources tab in Data Manager, capacity report, and mobile card view.
 
 - [x] **Features Modal — Image Quality & Card Sizing:**
