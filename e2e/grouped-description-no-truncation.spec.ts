@@ -50,7 +50,7 @@ test.describe('Grouped description — no truncation', () => {
 
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(initiatives), 'Initiatives');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dependencies), 'Dependencies');
-    XLSX.writeFile(wb, mockFilePath);
+    fs.writeFileSync(mockFilePath, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }));
   });
 
   test.afterAll(() => {

@@ -17,7 +17,7 @@ test.describe('Import/Export inline notifications — no browser alert()', () =>
       { id: 'i-notify-test', name: 'Notify Test', programmeId: 'prog-dtp', strategyId: 'strat-cloud', assetId: 'a-ciam', startDate: '2026-01-01', endDate: '2026-06-30', budget: 100000 }
     ]);
     XLSX.utils.book_append_sheet(wb, ws, 'Initiatives');
-    XLSX.writeFile(wb, mockFilePath);
+    fs.writeFileSync(mockFilePath, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }));
   });
 
   test.afterAll(() => {
@@ -67,7 +67,7 @@ test.describe('Import/Export inline notifications — no browser alert()', () =>
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet([{ foo: 'bar' }]);
     XLSX.utils.book_append_sheet(wb, ws, 'UnknownSheet');
-    XLSX.writeFile(wb, emptyFilePath);
+    fs.writeFileSync(emptyFilePath, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }));
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(emptyFilePath);

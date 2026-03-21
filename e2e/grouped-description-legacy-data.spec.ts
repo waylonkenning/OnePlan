@@ -50,7 +50,7 @@ test.describe('Grouped description with legacy imported data', () => {
     const wsDeps = XLSX.utils.json_to_sheet(dependencies);
     XLSX.utils.book_append_sheet(wb, wsInit, 'Initiatives');
     XLSX.utils.book_append_sheet(wb, wsDeps, 'Dependencies');
-    XLSX.writeFile(wb, legacyFilePath);
+    fs.writeFileSync(legacyFilePath, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }));
   });
 
   test.afterAll(() => {

@@ -39,7 +39,7 @@ test.describe('Import Preview & Merge', () => {
         XLSX.utils.book_append_sheet(wb, initiativesWs, 'Initiatives');
 
         // Write to disk
-        XLSX.writeFile(wb, mockFilePath);
+        fs.writeFileSync(mockFilePath, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }));
     });
 
     test.afterAll(() => {
