@@ -95,8 +95,7 @@ test.describe('Tap-to-Select for Segments and Initiatives', () => {
     expect(boxAfterDown).not.toBeNull();
     expect(boxAfterDown!.y).toBeGreaterThan(boxBefore!.y + 10);
 
-    // Move back up
-    await bar.click();
+    // Move back up (segment stays selected after row-down, no re-click needed)
     await bar.locator('[data-testid="segment-row-up"]').click();
     await page.waitForTimeout(100);
     const boxAfterUp = await bar.boundingBox();
