@@ -35,7 +35,7 @@ test.describe('Arrow selection — stagger & disambiguation', () => {
     ];
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(initiatives), 'Initiatives');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dependencies), 'Dependencies');
-    XLSX.writeFile(wb, MOCK_FILE);
+    fs.writeFileSync(MOCK_FILE, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }));
   });
 
   test.afterAll(() => {

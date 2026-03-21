@@ -33,7 +33,7 @@ test.describe('Import Schema Validation', () => {
 
     const ws = XLSX.utils.json_to_sheet(legacyInitiatives);
     XLSX.utils.book_append_sheet(wb, ws, 'Initiatives');
-    XLSX.writeFile(wb, legacyFilePath);
+    fs.writeFileSync(legacyFilePath, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }));
   });
 
   test.afterAll(() => {
@@ -92,7 +92,7 @@ test.describe('Import Schema Validation', () => {
     ];
     const ws = XLSX.utils.json_to_sheet(validInitiatives);
     XLSX.utils.book_append_sheet(wb, ws, 'Initiatives');
-    XLSX.writeFile(wb, validFilePath);
+    fs.writeFileSync(validFilePath, XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }));
 
     try {
       const fileChooserPromise = page.waitForEvent('filechooser');
