@@ -60,6 +60,7 @@ export function ApplicationSegmentPanel({
   };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (e.target === e.currentTarget) onClose();
   };
 
