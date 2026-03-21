@@ -65,7 +65,8 @@ test.describe('Perspective-aware labels in InitiativePanel', () => {
     // Click Developer Portal Launch bar to select it, then open edit panel
     const bar = page.locator('[data-initiative-id="i-apigw-portal"]').first();
     await bar.click({ force: true });
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await bar.hover({ force: true });
+    await bar.locator('[data-testid="initiative-edit"]').click({ force: true });
 
     const section = page.getByTestId('related-initiatives-section');
     await expect(section).toBeVisible();
@@ -79,7 +80,8 @@ test.describe('Perspective-aware labels in InitiativePanel', () => {
     // Click API Gateway v2 Migration bar to select it, then open edit panel
     const bar = page.locator('[data-initiative-id="i-apigw-v2"]').first();
     await bar.click({ force: true });
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await bar.hover({ force: true });
+    await bar.locator('[data-testid="initiative-edit"]').click({ force: true });
 
     const section = page.getByTestId('related-initiatives-section');
     await expect(section).toBeVisible();
