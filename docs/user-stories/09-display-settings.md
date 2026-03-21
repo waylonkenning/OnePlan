@@ -67,3 +67,18 @@
 **Acceptance Criteria:**
 - Dragging the boundary between the sidebar and content columns resizes both
 - Resized column widths are persisted across page reloads
+
+---
+
+## US-DS-06: Choose What to Display on the Timeline
+
+**As an** IT portfolio manager,
+**I want** to choose whether the timeline shows initiatives, application lifecycle segments, or both,
+**so that** I can focus the canvas on the layer most relevant to my current task.
+
+**Acceptance Criteria:**
+- A display mode picker in the header offers three options: Initiatives Only, Applications Only, Both
+- Selecting "Initiatives Only" hides all application swimlanes and segments
+- Selecting "Applications Only" hides all initiative bars (but keeps asset/category labels)
+- Selecting "Both" shows initiatives and application swimlanes together (the default)
+- The selected display mode persists across page reloads
