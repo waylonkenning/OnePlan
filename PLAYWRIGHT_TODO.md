@@ -43,6 +43,7 @@ This document outlines the critical functionality of **Scenia** that should be c
     - [x] **Quoted Values:** Verify quoted CSV values containing commas are handled correctly.
 
 ## 3. Visualiser (Timeline)
+- [x] **Weekly Columns Snap to Monday (Bug):** Verify that in 3-month view, the first weekly column always starts on a Monday regardless of the configured start date (e.g. start date Thursday 1 Jan 2026 → first column shows 29 Dec; start date Wednesday 4 Mar 2026 → first column shows 02 Mar).
 - [x] **Timeline Configuration:**
     - [x] Configure the timeline start date and duration via the header settings.
     - [x] Verify that timeline settings are persisted and correctly change the visible columns.

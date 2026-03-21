@@ -297,8 +297,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     const timelineEnd = maxEndDate > minTimelineEnd ? maxEndDate : minTimelineEnd;
 
     if (ms === 3) {
-      // Weekly columns
-      let d = timelineStart;
+      // Weekly columns — snap to the Monday of the week containing timelineStart
+      let d = new Date(timelineStart);
+      const dow = d.getDay(); // 0=Sun, 1=Mon … 6=Sat
+      const daysToMonday = dow === 0 ? -6 : 1 - dow;
+      d.setDate(d.getDate() + daysToMonday);
       let i = 0;
       while (d < timelineEnd || i < 12) { // Guarantee at least 12 columns
         cols.push({ date: d, endDate: addWeeks(d, 1), label: format(d, 'dd MMM'), sublabel: `Wk ${i + 1}` });
