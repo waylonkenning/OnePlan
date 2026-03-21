@@ -16,6 +16,7 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
 interface ApplicationSegmentPanelProps {
   segment: ApplicationSegment | null;
   application: Application | null;
+  applications?: Application[];
   isOpen: boolean;
   onClose: () => void;
   onSave: (segment: ApplicationSegment) => void;
@@ -26,6 +27,7 @@ interface ApplicationSegmentPanelProps {
 export function ApplicationSegmentPanel({
   segment,
   application,
+  applications = [],
   isOpen,
   onClose,
   onSave,
@@ -81,9 +83,10 @@ export function ApplicationSegmentPanel({
               <h2 className="text-lg font-semibold text-slate-800">
                 {isNew ? 'Add Lifecycle Segment' : 'Edit Lifecycle Segment'}
               </h2>
-              {application && (
-                <p className="text-xs text-slate-500 mt-0.5">{application.name}</p>
-              )}
+              {(() => {
+                const displayApp = application ?? applications.find(a => a.id === formData?.applicationId);
+                return displayApp ? <p className="text-xs text-slate-500 mt-0.5">{displayApp.name}</p> : null;
+              })()}
             </div>
             <button
               onClick={onClose}
@@ -96,6 +99,20 @@ export function ApplicationSegmentPanel({
 
           <div className="flex-1 overflow-y-auto p-6">
             <form id="segment-form" onSubmit={handleSubmit} className="space-y-5">
+              {applications.length > 0 && field('Application',
+                <select
+                  data-testid="segment-application"
+                  value={formData.applicationId ?? ''}
+                  onChange={e => setFormData({ ...formData, applicationId: e.target.value || undefined })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">— None —</option>
+                  {applications.map(a => (
+                    <option key={a.id} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+              )}
+
               {field('Status',
                 <select
                   data-testid="segment-status"
