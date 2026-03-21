@@ -1949,6 +1949,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                       setSelectedSegmentId(seg.id);
                                       setCreatingSegmentParams(null);
                                     }}
+                                    onDoubleClick={(e) => {
+                                      e.stopPropagation();
+                                      setSegmentPanelId(seg.id);
+                                      setCreatingSegmentParams(null);
+                                    }}
                                     className={cn(
                                       "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none group/seg",
                                       colorClass, "text-white",
