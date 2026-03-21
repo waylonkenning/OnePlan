@@ -31,6 +31,7 @@ import {
 import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
 import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard, GitCommit, GitCommitHorizontal, Palette, Box, Boxes, Target, Users, Layers, AppWindow } from 'lucide-react';
 import { ReportsView } from './components/ReportsView';
+import { HelpView } from './components/HelpView';
 
 type AppState = {
   assets: Asset[];
@@ -52,7 +53,7 @@ import { useRef } from 'react';
 
 export default function App() {
   const isMobile = useMediaQuery('(max-width: 767px)');
-  const [view, setView] = useState<'visualiser' | 'data' | 'reports'>('visualiser');
+  const [view, setView] = useState<'visualiser' | 'data' | 'reports' | 'guide'>('visualiser');
   const [isLoading, setIsLoading] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
@@ -415,6 +416,19 @@ export default function App() {
           >
             <BarChart2 size={14} />
             Reports
+          </button>
+          <button
+            onClick={() => setView('guide')}
+            data-testid="nav-guide"
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer",
+              view === 'guide'
+                ? "bg-white text-blue-700 shadow-sm ring-1 ring-blue-200"
+                : "text-slate-600 hover:text-slate-800"
+            )}
+          >
+            <BookOpen size={14} />
+            Guide
           </button>
         </div>
 
@@ -1025,8 +1039,10 @@ export default function App() {
             onUpdate={handleUpdate}
             searchQuery={searchQuery}
           />
-        ) : (
+        ) : view === 'reports' ? (
           <ReportsView assets={assets} initiatives={initiatives} milestones={milestones} dependencies={dependencies} currentData={getCurrentState()} programmes={programmes} strategies={strategies} assetCategories={assetCategories} resources={resources} />
+        ) : (
+          <HelpView />
         )}
       </main>
 
