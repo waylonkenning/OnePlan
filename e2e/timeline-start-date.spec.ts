@@ -36,8 +36,8 @@ test.describe('Timeline Start Date', () => {
     await page.waitForTimeout(500);
     
     const firstCol = page.getByTestId('timeline-col-0');
-    // 15 Jun is in June
-    await expect(firstCol).toContainText('15 Jun');
+    // 15 Jun 2025 is a Sunday — weekly columns snap to the Monday of that week (09 Jun)
+    await expect(firstCol).toContainText('09 Jun');
 
     // Verify it persisted after reload
     await page.reload();
