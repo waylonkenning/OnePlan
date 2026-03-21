@@ -1,6 +1,6 @@
 # Creating an Initiative
 
-*Screenshot: initiative creation panel open after double-clicking the canvas — to be captured.*
+![](../../public/features/creating-initiatives.png)
 
 ## How to Create
 

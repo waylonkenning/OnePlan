@@ -231,7 +231,7 @@ export function HelpView() {
       </aside>
 
       {/* ── Content ─────────────────────────────────────────────────────── */}
-      <div ref={contentRef} className="flex-1 overflow-y-auto">
+      <div ref={contentRef} data-testid="guide-content" className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-8 py-8">
           {loading ? (
             <div className="flex items-center justify-center h-48 text-slate-400 text-sm">

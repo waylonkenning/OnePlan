@@ -1,6 +1,6 @@
 # The Floating Legend
 
-*Screenshot: the legend box expanded showing all four sections — to be captured.*
+![](../../public/features/legend.png)
 
 A collapsible legend box is anchored to the bottom-right of the timeline canvas. It is always visible while you are in the Visualiser view.
 

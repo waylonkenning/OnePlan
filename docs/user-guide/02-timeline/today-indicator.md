@@ -1,6 +1,6 @@
 # Today Indicator
 
-*Screenshot: the timeline canvas showing the red vertical "Today" line — to be captured.*
+![](../../public/features/today-indicator.png)
 
 A red vertical line labelled **"Today"** is permanently rendered at the current date. It gives you an immediate visual reference for where active work stands relative to the plan.
 

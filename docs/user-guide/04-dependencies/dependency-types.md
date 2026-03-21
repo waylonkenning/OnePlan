@@ -1,6 +1,6 @@
 # Dependency Types
 
-*Screenshot: all three arrow types visible side by side — to be captured.*
+![](../../public/features/dependency-types.png)
 
 Scenia supports three dependency types. The type controls the arrow colour, arrowhead style, and the language used in the dependency report.
 

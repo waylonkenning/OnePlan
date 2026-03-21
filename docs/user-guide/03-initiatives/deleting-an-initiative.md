@@ -1,6 +1,6 @@
 # Deleting an Initiative
 
-*Screenshot: confirmation modal visible — to be captured.*
+![](../../public/features/deleting-an-initiative.png)
 
 To delete an initiative:
 
