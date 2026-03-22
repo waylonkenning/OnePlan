@@ -657,11 +657,10 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         const deltaY = e.clientY - movingSegment.initialY;
         if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) isDraggingRef.current = true;
         if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
-          // Vertical drag — move to a different row
+          // Vertical drag — move only the dragged segment; resolve conflicts on mouseup
           const deltaRows = Math.round(deltaY / SEG_ROW_UNIT);
           const newRow = Math.max(0, movingSegment.initialRow + deltaRows);
-          const updated = localSegments.map(s => s.id === movingSegment.id ? { ...s, row: newRow } : s);
-          setLocalSegments(resolveSegmentConflicts(movingSegment.id, updated));
+          setLocalSegments(localSegments.map(s => s.id === movingSegment.id ? { ...s, row: newRow } : s));
         } else if (Math.abs(deltaX) > 5) {
           // Horizontal drag — move dates
           const deltaDays = Math.round((deltaX / totalWidth) * totalDays);
@@ -730,18 +729,21 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         const updated = localSegments.find(s => s.id === resizingSegment.id);
         if (updated) onSaveApplicationSegment(updated);
       } else if (movingSegment) {
-        const updated = localSegments.find(s => s.id === movingSegment.id);
-        if (updated) {
-          // Assign a persistent row to the moved segment so conflict resolution anchors it
-          const movedWithRow = { ...updated, row: updated.row ?? 0 };
-          const segmentsWithRow = localSegments.map(s => s.id === movingSegment.id ? movedWithRow : s);
-          const resolved = resolveSegmentConflicts(movingSegment.id, segmentsWithRow);
-          const changed = resolved.filter((s, i) => s.row !== segmentsWithRow[i]?.row || s.id === movingSegment.id);
-          if (changed.length > 1 && onUpdateApplicationSegments) {
-            setLocalSegments(resolved);
-            onUpdateApplicationSegments(resolved);
-          } else if (onSaveApplicationSegment) {
-            onSaveApplicationSegment(updated);
+        // Only save/resolve if an actual drag occurred — a bare click must not trigger conflict resolution
+        if (isDraggingRef.current) {
+          const updated = localSegments.find(s => s.id === movingSegment.id);
+          if (updated) {
+            // Assign a persistent row to the moved segment so conflict resolution anchors it
+            const movedWithRow = { ...updated, row: updated.row ?? 0 };
+            const segmentsWithRow = localSegments.map(s => s.id === movingSegment.id ? movedWithRow : s);
+            const resolved = resolveSegmentConflicts(movingSegment.id, segmentsWithRow);
+            const changed = resolved.filter((s, i) => s.row !== segmentsWithRow[i]?.row || s.id === movingSegment.id);
+            if (changed.length > 1 && onUpdateApplicationSegments) {
+              setLocalSegments(resolved);
+              onUpdateApplicationSegments(resolved);
+            } else if (onSaveApplicationSegment) {
+              onSaveApplicationSegment(updated);
+            }
           }
         }
       }
