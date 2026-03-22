@@ -35,17 +35,25 @@ test.describe('Capacity Report', () => {
   });
 
   test('Capacity Report shows empty state for unassigned resources', async ({ page }) => {
-    // Cloud Engineer (res-5) has no assignments in demo data
-    const cloudRow = page.getByTestId('capacity-resource-row-res-5');
-    await expect(cloudRow).toBeVisible();
-    await expect(cloudRow).toContainText('Cloud Engineer');
-    await expect(cloudRow.getByTestId('capacity-no-assignments')).toBeVisible();
+    // Add a new resource with no initiative assignments via the Data Manager
+    await page.getByTestId('nav-data-manager').click();
+    await page.getByTestId('data-manager-tab-resources').click();
+    await page.getByRole('button', { name: 'Add Row' }).click();
+    await page.locator('table tbody tr[data-real="true"]').last().locator('input[type="text"]').first().fill('Test Resource');
+    // Navigate to capacity report
+    await page.getByTestId('nav-reports').click();
+    await page.waitForSelector('[data-testid="reports-view"]', { timeout: 15000 });
+    await page.getByTestId('report-card-capacity').click();
+    // The new resource has no assignments — should show the empty state
+    const testRow = page.locator('[data-testid="capacity-resource-row"]').filter({ hasText: 'Test Resource' });
+    await expect(testRow).toBeVisible();
+    await expect(testRow.getByTestId('capacity-no-assignments')).toBeVisible();
   });
 
   test('Capacity Report shows total assignment count per resource', async ({ page }) => {
-    // Business Analyst (res-3) is assigned to Passkey Rollout and SSO Consolidation = 2
+    // Business Analyst (res-3) is assigned to 7 initiatives via resourceIds in demo data
     const baRow = page.getByTestId('capacity-resource-row-res-3');
-    await expect(baRow.getByTestId('capacity-assignment-count')).toContainText('2');
+    await expect(baRow.getByTestId('capacity-assignment-count')).toContainText('7');
   });
 
   test('Capacity Report shows prompt when no resources exist', async ({ page }) => {

@@ -1524,9 +1524,13 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
               // Filter assets for this category based on empty row settings
               let categoryAssets = assetsByCategory[catId] || [];
               if (settings.emptyRowDisplay === 'hide') {
-                categoryAssets = categoryAssets.filter(asset =>
-                  localInitiatives.some(i => i.assetId === asset.id)
-                );
+                categoryAssets = categoryAssets.filter(asset => {
+                  const hasInitiatives = localInitiatives.some(i => i.assetId === asset.id);
+                  const hasApplications = applications.some(a => a.assetId === asset.id);
+                  if (display === 'applications') return hasApplications;
+                  if (display === 'both') return hasInitiatives || hasApplications;
+                  return hasInitiatives;
+                });
               }
 
               // If the category is totally empty (or all assets hidden), don't render the category at all
@@ -1577,8 +1581,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                       assetApplications.some(a => a.id === s.applicationId)
                     );
 
-                    // When in applications-only mode, skip assets with no applications
-                    if (display === 'applications' && assetApplications.length === 0) return null;
+                    // When in applications-only mode, skip assets with no applications only if empty rows are hidden
+                    if (display === 'applications' && assetApplications.length === 0 && settings.emptyRowDisplay === 'hide') return null;
 
                     return (
                       <React.Fragment key={asset.id}>
