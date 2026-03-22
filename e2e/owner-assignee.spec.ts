@@ -68,8 +68,8 @@ test.describe('Owner / Assignee', () => {
   });
 
   test('owner badges appear for initiatives with ownerId set', async ({ page }) => {
-    // Demo data has 2 initiatives with ownerId set
+    // Demo data has 21 initiatives with ownerId set (all except the placeholder)
     const badges = page.locator('[data-testid="owner-badge"]');
-    await expect(badges).toHaveCount(2);
+    await expect(badges).toHaveCount(21);
   });
 });

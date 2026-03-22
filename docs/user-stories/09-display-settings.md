@@ -82,3 +82,6 @@
 - Selecting "Applications Only" hides all initiative bars (but keeps asset/category labels)
 - Selecting "Both" shows initiatives and application swimlanes together (the default)
 - The selected display mode persists across page reloads
+- In "Applications Only" mode with Empty Rows set to "Show" (default), all asset rows are visible even if an asset has no applications configured
+- In "Applications Only" mode with Empty Rows set to "Hide", asset rows with no applications are not rendered
+- In "Both" mode with Empty Rows set to "Hide", asset rows with neither initiatives nor applications are hidden; assets with applications but no initiatives remain visible

@@ -119,121 +119,140 @@ export const demoInitiatives: Initiative[] = [
         id: 'i-ciam-passkey', name: 'Passkey Rollout', programmeId: 'prog-dtp', strategyId: 'strat-zero',
         assetId: 'a-ciam', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), budget: 350000,
         description: 'Replace SMS OTP with FIDO2 passkeys for all customer-facing channels.',
-        ownerId: 'res-4', resourceIds: ['res-2', 'res-3'],
+        status: 'active', progress: 40, ownerId: 'res-4', resourceIds: ['res-2', 'res-3'],
     },
     {
         id: 'i-ciam-sso', name: 'SSO Consolidation', programmeId: 'prog-dtp', strategyId: 'strat-cust',
         assetId: 'a-ciam', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), budget: 600000,
         description: 'Unify 12 legacy identity providers into a single CIAM platform.',
-        ownerId: 'res-1', resourceIds: ['res-3'],
+        status: 'planned', progress: 0, ownerId: 'res-1', resourceIds: ['res-3'],
     },
     // Employee IAM
     {
         id: 'i-eiam-ztna', name: 'Zero Trust Network Access', programmeId: 'prog-mod', strategyId: 'strat-zero',
         assetId: 'a-eiam', startDate: relDate(0, 4, 1), endDate: relDate(1, 1, 31), budget: 800000,
         description: 'Implement identity-centric perimeter for all internal applications.',
+        status: 'planned', progress: 0, ownerId: 'res-4',
     },
     // PAM
     {
         id: 'i-pam-vault', name: 'Secrets Vault Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
         assetId: 'a-pam', startDate: relDate(0, 3, 1), endDate: relDate(0, 9, 30), budget: 250000,
         description: 'Move from legacy PAM to cloud-native HashiCorp Vault.',
+        status: 'active', progress: 10, ownerId: 'res-4', resourceIds: ['res-5'],
     },
     // Data Lake
     {
         id: 'i-lake-ingest', name: 'Real-Time Ingestion', programmeId: 'prog-data', strategyId: 'strat-data',
         assetId: 'a-lake', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), budget: 1200000,
         description: 'Kafka-based streaming ingestion pipeline replacing nightly batch ETL.',
+        status: 'active', progress: 30, ownerId: 'res-6', resourceIds: ['res-3', 'res-5'],
     },
     {
         id: 'i-lake-gov', name: 'Data Governance Framework', programmeId: 'prog-reg', strategyId: 'strat-reg',
         assetId: 'a-lake', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), budget: 500000,
         description: 'Implement data lineage, quality scoring, and automated PII tagging.',
+        status: 'planned', progress: 0, ownerId: 'res-2',
     },
     // Data Warehouse
     {
         id: 'i-dwh-snow', name: 'Snowflake Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
         assetId: 'a-dwh', startDate: relDate(0, 4, 1), endDate: relDate(1, 3, 31), budget: 2000000,
         description: 'Migrate on-prem Teradata warehouse to Snowflake on AWS.',
+        status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-5'],
     },
     // MDM
     {
         id: 'i-mdm-golden', name: 'Golden Customer Record', programmeId: 'prog-cx', strategyId: 'strat-data',
         assetId: 'a-mdm', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), budget: 750000,
         description: 'Create single 360° customer view across banking, insurance and wealth.',
+        status: 'planned', progress: 0, ownerId: 'res-1', resourceIds: ['res-3'],
     },
     // Internet Banking
     {
         id: 'i-web-redesign', name: 'Web Platform Redesign', programmeId: 'prog-cx', strategyId: 'strat-cust',
         assetId: 'a-web', startDate: relDate(0, 1, 1), endDate: relDate(0, 12, 31), budget: 3000000,
         description: 'Complete redesign of the internet banking UIUX using React + Tailwind micro-frontends.',
+        status: 'active', progress: 20, ownerId: 'res-1', resourceIds: ['res-2', 'res-6'],
     },
     {
         id: 'i-web-a11y', name: 'WCAG 2.2 AA Compliance', programmeId: 'prog-reg', strategyId: 'strat-reg',
         assetId: 'a-web', startDate: relDate(1, 1, 1), endDate: relDate(1, 6, 30), budget: 400000,
         description: 'Accessibility remediation to meet WCAG 2.2 Level AA for all customer journeys.',
+        status: 'planned', progress: 0, ownerId: 'res-2',
     },
     // Mobile Banking
     {
         id: 'i-mobile-rn', name: 'React Native Rewrite', programmeId: 'prog-dtp', strategyId: 'strat-cust',
         assetId: 'a-mobile', startDate: relDate(0, 3, 1), endDate: relDate(1, 6, 30), budget: 4500000,
         description: 'Rewrite native iOS and Android apps as a single React Native codebase.',
+        status: 'active', progress: 5, ownerId: 'res-6', resourceIds: ['res-2', 'res-3'],
     },
     // Contact Centre
     {
         id: 'i-cc-ai', name: 'AI-Powered IVR', programmeId: 'prog-cx', strategyId: 'strat-data',
         assetId: 'a-cc', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), budget: 900000,
         description: 'Deploy conversational AI to handle 60% of Tier 1 support calls.',
+        status: 'planned', progress: 0, ownerId: 'res-2',
     },
     // Core Ledger
     {
         id: 'i-core-iso', name: 'ISO 20022 Migration', programmeId: 'prog-reg', strategyId: 'strat-reg',
         assetId: 'a-core', startDate: relDate(0, 1, 1), endDate: relDate(1, 6, 30), budget: 5000000,
         description: 'Upgrade core messaging to ISO 20022 format for SWIFT and domestic payments.',
+        status: 'active', progress: 10, ownerId: 'res-1', resourceIds: ['res-2', 'res-6'],
     },
     {
         id: 'i-core-api', name: 'Core Banking API Layer', programmeId: 'prog-mod', strategyId: 'strat-api',
         assetId: 'a-core', startDate: relDate(1, 1, 1), endDate: relDate(1, 12, 31), budget: 2500000,
         description: 'Wrap legacy COBOL core with gRPC and REST APIs for channel consumption.',
+        status: 'planned', progress: 0, ownerId: 'res-6',
     },
     // Payments Engine
     {
         id: 'i-pay-rtp', name: 'Real-Time Payments Gateway', programmeId: 'prog-dtp', strategyId: 'strat-api',
         assetId: 'a-pay', startDate: relDate(0, 4, 1), endDate: relDate(1, 3, 31), budget: 1800000,
         description: 'Connect to the national real-time payments network (NPP/FPS).',
+        status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-5'],
     },
     {
         id: 'i-pay-fraud', name: 'Transaction Fraud ML', programmeId: 'prog-data', strategyId: 'strat-data',
         assetId: 'a-pay', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), budget: 700000,
         description: 'Deploy ML models for real-time fraud scoring on all payment channels.',
+        status: 'planned', progress: 0, ownerId: 'res-2', resourceIds: ['res-3'],
     },
     // API Gateway
     {
         id: 'i-apigw-v2', name: 'API Gateway v2 Migration', programmeId: 'prog-mod', strategyId: 'strat-api',
         assetId: 'a-apigw', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), budget: 350000,
         description: 'Migrate from Kong to cloud-native AWS API Gateway with WAF integration.',
+        status: 'active', progress: 50, ownerId: 'res-2', resourceIds: ['res-5'],
     },
     {
         id: 'i-apigw-portal', name: 'Developer Portal Launch', programmeId: 'prog-dtp', strategyId: 'strat-api',
         assetId: 'a-apigw', startDate: relDate(0, 7, 1), endDate: relDate(1, 1, 31), budget: 300000,
         description: 'Self-service developer portal for internal and partner API consumers.',
+        status: 'planned', progress: 0, ownerId: 'res-6',
     },
     // Enterprise Service Bus
     {
         id: 'i-esb-decomm', name: 'ESB Decommission', programmeId: 'prog-mod', strategyId: 'strat-api',
         assetId: 'a-esb', startDate: relDate(1, 1, 1), endDate: relDate(2, 6, 30), budget: 1200000,
         description: 'Progressively decommission on-prem ESB by migrating integrations to event-driven architecture.',
+        status: 'planned', progress: 0, ownerId: 'res-2',
     },
     // Lending
     {
         id: 'i-lend-auto', name: 'Automated Decisioning', programmeId: 'prog-mod', strategyId: 'strat-data',
         assetId: 'a-lend', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), budget: 1500000,
         description: 'New real-time credit scoring engine based on cloud-native decisioning platform.',
+        status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-3'],
     },
     {
         id: 'i-lend-open', name: 'Open Banking Origination', programmeId: 'prog-reg', strategyId: 'strat-reg',
         assetId: 'a-lend', startDate: relDate(1, 4, 1), endDate: relDate(2, 3, 31), budget: 900000,
         description: 'Integrate CDR/Open Banking data into loan origination for richer affordability checks.',
+        status: 'planned', progress: 0, ownerId: 'res-1',
     },
     {
         id: 'i-placeholder-1',
@@ -245,6 +264,7 @@ export const demoInitiatives: Initiative[] = [
         endDate: relDate(2, 12, 31),
         budget: 0,
         description: 'Placeholder for future cloud-native workloads.',
+        status: 'planned', progress: 0,
         isPlaceholder: true
     }
 ];

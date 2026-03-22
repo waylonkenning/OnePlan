@@ -86,8 +86,9 @@ test.describe('Progress Tracking', () => {
   });
 
   test('no progress overlay when progress is 0', async ({ page }) => {
-    // By default all initiatives have no progress set (treated as 0)
-    const overlays = page.locator('[data-testid="progress-overlay"]');
-    await expect(overlays).toHaveCount(0);
+    // SSO Consolidation (i-ciam-sso) has progress: 0 — its bar should have no overlay
+    const bar = page.locator('[data-testid="initiative-bar-i-ciam-sso"]');
+    await expect(bar).toBeVisible();
+    await expect(bar.locator('[data-testid="progress-overlay"]')).toHaveCount(0);
   });
 });
