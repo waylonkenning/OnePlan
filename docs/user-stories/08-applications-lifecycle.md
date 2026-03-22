@@ -76,6 +76,8 @@
 - Row-control buttons are positioned in the top-left of the segment bar so they do not overlap the right-edge resize handle
 - Changes are saved to IndexedDB on mouse release
 - Dragging does not accidentally trigger a click-to-open-panel action
+- While dragging a segment vertically, all other segments remain fixed in their current positions; conflict resolution (row reassignment of neighbours) is deferred until mouse release
+- Clicking a segment (mousedown + mouseup without movement) does not cause any other segment to change position
 
 ---
 
