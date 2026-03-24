@@ -297,7 +297,7 @@ No template picker shown — the workspace loads as saved. A "Change template" o
 2. ✅ **`workspaceTemplates.ts`** — composites the catalogues into templates
 3. ✅ **`TemplatePickerModal.tsx`** — first-load UX (shown only when IndexedDB empty)
 4. ✅ **App.tsx wiring** — detect empty IndexedDB, show picker, apply template
-5. **DTS demo data** — initiatives and segments for a realistic DTS portfolio
+5. ✅ **DTS demo data** — initiatives and segments for a realistic DTS portfolio
 6. ✅ **Docs** — Getting started page + DTS template guide
 
 Each step is independently testable and releasable.

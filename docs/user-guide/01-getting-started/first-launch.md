@@ -23,7 +23,7 @@ A tutorial modal appears automatically. It walks through the key features in fiv
 
 The GEANZ template loads a representative NZ government portfolio across 13 of 17 TAP areas, with initiatives, applications, lifecycle segments, resources, and budget figures.
 
-The DTS template loads 20 pre-built assets across the six DTS layers (Customer, Channels, Digital Public Infrastructure, Integration, Agency/Platform, Common Consolidated Platforms) without pre-populated initiatives, ready for you to model your own work.
+The DTS template loads 20 pre-built assets across the six DTS layers (Customer, Channels, Digital Public Infrastructure, Integration, Agency/Platform, Common Consolidated Platforms), with a set of example NZ government initiatives — Identity Platform Uplift, AI Platform Pilot, Payments Consolidation, API Gateway Implementation, and more — so you can see how a real portfolio maps to the GCDO architecture.
 
 The demo data is safe to experiment with. You can:
 
