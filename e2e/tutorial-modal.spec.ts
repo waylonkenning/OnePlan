@@ -3,8 +3,10 @@ import { test, expect } from '@playwright/test';
 test.describe('Tutorial Modal', () => {
 
   test.beforeEach(async ({ page }) => {
-    // Clear IndexedDB and local storage to simulate a fresh load without the bypass flag
+    // Load the app in E2E mode first so IndexedDB is fully populated before we switch modes.
+    // Waiting for asset-row-content ensures saveAppData has completed.
     await page.goto('/');
+    await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.evaluate(async () => {
       localStorage.removeItem('scenia-e2e');
       localStorage.setItem('scenia_has_seen_landing', 'true');

@@ -32,6 +32,8 @@ import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, 
 import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard, GitCommit, GitCommitHorizontal, Palette, Box, Boxes, Target, Users, Layers, AppWindow } from 'lucide-react';
 import { ReportsView } from './components/ReportsView';
 import { HelpView } from './components/HelpView';
+import { TemplatePickerModal } from './components/TemplatePickerModal';
+import { getTemplateData, TemplateId } from './lib/workspaceTemplates';
 
 type AppState = {
   assets: Asset[];
@@ -61,6 +63,7 @@ export default function App() {
   const [showLandingPage, setShowLandingPage] = useState(
     !localStorage.getItem('scenia_has_seen_landing') && !localStorage.getItem('scenia-e2e')
   );
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
@@ -107,38 +110,40 @@ export default function App() {
       try {
         const dbData = await getAppData();
 
-        // If DB is empty (first run), use initial data and save it
+        // If DB is empty (first run), show the template picker (or auto-load GEANZ in E2E mode)
         if (dbData.assets.length === 0 && dbData.initiatives.length === 0) {
-          const defaults = {
-            assets: initialAssets,
-            applications: initialApplications,
-            applicationSegments: initialApplicationSegments,
-            initiatives: initialInitiatives,
-            milestones: initialMilestones,
-            programmes: initialProgrammes,
-            strategies: initialStrategies,
-            dependencies: initialDependencies,
-            assetCategories: initialAssetCategories,
-            timelineSettings: defaultTimelineSettings,
-            resources: initialResources,
-            applicationStatuses: initialApplicationStatuses,
-          };
-          await saveAppData(defaults);
-          setAssets(defaults.assets);
-          setApplications(defaults.applications);
-          setApplicationSegments(defaults.applicationSegments);
-          setInitiatives(defaults.initiatives);
-          setMilestones(defaults.milestones);
-          setProgrammes(defaults.programmes);
-          setStrategies(defaults.strategies);
-          setDependencies(defaults.dependencies);
-          setAssetCategories(defaults.assetCategories);
-          setTimelineSettings(defaults.timelineSettings);
-          setResources(defaults.resources);
-          setApplicationStatuses(defaults.applicationStatuses);
-          
-          if (!defaults.timelineSettings.hasSeenTutorial && !localStorage.getItem('scenia-e2e')) {
-            setShowTutorial(true);
+          if (localStorage.getItem('scenia-e2e')) {
+            // E2E mode: auto-load GEANZ template so existing tests keep working
+            const defaults = {
+              assets: initialAssets,
+              applications: initialApplications,
+              applicationSegments: initialApplicationSegments,
+              initiatives: initialInitiatives,
+              milestones: initialMilestones,
+              programmes: initialProgrammes,
+              strategies: initialStrategies,
+              dependencies: initialDependencies,
+              assetCategories: initialAssetCategories,
+              timelineSettings: defaultTimelineSettings,
+              resources: initialResources,
+              applicationStatuses: initialApplicationStatuses,
+            };
+            await saveAppData(defaults);
+            setAssets(defaults.assets);
+            setApplications(defaults.applications);
+            setApplicationSegments(defaults.applicationSegments);
+            setInitiatives(defaults.initiatives);
+            setMilestones(defaults.milestones);
+            setProgrammes(defaults.programmes);
+            setStrategies(defaults.strategies);
+            setDependencies(defaults.dependencies);
+            setAssetCategories(defaults.assetCategories);
+            setTimelineSettings(defaults.timelineSettings);
+            setResources(defaults.resources);
+            setApplicationStatuses(defaults.applicationStatuses);
+          } else {
+            // First real run: let the user pick a template
+            setShowTemplatePicker(true);
           }
         } else {
           setAssets(dbData.assets);
@@ -185,6 +190,24 @@ export default function App() {
     };
 
     loadData();
+  }, []);
+
+  const handleSelectTemplate = useCallback(async (templateId: TemplateId) => {
+    const data = getTemplateData(templateId);
+    await saveAppData(data);
+    setAssets(data.assets);
+    setApplications(data.applications);
+    setApplicationSegments(data.applicationSegments);
+    setInitiatives(data.initiatives);
+    setMilestones(data.milestones);
+    setProgrammes(data.programmes);
+    setStrategies(data.strategies);
+    setDependencies(data.dependencies);
+    setAssetCategories(data.assetCategories);
+    setTimelineSettings(data.timelineSettings);
+    setResources(data.resources);
+    setApplicationStatuses(data.applicationStatuses);
+    setShowTemplatePicker(false);
   }, []);
 
   const handleUpdate = useCallback(async (data: AppState, skipHistory = false) => {
@@ -1129,8 +1152,12 @@ export default function App() {
 
       <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
+      {showTemplatePicker && !showLandingPage && (
+        <TemplatePickerModal onSelect={handleSelectTemplate} />
+      )}
+
       {showTutorial && (
-        <TutorialModal 
+        <TutorialModal
           onClose={() => {
             setShowTutorial(false);
             if (!timelineSettings.hasSeenTutorial) {
