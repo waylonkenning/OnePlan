@@ -103,6 +103,7 @@ export interface Asset {
   id: string;
   name: string;
   categoryId: string;
+  maturity?: number; // 1–5: Emergent → Optimised. Omitted means unrated.
 }
 
 /**

@@ -106,8 +106,8 @@ test.describe('Data Manager Operations', () => {
     const firstRow = realRows.first();
     // ID is now hidden, so the first visible input is the name
     await expect(firstRow.locator('input[type="text"]').first()).toHaveValue('Very Important, Secure Server');
-    // Category is now a select
-    await expect(firstRow.locator('select')).toHaveValue('cat-iam');
+    // Category is a select
+    await expect(firstRow.getByLabel('Category')).toHaveValue('cat-iam');
   });
 
   test('CSV Paste: Missing optional columns import without errors', async ({ page }) => {
