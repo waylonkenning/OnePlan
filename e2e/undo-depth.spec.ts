@@ -51,16 +51,23 @@ test.describe('Undo depth', () => {
     expect(finalName).not.toMatch(/^Rename \d+$/);
   });
 
-  test('undo stack limit is at least 50', { timeout: 40000 }, async ({ page }) => {
+  test('undo stack limit is at least 50', { timeout: 90000 }, async ({ page }) => {
     // Perform 52 operations then undo 51 — if capped at 50 the 51st undo does nothing.
     await page.getByTestId('nav-data-manager').click();
     await page.getByTestId('data-manager').getByRole('button', { name: /Initiatives/ }).click();
 
-    // Record original name
-    const nameCell = page.locator('tbody tr').first().locator('td').first().locator('input[type="text"]');
-    const originalName = await nameCell.inputValue();
+    // Clear all initiatives first so the table stays small (1 row) throughout the
+    // 52-operation loop — avoids CI timeouts with larger demo datasets.
+    await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
-    // Perform 52 renames
+    // Create a single initiative via the ghost row to give us something to rename
+    const ghostCell = page.locator('tbody tr').first().locator('td').first().locator('input[type="text"]');
+    await ghostCell.fill('Initial');
+    await ghostCell.press('Tab');
+    await page.waitForTimeout(100);
+
+    // Perform 52 renames on the now-single row
     for (let i = 1; i <= 52; i++) {
       const cell = page.locator('tbody tr').first().locator('td').first().locator('input[type="text"]');
       await cell.fill(`Op ${i}`);
@@ -83,8 +90,7 @@ test.describe('Undo depth', () => {
     const cell = page.locator('tbody tr').first().locator('td').first().locator('input[type="text"]');
     const nameAfter50Undos = await cell.inputValue();
 
-    // With a 50-deep stack, undoing 50 times from Op 52 should reach Op 2 (oldest kept entry)
-    // It must NOT be the originalName yet (that's 1 more undo away, which was dropped)
+    // With a 50-deep stack, undoing 50 times from Op 52 should reach Op 2 (oldest kept entry).
     // Most importantly it must NOT be "Op 52" (which would mean undos stopped at 10 or similar)
     expect(nameAfter50Undos).not.toBe('Op 52');
     expect(nameAfter50Undos).not.toBe('Op 47'); // what we'd get with a cap of 5
