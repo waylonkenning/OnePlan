@@ -3,7 +3,8 @@ import { useMediaQuery } from '../lib/useMediaQuery';
 import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, addDays, isValid, startOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
-import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes } from 'lucide-react';
+import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes, Trash2 } from 'lucide-react';
+import { geanzAreas, GEANZ_CATEGORY_ID, GeanzArea } from '../lib/geanzCatalogue';
 import { InitiativePanel } from './InitiativePanel';
 import { ApplicationSegmentPanel } from './ApplicationSegmentPanel';
 import { DependencyPanel } from './DependencyPanel';
@@ -49,13 +50,16 @@ interface TimelineProps {
   onDeleteApplicationSegment?: (segment: ApplicationSegment) => void;
   onUpdateApplicationSegments?: (segments: ApplicationSegment[]) => void;
   applicationStatuses?: ApplicationStatus[];
+  onDeleteAsset?: (assetId: string) => void;
+  onBulkDeleteAssets?: (assetIds: string[]) => void;
+  onAddAssets?: (assets: Asset[]) => void;
 }
 
 const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
 const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
 
-export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment, onUpdateApplicationSegments, applicationStatuses = [] }: TimelineProps) {
+export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment, onUpdateApplicationSegments, applicationStatuses = [], onDeleteAsset, onBulkDeleteAssets, onAddAssets }: TimelineProps) {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
 
@@ -84,6 +88,29 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const [initiativePanelId, setInitiativePanelId] = useState<string | null>(null); // separate from selectedInitiativeId — panel only opens when this is set
   const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null);
   const [disambiguateAt, setDisambiguateAt] = useState<{ x: number; y: number; candidates: Dependency[] } | null>(null);
+
+  // GEANZ catalogue state
+  type PendingConfirm =
+    | { type: 'delete-asset'; assetId: string; assetName: string; hasLinkedData: boolean }
+    | { type: 'remove-area'; areaAlias: string; areaName: string; assetCount: number };
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
+
+  // Separate GEANZ assets (have alias starting TAP.XX.XX) from user assets
+  const geanzAssets = useMemo(
+    () => assets.filter(a => a.alias && /^TAP\.\d+\.\d+/.test(a.alias)),
+    [assets]
+  );
+  const geanzAssetsByArea = useMemo(() => {
+    const map: Record<string, Asset[]> = {};
+    geanzAssets.forEach(a => {
+      const m = a.alias!.match(/^(TAP\.\d+)/);
+      if (m) {
+        if (!map[m[1]]) map[m[1]] = [];
+        map[m[1]].push(a);
+      }
+    });
+    return map;
+  }, [geanzAssets]);
   const depSegmentsRef = useRef<Map<string, number[][]>>(new Map()); // depId → [[x1,y1,x2,y2], ...]
   const isDraggingRef = useRef(false);
   const milestoneDepDirectRef = useRef(false); // true when direct listener is handling milestone dep creation
@@ -185,10 +212,13 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     });
   }, [initiatives, searchQuery, assets, programmes, strategies]);
 
-  // Group assets by category ID
+  // Group assets by category ID — GEANZ assets (alias TAP.XX.XX) are rendered separately
   const assetsByCategory = useMemo<Record<string, Asset[]>>(() => {
     const grouped: Record<string, Asset[]> = {};
     assets.forEach(a => {
+      // GEANZ assets are rendered in the dedicated GEANZ section, not here
+      if (a.alias && /^TAP\.\d+\.\d+/.test(a.alias)) return;
+
       // Hide assets with no matching initiatives when searching
       if (searchQuery) {
         const hasMatchingInitiative = filteredInitiatives.some(i => i.assetId === a.id);
@@ -1599,6 +1629,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                       >
                         {/* Asset Name Sidebar — spans both Initiatives and Applications swimlanes */}
                         <div
+                          data-testid="asset-swimlane-label"
+                          data-alias={asset.alias}
                           draggable
                           onDragStart={(e) => handleAssetDragStart(e, asset.id)}
                           onDragEnd={handleAssetDragEnd}
@@ -1609,7 +1641,27 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             {!isMobile && <div className="p-0.5 hover:bg-slate-100 rounded text-slate-300 group-hover:text-slate-400 flex-shrink-0">
                               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                             </div>}
-                            <div className="font-semibold text-slate-800 truncate min-w-0">{asset.name}</div>
+                            <div className="font-semibold text-slate-800 truncate min-w-0 flex-1">{asset.name}</div>
+                            {onDeleteAsset && (
+                              <button
+                                data-testid="asset-swimlane-delete-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const hasLinkedData =
+                                    initiatives.some(i => i.assetId === asset.id) ||
+                                    applications.some(a => a.assetId === asset.id);
+                                  if (hasLinkedData) {
+                                    setPendingConfirm({ type: 'delete-asset', assetId: asset.id, assetName: asset.name, hasLinkedData: true });
+                                  } else {
+                                    onDeleteAsset(asset.id);
+                                  }
+                                }}
+                                className="opacity-0 group-hover:opacity-100 flex-shrink-0 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all"
+                                title={`Delete ${asset.name}`}
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            )}
                           </div>
                           <div className={cn("text-xs text-slate-400 mt-1", !isMobile && "ml-4")}>{allAssetInitiatives.length} Initiative{allAssetInitiatives.length !== 1 ? 's' : ''}</div>
                         </div>
@@ -2034,9 +2086,225 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                 </div>
               );
             })}
+
+            {/* GEANZ Application Technology section */}
+            {groupBy === 'asset' && (
+              <div data-testid="geanz-section">
+                {/* Section header */}
+                <div className="flex z-30 bg-indigo-50 border-y border-indigo-100 w-max">
+                  <div className="sticky left-0 flex-shrink-0 px-4 py-1.5 text-xs font-bold text-indigo-500 uppercase tracking-wider flex items-center gap-2 bg-indigo-50 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]" style={{ width: SIDEBAR_WIDTH }}>
+                    <span>GEANZ Application Technology</span>
+                    <span className="text-[9px] font-normal text-indigo-300 normal-case tracking-normal">© Crown copyright, CC BY 4.0</span>
+                  </div>
+                  <div className="flex-shrink-0" style={{ width: totalWidth }} />
+                </div>
+
+                {geanzAreas.map((area: GeanzArea) => {
+                  const areaAssets = geanzAssetsByArea[area.alias] || [];
+                  const isPopulated = areaAssets.length > 0;
+
+                  return (
+                    <div key={area.alias}>
+                      {/* Unpopulated: show area row with pre-populate button */}
+                      {!isPopulated && (
+                        <div
+                          data-testid={`geanz-area-row-${area.alias}`}
+                          data-row-type="geanz-area"
+                          className="flex w-max border-b border-slate-100 bg-slate-50/60 hover:bg-slate-50 transition-colors"
+                        >
+                          <div
+                            className="sticky left-0 flex-shrink-0 px-4 py-2 border-r border-slate-200 bg-slate-50/60 z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)] flex items-center gap-2"
+                            style={{ width: SIDEBAR_WIDTH }}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-semibold text-slate-600 truncate">{area.name}</div>
+                              <div className="text-[10px] text-slate-400 mt-0.5">{area.alias}</div>
+                            </div>
+                            {area.assets.length > 0 ? (
+                              <button
+                                data-testid={`geanz-prepopulate-btn-${area.alias}`}
+                                onClick={() => {
+                                  if (!onAddAssets) return;
+                                  const newAssets: Asset[] = area.assets.map(entry => ({
+                                    id: `geanz-${entry.externalId}`,
+                                    name: entry.name,
+                                    categoryId: GEANZ_CATEGORY_ID,
+                                    alias: entry.alias,
+                                    externalId: entry.externalId,
+                                  }));
+                                  onAddAssets(newAssets);
+                                }}
+                                className="flex-shrink-0 text-[10px] text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:border-indigo-400 bg-indigo-50 hover:bg-indigo-100 rounded px-1.5 py-0.5 transition-colors whitespace-nowrap"
+                              >
+                                + Add all {area.assets.length} asset{area.assets.length !== 1 ? 's' : ''}
+                              </button>
+                            ) : (
+                              <span className="text-[10px] text-slate-300 italic">No items yet</span>
+                            )}
+                          </div>
+                          <div className="flex-shrink-0" style={{ width: totalWidth }} />
+                        </div>
+                      )}
+
+                      {/* Populated: show a thin header with Remove all, then the asset rows */}
+                      {isPopulated && (
+                        <div className="flex w-max border-b border-indigo-100/50 bg-indigo-50/30">
+                          <div
+                            className="sticky left-0 flex-shrink-0 px-4 py-1 border-r border-slate-200 bg-indigo-50/30 z-30 flex items-center gap-2"
+                            style={{ width: SIDEBAR_WIDTH }}
+                          >
+                            <div className="text-[10px] font-semibold text-indigo-400 truncate flex-1">{area.name}</div>
+                            <button
+                              data-testid={`geanz-remove-btn-${area.alias}`}
+                              onClick={() => setPendingConfirm({
+                                type: 'remove-area',
+                                areaAlias: area.alias,
+                                areaName: area.name,
+                                assetCount: areaAssets.length,
+                              })}
+                              className="flex-shrink-0 text-[10px] text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 rounded px-1.5 py-0.5 transition-colors whitespace-nowrap"
+                            >
+                              Remove all
+                            </button>
+                          </div>
+                          <div className="flex-shrink-0" style={{ width: totalWidth }} />
+                        </div>
+                      )}
+
+                      {/* Populated asset swimlanes for this area */}
+                      {isPopulated && areaAssets.map(asset => {
+                        const allAssetInitiatives = localInitiatives.filter(i => i.assetId === asset.id);
+                        const { items: layoutItems, height: rowHeight } = getAssetLayout(asset, allAssetInitiatives);
+                        return (
+                          <React.Fragment key={asset.id}>
+                            <div
+                              data-testid={`asset-row-${asset.id}`}
+                              data-asset-id={asset.id}
+                              className="flex border-b border-slate-100 hover:bg-slate-50 transition-colors group relative"
+                            >
+                              <div
+                                data-testid="asset-swimlane-label"
+                                data-alias={asset.alias}
+                                className="sticky left-0 flex-shrink-0 px-4 py-3 border-r border-slate-200 bg-white z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex items-center gap-2 self-stretch"
+                                style={{ width: SIDEBAR_WIDTH }}
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-slate-700 truncate">{asset.name}</div>
+                                  <div className="text-[10px] text-slate-400 mt-0.5">{asset.alias}</div>
+                                </div>
+                                {onDeleteAsset && (
+                                  <button
+                                    data-testid="asset-swimlane-delete-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const hasLinkedData = allAssetInitiatives.length > 0 ||
+                                        applications.some(a => a.assetId === asset.id);
+                                      if (hasLinkedData) {
+                                        setPendingConfirm({ type: 'delete-asset', assetId: asset.id, assetName: asset.name, hasLinkedData: true });
+                                      } else {
+                                        onDeleteAsset(asset.id);
+                                      }
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 flex-shrink-0 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all"
+                                    title={`Delete ${asset.name}`}
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                )}
+                              </div>
+                              <div
+                                data-testid="asset-row-content"
+                                className="relative flex-shrink-0"
+                                style={{ width: totalWidth, height: rowHeight }}
+                                onDoubleClick={(e) => handleRowDoubleClick(e, asset.id)}
+                              >
+                                <div className="absolute inset-0 flex pointer-events-none">
+                                  {timeColumns.map((col, idx) => (
+                                    <div key={idx} className={cn("border-r border-slate-100 h-full", idx === 0 && "border-l-2 border-l-slate-200")} style={{ width: columnWidth }} />
+                                  ))}
+                                </div>
+                                {layoutItems.map(({ init, top, height, left, width }: any) => {
+                                  const prog = programmes.find(p => p.id === init.programmeId);
+                                  const strat = strategies.find(s => s.id === init.strategyId);
+                                  const colorClass = colorBy === 'status'
+                                    ? (STATUS_COLORS[init.status || 'planned'])
+                                    : colorBy === 'programme'
+                                    ? (prog?.color || 'bg-slate-500')
+                                    : (strat?.color || 'bg-slate-400');
+                                  if (left + width < 0 || left > 100) return null;
+                                  return (
+                                    <div
+                                      key={init.id}
+                                      data-initiative-id={init.id}
+                                      data-testid={`initiative-bar-${init.id}`}
+                                      className={cn('absolute rounded-md flex items-center px-2 overflow-hidden cursor-pointer text-white text-xs font-semibold shadow-sm select-none', colorClass)}
+                                      style={{ left: `${Math.max(0, left)}%`, width: `${width}%`, top, height }}
+                                      onClick={() => setSelectedInitiativeId(init.id)}
+                                      onDoubleClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
+                                    >
+                                      <span className="truncate">{init.name}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
           </div>
         </div>
       </div>
+
+      {/* GEANZ confirm modals */}
+      {pendingConfirm?.type === 'delete-asset' && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4" data-testid="confirm-modal">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col animate-in zoom-in-95 duration-150">
+            <div className="flex items-start gap-3 p-5 pb-3">
+              <div className="flex-shrink-0 mt-0.5 text-red-500"><AlertTriangle size={20} /></div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-semibold text-slate-800">Delete {pendingConfirm.assetName}?</h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Initiatives and segments linked to this asset will also be deleted.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 p-4 pt-2 justify-end">
+              <button data-testid="confirm-modal-cancel" onClick={() => setPendingConfirm(null)} className="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Cancel</button>
+              <button data-testid="confirm-modal-confirm" onClick={() => { onDeleteAsset?.(pendingConfirm.assetId); setPendingConfirm(null); }} className="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {pendingConfirm?.type === 'remove-area' && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4" data-testid="confirm-modal">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col animate-in zoom-in-95 duration-150">
+            <div className="flex items-start gap-3 p-5 pb-3">
+              <div className="flex-shrink-0 mt-0.5 text-red-500"><AlertTriangle size={20} /></div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-semibold text-slate-800">Remove all assets?</h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Remove {pendingConfirm.assetCount} asset{pendingConfirm.assetCount !== 1 ? 's' : ''} from <strong>{pendingConfirm.areaName}</strong>? Initiatives and segments linked to these assets will also be deleted.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 p-4 pt-2 justify-end">
+              <button data-testid="confirm-modal-cancel" onClick={() => setPendingConfirm(null)} className="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Cancel</button>
+              <button data-testid="confirm-modal-confirm" onClick={() => {
+                const areaAlias = pendingConfirm.areaAlias;
+                const toDelete = (geanzAssetsByArea[areaAlias] || []).map(a => a.id);
+                onBulkDeleteAssets?.(toDelete);
+                setPendingConfirm(null);
+              }} className="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">Remove all</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <InitiativePanel
         isOpen={initiativePanelId !== null || creatingInitiativeParams !== null}

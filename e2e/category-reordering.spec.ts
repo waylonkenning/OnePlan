@@ -8,7 +8,8 @@ test.describe('Category Reordering', () => {
 
   test('Dragging a category above another changes the vertical order', async ({ page }) => {
     // Initial order: Identity & Access Management (cat-iam) then Data Platform (cat-data)
-    const categoryLabels = page.locator('[data-testid^="category-row-"] .sticky button');
+    // Scope to drag handles only to avoid matching asset swimlane buttons
+    const categoryLabels = page.locator('[data-testid^="category-drag-handle-"] button');
     await expect(categoryLabels.nth(0)).toContainText('Identity & Access Management');
     await expect(categoryLabels.nth(1)).toContainText('Data Platform');
 

@@ -104,6 +104,8 @@ export interface Asset {
   name: string;
   categoryId: string;
   maturity?: number; // 1–5: Emergent → Optimised. Omitted means unrated.
+  alias?: string;      // GEANZ alias code, e.g. "TAP.16.01" — present only on GEANZ-sourced assets
+  externalId?: string; // GEANZ GUID — used for idempotent re-import
 }
 
 /**
