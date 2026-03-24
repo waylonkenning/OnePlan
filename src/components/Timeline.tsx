@@ -1641,7 +1641,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             {!isMobile && <div className="p-0.5 hover:bg-slate-100 rounded text-slate-300 group-hover:text-slate-400 flex-shrink-0">
                               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                             </div>}
-                            <div className="font-semibold text-slate-800 truncate min-w-0 flex-1">{asset.name}</div>
+                            <div className="font-semibold text-slate-800 min-w-0 flex-1">{asset.name}</div>
                             {onDeleteAsset && (
                               <button
                                 data-testid="asset-swimlane-delete-btn"
