@@ -2088,7 +2088,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             })}
 
             {/* GEANZ Application Technology section */}
-            {groupBy === 'asset' && (
+            {groupBy === 'asset' && settings.showGeanzCatalogue !== false && (
               <div data-testid="geanz-section">
                 {/* Section header */}
                 <div className="flex z-30 bg-indigo-50 border-y border-indigo-100 w-max">

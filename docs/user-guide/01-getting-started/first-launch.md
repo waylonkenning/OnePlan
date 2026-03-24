@@ -1,16 +1,29 @@
 # First Launch
 
+## Choosing a template
+
+When you open Scenia for the first time, a **template picker** appears. Choose the starting point that best matches your agency's needs:
+
+| Template | Best for |
+|----------|----------|
+| **NZ Digital Target State** | Agencies modelling their portfolio against the GCDO target architecture. Loads 6 DTS layers and 20 pre-built assets (DPI components, Channels, Common Consolidated Platforms). |
+| **GEANZ Technology Catalogue** | Agencies building an application portfolio using the NZ government GEANZ taxonomy. Loads a representative GEANZ demo portfolio across 13 of 17 TAP areas, with the full catalogue browsable in the GEANZ section. |
+| **Mixed** | Agencies who want the DTS architecture structure with the GEANZ catalogue available for detailed asset types. |
+| **Blank** | Agencies with their own internal taxonomy. Starts completely empty. |
+
+Your choice is saved to your browser. You can reset and choose again via **Data Manager → Reset**.
+
 ![Tutorial modal](../../public/tutorial/1-overview.png)
 
-## What you see on first open
-
-When you open Scenia for the first time, the app automatically loads demo data so you have something to explore straight away. You do not need to enter any data before you can use the app.
+## After choosing a template
 
 A tutorial modal appears automatically. It walks through the key features in five slides. You can dismiss it by clicking the X button or clicking anywhere outside the modal.
 
 ## The demo data
 
-The demo data shows a fictional CIAM (Customer Identity and Access Management) platform portfolio. It includes initiatives, dependencies, applications, lifecycle segments, resources, and budget figures.
+The GEANZ template loads a representative NZ government portfolio across 13 of 17 TAP areas, with initiatives, applications, lifecycle segments, resources, and budget figures.
+
+The DTS template loads 20 pre-built assets across the six DTS layers (Customer, Channels, Digital Public Infrastructure, Integration, Agency/Platform, Common Consolidated Platforms) without pre-populated initiatives, ready for you to model your own work.
 
 The demo data is safe to experiment with. You can:
 
@@ -19,7 +32,7 @@ The demo data is safe to experiment with. You can:
 - Add new initiatives and dependencies
 - Change display settings and grouping
 
-None of these changes affect other users — remember, everything is stored only in your browser.
+None of these changes affect other users — everything is stored only in your browser.
 
 ## Resetting the data
 

@@ -6,7 +6,10 @@ import { test, expect } from '@playwright/test';
  */
 test.describe('Tutorial Content', () => {
   test.beforeEach(async ({ page }) => {
+    // Wait for the app to fully hydrate (DB save complete) before removing the E2E flag,
+    // otherwise the template picker may appear on reload due to an empty DB race condition.
     await page.goto('/');
+    await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.evaluate(() => {
       localStorage.removeItem('scenia-e2e');
       localStorage.setItem('scenia_has_seen_landing', 'true');

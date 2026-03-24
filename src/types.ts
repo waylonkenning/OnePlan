@@ -166,6 +166,8 @@ export interface TimelineSettings {
   colorBy?: 'programme' | 'strategy' | 'status';
   showResources?: 'on' | 'off';
   display?: 'both' | 'initiatives' | 'applications';
+  templateId?: string;           // Which workspace template was selected on first load
+  showGeanzCatalogue?: boolean;  // When false, the GEANZ catalogue section is hidden (default: true)
 }
 
 /**
