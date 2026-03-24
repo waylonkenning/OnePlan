@@ -304,6 +304,55 @@ export default function App() {
     handleUpdate({ assets, applications, applicationSegments: segs, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, applicationStatuses });
   }, [assets, applications, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, applicationStatuses, handleUpdate]);
 
+  const handleDeleteAsset = useCallback((assetId: string) => {
+    const assetAppIds = new Set(applications.filter(a => a.assetId === assetId).map(a => a.id));
+    handleUpdate({
+      assets: assets.filter(a => a.id !== assetId),
+      applications: applications.filter(a => a.assetId !== assetId),
+      applicationSegments: applicationSegments.filter(s => s.assetId !== assetId && !assetAppIds.has(s.applicationId ?? '')),
+      initiatives: initiatives.filter(i => i.assetId !== assetId),
+      milestones: milestones.filter(m => m.assetId !== assetId),
+      programmes, strategies,
+      dependencies: dependencies.filter(d => {
+        const deletedInitIds = new Set(initiatives.filter(i => i.assetId === assetId).map(i => i.id));
+        return !deletedInitIds.has(d.sourceId) && !deletedInitIds.has(d.targetId);
+      }),
+      assetCategories, timelineSettings, resources, applicationStatuses,
+    });
+  }, [assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, applicationStatuses, handleUpdate]);
+
+  const handleBulkDeleteAssets = useCallback((assetIds: string[]) => {
+    const idSet = new Set(assetIds);
+    const assetAppIds = new Set(
+      applications.filter(a => idSet.has(a.assetId)).map(a => a.id)
+    );
+    const deletedInitIds = new Set(
+      initiatives.filter(i => idSet.has(i.assetId)).map(i => i.id)
+    );
+    handleUpdate({
+      assets: assets.filter(a => !idSet.has(a.id)),
+      applications: applications.filter(a => !idSet.has(a.assetId)),
+      applicationSegments: applicationSegments.filter(s =>
+        !idSet.has(s.assetId ?? '') && !assetAppIds.has(s.applicationId ?? '')
+      ),
+      initiatives: initiatives.filter(i => !idSet.has(i.assetId)),
+      milestones: milestones.filter(m => !idSet.has(m.assetId)),
+      programmes, strategies,
+      dependencies: dependencies.filter(d =>
+        !deletedInitIds.has(d.sourceId) && !deletedInitIds.has(d.targetId)
+      ),
+      assetCategories, timelineSettings, resources, applicationStatuses,
+    });
+  }, [assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, applicationStatuses, handleUpdate]);
+
+  const handleAddAssets = useCallback((newAssets: Asset[]) => {
+    // Skip any assets already present (matched by externalId to prevent duplicates)
+    const existingExternalIds = new Set(assets.map(a => a.externalId).filter(Boolean));
+    const toAdd = newAssets.filter(a => !a.externalId || !existingExternalIds.has(a.externalId));
+    if (toAdd.length === 0) return;
+    handleUpdate({ assets: [...assets, ...toAdd], applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, applicationStatuses });
+  }, [assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, applicationStatuses, handleUpdate]);
+
   useEffect(() => {
     if (!showMoreSettingsPanel && !showViewOptionsPanel) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -1035,6 +1084,9 @@ export default function App() {
             onDeleteApplicationSegment={handleDeleteApplicationSegment}
             onUpdateApplicationSegments={handleUpdateApplicationSegments}
             applicationStatuses={applicationStatuses}
+            onDeleteAsset={handleDeleteAsset}
+            onBulkDeleteAssets={handleBulkDeleteAssets}
+            onAddAssets={handleAddAssets}
           />
           )
         ) : view === 'data' ? (
