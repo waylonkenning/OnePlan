@@ -4,9 +4,15 @@ The GEANZ (Government Enterprise Architecture NZ) catalogue gives you a pre-buil
 
 ## How it works
 
-The 17 GEANZ application technology areas appear as a dedicated section at the bottom of the visualiser, below your own asset categories. Each area row shows the area name, its TAP alias code, and a button to add its child assets.
+The 17 GEANZ application technology areas appear as a dedicated section at the bottom of the visualiser, below your own asset categories. Each area row shows the full area name and a button to add its child assets.
 
 Areas remain collapsed until you choose to populate them — your timeline stays uncluttered until you're ready.
+
+## Demo data
+
+When you first load Scenia, a representative selection of GEANZ assets from 13 of the 17 TAP areas is already pre-populated with example initiatives, lifecycle segments, and milestones. This gives you a working NZ government portfolio out of the box so you can explore the visualiser straight away.
+
+Areas not included in the demo (TAP.05 End User, TAP.10 Data Sharing, TAP.11 ICT Development, and TAP.17 Emerging Technologies) still appear as collapsed area rows ready to be populated.
 
 ## Adding assets from an area
 
@@ -14,7 +20,7 @@ Areas remain collapsed until you choose to populate them — your timeline stays
 2. Find the area you want — for example, **TAP.07 Identity and Access Management application area**.
 3. Click **+ Add all N assets**.
 
-The area row is replaced by individual asset swimlanes, one per GEANZ technology type. Each swimlane shows the asset name and its TAP alias (e.g. `TAP.07.03`). You can now create initiatives, add lifecycle segments, and assign milestones against these assets exactly as you would with any other asset.
+The area row is replaced by individual asset swimlanes, one per GEANZ technology type. Each swimlane shows the full asset name. You can now create initiatives, add lifecycle segments, and assign milestones against these assets exactly as you would with any other asset.
 
 ## Removing an area's assets
 
