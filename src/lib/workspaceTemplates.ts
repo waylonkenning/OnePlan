@@ -7,6 +7,7 @@
 
 import { Asset, AssetCategory, Initiative, Milestone, ApplicationSegment, Programme, Strategy, Dependency, Resource, ApplicationStatus, TimelineSettings, Application } from '../types';
 import { DTS_CATEGORIES, DTS_ASSETS } from './dtsCatalogue';
+import { dtsDemoInitiatives, dtsDemoMilestones, dtsDemoApplicationSegments } from './dtsDemoData';
 import {
   demoAssets,
   demoInitiatives,
@@ -84,9 +85,9 @@ export function getTemplateData(templateId: TemplateId | string): TemplateAppDat
       return {
         assetCategories: DTS_CATEGORIES,
         assets: DTS_ASSETS,
-        initiatives: [],
-        milestones: [],
-        applicationSegments: [],
+        initiatives: dtsDemoInitiatives,
+        milestones: dtsDemoMilestones,
+        applicationSegments: dtsDemoApplicationSegments,
         programmes: demoProgrammes,
         strategies: demoStrategies,
         dependencies: [],
@@ -100,9 +101,9 @@ export function getTemplateData(templateId: TemplateId | string): TemplateAppDat
       return {
         assetCategories: DTS_CATEGORIES,
         assets: DTS_ASSETS,
-        initiatives: [],
-        milestones: [],
-        applicationSegments: [],
+        initiatives: dtsDemoInitiatives,
+        milestones: dtsDemoMilestones,
+        applicationSegments: dtsDemoApplicationSegments,
         programmes: demoProgrammes,
         strategies: demoStrategies,
         dependencies: [],

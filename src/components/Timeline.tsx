@@ -1954,8 +1954,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                         </div>
                         )} {/* end initiatives swimlane */}
 
-                        {/* Applications swimlane — single merged row per asset, hidden when display is 'initiatives' */}
-                        {display !== 'initiatives' && assetApplications.length > 0 && (() => {
+                        {/* Applications swimlane — single merged row per asset, hidden when display is 'initiatives'.
+                            Renders when the asset has Application objects OR segments linked directly via assetId. */}
+                        {display !== 'initiatives' && (assetApplications.length > 0 || assetSegments.length > 0) && (() => {
                           const { items: segLayoutItems, height: swimlaneHeight } = layoutSegments(assetSegments);
                           return (
                           <div
