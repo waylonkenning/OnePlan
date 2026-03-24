@@ -2116,9 +2116,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             className="sticky left-0 flex-shrink-0 px-4 py-2 border-r border-slate-200 bg-slate-50/60 z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)] flex items-center gap-2"
                             style={{ width: SIDEBAR_WIDTH }}
                           >
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-semibold text-slate-600 truncate">{area.name}</div>
-                              <div className="text-[10px] text-slate-400 mt-0.5">{area.alias}</div>
+                            <div className="flex-1">
+                              <div className="text-xs font-semibold text-slate-600">{area.name}</div>
                             </div>
                             {area.assets.length > 0 ? (
                               <button
@@ -2153,7 +2152,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             className="sticky left-0 flex-shrink-0 px-4 py-1 border-r border-slate-200 bg-indigo-50/30 z-30 flex items-center gap-2"
                             style={{ width: SIDEBAR_WIDTH }}
                           >
-                            <div className="text-[10px] font-semibold text-indigo-400 truncate flex-1">{area.name}</div>
+                            <div className="text-[10px] font-semibold text-indigo-400 flex-1">{area.name}</div>
                             <button
                               data-testid={`geanz-remove-btn-${area.alias}`}
                               onClick={() => setPendingConfirm({
@@ -2188,9 +2187,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 className="sticky left-0 flex-shrink-0 px-4 py-3 border-r border-slate-200 bg-white z-30 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] group-hover:bg-slate-50 transition-colors flex items-center gap-2 self-stretch"
                                 style={{ width: SIDEBAR_WIDTH }}
                               >
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-medium text-slate-700 truncate">{asset.name}</div>
-                                  <div className="text-[10px] text-slate-400 mt-0.5">{asset.alias}</div>
+                                <div className="flex-1">
+                                  <div className="text-sm font-medium text-slate-700">{asset.name}</div>
                                 </div>
                                 {onDeleteAsset && (
                                   <button
