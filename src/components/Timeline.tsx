@@ -2104,7 +2104,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                   const isPopulated = areaAssets.length > 0;
 
                   return (
-                    <div key={area.alias}>
+                    <div key={area.alias} data-testid={`geanz-area-entry-${area.alias}`}>
                       {/* Unpopulated: show area row with pre-populate button */}
                       {!isPopulated && (
                         <div
@@ -2210,6 +2210,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                   </button>
                                 )}
                               </div>
+                              {display !== 'applications' && (
                               <div
                                 data-testid="asset-row-content"
                                 className="relative flex-shrink-0"
@@ -2245,6 +2246,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                   );
                                 })}
                               </div>
+                              )}
                             </div>
                           </React.Fragment>
                         );

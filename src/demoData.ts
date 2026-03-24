@@ -1,4 +1,5 @@
 import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
+import { GEANZ_CATEGORY_ID } from './lib/geanzCatalogue';
 
 /**
  * Returns a date string (YYYY-MM-DD) relative to the current calendar year.
@@ -71,6 +72,47 @@ export const demoAssets: Asset[] = [
     // Integration & APIs
     { id: 'a-apigw', name: 'API Gateway', categoryId: 'cat-int', maturity: 4 },
     { id: 'a-esb', name: 'Enterprise Service Bus', categoryId: 'cat-int', maturity: 1 },
+
+    // ── GEANZ Application Technology ──────────────────────────────────────────
+    // TAP.01 Corporate application area
+    { id: 'gz-fmis',    name: 'Financial Management Information System (FMIS) applications', categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.01.01', externalId: 'CSVB294C767' },
+    { id: 'gz-hrm',     name: 'Human Resource Management applications',                       categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.01.02', externalId: 'CSV9CDA5FCC' },
+    { id: 'gz-erp',     name: 'Enterprise Resource Planning (ERP)',                           categoryId: GEANZ_CATEGORY_ID, maturity: 2, alias: 'TAP.01.15', externalId: 'CSV5C9C46F0' },
+    // TAP.02 Service Delivery application area
+    { id: 'gz-case',    name: 'Case Management applications',                                 categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.02.03', externalId: 'CSVCB72B91D' },
+    { id: 'gz-crm',     name: 'Customer Relationship Management (CRM) applications',          categoryId: GEANZ_CATEGORY_ID, maturity: 2, alias: 'TAP.02.12', externalId: 'CSV659E16F7' },
+    // TAP.03 Experience and Interactions application area
+    { id: 'gz-portal',  name: 'Customer Portal Application Service',                          categoryId: GEANZ_CATEGORY_ID, maturity: 4, alias: 'TAP.03.05', externalId: 'CSV4EDA4D6B' },
+    { id: 'gz-wcm',     name: 'Web Content Management applications',                          categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.03.09', externalId: 'CSV2696D177' },
+    // TAP.04 Data and Information Management application area
+    { id: 'gz-datagov', name: 'Data Governance applications',                                 categoryId: GEANZ_CATEGORY_ID, maturity: 2, alias: 'TAP.04.02', externalId: 'CSV0AC940D8' },
+    { id: 'gz-records', name: 'Records Management applications',                              categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.04.05', externalId: 'CSVC7AAA098' },
+    // TAP.06 Integration application area
+    { id: 'gz-apimgmt', name: 'API Management',                                               categoryId: GEANZ_CATEGORY_ID, maturity: 4, alias: 'TAP.06.01', externalId: 'CSVB339C355' },
+    { id: 'gz-gesb',    name: 'Enterprise Service Bus (ESB)',                                 categoryId: GEANZ_CATEGORY_ID, maturity: 1, alias: 'TAP.06.07', externalId: 'CSVE50DEFAC' },
+    // TAP.07 Identity and Access Management application area
+    { id: 'gz-idgov',   name: 'Identity Governance and Accountability',                       categoryId: GEANZ_CATEGORY_ID, maturity: 2, alias: 'TAP.07.01', externalId: 'CSV9DB5866D' },
+    { id: 'gz-authn',   name: 'Authentication',                                               categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.07.03', externalId: 'CSVC5CFCFD9' },
+    // TAP.08 Security application area
+    { id: 'gz-netsec',  name: 'Network Security',                                             categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.08.02', externalId: 'CSV3AB53698' },
+    { id: 'gz-siem',    name: 'Security Incident and Event Management',                       categoryId: GEANZ_CATEGORY_ID, maturity: 2, alias: 'TAP.08.11', externalId: 'CSV40193523' },
+    // TAP.09 Orchestration and Workflow application area
+    { id: 'gz-bpm',     name: 'Business Process Management applications',                     categoryId: GEANZ_CATEGORY_ID, maturity: 2, alias: 'TAP.09.01', externalId: 'CSVFEB38CD6' },
+    // TAP.12 ICT Management application area
+    { id: 'gz-itsm',    name: 'ICT Service Management (ITSM)',                                categoryId: GEANZ_CATEGORY_ID, maturity: 4, alias: 'TAP.12.01', externalId: 'CSV027352E4' },
+    { id: 'gz-cmdb',    name: 'ICT Configuration Management Database (CMDB)',                 categoryId: GEANZ_CATEGORY_ID, maturity: 2, alias: 'TAP.12.02', externalId: 'CSV17DC6C4F' },
+    // TAP.13 Collaboration application area
+    { id: 'gz-email',   name: 'Email applications',                                           categoryId: GEANZ_CATEGORY_ID, maturity: 4, alias: 'TAP.13.01', externalId: 'CSV13_01' },
+    { id: 'gz-video',   name: 'Video Services applications',                                  categoryId: GEANZ_CATEGORY_ID, maturity: 4, alias: 'TAP.13.04', externalId: 'CSV13_04' },
+    // TAP.14 Monitoring and Reporting application area
+    { id: 'gz-sysmon',  name: 'System Monitoring applications',                               categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.14.01', externalId: 'CSV14_01' },
+    { id: 'gz-apm',     name: 'Application Performance Monitoring applications',              categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.14.02', externalId: 'CSV14_02' },
+    // TAP.15 Infrastructure and Cloud application area
+    { id: 'gz-iaas',    name: 'Infrastructure as a Service (IaaS)',                           categoryId: GEANZ_CATEGORY_ID, maturity: 4, alias: 'TAP.15.01', externalId: 'CSV15_01' },
+    { id: 'gz-paas',    name: 'Platform as a Service (PaaS)',                                 categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.15.02', externalId: 'CSV15_02' },
+    // TAP.16 Analytics and Business Intelligence (BI) application area
+    { id: 'gz-dwh',     name: 'Data Warehouse applications',                                  categoryId: GEANZ_CATEGORY_ID, maturity: 3, alias: 'TAP.16.01', externalId: 'CSV16_01' },
+    { id: 'gz-bi',      name: 'Business Intelligence Reporting applications',                 categoryId: GEANZ_CATEGORY_ID, maturity: 2, alias: 'TAP.16.02', externalId: 'CSV16_02' },
 ];
 
 export const demoApplications: Application[] = [
@@ -111,6 +153,37 @@ export const demoApplicationSegments: ApplicationSegment[] = [
     { id: 'seg-rn-planned', applicationId: 'app-rn', status: 'appstatus-planned', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30) },
     { id: 'seg-rn-funded', applicationId: 'app-rn', status: 'appstatus-funded', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31) },
     { id: 'seg-rn-prod', applicationId: 'app-rn', status: 'appstatus-in-production', startDate: relDate(1, 4, 1), endDate: relDate(2, 12, 31) },
+
+    // ── GEANZ asset lifecycle segments ────────────────────────────────────────
+    // FMIS — in production, migrating to cloud
+    { id: 'seg-gz-fmis-prod',      assetId: 'gz-fmis',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(1, 3, 31) },
+    { id: 'seg-gz-fmis-sunset',    assetId: 'gz-fmis',    status: 'appstatus-sunset',        startDate: relDate(1, 4, 1),  endDate: relDate(2, 6, 30), row: 1 },
+    // Authentication — current platform phasing out, replacement being funded
+    { id: 'seg-gz-authn-prod',     assetId: 'gz-authn',   status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 6, 30) },
+    { id: 'seg-gz-authn-funded',   assetId: 'gz-authn',   status: 'appstatus-funded',        startDate: relDate(0, 1, 1),  endDate: relDate(0, 6, 30), row: 1 },
+    { id: 'seg-gz-authn-new-prod', assetId: 'gz-authn',   status: 'appstatus-in-production', startDate: relDate(0, 7, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    // Email — legacy mail in production, M365 funded and going live
+    { id: 'seg-gz-email-legacy',   assetId: 'gz-email',   status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 6, 30) },
+    { id: 'seg-gz-email-m365-fd',  assetId: 'gz-email',   status: 'appstatus-funded',        startDate: relDate(0, 1, 1),  endDate: relDate(0, 5, 31), row: 1 },
+    { id: 'seg-gz-email-m365',     assetId: 'gz-email',   status: 'appstatus-in-production', startDate: relDate(0, 7, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    // IaaS — on-prem datacentre running down as cloud ramps up
+    { id: 'seg-gz-iaas-onprem',    assetId: 'gz-iaas',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(1, 6, 30) },
+    { id: 'seg-gz-iaas-cloud-fd',  assetId: 'gz-iaas',    status: 'appstatus-funded',        startDate: relDate(0, 1, 1),  endDate: relDate(1, 6, 30), row: 1 },
+    { id: 'seg-gz-iaas-sunset',    assetId: 'gz-iaas',    status: 'appstatus-sunset',        startDate: relDate(1, 7, 1),  endDate: relDate(2, 6, 30) },
+    { id: 'seg-gz-iaas-cloud',     assetId: 'gz-iaas',    status: 'appstatus-in-production', startDate: relDate(1, 7, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    // Enterprise Service Bus — production until retirement
+    { id: 'seg-gz-gesb-prod',      assetId: 'gz-gesb',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
+    { id: 'seg-gz-gesb-sunset',    assetId: 'gz-gesb',    status: 'appstatus-sunset',        startDate: relDate(1, 1, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    // SIEM — platform upgrade in progress
+    { id: 'seg-gz-siem-prod',      assetId: 'gz-siem',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 12, 31) },
+    { id: 'seg-gz-siem-funded',    assetId: 'gz-siem',    status: 'appstatus-funded',        startDate: relDate(0, 7, 1),  endDate: relDate(1, 3, 31), row: 1 },
+    { id: 'seg-gz-siem-new',       assetId: 'gz-siem',    status: 'appstatus-in-production', startDate: relDate(1, 4, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    // Customer Portal — long-running production service
+    { id: 'seg-gz-portal-prod',    assetId: 'gz-portal',  status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
+    // ITSM — in production
+    { id: 'seg-gz-itsm-prod',      assetId: 'gz-itsm',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
+    // API Management — in production
+    { id: 'seg-gz-api-prod',       assetId: 'gz-apimgmt', status: 'appstatus-in-production', startDate: relDate(0, 1, 1),  endDate: relDate(2, 12, 31) },
 ];
 
 export const demoInitiatives: Initiative[] = [
@@ -266,7 +339,191 @@ export const demoInitiatives: Initiative[] = [
         description: 'Placeholder for future cloud-native workloads.',
         status: 'planned', progress: 0,
         isPlaceholder: true
-    }
+    },
+
+    // ── GEANZ initiatives ─────────────────────────────────────────────────────
+    // TAP.01 — FMIS
+    {
+        id: 'i-gz-fmis-cloud', name: 'FMIS Cloud Uplift', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
+        assetId: 'gz-fmis', startDate: relDate(0, 1, 1), endDate: relDate(1, 3, 31), budget: 1800000,
+        description: 'Migrate on-premises FMIS to a SaaS financial management platform.',
+        status: 'active', progress: 20, ownerId: 'res-1', resourceIds: ['res-5'],
+    },
+    // TAP.01 — HR Management
+    {
+        id: 'i-gz-hrm-selfserv', name: 'HR Self-Service Portal', programmeId: 'prog-dtp', strategyId: 'strat-cust',
+        assetId: 'gz-hrm', startDate: relDate(0, 4, 1), endDate: relDate(0, 12, 31), budget: 400000,
+        description: 'Deploy employee self-service module for leave, payslips and benefits.',
+        status: 'planned', progress: 0, ownerId: 'res-1',
+    },
+    // TAP.01 — ERP
+    {
+        id: 'i-gz-erp-consolidate', name: 'ERP Consolidation', programmeId: 'prog-mod', strategyId: 'strat-api',
+        assetId: 'gz-erp', startDate: relDate(1, 1, 1), endDate: relDate(2, 6, 30), budget: 3500000,
+        description: 'Consolidate fragmented back-office systems into a single cloud ERP.',
+        status: 'planned', progress: 0, ownerId: 'res-6',
+    },
+    // TAP.02 — Case Management
+    {
+        id: 'i-gz-case-upgrade', name: 'Case Management Upgrade', programmeId: 'prog-mod', strategyId: 'strat-cust',
+        assetId: 'gz-case', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), budget: 850000,
+        description: 'Replace legacy case system with a cloud-native, API-first case platform.',
+        status: 'planned', progress: 0, ownerId: 'res-1', resourceIds: ['res-2'],
+    },
+    // TAP.02 — CRM
+    {
+        id: 'i-gz-crm-migrate', name: 'CRM Cloud Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
+        assetId: 'gz-crm', startDate: relDate(0, 3, 1), endDate: relDate(1, 1, 31), budget: 1200000,
+        description: 'Migrate on-premises CRM to cloud, integrating with citizen portal and case management.',
+        status: 'active', progress: 10, ownerId: 'res-6', resourceIds: ['res-3'],
+    },
+    // TAP.03 — Customer Portal
+    {
+        id: 'i-gz-portal-redesign', name: 'Citizen Portal Redesign', programmeId: 'prog-cx', strategyId: 'strat-cust',
+        assetId: 'gz-portal', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), budget: 600000,
+        description: 'Redesign the citizen-facing portal to meet NZ Government Design System standards.',
+        status: 'active', progress: 35, ownerId: 'res-2', resourceIds: ['res-3'],
+    },
+    // TAP.03 — Web CMS
+    {
+        id: 'i-gz-wcm-headless', name: 'Headless CMS Migration', programmeId: 'prog-dtp', strategyId: 'strat-api',
+        assetId: 'gz-wcm', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), budget: 300000,
+        description: 'Move from monolithic CMS to headless architecture to support omnichannel publishing.',
+        status: 'planned', progress: 0, ownerId: 'res-2',
+    },
+    // TAP.04 — Data Governance
+    {
+        id: 'i-gz-datagov-prog', name: 'Data Governance Programme', programmeId: 'prog-reg', strategyId: 'strat-reg',
+        assetId: 'gz-datagov', startDate: relDate(0, 1, 1), endDate: relDate(1, 3, 31), budget: 500000,
+        description: 'Establish agency-wide data governance: lineage, quality scoring, PII classification.',
+        status: 'active', progress: 20, ownerId: 'res-2', resourceIds: ['res-3'],
+    },
+    // TAP.04 — Records Management
+    {
+        id: 'i-gz-records-digital', name: 'Digital Records Uplift', programmeId: 'prog-dtp', strategyId: 'strat-reg',
+        assetId: 'gz-records', startDate: relDate(0, 7, 1), endDate: relDate(1, 6, 30), budget: 400000,
+        description: 'Digitise paper records and align with NZ Archives digital continuity requirements.',
+        status: 'planned', progress: 0, ownerId: 'res-1',
+    },
+    // TAP.06 — API Management
+    {
+        id: 'i-gz-api-platform', name: 'API Platform Uplift', programmeId: 'prog-mod', strategyId: 'strat-api',
+        assetId: 'gz-apimgmt', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), budget: 750000,
+        description: 'Upgrade API gateway and developer portal to support whole-of-government API integration.',
+        status: 'active', progress: 60, ownerId: 'res-2', resourceIds: ['res-5'],
+    },
+    // TAP.06 — ESB
+    {
+        id: 'i-gz-esb-retire', name: 'ESB Retirement Programme', programmeId: 'prog-mod', strategyId: 'strat-api',
+        assetId: 'gz-gesb', startDate: relDate(1, 1, 1), endDate: relDate(2, 12, 31), budget: 2000000,
+        description: 'Decommission legacy ESB by migrating all integrations to event-driven API patterns.',
+        status: 'planned', progress: 0, ownerId: 'res-6',
+    },
+    // TAP.07 — Identity Governance
+    {
+        id: 'i-gz-idgov-jml', name: 'Joiner/Mover/Leaver Automation', programmeId: 'prog-dtp', strategyId: 'strat-zero',
+        assetId: 'gz-idgov', startDate: relDate(0, 4, 1), endDate: relDate(1, 1, 31), budget: 450000,
+        description: 'Automate identity lifecycle across HR, directory and application provisioning.',
+        status: 'planned', progress: 0, ownerId: 'res-4',
+    },
+    // TAP.07 — Authentication
+    {
+        id: 'i-gz-authn-mfa', name: 'MFA Modernisation', programmeId: 'prog-dtp', strategyId: 'strat-zero',
+        assetId: 'gz-authn', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), budget: 250000,
+        description: 'Replace SMS OTP with phishing-resistant MFA (FIDO2/passkeys) for all staff.',
+        status: 'active', progress: 75, ownerId: 'res-4', resourceIds: ['res-3'],
+    },
+    // TAP.08 — Network Security
+    {
+        id: 'i-gz-netsec-seg', name: 'Network Segmentation Project', programmeId: 'prog-mod', strategyId: 'strat-zero',
+        assetId: 'gz-netsec', startDate: relDate(0, 3, 1), endDate: relDate(1, 3, 31), budget: 900000,
+        description: 'Implement micro-segmentation across agency network to reduce lateral movement risk.',
+        status: 'planned', progress: 0, ownerId: 'res-4',
+    },
+    // TAP.08 — SIEM
+    {
+        id: 'i-gz-siem-upgrade', name: 'SIEM Platform Upgrade', programmeId: 'prog-mod', strategyId: 'strat-reg',
+        assetId: 'gz-siem', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), budget: 650000,
+        description: 'Upgrade SIEM to support NZISM-aligned security monitoring and automated alerting.',
+        status: 'planned', progress: 0, ownerId: 'res-4', resourceIds: ['res-5'],
+    },
+    // TAP.09 — BPM
+    {
+        id: 'i-gz-bpm-automate', name: 'Process Automation Initiative', programmeId: 'prog-dtp', strategyId: 'strat-api',
+        assetId: 'gz-bpm', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), budget: 800000,
+        description: 'Automate high-volume ministerial and regulatory approval workflows using BPM tooling.',
+        status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-3'],
+    },
+    // TAP.12 — ITSM
+    {
+        id: 'i-gz-itsm-consolidate', name: 'ITSM Tool Consolidation', programmeId: 'prog-mod', strategyId: 'strat-api',
+        assetId: 'gz-itsm', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), budget: 350000,
+        description: 'Consolidate three agency service desk tools into a single enterprise ITSM platform.',
+        status: 'active', progress: 45, ownerId: 'res-6',
+    },
+    // TAP.12 — CMDB
+    {
+        id: 'i-gz-cmdb-auto', name: 'CMDB Automation', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
+        assetId: 'gz-cmdb', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), budget: 300000,
+        description: 'Automate CMDB discovery and reconciliation with cloud infrastructure inventory.',
+        status: 'planned', progress: 0, ownerId: 'res-5',
+    },
+    // TAP.13 — Email
+    {
+        id: 'i-gz-email-m365', name: 'Microsoft 365 Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
+        assetId: 'gz-email', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), budget: 400000,
+        description: 'Migrate agency email from on-premises Exchange to Microsoft 365.',
+        status: 'active', progress: 80, ownerId: 'res-5', resourceIds: ['res-3'],
+    },
+    // TAP.13 — Video Services
+    {
+        id: 'i-gz-video-upgrade', name: 'Video Conferencing Uplift', programmeId: 'prog-cx', strategyId: 'strat-cust',
+        assetId: 'gz-video', startDate: relDate(0, 7, 1), endDate: relDate(0, 12, 31), budget: 150000,
+        description: 'Standardise video conferencing across all meeting rooms and remote workers.',
+        status: 'planned', progress: 0, ownerId: 'res-5',
+    },
+    // TAP.14 — System Monitoring
+    {
+        id: 'i-gz-sysmon-unified', name: 'Unified Monitoring Platform', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
+        assetId: 'gz-sysmon', startDate: relDate(0, 4, 1), endDate: relDate(1, 1, 31), budget: 500000,
+        description: 'Consolidate fragmented monitoring tools into a single observability platform.',
+        status: 'planned', progress: 0, ownerId: 'res-5', resourceIds: ['res-6'],
+    },
+    // TAP.14 — APM
+    {
+        id: 'i-gz-apm-rollout', name: 'APM Rollout', programmeId: 'prog-cloud', strategyId: 'strat-api',
+        assetId: 'gz-apm', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), budget: 250000,
+        description: 'Deploy application performance monitoring across all public-facing digital services.',
+        status: 'planned', progress: 0, ownerId: 'res-5',
+    },
+    // TAP.15 — IaaS
+    {
+        id: 'i-gz-iaas-migration', name: 'IaaS Cloud Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
+        assetId: 'gz-iaas', startDate: relDate(0, 1, 1), endDate: relDate(1, 6, 30), budget: 2500000,
+        description: 'Exit on-premises datacentre by migrating all workloads to government cloud tenancy.',
+        status: 'active', progress: 25, ownerId: 'res-6', resourceIds: ['res-5'],
+    },
+    // TAP.15 — PaaS
+    {
+        id: 'i-gz-paas-k8s', name: 'Container Platform (PaaS)', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
+        assetId: 'gz-paas', startDate: relDate(0, 6, 1), endDate: relDate(1, 6, 30), budget: 800000,
+        description: 'Establish shared Kubernetes-based PaaS for agency application workloads.',
+        status: 'planned', progress: 0, ownerId: 'res-6',
+    },
+    // TAP.16 — Data Warehouse
+    {
+        id: 'i-gz-dwh-cloud', name: 'Cloud Data Warehouse', programmeId: 'prog-data', strategyId: 'strat-data',
+        assetId: 'gz-dwh', startDate: relDate(0, 4, 1), endDate: relDate(1, 6, 30), budget: 1800000,
+        description: 'Replace on-premises data warehouse with cloud-native analytical database.',
+        status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-3'],
+    },
+    // TAP.16 — BI Reporting
+    {
+        id: 'i-gz-bi-selfserv', name: 'Self-Service BI Platform', programmeId: 'prog-data', strategyId: 'strat-data',
+        assetId: 'gz-bi', startDate: relDate(0, 10, 1), endDate: relDate(1, 9, 30), budget: 600000,
+        description: 'Deploy self-service BI tooling enabling business units to create their own reports.',
+        status: 'planned', progress: 0, ownerId: 'res-2', resourceIds: ['res-3'],
+    },
 ];
 
 export const demoDependencies: Dependency[] = [
@@ -290,6 +547,13 @@ export const demoMilestones: Milestone[] = [
     { id: 'ms-6', assetId: 'a-esb', date: relDate(2, 7, 1), name: 'ESB End of Life', type: 'critical' },
     { id: 'ms-7', assetId: 'a-lake', date: relDate(1, 1, 1), name: 'Batch ETL Sunset', type: 'warning' },
     { id: 'ms-8', assetId: 'a-lend', date: relDate(1, 10, 1), name: 'Open Banking Phase 3', type: 'info' },
+    // GEANZ milestones
+    { id: 'ms-gz-1', assetId: 'gz-fmis',    date: relDate(0, 6, 30),  name: 'FMIS Contract Renewal Decision', type: 'warning' },
+    { id: 'ms-gz-2', assetId: 'gz-email',   date: relDate(0, 6, 30),  name: 'M365 Cutover Complete',           type: 'critical' },
+    { id: 'ms-gz-3', assetId: 'gz-iaas',    date: relDate(1, 6, 30),  name: 'Datacentre Exit Deadline',        type: 'critical' },
+    { id: 'ms-gz-4', assetId: 'gz-gesb',    date: relDate(2, 12, 31), name: 'ESB End of Life',                 type: 'critical' },
+    { id: 'ms-gz-5', assetId: 'gz-authn',   date: relDate(0, 6, 30),  name: 'MFA Rollout Complete',            type: 'info' },
+    { id: 'ms-gz-6', assetId: 'gz-datagov', date: relDate(1, 3, 31),  name: 'Data Governance Framework Live',  type: 'info' },
 ];
 
 export const demoResources: Resource[] = [

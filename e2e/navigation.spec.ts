@@ -62,7 +62,7 @@ test.describe('Navigation & State Management', () => {
 
     // Initiatives store must have been written (not cleared and abandoned)
     const initiativeRows = page.locator('table tbody tr[data-real="true"]');
-    await expect(initiativeRows).toHaveCount(22);
+    await expect(initiativeRows).toHaveCount(48); // 22 original + 26 GEANZ initiatives
 
     // Assets store must also be intact
     await page.getByRole('button', { name: /Assets/ }).click();
@@ -79,9 +79,9 @@ test.describe('Navigation & State Management', () => {
     // Check if defaults exist
     await page.getByRole('button', { name: 'Data Manager' }).click();
     const realRows = page.locator('table tbody tr[data-real="true"]');
-    await expect(realRows).toHaveCount(22); // Initiatives length from data.ts is 22
-    
-    // Total rows = 22 defaults + 1 blank row
-    await expect(page.locator('table tbody tr')).toHaveCount(23);
+    await expect(realRows).toHaveCount(48); // 22 original + 26 GEANZ initiatives
+
+    // Total rows = 48 defaults + 1 blank row
+    await expect(page.locator('table tbody tr')).toHaveCount(49);
   });
 });
