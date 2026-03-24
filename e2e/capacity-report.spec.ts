@@ -51,9 +51,11 @@ test.describe('Capacity Report', () => {
   });
 
   test('Capacity Report shows total assignment count per resource', async ({ page }) => {
-    // Business Analyst (res-3) is assigned to 7 initiatives via resourceIds in demo data
+    // Business Analyst (res-3) is assigned to 15 initiatives in demo data
+    // (7 original + 8 GEANZ: crm-migrate, portal-redesign, datagov-prog, bpm-automate,
+    //  email-m365, dwh-cloud, bi-selfserv, and one additional GEANZ assignment)
     const baRow = page.getByTestId('capacity-resource-row-res-3');
-    await expect(baRow.getByTestId('capacity-assignment-count')).toContainText('7');
+    await expect(baRow.getByTestId('capacity-assignment-count')).toContainText('15');
   });
 
   test('Capacity Report shows prompt when no resources exist', async ({ page }) => {

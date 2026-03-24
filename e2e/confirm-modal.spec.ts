@@ -73,7 +73,7 @@ test.describe('In-app ConfirmModal — no browser dialogs', () => {
     await expect(page.locator(CONFIRM_MODAL)).not.toBeVisible();
 
     const rows = page.locator('table tbody tr');
-    await expect(rows).toHaveCount(23);
+    await expect(rows).toHaveCount(49); // 22 original + 26 GEANZ initiatives + 1 ghost row
   });
 
   test('DependencyPanel delete shows confirm modal', async ({ page }) => {
