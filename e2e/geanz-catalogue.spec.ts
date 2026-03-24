@@ -22,6 +22,8 @@ import { test, expect } from '@playwright/test';
  *      Deleting an asset with no linked data removes it immediately (no confirmation).
  *      Deleting an asset with linked initiatives/segments shows a confirmation dialog.
  *      Cancelling the confirmation leaves the asset intact.
+ * AC7: Area rows and asset swimlane labels display full names without truncation.
+ *      TAP alias codes (e.g. TAP.01, TAP.16.01) are not shown in the labels.
  */
 
 test.describe('GEANZ Asset Catalogue', () => {
@@ -255,5 +257,35 @@ test.describe('GEANZ Asset Catalogue', () => {
     await expect(
       page.locator('[data-testid="asset-swimlane-label"]').filter({ hasText: 'Customer IAM (CIAM)' })
     ).not.toBeVisible();
+  });
+
+  // AC7 — Full names, no alias codes
+  test('AC7: area row shows full name without truncation', async ({ page }) => {
+    // TAP.01 has a long name — confirm the full text is present
+    const areaRow = page.locator('[data-testid="geanz-area-row-TAP.01"]');
+    await expect(areaRow).toContainText('Corporate application area');
+  });
+
+  test('AC7: area row does not show the TAP alias code', async ({ page }) => {
+    const areaRow = page.locator('[data-testid="geanz-area-row-TAP.01"]');
+    // The alias code should not appear as visible text in the label
+    await expect(areaRow).not.toContainText('TAP.01');
+  });
+
+  test('AC7: pre-populated asset swimlane shows full name without truncation', async ({ page }) => {
+    await page.locator('[data-testid="geanz-prepopulate-btn-TAP.16"]').click();
+
+    // TAP.16.02 has a long name — confirm the full text is present
+    const swimlane = page.locator('[data-testid="asset-swimlane-label"]').filter({ hasText: 'Business Intelligence Reporting applications' });
+    await expect(swimlane).toBeVisible();
+  });
+
+  test('AC7: pre-populated asset swimlane does not show the TAP alias code', async ({ page }) => {
+    await page.locator('[data-testid="geanz-prepopulate-btn-TAP.16"]').click();
+
+    const swimlane = page.locator('[data-testid="asset-swimlane-label"]').filter({ hasText: 'Data Warehouse applications' });
+    await expect(swimlane).toBeVisible();
+    // Alias code should not appear as visible text
+    await expect(swimlane).not.toContainText('TAP.16.01');
   });
 });
