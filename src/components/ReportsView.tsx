@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Asset, Initiative, Dependency, Milestone, Version, Programme, Strategy, AssetCategory, Resource } from '../types';
 import { getAllVersions } from '../lib/db';
 import { computeDiff, DiffResult } from '../lib/diff';
-import { History, DollarSign, GitBranch, Users, ChevronLeft } from 'lucide-react';
+import { History, DollarSign, GitBranch, Users, ChevronLeft, Grid } from 'lucide-react';
+import { MaturityHeatmap } from './MaturityHeatmap';
+import { AssetPanel } from './AssetPanel';
 
 interface ReportsViewProps {
   assets: Asset[];
@@ -14,9 +16,10 @@ interface ReportsViewProps {
   strategies: Strategy[];
   assetCategories: AssetCategory[];
   resources?: Resource[];
+  onSaveAsset?: (asset: Asset) => void;
 }
 
-type ReportSlug = 'version-history' | 'budget' | 'initiatives-dependencies' | 'capacity';
+type ReportSlug = 'version-history' | 'budget' | 'initiatives-dependencies' | 'capacity' | 'maturity-heatmap';
 
 function BackButton({ onBack }: { onBack: () => void }) {
   return (
@@ -70,8 +73,10 @@ function depSentence(dep: Dependency, src: Initiative, tgt: Initiative, perspect
   return `${src.name} and ${tgt.name} are related.`;
 }
 
-export function ReportsView({ assets, initiatives, milestones, dependencies, currentData, programmes, strategies, assetCategories, resources = [] }: ReportsViewProps) {
+export function ReportsView({ assets, initiatives, milestones, dependencies, currentData, programmes, strategies, assetCategories, resources = [], onSaveAsset }: ReportsViewProps) {
   const [selectedReport, setSelectedReport] = useState<ReportSlug | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [assetPanelOpen, setAssetPanelOpen] = useState(false);
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
   const [diffResult, setDiffResult] = useState<DiffResult | null>(null);
@@ -121,6 +126,12 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
       icon: <Users size={28} className="text-amber-500" />,
       title: 'Capacity & Resources',
       description: 'See how many initiatives each resource is assigned to across the portfolio.',
+    },
+    {
+      slug: 'maturity-heatmap',
+      icon: <Grid size={28} className="text-rose-500" />,
+      title: 'Maturity Heatmap',
+      description: 'View all IT assets arranged by capability group and coloured by their maturity level.',
     },
   ];
 
@@ -387,6 +398,42 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
             </div>
           )}
         </div>
+      </div>
+    );
+  }
+
+  // ── Maturity Heatmap ─────────────────────────────────────────────────────────
+  if (selectedReport === 'maturity-heatmap') {
+    const handleTileClick = (asset: Asset) => {
+      setSelectedAsset(asset);
+      setAssetPanelOpen(true);
+    };
+    const handleAssetSave = (updatedAsset: Asset) => {
+      onSaveAsset?.(updatedAsset);
+      setAssetPanelOpen(false);
+      setSelectedAsset(null);
+    };
+    const handleAssetPanelClose = () => {
+      setAssetPanelOpen(false);
+      setSelectedAsset(null);
+    };
+    return (
+      <div className="h-full overflow-y-auto p-6 bg-slate-50">
+        <div className="max-w-5xl mx-auto">
+          <BackButton onBack={() => setSelectedReport(null)} />
+          <MaturityHeatmap
+            assets={assets}
+            assetCategories={assetCategories}
+            onTileClick={handleTileClick}
+          />
+        </div>
+        <AssetPanel
+          asset={selectedAsset}
+          assetCategories={assetCategories}
+          isOpen={assetPanelOpen}
+          onClose={handleAssetPanelClose}
+          onSave={handleAssetSave}
+        />
       </div>
     );
   }

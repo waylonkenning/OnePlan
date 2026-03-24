@@ -172,8 +172,16 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
   ];
 
   const assetColumns: Column<Asset>[] = [
-    { key: 'name', label: 'Asset Name', type: 'text', width: '50%' },
-    { key: 'categoryId', label: 'Category', type: 'select', options: categoryOptions, width: '50%' },
+    { key: 'name', label: 'Asset Name', type: 'text', width: '40%' },
+    { key: 'categoryId', label: 'Category', type: 'select', options: categoryOptions, width: '40%' },
+    { key: 'maturity', label: 'Maturity', type: 'select', options: [
+      { value: '', label: '— Unrated —' },
+      { value: '1', label: '1 – Emergent' },
+      { value: '2', label: '2 – Developing' },
+      { value: '3', label: '3 – Defined' },
+      { value: '4', label: '4 – Managed' },
+      { value: '5', label: '5 – Optimised' },
+    ], width: '20%' },
   ];
 
   const categoryColumns: Column<AssetCategory>[] = [

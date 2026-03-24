@@ -50,27 +50,27 @@ export const demoProgrammes: Programme[] = [
 
 export const demoAssets: Asset[] = [
     // Identity & Access Management
-    { id: 'a-ciam', name: 'Customer IAM (CIAM)', categoryId: 'cat-iam' },
-    { id: 'a-eiam', name: 'Employee IAM', categoryId: 'cat-iam' },
-    { id: 'a-pam', name: 'Privileged Access Mgmt', categoryId: 'cat-iam' },
+    { id: 'a-ciam', name: 'Customer IAM (CIAM)', categoryId: 'cat-iam', maturity: 5 },
+    { id: 'a-eiam', name: 'Employee IAM', categoryId: 'cat-iam', maturity: 3 },
+    { id: 'a-pam', name: 'Privileged Access Mgmt', categoryId: 'cat-iam', maturity: 1 },
     // Data Platform
-    { id: 'a-lake', name: 'Enterprise Data Lake', categoryId: 'cat-data' },
-    { id: 'a-dwh', name: 'Data Warehouse', categoryId: 'cat-data' },
+    { id: 'a-lake', name: 'Enterprise Data Lake', categoryId: 'cat-data', maturity: 3 },
+    { id: 'a-dwh', name: 'Data Warehouse', categoryId: 'cat-data', maturity: 4 },
     { id: 'a-mdm', name: 'Master Data Mgmt', categoryId: 'cat-data' },
     // Customer Channels
-    { id: 'a-web', name: 'Internet Banking', categoryId: 'cat-channel' },
-    { id: 'a-mobile', name: 'Mobile Banking App', categoryId: 'cat-channel' },
-    { id: 'a-cc', name: 'Contact Centre Platform', categoryId: 'cat-channel' },
+    { id: 'a-web', name: 'Internet Banking', categoryId: 'cat-channel', maturity: 4 },
+    { id: 'a-mobile', name: 'Mobile Banking App', categoryId: 'cat-channel', maturity: 3 },
+    { id: 'a-cc', name: 'Contact Centre Platform', categoryId: 'cat-channel', maturity: 2 },
     // Core Banking
-    { id: 'a-core', name: 'Core Ledger', categoryId: 'cat-core' },
-    { id: 'a-pay', name: 'Payments Engine', categoryId: 'cat-core' },
-    { id: 'a-lend', name: 'Lending Platform', categoryId: 'cat-core' },
+    { id: 'a-core', name: 'Core Ledger', categoryId: 'cat-core', maturity: 2 },
+    { id: 'a-pay', name: 'Payments Engine', categoryId: 'cat-core', maturity: 3 },
+    { id: 'a-lend', name: 'Lending Platform', categoryId: 'cat-core', maturity: 2 },
     // Cloud Infrastructure
-    { id: 'a-k8s', name: 'Kubernetes Platform', categoryId: 'cat-cloud' },
-    { id: 'a-obs', name: 'Observability Stack', categoryId: 'cat-cloud' },
+    { id: 'a-k8s', name: 'Kubernetes Platform', categoryId: 'cat-cloud', maturity: 4 },
+    { id: 'a-obs', name: 'Observability Stack', categoryId: 'cat-cloud', maturity: 3 },
     // Integration & APIs
-    { id: 'a-apigw', name: 'API Gateway', categoryId: 'cat-int' },
-    { id: 'a-esb', name: 'Enterprise Service Bus', categoryId: 'cat-int' },
+    { id: 'a-apigw', name: 'API Gateway', categoryId: 'cat-int', maturity: 4 },
+    { id: 'a-esb', name: 'Enterprise Service Bus', categoryId: 'cat-int', maturity: 1 },
 ];
 
 export const demoApplications: Application[] = [
