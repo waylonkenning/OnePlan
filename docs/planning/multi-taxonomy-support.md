@@ -304,4 +304,4 @@ Each step is independently testable and releasable.
 
 ---
 
-*Source: GEANZ Technologies Model © Crown copyright, CC BY 4.0 (catalogue.data.govt.nz). NZ Digital Target State © Crown copyright, GCDO February 2026 (dns.govt.nz).*
+*Source: GEANZ Technologies Model © Crown copyright, CC BY 4.0 (catalogue.data.govt.nz). NZ Digital Target State © Crown copyright, CC BY 4.0, GCDO February 2026 (dns.govt.nz).*

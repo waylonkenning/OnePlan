@@ -1594,6 +1594,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                         <span className="text-[10px] font-medium text-slate-400 tracking-normal normal-case">
                           ({categoryAssets.length} asset{categoryAssets.length !== 1 ? 's' : ''})
                         </span>
+                        {catId.startsWith('cat-dts-') && (
+                          <span className="text-[9px] font-normal text-slate-300 normal-case tracking-normal">© Crown copyright, CC BY 4.0</span>
+                        )}
                       </button>
                     </div>
                     <div className="flex-shrink-0" style={{ width: totalWidth }} />
