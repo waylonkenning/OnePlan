@@ -2,7 +2,8 @@
  * NZ Government Digital Target State (DTS) — asset categories and canonical assets.
  * Source: GCDO, February 2026 (dns.govt.nz)
  *
- * © Crown copyright. NZ Government Digital Target State.
+ * © Crown copyright. Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+ * https://creativecommons.org/licenses/by/4.0/
  */
 
 import { AssetCategory, Asset } from '../types';
