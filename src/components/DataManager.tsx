@@ -149,8 +149,19 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
   const initiativeOptions = data.initiatives.map(i => ({ value: i.id, label: i.name }));
   const categoryOptions = data.assetCategories.map(c => ({ value: c.id, label: c.name }));
 
+  const hasDtsAssets = data.assets.some(a => a.alias?.startsWith('DTS.'));
+
+  const DTS_PHASE_OPTIONS = [
+    { value: '', label: '— Not Set —' },
+    { value: 'phase-1', label: 'Phase 1 — Register & Expose' },
+    { value: 'phase-2', label: 'Phase 2 — Integrate DPI' },
+    { value: 'phase-3', label: 'Phase 3 — AI & Legacy Exit' },
+    { value: 'back-office', label: 'Back-Office Consolidation' },
+    { value: 'not-dts', label: 'Not DTS' },
+  ];
+
   const initiativeColumns: Column<Initiative>[] = [
-    { key: 'name', label: 'Initiative Name', type: 'text', width: '18%' },
+    { key: 'name', label: 'Initiative Name', type: 'text', width: hasDtsAssets ? '16%' : '18%' },
     { key: 'assetId', label: 'Asset', type: 'select', options: assetOptions, width: '12%' },
     { key: 'programmeId', label: 'Programme', type: 'select', options: programmeOptions, width: '10%' },
     { key: 'strategyId', label: 'Strategy', type: 'select', options: strategyOptions, width: '10%' },
@@ -166,9 +177,15 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
     { key: 'progress', label: 'Progress (%)', type: 'number', width: '6%' },
     { key: 'owner', label: 'Owner', type: 'text', width: '8%' },
     { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '5%' },
+    ...(hasDtsAssets ? [{
+      key: 'dtsPhase' as keyof Initiative,
+      label: 'DTS Phase',
+      type: 'select' as const,
+      cellTestId: 'dts-phase-cell',
+      options: DTS_PHASE_OPTIONS,
+      width: '10%',
+    }] : []),
   ];
-
-  const hasDtsAssets = data.assets.some(a => a.alias?.startsWith('DTS.'));
 
   const assetColumns: Column<Asset>[] = [
     { key: 'name', label: 'Asset Name', type: 'text', width: hasDtsAssets ? '30%' : '40%' },

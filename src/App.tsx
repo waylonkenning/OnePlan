@@ -753,7 +753,7 @@ export default function App() {
           const hasDtsAssets = assets.some(a => a.alias?.startsWith('DTS.'));
           const dtsAdoptionOn = timelineSettings.showDtsAdoptionStatus === 'on';
           const colorLabel = colorBy === 'programme' ? 'Programme' : colorBy === 'strategy' ? 'Strategy' : 'Status';
-          const groupLabel = groupBy === 'asset' ? 'Asset' : groupBy === 'programme' ? 'Programme' : 'Strategy';
+          const groupLabel = groupBy === 'asset' ? 'Asset' : groupBy === 'programme' ? 'Programme' : groupBy === 'dts-phase' ? 'DTS Phase' : 'Strategy';
           const displayLabel = display === 'initiatives' ? 'Initiatives' : display === 'applications' ? 'Applications' : 'Both';
           return (
             <div className="relative shrink-0" ref={viewOptionsPanelRef}>
@@ -844,6 +844,17 @@ export default function App() {
                       <Target size={13} />
                       Strategy
                     </button>
+                    {hasDtsAssets && (
+                      <button
+                        data-testid="group-by-dts-phase"
+                        aria-pressed={groupBy === 'dts-phase'}
+                        onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'dts-phase' })}
+                        className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", groupBy === 'dts-phase' ? "bg-slate-100 text-slate-800" : "text-slate-600 hover:bg-slate-50")}
+                      >
+                        <Boxes size={13} />
+                        DTS Phase
+                      </button>
+                    )}
                   </div>
 
                   {/* Show */}

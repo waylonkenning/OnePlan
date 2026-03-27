@@ -7,7 +7,7 @@
 
 import { Asset, AssetCategory, Initiative, Milestone, ApplicationSegment, Programme, Strategy, Dependency, Resource, ApplicationStatus, TimelineSettings, Application } from '../types';
 import { DTS_CATEGORIES, DTS_ASSETS } from './dtsCatalogue';
-import { dtsDemoInitiatives, dtsDemoMilestones, dtsDemoApplicationSegments, dtsDemoProgrammes, dtsDemoStrategies, dtsDemoAdoptionStatuses } from './dtsDemoData';
+import { dtsDemoInitiatives, dtsDemoMilestones, dtsDemoApplicationSegments, dtsDemoProgrammes, dtsDemoStrategies, dtsDemoAdoptionStatuses, dtsDemoInitiativePhases } from './dtsDemoData';
 import {
   demoAssets,
   demoInitiatives,
@@ -87,7 +87,7 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         assets: withDemoData
           ? DTS_ASSETS.map(a => ({ ...a, dtsAdoptionStatus: dtsDemoAdoptionStatuses[a.id] }))
           : DTS_ASSETS,
-        initiatives: withDemoData ? dtsDemoInitiatives : [],
+        initiatives: withDemoData ? dtsDemoInitiatives.map(i => ({ ...i, dtsPhase: dtsDemoInitiativePhases[i.id] })) : [],
         milestones: withDemoData ? dtsDemoMilestones : [],
         applicationSegments: withDemoData ? dtsDemoApplicationSegments : [],
         programmes: dtsDemoProgrammes,
@@ -105,7 +105,7 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         assets: withDemoData
           ? DTS_ASSETS.map(a => ({ ...a, dtsAdoptionStatus: dtsDemoAdoptionStatuses[a.id] }))
           : DTS_ASSETS,
-        initiatives: withDemoData ? dtsDemoInitiatives : [],
+        initiatives: withDemoData ? dtsDemoInitiatives.map(i => ({ ...i, dtsPhase: dtsDemoInitiativePhases[i.id] })) : [],
         milestones: withDemoData ? dtsDemoMilestones : [],
         applicationSegments: withDemoData ? dtsDemoApplicationSegments : [],
         programmes: dtsDemoProgrammes,

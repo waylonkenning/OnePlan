@@ -71,6 +71,7 @@ export interface Initiative {
   owner?: string;    // Legacy free-text owner (used as fallback when ownerId is absent)
   ownerId?: string;  // ID of a Resource record
   resourceIds?: string[]; // IDs of additionally assigned resources
+  dtsPhase?: DtsPhase;   // Only relevant for DTS workspaces
 }
 
 /**
@@ -103,6 +104,13 @@ export type DtsAdoptionStatus =
   | 'adopted'
   | 'decommissioning'
   | 'not-applicable';
+
+export type DtsPhase =
+  | 'phase-1'
+  | 'phase-2'
+  | 'phase-3'
+  | 'back-office'
+  | 'not-dts';
 
 /**
  * Represents a specific system, team, or resource area.
@@ -171,7 +179,7 @@ export interface TimelineSettings {
   columnZoom?: number; // Multiplier for minimum column width (0.5–3.0, default 1.0)
   mobileBucketMode?: 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy';
   criticalPath?: 'on' | 'off';
-  groupBy?: 'asset' | 'programme' | 'strategy';
+  groupBy?: 'asset' | 'programme' | 'strategy' | 'dts-phase';
   colorBy?: 'programme' | 'strategy' | 'status';
   showResources?: 'on' | 'off';
   display?: 'both' | 'initiatives' | 'applications';
