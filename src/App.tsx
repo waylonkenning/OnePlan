@@ -518,6 +518,7 @@ export default function App() {
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
           <input
             type="search"
+            data-testid="search-input"
             placeholder="Search initiatives..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -1144,7 +1145,7 @@ export default function App() {
             searchQuery={searchQuery}
           />
         ) : view === 'reports' ? (
-          <ReportsView assets={assets} initiatives={initiatives} milestones={milestones} dependencies={dependencies} currentData={getCurrentState()} programmes={programmes} strategies={strategies} assetCategories={assetCategories} resources={resources} onSaveAsset={handleUpdateAsset} />
+          <ReportsView assets={assets} initiatives={initiatives} milestones={milestones} dependencies={dependencies} currentData={getCurrentState()} programmes={programmes} strategies={strategies} assetCategories={assetCategories} resources={resources} onSaveAsset={handleUpdateAsset} onNavigateToAsset={(assetId, assetName) => { setView('visualiser'); setSearchQuery(assetName); }} />
         ) : (
           <HelpView />
         )}
