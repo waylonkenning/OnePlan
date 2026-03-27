@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Initiative, Asset, Application, Programme, Strategy, Dependency, Resource } from '../types';
+import { Initiative, Asset, Application, Programme, Strategy, Dependency, Resource, DtsPhase } from '../types';
 import { X, Save, Trash2 } from 'lucide-react';
 import { validateInitiative, ValidationErrors } from '../lib/validation';
 import { ConfirmModal } from './ConfirmModal';
@@ -18,9 +18,10 @@ interface InitiativePanelProps {
     onSave: (initiative: Initiative) => void;
     onDelete?: (initiative: Initiative) => void;
     isOpen: boolean;
+    hasDtsAssets?: boolean;
 }
 
-export function InitiativePanel({ initiative, assets, applications = [], programmes, strategies, dependencies = [], initiatives = [], resources = [], onClose, onSave, onDelete, isOpen }: InitiativePanelProps) {
+export function InitiativePanel({ initiative, assets, applications = [], programmes, strategies, dependencies = [], initiatives = [], resources = [], onClose, onSave, onDelete, isOpen, hasDtsAssets = false }: InitiativePanelProps) {
     const [formData, setFormData] = useState<Initiative | null>(null);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -343,6 +344,28 @@ export function InitiativePanel({ initiative, assets, applications = [], program
                                 Is Placeholder (No initiative)
                             </label>
                         </div>
+
+                        {hasDtsAssets && (
+                            <div>
+                                <label htmlFor="dtsPhase" className="block text-sm font-medium text-slate-700 mb-1">
+                                    DTS Phase
+                                </label>
+                                <select
+                                    id="dtsPhase"
+                                    data-testid="initiative-panel-dts-phase"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+                                    value={formData.dtsPhase || ''}
+                                    onChange={(e) => setFormData({ ...formData, dtsPhase: (e.target.value as DtsPhase) || undefined })}
+                                >
+                                    <option value="">— Not Set —</option>
+                                    <option value="phase-1">Phase 1 — Register &amp; Expose</option>
+                                    <option value="phase-2">Phase 2 — Integrate DPI</option>
+                                    <option value="phase-3">Phase 3 — AI &amp; Legacy Exit</option>
+                                    <option value="back-office">Back-Office Consolidation</option>
+                                    <option value="not-dts">Not DTS</option>
+                                </select>
+                            </div>
+                        )}
 
                         {(() => {
                             const related = dependencies.filter(

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Asset, Initiative, Dependency, Milestone, Version, Programme, Strategy, AssetCategory, Resource, DtsAdoptionStatus } from '../types';
+import { Asset, Initiative, Dependency, Milestone, Version, Programme, Strategy, AssetCategory, Resource, DtsAdoptionStatus, DtsPhase } from '../types';
 import { getAllVersions } from '../lib/db';
 import { computeDiff, DiffResult } from '../lib/diff';
 import { History, DollarSign, GitBranch, Users, ChevronLeft, Grid, Download } from 'lucide-react';
@@ -346,6 +346,20 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
       })
       .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
 
+    const DTS_PHASE_DEFS: { id: DtsPhase; name: string }[] = [
+      { id: 'phase-1',     name: 'Phase 1 — Register & Expose' },
+      { id: 'phase-2',     name: 'Phase 2 — Integrate DPI' },
+      { id: 'phase-3',     name: 'Phase 3 — AI & Legacy Exit' },
+      { id: 'back-office', name: 'Back-Office Consolidation' },
+      { id: 'not-dts',     name: 'Not DTS' },
+    ];
+
+    const byDtsPhase = hasDtsAssets
+      ? DTS_PHASE_DEFS
+          .map(p => ({ id: p.id, name: p.name, total: realInitiatives.filter(i => i.dtsPhase === p.id).reduce((s, i) => s + (i.budget || 0), 0) }))
+          .filter(r => r.total > 0)
+      : [];
+
     return (
       <div data-testid="report-view-budget" className="h-full overflow-y-auto p-6 bg-slate-50">
         <div className="max-w-3xl mx-auto">
@@ -359,6 +373,9 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
               <BudgetSection testId="budget-by-programme" title="By Programme" rows={byProgramme} max={byProgramme[0]?.total ?? 0} />
               <BudgetSection testId="budget-by-strategy" title="By Strategy" rows={byStrategy} max={byStrategy[0]?.total ?? 0} />
               <BudgetSection testId="budget-by-category" title="By Category" rows={byCategory} max={byCategory[0]?.total ?? 0} />
+              {hasDtsAssets && byDtsPhase.length > 0 && (
+                <BudgetSection testId="budget-by-dts-phase" title="By DTS Phase" rows={byDtsPhase} max={byDtsPhase[0]?.total ?? 0} />
+              )}
             </div>
           </div>
         </div>

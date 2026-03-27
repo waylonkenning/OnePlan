@@ -1121,6 +1121,15 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const isCurrentTimeVisible = currentPos >= 0 && currentPos <= 100;
   const groupBy = settings.groupBy || 'asset';
   const display = settings.display || 'both';
+  const hasDtsAssets = assets.some(a => a.alias?.startsWith('DTS.'));
+
+  const DTS_PHASE_GROUPS = [
+    { id: 'phase-1', name: 'Phase 1 — Register & Expose' },
+    { id: 'phase-2', name: 'Phase 2 — Integrate DPI' },
+    { id: 'phase-3', name: 'Phase 3 — AI & Legacy Exit' },
+    { id: 'back-office', name: 'Back-Office Consolidation' },
+    { id: 'not-dts', name: 'Not DTS' },
+  ];
 
   if (timeColumns.length === 0) return null;
 
@@ -1134,7 +1143,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         <div className="relative w-max min-w-full">
           <div className="flex sticky top-0 z-40 bg-white shadow-sm border-b border-slate-200">
             <div className="sticky left-0 flex-shrink-0 p-4 font-bold text-slate-700 border-r border-slate-200 bg-slate-50 z-50 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]" style={{ width: SIDEBAR_WIDTH }}>
-              {groupBy === 'programme' ? 'Programme' : groupBy === 'strategy' ? 'Strategy' : 'Asset'}
+              {groupBy === 'programme' ? 'Programme' : groupBy === 'strategy' ? 'Strategy' : groupBy === 'dts-phase' ? 'DTS Phase' : 'Asset'}
             </div>
             <div className="flex" style={{ width: totalWidth }}>
               {timeColumns.map((col, idx) => (
@@ -1442,7 +1451,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             )}
 
             {/* Swimlane view: group by Programme or Strategy */}
-            {groupBy !== 'asset' && (groupBy === 'programme' ? programmes : strategies).map(group => {
+            {(groupBy === 'programme' || groupBy === 'strategy') && (groupBy === 'programme' ? programmes : strategies).map(group => {
               const groupInits = localInitiatives.filter(i =>
                 (groupBy === 'programme' ? i.programmeId === group.id : i.strategyId === group.id) && !i.isPlaceholder
               );
@@ -1538,6 +1547,60 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 );
                               })()}
                             </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Swimlane view: group by DTS Phase */}
+            {groupBy === 'dts-phase' && DTS_PHASE_GROUPS.map(group => {
+              const groupInits = localInitiatives.filter(i => i.dtsPhase === group.id && !i.isPlaceholder);
+              if (groupInits.length === 0) return null;
+              const { items: swimlaneItems, height: swimlaneHeight } = layoutAsset(groupInits);
+              return (
+                <div key={group.id} data-testid={`swimlane-row-dts-phase-${group.id}`}>
+                  <div className="flex z-30 bg-slate-100 border-y border-slate-200 w-max">
+                    <div className="sticky left-0 flex-shrink-0 px-4 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-100 z-40 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]" style={{ width: SIDEBAR_WIDTH }}>
+                      {group.name}
+                      <span className="ml-2 text-[10px] font-medium tracking-normal normal-case text-slate-400">({groupInits.length})</span>
+                    </div>
+                    <div className="flex-shrink-0" style={{ width: totalWidth }} />
+                  </div>
+                  <div className="flex border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                    <div className="sticky left-0 flex-shrink-0 bg-white border-r border-slate-200 px-3 flex items-center z-20 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)]" style={{ width: SIDEBAR_WIDTH, height: swimlaneHeight }}>
+                      <span className="text-xs text-slate-400 truncate">{groupInits.length} initiative{groupInits.length !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="relative bg-white" style={{ width: totalWidth, height: swimlaneHeight }}>
+                      {isCurrentTimeVisible && (
+                        <div className="absolute top-0 bottom-0 w-0.5 bg-emerald-400/80 z-10 pointer-events-none" style={{ left: `${currentPos}%` }} />
+                      )}
+                      {swimlaneItems.map(({ init, top, height: barH, left, width: barW }: any) => {
+                        if (left + barW < 0 || left > 100) return null;
+                        const prog = programmes.find(p => p.id === init.programmeId);
+                        const strat = strategies.find(s => s.id === init.strategyId);
+                        const colorClass = colorBy === 'status'
+                          ? (STATUS_COLORS[init.status || 'planned'])
+                          : colorBy === 'programme'
+                          ? (prog?.color || 'bg-slate-500')
+                          : (strat?.color || 'bg-slate-400');
+                        return (
+                          <div
+                            key={init.id}
+                            data-initiative-id={init.id}
+                            data-testid="initiative-bar"
+                            onClick={() => setSelectedInitiativeId(init.id)}
+                            onDoubleClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
+                            className={cn(
+                              "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
+                              cn(colorClass, "text-white border-white/20"),
+                            )}
+                            style={{ left: `${left}%`, width: `${barW}%`, height: barH, top }}
+                          >
+                            <div className="font-bold text-[11px] leading-tight line-clamp-2 drop-shadow-md">{init.name}</div>
                           </div>
                         );
                       })}
@@ -2367,6 +2430,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         dependencies={dependencies}
         initiatives={initiatives}
         resources={resources}
+        hasDtsAssets={hasDtsAssets}
         onSave={(initiative) => {
           if (initiativePanelId) {
             if (onUpdateInitiative) onUpdateInitiative(initiative);

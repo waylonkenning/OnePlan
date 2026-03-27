@@ -10,7 +10,7 @@
  * © Crown copyright. Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
  */
 
-import { Initiative, Milestone, ApplicationSegment, Programme, Strategy, DtsAdoptionStatus } from '../types';
+import { Initiative, Milestone, ApplicationSegment, Programme, Strategy, DtsAdoptionStatus, DtsPhase } from '../types';
 
 function relDate(yearOffset: number, month: number, day: number): string {
   const year = new Date().getFullYear() + yearOffset;
@@ -432,6 +432,29 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     row: 1,
   },
 ];
+
+// ── Default DTS phases for demo initiatives ────────────────────────────────
+
+export const dtsDemoInitiativePhases: Record<string, DtsPhase> = {
+  // Phase 1 — Register & Expose
+  'dts-i-catalogue': 'phase-1',
+  'dts-i-rules':     'phase-1',
+  'dts-i-data-dict': 'phase-1',
+  'dts-i-api':       'phase-1',
+  // Phase 2 — Integrate DPI Capabilities
+  'dts-i-notify':    'phase-2',
+  'dts-i-cms':       'phase-2',
+  'dts-i-identity':  'phase-2',
+  'dts-i-payments':  'phase-2',
+  // Phase 3 — AI Adoption and Legacy Exit
+  'dts-i-safeguard':  'phase-3',
+  'dts-i-semantic':   'phase-3',
+  'dts-i-ai-routing': 'phase-3',
+  'dts-i-portal':     'phase-3',
+  // Back-Office Consolidation
+  'dts-i-itsm': 'back-office',
+  'dts-i-hris': 'back-office',
+};
 
 // ── Default DTS adoption statuses for demo data ────────────────────────────
 // Keyed by asset ID. Represents a mid-journey agency: Phase 1 assets active,
