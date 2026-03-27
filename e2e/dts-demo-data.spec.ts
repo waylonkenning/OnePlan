@@ -58,8 +58,8 @@ test.describe('DTS Template Demo Data', () => {
 
   test('AC4: specific named initiatives are visible', async ({ page }) => {
     await selectTemplate(page, 'dts');
-    await expect(page.getByText('Identity Platform Uplift').first()).toBeVisible();
-    await expect(page.getByText('API Gateway Implementation').first()).toBeVisible();
+    await expect(page.getByText('Service Rules Digitalisation').first()).toBeVisible();
+    await expect(page.getByText('Payment Flows Migration to AoG Platform').first()).toBeVisible();
   });
 
   test('AC5: DTS demo data also loads in Mixed template', async ({ page }) => {
@@ -67,6 +67,6 @@ test.describe('DTS Template Demo Data', () => {
     const bars = page.locator('[data-testid^="initiative-bar"]');
     const count = await bars.count();
     expect(count).toBeGreaterThanOrEqual(6);
-    await expect(page.getByText('Identity Platform Uplift').first()).toBeVisible();
+    await expect(page.getByText('Service Rules Digitalisation').first()).toBeVisible();
   });
 });
