@@ -1645,6 +1645,32 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                             </div>}
                             <div className="font-semibold text-slate-800 min-w-0 flex-1">{asset.name}</div>
+                            {settings.showDtsAdoptionStatus === 'on' && asset.alias?.startsWith('DTS.') && asset.dtsAdoptionStatus && (() => {
+                              const statusColors: Record<string, string> = {
+                                'not-started': 'bg-slate-200 text-slate-600',
+                                'scoping': 'bg-yellow-100 text-yellow-700',
+                                'in-delivery': 'bg-blue-100 text-blue-700',
+                                'adopted': 'bg-emerald-100 text-emerald-700',
+                                'decommissioning': 'bg-orange-100 text-orange-700',
+                                'not-applicable': 'bg-slate-100 text-slate-400',
+                              };
+                              const statusLabels: Record<string, string> = {
+                                'not-started': 'Not Started',
+                                'scoping': 'Scoping',
+                                'in-delivery': 'In Delivery',
+                                'adopted': 'Adopted',
+                                'decommissioning': 'Decommissioning',
+                                'not-applicable': 'N/A',
+                              };
+                              return (
+                                <span
+                                  data-testid={`dts-adoption-badge-${asset.id}`}
+                                  className={cn('flex-shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded-full', statusColors[asset.dtsAdoptionStatus] || 'bg-slate-100 text-slate-500')}
+                                >
+                                  {statusLabels[asset.dtsAdoptionStatus] || asset.dtsAdoptionStatus}
+                                </span>
+                              );
+                            })()}
                             {onDeleteAsset && (
                               <button
                                 data-testid="asset-swimlane-delete-btn"

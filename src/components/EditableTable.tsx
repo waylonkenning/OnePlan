@@ -29,6 +29,7 @@ export interface Column<T> {
   options?: Option[]; // For select type
   placeholder?: string;
   width?: string;
+  cellTestId?: string; // Optional data-testid applied to the <td> element
 }
 
 interface EditableTableProps<T> {
@@ -414,7 +415,7 @@ export function EditableTable<T extends { [key: string]: any }>({
               return (
                 <tr key={String(row[idField])} data-real="true" data-id={String(row[idField])} className="hover:bg-slate-50 group">
                   {columns.map((col) => (
-                    <td key={`${String(row[idField])}-${String(col.key)}`} data-key={String(col.key)} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
+                    <td key={`${String(row[idField])}-${String(col.key)}`} data-key={String(col.key)} data-testid={col.cellTestId} className="border-b border-r border-slate-100 last:border-r-0 p-0 relative">
                       {col.type === 'select' ? (
                         <select
                           value={String(row[col.key] || '')}

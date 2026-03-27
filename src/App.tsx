@@ -749,6 +749,8 @@ export default function App() {
           const colorBy = timelineSettings.colorBy || 'programme';
           const groupBy = timelineSettings.groupBy || 'asset';
           const display = timelineSettings.display || 'both';
+          const hasDtsAssets = assets.some(a => a.alias?.startsWith('DTS.'));
+          const dtsAdoptionOn = timelineSettings.showDtsAdoptionStatus === 'on';
           const colorLabel = colorBy === 'programme' ? 'Programme' : colorBy === 'strategy' ? 'Strategy' : 'Status';
           const groupLabel = groupBy === 'asset' ? 'Asset' : groupBy === 'programme' ? 'Programme' : 'Strategy';
           const displayLabel = display === 'initiatives' ? 'Initiatives' : display === 'applications' ? 'Applications' : 'Both';
@@ -874,6 +876,23 @@ export default function App() {
                       Applications
                     </button>
                   </div>
+
+                  {/* DTS adoption status toggle — only for DTS workspaces */}
+                  {hasDtsAssets && (
+                    <>
+                      <div className="border-t border-slate-100 my-3" />
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">DTS</p>
+                      <button
+                        data-testid="toggle-dts-adoption-status"
+                        data-active={dtsAdoptionOn ? 'true' : 'false'}
+                        onClick={() => handleUpdateSettings({ ...timelineSettings, showDtsAdoptionStatus: dtsAdoptionOn ? 'off' : 'on' })}
+                        className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all w-full text-left", dtsAdoptionOn ? "bg-indigo-50 text-indigo-600" : "text-slate-600 hover:bg-slate-50")}
+                      >
+                        <span className={cn("w-3 h-3 rounded-full border flex-shrink-0", dtsAdoptionOn ? "bg-indigo-500 border-indigo-500" : "border-slate-300")} />
+                        Adoption Status
+                      </button>
+                    </>
+                  )}
                 </div>
                 );
               })()}

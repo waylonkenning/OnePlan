@@ -10,7 +10,7 @@
  * © Crown copyright. Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
  */
 
-import { Initiative, Milestone, ApplicationSegment, Programme, Strategy } from '../types';
+import { Initiative, Milestone, ApplicationSegment, Programme, Strategy, DtsAdoptionStatus } from '../types';
 
 function relDate(yearOffset: number, month: number, day: number): string {
   const year = new Date().getFullYear() + yearOffset;
@@ -432,3 +432,37 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     row: 1,
   },
 ];
+
+// ── Default DTS adoption statuses for demo data ────────────────────────────
+// Keyed by asset ID. Represents a mid-journey agency: Phase 1 assets active,
+// Phase 2 in delivery, Phase 3/back-office not yet started.
+
+export const dtsDemoAdoptionStatuses: Record<string, DtsAdoptionStatus> = {
+  // Channels — already using AoG channels and agency channels
+  'dts-ch-01': 'in-delivery',
+  'dts-ch-02': 'adopted',
+  'dts-ch-03': 'not-applicable',
+
+  // Digital Public Infrastructure
+  'dts-dpi-01': 'in-delivery',   // Identity & Credential Services (RealMe+)
+  'dts-dpi-02': 'scoping',       // AI Platform Services
+  'dts-dpi-03': 'not-started',   // AI Broker / Gateway
+  'dts-dpi-04': 'in-delivery',   // Notifications & Messaging
+  'dts-dpi-05': 'in-delivery',   // Payments Management
+  'dts-dpi-06': 'scoping',       // Semantic Search
+  'dts-dpi-07': 'in-delivery',   // Data Dictionary
+  'dts-dpi-08': 'scoping',       // Data & AI Safeguard
+  'dts-dpi-09': 'in-delivery',   // Data & Services Catalogue
+  'dts-dpi-10': 'in-delivery',   // Rules Library
+  'dts-dpi-11': 'in-delivery',   // Headless CMS
+
+  // Integration
+  'dts-int-01': 'in-delivery',   // Data, API and AI Services Exchange
+
+  // Common Consolidated Platforms
+  'dts-plt-01': 'not-started',   // EAM
+  'dts-plt-02': 'in-delivery',   // ITSM
+  'dts-plt-03': 'in-delivery',   // HRIS
+  'dts-plt-04': 'not-started',   // FMIS
+  'dts-plt-05': 'not-started',   // Contracts Management
+};
