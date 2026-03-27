@@ -33,13 +33,19 @@ Choose the DTS template if your agency wants to:
 
 If you want the full GEANZ technology catalogue browsable alongside the DTS structure, choose **Mixed** instead of DTS. The Mixed template gives you the six DTS layers with the GEANZ catalogue section below.
 
+## Starting without demo data
+
+If you want the DTS structure but not the example initiatives and segments, select **Without demo data** when choosing the DTS template. You will get the six DTS layers and 20 pre-built assets ready to populate with your own work.
+
 ## Resetting or switching templates
 
-To switch to a different template:
+To switch to a different template at any time:
 
 1. Go to the **Data Manager** view.
-2. Scroll to the bottom of any tab and choose **Reset — delete all data**.
-3. This clears your workspace completely. Reload the page to see the template picker again.
+2. Scroll to the bottom of any tab and click **Clear data and start again**.
+3. The template picker reopens — choose a new template and select with or without demo data.
+
+> **Note:** This permanently replaces all your current data.
 
 ---
 

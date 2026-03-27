@@ -11,9 +11,14 @@ When you open Scenia for the first time, a **template picker** appears. Choose t
 | **Mixed** | Agencies who want the DTS architecture structure with the GEANZ catalogue available for detailed asset types. |
 | **Blank** | Agencies with their own internal taxonomy. Starts completely empty. |
 
-Your choice is saved to your browser. You can reset and choose again via **Data Manager → Reset**.
+![Template picker modal](../../public/features/template-picker-modal.png)
 
-![Tutorial modal](../../public/tutorial/1-overview.png)
+## With or without demo data
+
+For each template (except Blank) you can choose how to start:
+
+- **With demo data** — loads the template's asset categories and assets, plus a set of example initiatives, milestones, and application lifecycle segments. Use this to explore how Scenia works before adding your own data.
+- **Without demo data** — loads only the template's structural elements (asset categories and assets) with no initiatives, milestones, or segments. Use this when you are ready to start building your real portfolio from day one.
 
 ## After choosing a template
 
@@ -34,15 +39,22 @@ The demo data is safe to experiment with. You can:
 
 None of these changes affect other users — everything is stored only in your browser.
 
-## Resetting the data
+## Resetting or switching templates
 
-If you want to start fresh or restore the demo data after experimenting:
+If you want to start fresh, switch to a different template, or change whether you have demo data:
 
 1. Go to the **Data Manager** view (tab in the header).
-2. Scroll to the bottom of any tab, or look for the reset controls in the toolbar.
-3. Choose one of two options:
-   - **Reset — delete all data**: clears everything and gives you a blank portfolio.
-   - **Reset — use demo data**: restores the original CIAM demo portfolio.
+2. Scroll to the bottom of any tab and click **Clear data and start again**.
+
+![Clear data and start again button](../../public/features/data-manager-clear-and-start-again.png)
+
+3. The template picker reopens with a warning that your existing data will be replaced.
+
+![Template picker with data-loss warning](../../public/features/template-picker-reset-warning.png)
+
+4. Choose a template and select **With demo data** or **Without demo data** — or pick **Blank** to start empty.
+
+> **Note:** This action permanently replaces all your current data. There is no undo once you confirm a template selection.
 
 ## Reopening the tutorial
 

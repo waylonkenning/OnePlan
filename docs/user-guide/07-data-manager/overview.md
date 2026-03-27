@@ -22,6 +22,12 @@ Each tab shows a row count badge. All tabs are reachable without horizontal scro
 
 Use the Data Manager for bulk edits, importing data, and data cleanup. The timeline updates in real time as you make changes.
 
+## Resetting your workspace
+
+At the bottom of every tab there is a **Clear data and start again** button. Clicking it opens the template picker, where you can choose a new starting template — with or without demo data. This permanently replaces all current data.
+
+See [First Launch](../01-getting-started/first-launch.md#resetting-or-switching-templates) for full details.
+
 ---
 
 - Previous: [Legend](../06-display-settings/legend.md)
