@@ -63,7 +63,7 @@ test.describe('Workspace Templates', () => {
     await page.goto('/');
     await simulateFirstRun(page);
     await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
-    await page.getByTestId('template-select-btn-dts').click();
+    await page.getByTestId('template-select-with-demo-btn-dts').click();
     // DTS assets render as regular swimlanes
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     // A DTS category header should be visible
@@ -79,7 +79,7 @@ test.describe('Workspace Templates', () => {
     await page.goto('/');
     await simulateFirstRun(page);
     await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
-    await page.getByTestId('template-select-btn-geanz').click();
+    await page.getByTestId('template-select-with-demo-btn-geanz').click();
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     // GEANZ section must be visible
     await expect(page.getByTestId('geanz-section')).toBeVisible();
@@ -90,7 +90,7 @@ test.describe('Workspace Templates', () => {
     await page.goto('/');
     await simulateFirstRun(page);
     await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
-    await page.getByTestId('template-select-btn-mixed').click();
+    await page.getByTestId('template-select-with-demo-btn-mixed').click();
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     // DTS asset visible
     await expect(page.getByText('Identity & Credential Services').first()).toBeVisible();
@@ -103,7 +103,7 @@ test.describe('Workspace Templates', () => {
     await page.goto('/');
     await simulateFirstRun(page);
     await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
-    await page.getByTestId('template-select-btn-blank').click();
+    await page.getByTestId('template-start-blank-btn').click();
     // Modal dismissed
     await expect(page.getByTestId('template-picker-modal')).not.toBeVisible({ timeout: 10000 });
     // App nav is visible (app loaded)

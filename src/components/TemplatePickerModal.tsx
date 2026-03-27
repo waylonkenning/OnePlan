@@ -1,10 +1,11 @@
 import { WORKSPACE_TEMPLATES, TemplateId } from '../lib/workspaceTemplates';
 
 interface TemplatePickerModalProps {
-  onSelect: (templateId: TemplateId) => void;
+  onSelect: (templateId: TemplateId, withDemoData: boolean) => void;
+  isReset?: boolean;
 }
 
-export function TemplatePickerModal({ onSelect }: TemplatePickerModalProps) {
+export function TemplatePickerModal({ onSelect, isReset = false }: TemplatePickerModalProps) {
   return (
     <div
       className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
@@ -12,9 +13,13 @@ export function TemplatePickerModal({ onSelect }: TemplatePickerModalProps) {
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col animate-in zoom-in-95 duration-150">
         <div className="p-6 border-b border-slate-100">
-          <h2 className="text-xl font-bold text-slate-900">Welcome to Scenia</h2>
+          <h2 className="text-xl font-bold text-slate-900">
+            {isReset ? 'Clear data and start again' : 'Welcome to Scenia'}
+          </h2>
           <p className="text-sm text-slate-500 mt-1">
-            Choose a starting template for your IT portfolio
+            {isReset
+              ? 'Choose a template below. This will permanently replace all your current data.'
+              : 'Choose a starting template for your IT portfolio'}
           </p>
         </div>
 
@@ -28,13 +33,33 @@ export function TemplatePickerModal({ onSelect }: TemplatePickerModalProps) {
               <h3 className="font-semibold text-slate-800 text-sm">{template.name}</h3>
               <p className="text-sm text-slate-500 flex-1 leading-relaxed">{template.description}</p>
               <p className="text-xs text-indigo-500 font-medium">{template.tagline}</p>
-              <button
-                data-testid={`template-select-btn-${template.id}`}
-                onClick={() => onSelect(template.id)}
-                className="mt-2 px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
-              >
-                Start with this template
-              </button>
+
+              {template.id === 'blank' ? (
+                <button
+                  data-testid="template-start-blank-btn"
+                  onClick={() => onSelect(template.id, false)}
+                  className="mt-2 px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                >
+                  Start blank
+                </button>
+              ) : (
+                <div className="mt-2 flex flex-col gap-2">
+                  <button
+                    data-testid={`template-select-with-demo-btn-${template.id}`}
+                    onClick={() => onSelect(template.id, true)}
+                    className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                  >
+                    With demo data
+                  </button>
+                  <button
+                    data-testid={`template-select-no-demo-btn-${template.id}`}
+                    onClick={() => onSelect(template.id, false)}
+                    className="px-4 py-2 text-sm font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 rounded-lg transition-colors"
+                  >
+                    Without demo data
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

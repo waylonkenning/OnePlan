@@ -2,12 +2,8 @@ import React, { useState } from 'react';
 import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
-import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree, Trash2, RotateCcw, Users, Box } from 'lucide-react';
+import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree, LayoutTemplate, Users, Box } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
-import {
-  demoAssets, demoApplications, demoApplicationSegments, demoInitiatives, demoMilestones, demoProgrammes, demoStrategies,
-  demoDependencies, demoAssetCategories, demoTimelineSettings, demoResources, demoApplicationStatuses
-} from '../demoData';
 
 interface DataManagerProps {
   data: {
@@ -38,12 +34,13 @@ interface DataManagerProps {
     resources: Resource[];
     applicationStatuses: ApplicationStatus[];
   }) => void;
+  onOpenTemplatePicker: () => void;
   searchQuery?: string;
 }
 
 type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'programmes' | 'strategies' | 'milestones' | 'resources' | 'applications' | 'appStatuses';
 
-export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
+export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery }: DataManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>('initiatives');
   const [pendingConfirm, setPendingConfirm] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
 
@@ -425,26 +422,12 @@ export function DataManager({ data, onUpdate, searchQuery }: DataManagerProps) {
 
       <div className="flex items-center gap-3 mt-3 pt-3 border-t border-slate-200">
         <button
-          onClick={() => confirm(
-            'Reset — delete all data',
-            'This will permanently delete ALL data across every table (Initiatives, Assets, Programmes, etc.). This cannot be undone.',
-            () => onUpdate({ ...data, assets: [], applications: [], applicationStatuses: [], initiatives: [], milestones: [], programmes: [], strategies: [], dependencies: [], assetCategories: [], resources: [] }),
-          )}
-          className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-all shadow-sm font-medium text-sm"
+          data-testid="clear-and-start-again-btn"
+          onClick={onOpenTemplatePicker}
+          className="flex items-center gap-2 px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm font-medium text-sm"
         >
-          <Trash2 size={16} />
-          Reset - delete all data
-        </button>
-        <button
-          onClick={() => confirm(
-            'Reset — use demo data',
-            'This will replace ALL current data with the demo dataset. Your existing data will be lost.',
-            () => onUpdate({ assets: demoAssets, applications: demoApplications, applicationSegments: demoApplicationSegments, initiatives: demoInitiatives, milestones: demoMilestones, programmes: demoProgrammes, strategies: demoStrategies, dependencies: demoDependencies, assetCategories: demoAssetCategories, timelineSettings: demoTimelineSettings, resources: demoResources, applicationStatuses: demoApplicationStatuses }),
-          )}
-          className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all shadow-sm font-medium text-sm"
-        >
-          <RotateCcw size={16} />
-          Reset - use demo data
+          <LayoutTemplate size={16} />
+          Clear data and start again
         </button>
       </div>
       <ConfirmModal

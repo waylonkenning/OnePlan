@@ -64,6 +64,7 @@ export default function App() {
     !localStorage.getItem('scenia_has_seen_landing') && !localStorage.getItem('scenia-e2e')
   );
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [templatePickerIsReset, setTemplatePickerIsReset] = useState(false);
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
@@ -192,8 +193,8 @@ export default function App() {
     loadData();
   }, []);
 
-  const handleSelectTemplate = useCallback(async (templateId: TemplateId) => {
-    const data = getTemplateData(templateId);
+  const handleSelectTemplate = useCallback(async (templateId: TemplateId, withDemoData: boolean) => {
+    const data = getTemplateData(templateId, withDemoData);
     await saveAppData(data);
     setAssets(data.assets);
     setApplications(data.applications);
@@ -208,6 +209,10 @@ export default function App() {
     setResources(data.resources);
     setApplicationStatuses(data.applicationStatuses);
     setShowTemplatePicker(false);
+    setTemplatePickerIsReset(false);
+    if (!data.timelineSettings.hasSeenTutorial && !localStorage.getItem('scenia-e2e')) {
+      setShowTutorial(true);
+    }
   }, []);
 
   const handleUpdate = useCallback(async (data: AppState, skipHistory = false) => {
@@ -1116,6 +1121,7 @@ export default function App() {
           <DataManager
             data={{ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, applicationStatuses }}
             onUpdate={handleUpdate}
+            onOpenTemplatePicker={() => { setTemplatePickerIsReset(true); setShowTemplatePicker(true); }}
             searchQuery={searchQuery}
           />
         ) : view === 'reports' ? (
@@ -1153,7 +1159,7 @@ export default function App() {
       <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
       {showTemplatePicker && !showLandingPage && (
-        <TemplatePickerModal onSelect={handleSelectTemplate} />
+        <TemplatePickerModal onSelect={handleSelectTemplate} isReset={templatePickerIsReset} />
       )}
 
       {showTutorial && (

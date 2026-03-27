@@ -74,7 +74,7 @@ export interface TemplateAppData {
   timelineSettings: TimelineSettings;
 }
 
-export function getTemplateData(templateId: TemplateId | string): TemplateAppData {
+export function getTemplateData(templateId: TemplateId | string, withDemoData = true): TemplateAppData {
   const baseSettings: TimelineSettings = {
     ...demoTimelineSettings,
     templateId,
@@ -85,13 +85,13 @@ export function getTemplateData(templateId: TemplateId | string): TemplateAppDat
       return {
         assetCategories: DTS_CATEGORIES,
         assets: DTS_ASSETS,
-        initiatives: dtsDemoInitiatives,
-        milestones: dtsDemoMilestones,
-        applicationSegments: dtsDemoApplicationSegments,
+        initiatives: withDemoData ? dtsDemoInitiatives : [],
+        milestones: withDemoData ? dtsDemoMilestones : [],
+        applicationSegments: withDemoData ? dtsDemoApplicationSegments : [],
         programmes: demoProgrammes,
         strategies: demoStrategies,
         dependencies: [],
-        resources: demoResources,
+        resources: withDemoData ? demoResources : [],
         applications: [],
         applicationStatuses: demoApplicationStatuses,
         timelineSettings: { ...baseSettings, showGeanzCatalogue: false },
@@ -101,13 +101,13 @@ export function getTemplateData(templateId: TemplateId | string): TemplateAppDat
       return {
         assetCategories: DTS_CATEGORIES,
         assets: DTS_ASSETS,
-        initiatives: dtsDemoInitiatives,
-        milestones: dtsDemoMilestones,
-        applicationSegments: dtsDemoApplicationSegments,
+        initiatives: withDemoData ? dtsDemoInitiatives : [],
+        milestones: withDemoData ? dtsDemoMilestones : [],
+        applicationSegments: withDemoData ? dtsDemoApplicationSegments : [],
         programmes: demoProgrammes,
         strategies: demoStrategies,
         dependencies: [],
-        resources: demoResources,
+        resources: withDemoData ? demoResources : [],
         applications: [],
         applicationStatuses: demoApplicationStatuses,
         timelineSettings: { ...baseSettings, showGeanzCatalogue: true },
@@ -134,14 +134,14 @@ export function getTemplateData(templateId: TemplateId | string): TemplateAppDat
       return {
         assetCategories: demoAssetCategories,
         assets: demoAssets,
-        initiatives: demoInitiatives,
-        milestones: demoMilestones,
-        applicationSegments: demoApplicationSegments,
+        initiatives: withDemoData ? demoInitiatives : [],
+        milestones: withDemoData ? demoMilestones : [],
+        applicationSegments: withDemoData ? demoApplicationSegments : [],
         programmes: demoProgrammes,
         strategies: demoStrategies,
-        dependencies: demoDependencies,
-        resources: demoResources,
-        applications: demoApplications,
+        dependencies: withDemoData ? demoDependencies : [],
+        resources: withDemoData ? demoResources : [],
+        applications: withDemoData ? demoApplications : [],
         applicationStatuses: demoApplicationStatuses,
         timelineSettings: { ...baseSettings, showGeanzCatalogue: true },
       };

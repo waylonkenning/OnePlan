@@ -50,27 +50,23 @@ test.describe('In-app ConfirmModal — no browser dialogs', () => {
     await expect(rows).toHaveCount(1);
   });
 
-  test('DataManager Reset — delete all data shows confirm modal', async ({ page }) => {
+  test('DataManager "Clear data and start again" opens template picker and blank clears all data', async ({ page }) => {
     await openDataManager(page);
-    await page.getByRole('button', { name: 'Reset - delete all data' }).click();
-    await expect(page.locator(CONFIRM_MODAL)).toBeVisible();
-    await page.locator(CONFIRM_BTN).click();
-    await expect(page.locator(CONFIRM_MODAL)).not.toBeVisible();
+    await page.getByTestId('clear-and-start-again-btn').click();
+    await expect(page.getByTestId('template-picker-modal')).toBeVisible();
+    await page.getByTestId('template-start-blank-btn').click();
+    await expect(page.getByTestId('template-picker-modal')).not.toBeVisible();
 
     const rows = page.locator('table tbody tr');
     await expect(rows).toHaveCount(1);
   });
 
-  test('DataManager Reset — use demo data shows confirm modal', async ({ page }) => {
+  test('DataManager "Clear data and start again" with GEANZ demo data populates tables', async ({ page }) => {
     await openDataManager(page);
-    // First clear everything so we can see it refill
-    await page.getByRole('button', { name: 'Reset - delete all data' }).click();
-    await page.locator(CONFIRM_BTN).click();
-
-    await page.getByRole('button', { name: 'Reset - use demo data' }).click();
-    await expect(page.locator(CONFIRM_MODAL)).toBeVisible();
-    await page.locator(CONFIRM_BTN).click();
-    await expect(page.locator(CONFIRM_MODAL)).not.toBeVisible();
+    await page.getByTestId('clear-and-start-again-btn').click();
+    await expect(page.getByTestId('template-picker-modal')).toBeVisible();
+    await page.getByTestId('template-select-with-demo-btn-geanz').click();
+    await expect(page.getByTestId('template-picker-modal')).not.toBeVisible();
 
     const rows = page.locator('table tbody tr');
     await expect(rows).toHaveCount(49); // 22 original + 26 GEANZ initiatives + 1 ghost row
