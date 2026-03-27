@@ -7,7 +7,7 @@
 
 import { Asset, AssetCategory, Initiative, Milestone, ApplicationSegment, Programme, Strategy, Dependency, Resource, ApplicationStatus, TimelineSettings, Application } from '../types';
 import { DTS_CATEGORIES, DTS_ASSETS } from './dtsCatalogue';
-import { dtsDemoInitiatives, dtsDemoMilestones, dtsDemoApplicationSegments, dtsDemoProgrammes, dtsDemoStrategies } from './dtsDemoData';
+import { dtsDemoInitiatives, dtsDemoMilestones, dtsDemoApplicationSegments, dtsDemoProgrammes, dtsDemoStrategies, dtsDemoAdoptionStatuses } from './dtsDemoData';
 import {
   demoAssets,
   demoInitiatives,
@@ -84,7 +84,9 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
     case 'dts':
       return {
         assetCategories: DTS_CATEGORIES,
-        assets: DTS_ASSETS,
+        assets: withDemoData
+          ? DTS_ASSETS.map(a => ({ ...a, dtsAdoptionStatus: dtsDemoAdoptionStatuses[a.id] }))
+          : DTS_ASSETS,
         initiatives: withDemoData ? dtsDemoInitiatives : [],
         milestones: withDemoData ? dtsDemoMilestones : [],
         applicationSegments: withDemoData ? dtsDemoApplicationSegments : [],
@@ -100,7 +102,9 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
     case 'mixed':
       return {
         assetCategories: DTS_CATEGORIES,
-        assets: DTS_ASSETS,
+        assets: withDemoData
+          ? DTS_ASSETS.map(a => ({ ...a, dtsAdoptionStatus: dtsDemoAdoptionStatuses[a.id] }))
+          : DTS_ASSETS,
         initiatives: withDemoData ? dtsDemoInitiatives : [],
         milestones: withDemoData ? dtsDemoMilestones : [],
         applicationSegments: withDemoData ? dtsDemoApplicationSegments : [],

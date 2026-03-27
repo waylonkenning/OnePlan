@@ -96,6 +96,14 @@ export interface Milestone {
   type: 'info' | 'warning' | 'critical';
 }
 
+export type DtsAdoptionStatus =
+  | 'not-started'
+  | 'scoping'
+  | 'in-delivery'
+  | 'adopted'
+  | 'decommissioning'
+  | 'not-applicable';
+
 /**
  * Represents a specific system, team, or resource area.
  */
@@ -106,6 +114,7 @@ export interface Asset {
   maturity?: number; // 1–5: Emergent → Optimised. Omitted means unrated.
   alias?: string;      // GEANZ alias code, e.g. "TAP.16.01" — present only on GEANZ-sourced assets
   externalId?: string; // GEANZ GUID — used for idempotent re-import
+  dtsAdoptionStatus?: DtsAdoptionStatus; // Only relevant for DTS assets (alias starts with "DTS.")
 }
 
 /**
@@ -168,6 +177,7 @@ export interface TimelineSettings {
   display?: 'both' | 'initiatives' | 'applications';
   templateId?: string;           // Which workspace template was selected on first load
   showGeanzCatalogue?: boolean;  // When false, the GEANZ catalogue section is hidden (default: true)
+  showDtsAdoptionStatus?: 'on' | 'off'; // Show coloured adoption status badges on DTS asset rows
 }
 
 /**

@@ -168,9 +168,11 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
     { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '5%' },
   ];
 
+  const hasDtsAssets = data.assets.some(a => a.alias?.startsWith('DTS.'));
+
   const assetColumns: Column<Asset>[] = [
-    { key: 'name', label: 'Asset Name', type: 'text', width: '40%' },
-    { key: 'categoryId', label: 'Category', type: 'select', options: categoryOptions, width: '40%' },
+    { key: 'name', label: 'Asset Name', type: 'text', width: hasDtsAssets ? '30%' : '40%' },
+    { key: 'categoryId', label: 'Category', type: 'select', options: categoryOptions, width: hasDtsAssets ? '30%' : '40%' },
     { key: 'maturity', label: 'Maturity', type: 'select', options: [
       { value: '', label: '— Unrated —' },
       { value: '1', label: '1 – Emergent' },
@@ -179,6 +181,22 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
       { value: '4', label: '4 – Managed' },
       { value: '5', label: '5 – Optimised' },
     ], width: '20%' },
+    ...(hasDtsAssets ? [{
+      key: 'dtsAdoptionStatus' as keyof Asset,
+      label: 'DTS Adoption Status',
+      type: 'select' as const,
+      cellTestId: 'dts-adoption-status-cell',
+      options: [
+        { value: '', label: '— Not Set —' },
+        { value: 'not-started', label: 'Not Started' },
+        { value: 'scoping', label: 'Scoping' },
+        { value: 'in-delivery', label: 'In Delivery' },
+        { value: 'adopted', label: 'Adopted' },
+        { value: 'decommissioning', label: 'Decommissioning Incumbent' },
+        { value: 'not-applicable', label: 'Not Applicable' },
+      ],
+      width: '20%',
+    }] : []),
   ];
 
   const categoryColumns: Column<AssetCategory>[] = [
