@@ -54,7 +54,7 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
   const isLastSync = currentSlide === slides.length - 1;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+    <div data-testid="tutorial-modal" className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
       {/* Modal Container */}
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden flex flex-col relative animate-in fade-in zoom-in duration-200">
         

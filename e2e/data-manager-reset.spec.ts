@@ -29,9 +29,10 @@ test.describe('Data Manager Reset Buttons', () => {
         expect(assetCount).toBeGreaterThan(1);
     });
 
-    test('Reset - delete all data empties all tables', async ({ page }) => {
-        await page.getByRole('button', { name: 'Reset - delete all data' }).click();
-        await page.locator(CONFIRM).click();
+    test('"Clear data and start again" with blank empties all tables', async ({ page }) => {
+        await page.getByTestId('clear-and-start-again-btn').click();
+        await expect(page.getByTestId('template-picker-modal')).toBeVisible();
+        await page.getByTestId('template-start-blank-btn').click();
 
         // Check that the current tab (Initiatives) is empty
         const rows = page.locator('table tbody tr');
@@ -43,9 +44,10 @@ test.describe('Data Manager Reset Buttons', () => {
         await expect(assetRows).toHaveCount(1);
     });
 
-    test('Reset - use demo data populates all tables', async ({ page }) => {
-        await page.getByRole('button', { name: 'Reset - use demo data' }).click();
-        await page.locator(CONFIRM).click();
+    test('"Clear data and start again" with GEANZ demo data populates all tables', async ({ page }) => {
+        await page.getByTestId('clear-and-start-again-btn').click();
+        await expect(page.getByTestId('template-picker-modal')).toBeVisible();
+        await page.getByTestId('template-select-with-demo-btn-geanz').click();
 
         // Initiatives should have many rows now (48 initiatives + ghost row = 49)
         const initRows = page.locator('table tbody tr');

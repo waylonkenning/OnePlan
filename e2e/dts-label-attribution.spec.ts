@@ -22,7 +22,7 @@ async function selectDtsTemplate(page: import('@playwright/test').Page) {
   });
   await page.reload();
   await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
-  await page.getByTestId('template-select-btn-dts').click();
+  await page.getByTestId('template-select-with-demo-btn-dts').click();
   await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 }
 

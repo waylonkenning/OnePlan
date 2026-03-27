@@ -24,7 +24,7 @@ async function selectTemplate(page: import('@playwright/test').Page, templateId:
   });
   await page.reload();
   await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
-  await page.getByTestId(`template-select-btn-${templateId}`).click();
+  await page.getByTestId(`template-select-with-demo-btn-${templateId}`).click();
   await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
 }
 
