@@ -186,6 +186,7 @@ export interface TimelineSettings {
   templateId?: string;           // Which workspace template was selected on first load
   showGeanzCatalogue?: boolean;  // When false, the GEANZ catalogue section is hidden (default: true)
   showDtsAdoptionStatus?: 'on' | 'off'; // Show coloured adoption status badges on DTS asset rows
+  clusterName?: string;                 // Agency cluster name — shown in header and DTS Summary export
 }
 
 /**

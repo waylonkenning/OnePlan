@@ -735,6 +735,24 @@ export default function App() {
                           </select>
                         </div>
                       ))}
+                      <div className="flex items-center justify-between gap-3 pt-1 border-t border-slate-100">
+                        <label htmlFor="clusterName" className="text-xs text-slate-600 whitespace-nowrap">Cluster</label>
+                        <input
+                          id="clusterName"
+                          data-testid="cluster-name-input"
+                          type="text"
+                          value={timelineSettings.clusterName || ''}
+                          onChange={(e) => {
+                            handleUpdate({
+                              assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                              timelineSettings: { ...timelineSettings, clusterName: e.target.value || undefined },
+                              resources, applicationStatuses,
+                            });
+                          }}
+                          placeholder="e.g. Digital First Cluster"
+                          className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+                        />
+                      </div>
                     </div>
                   </div>
                   );
