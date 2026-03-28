@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Asset, Initiative, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Initiative, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource, DtsAdoptionStatus } from '../types';
 import { ChevronDown, ChevronRight, AlertTriangle, DollarSign, AlignLeft, GitBranch } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
 
@@ -17,7 +17,7 @@ interface MobileCardViewProps {
   onOpenSettings: () => void;
 }
 
-type BucketMode = 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy';
+type BucketMode = 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy' | 'dts-phase';
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
 
@@ -76,6 +76,8 @@ function bucketInitiatives(
     } else if (mode === 'programme') {
       const prog = programmes.find(p => p.id === init.programmeId);
       key = prog?.name ?? 'No programme';
+    } else if (mode === 'dts-phase') {
+      key = (init.dtsPhase && DTS_PHASE_LABELS[init.dtsPhase]) ?? 'No DTS Phase';
     } else {
       const strat = strategies.find(s => s.id === init.strategyId);
       key = strat?.name ?? 'No strategy';
@@ -117,6 +119,32 @@ function conflictCount(assetInitiatives: Initiative[]): number {
   }
   return count;
 }
+
+const DTS_PHASE_LABELS: Record<string, string> = {
+  'phase-1':    'Phase 1 — Register & Expose',
+  'phase-2':    'Phase 2 — Integrate DPI',
+  'phase-3':    'Phase 3 — AI & Legacy Exit',
+  'back-office':'Back-Office Consolidation',
+  'not-dts':    'Not DTS',
+};
+
+const DTS_ADOPTION_STATUS_LABEL: Record<DtsAdoptionStatus, string> = {
+  'not-started':    'Not Started',
+  'scoping':        'Scoping',
+  'in-delivery':    'In Delivery',
+  'adopted':        'Adopted',
+  'decommissioning':'Decommissioning',
+  'not-applicable': 'N/A',
+};
+
+const DTS_ADOPTION_STATUS_STYLE: Record<DtsAdoptionStatus, string> = {
+  'not-started':    'bg-slate-100 text-slate-500',
+  'scoping':        'bg-yellow-50 text-yellow-700',
+  'in-delivery':    'bg-blue-50 text-blue-700',
+  'adopted':        'bg-green-50 text-green-700',
+  'decommissioning':'bg-orange-50 text-orange-700',
+  'not-applicable': 'bg-slate-50 text-slate-400',
+};
 
 // ── Programme colour dot ──────────────────────────────────────────────────────
 
@@ -229,6 +257,15 @@ const InitiativeRow: React.FC<{
         )}
         {/* Programme name */}
         {prog && <div className="text-xs text-slate-400 mt-0.5">{prog.name}</div>}
+        {/* DTS Phase label */}
+        {initiative.dtsPhase && DTS_PHASE_LABELS[initiative.dtsPhase] && (
+          <div
+            data-testid={`initiative-phase-label-${initiative.id}`}
+            className="text-[10px] text-indigo-500 font-medium mt-0.5"
+          >
+            {DTS_PHASE_LABELS[initiative.dtsPhase]}
+          </div>
+        )}
         {/* Description */}
         {showDescription && (
           <div data-testid={`initiative-description-${initiative.id}`} className="mt-1.5 flex items-start gap-1">
@@ -378,6 +415,14 @@ const AssetCard: React.FC<{
         }
         <span className="flex-1 text-sm font-semibold text-slate-800 truncate">{asset.name}</span>
         <div className="flex items-center gap-2 flex-shrink-0">
+        {settings.showDtsAdoptionStatus === 'on' && asset.dtsAdoptionStatus && (
+          <span
+            data-testid={`mobile-adoption-badge-${asset.id}`}
+            className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${DTS_ADOPTION_STATUS_STYLE[asset.dtsAdoptionStatus]}`}
+          >
+            {DTS_ADOPTION_STATUS_LABEL[asset.dtsAdoptionStatus]}
+          </span>
+        )}
           {conflicts > 0 && (
             <span
               data-testid={`conflict-badge-${asset.id}`}
