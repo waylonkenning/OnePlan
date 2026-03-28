@@ -154,9 +154,9 @@ export function HelpView() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setLoading(true);
     const loader = MD_MODULES[mdKey(activePath)];
     if (!loader) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setContent('Page not found.');
       setLoading(false);
       return;
@@ -166,12 +166,13 @@ export function HelpView() {
       setLoading(false);
       contentRef.current?.scrollTo({ top: 0 });
     });
+    return () => setLoading(true);
   }, [activePath]);
 
   function toggleSection(title: string) {
     setOpenSections(prev => {
       const next = new Set(prev);
-      next.has(title) ? next.delete(title) : next.add(title);
+      if (next.has(title)) { next.delete(title); } else { next.add(title); }
       return next;
     });
   }
