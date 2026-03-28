@@ -207,6 +207,7 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       </button>
 
       <button
+        data-testid="export-excel"
         onClick={handleExportExcel}
         className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
         title="Download current data as Excel"

@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, DtsAdoptionStatus } from '../types';
 
 interface AppData {
   assets: Asset[];
@@ -10,6 +10,15 @@ interface AppData {
   dependencies: Dependency[];
   assetCategories: AssetCategory[];
 }
+
+const DTS_ADOPTION_STATUS_LABEL: Record<DtsAdoptionStatus, string> = {
+  'not-started':    'Not Started',
+  'scoping':        'Scoping',
+  'in-delivery':    'In Delivery',
+  'adopted':        'Adopted',
+  'decommissioning':'Decommissioning Incumbent',
+  'not-applicable': 'Not Applicable',
+};
 
 export const exportToExcel = (data: AppData) => {
   const wb = XLSX.utils.book_new();
@@ -41,6 +50,39 @@ export const exportToExcel = (data: AppData) => {
   // 7. Dependencies
   const dependenciesWs = XLSX.utils.json_to_sheet(data.dependencies || []);
   XLSX.utils.book_append_sheet(wb, dependenciesWs, 'Dependencies');
+
+  // 8. DTS Summary — only for workspaces that have DTS assets (alias starts with "DTS.")
+  const dtsAssets = data.assets.filter(a => a.alias?.startsWith('DTS.'));
+  if (dtsAssets.length > 0) {
+    const activeInitiatives = data.initiatives.filter(i => !i.isPlaceholder);
+    const dtsSummaryRows = dtsAssets
+      .sort((a, b) => {
+        const catA = data.assetCategories.find(c => c.id === a.categoryId);
+        const catB = data.assetCategories.find(c => c.id === b.categoryId);
+        const orderA = catA?.order ?? 999;
+        const orderB = catB?.order ?? 999;
+        if (orderA !== orderB) return orderA - orderB;
+        return (a.alias ?? '').localeCompare(b.alias ?? '');
+      })
+      .map(asset => {
+        const category = data.assetCategories.find(c => c.id === asset.categoryId);
+        const assetInits = activeInitiatives.filter(i => i.assetId === asset.id);
+        const totalBudget = assetInits.reduce((sum, i) => sum + (i.budget || 0), 0);
+        return {
+          'Layer': category?.name ?? '',
+          'Asset Name': asset.name,
+          'Alias': asset.alias ?? '',
+          'Adoption Status': asset.dtsAdoptionStatus
+            ? DTS_ADOPTION_STATUS_LABEL[asset.dtsAdoptionStatus] ?? asset.dtsAdoptionStatus
+            : '',
+          'Initiative Count': assetInits.length,
+          'Total Budget ($)': totalBudget,
+        };
+      });
+
+    const dtsSummaryWs = XLSX.utils.json_to_sheet(dtsSummaryRows);
+    XLSX.utils.book_append_sheet(wb, dtsSummaryWs, 'DTS Summary');
+  }
 
   // Write file
   XLSX.writeFile(wb, `it-roadmap-${new Date().toISOString().split('T')[0]}.xlsx`);
