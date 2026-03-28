@@ -1138,6 +1138,11 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       onClick={() => { setSelectedInitiativeId(null); setInitiativePanelId(null); setSelectedSegmentId(null); setSegmentPanelId(null); }}
     >
 
+      {settings.clusterName && (
+        <div className="px-4 py-1.5 bg-slate-100 border-b border-slate-200 text-xs text-slate-500 font-medium">
+          <span data-testid="timeline-cluster-name">{settings.clusterName}</span>
+        </div>
+      )}
 
       <div className="flex-1 overflow-auto scroll-smooth" ref={scrollContainerRef}>
         <div className="relative w-max min-w-full">

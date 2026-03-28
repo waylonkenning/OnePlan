@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, DtsAdoptionStatus } from '../types';
+import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, DtsAdoptionStatus, TimelineSettings } from '../types';
 
 interface AppData {
   assets: Asset[];
@@ -9,6 +9,7 @@ interface AppData {
   strategies: Strategy[];
   dependencies: Dependency[];
   assetCategories: AssetCategory[];
+  timelineSettings?: TimelineSettings;
 }
 
 const DTS_ADOPTION_STATUS_LABEL: Record<DtsAdoptionStatus, string> = {
@@ -80,7 +81,19 @@ export const exportToExcel = (data: AppData) => {
         };
       });
 
-    const dtsSummaryWs = XLSX.utils.json_to_sheet(dtsSummaryRows);
+    const clusterName = data.timelineSettings?.clusterName;
+    let dtsSummaryWs: XLSX.WorkSheet;
+    if (clusterName) {
+      // Add cluster name as a metadata header row, then a blank row, then the data
+      dtsSummaryWs = XLSX.utils.aoa_to_sheet([
+        ['Cluster', clusterName],
+        [],
+        ['Layer', 'Asset Name', 'Alias', 'Adoption Status', 'Initiative Count', 'Total Budget ($)'],
+        ...dtsSummaryRows.map(r => [r['Layer'], r['Asset Name'], r['Alias'], r['Adoption Status'], r['Initiative Count'], r['Total Budget ($)']]),
+      ]);
+    } else {
+      dtsSummaryWs = XLSX.utils.json_to_sheet(dtsSummaryRows);
+    }
     XLSX.utils.book_append_sheet(wb, dtsSummaryWs, 'DTS Summary');
   }
 
