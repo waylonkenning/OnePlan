@@ -82,6 +82,8 @@ export default function App() {
   const [undoStack, setUndoStack] = useState<AppState[]>([]);
   const [redoStack, setRedoStack] = useState<AppState[]>([]);
 
+  const hasDtsAssets = assets.some(a => a.alias?.startsWith('DTS.'));
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isVersionManagerOpen, setIsVersionManagerOpen] = useState(false);
   const [showMoreSettingsPanel, setShowMoreSettingsPanel] = useState(false);
@@ -768,7 +770,6 @@ export default function App() {
           const colorBy = timelineSettings.colorBy || 'programme';
           const groupBy = timelineSettings.groupBy || 'asset';
           const display = timelineSettings.display || 'both';
-          const hasDtsAssets = assets.some(a => a.alias?.startsWith('DTS.'));
           const dtsAdoptionOn = timelineSettings.showDtsAdoptionStatus === 'on';
           const colorLabel = colorBy === 'programme' ? 'Programme' : colorBy === 'strategy' ? 'Strategy' : 'Status';
           const groupLabel = groupBy === 'asset' ? 'Asset' : groupBy === 'programme' ? 'Programme' : groupBy === 'dts-phase' ? 'DTS Phase' : 'Strategy';
@@ -1072,6 +1073,18 @@ export default function App() {
                     </button>
                   );
                 })}
+                {hasDtsAssets && (
+                  <button
+                    data-testid="bucket-mode-dts-phase"
+                    onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, mobileBucketMode: 'dts-phase' }, resources, applicationStatuses })}
+                    className={cn(
+                      'px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors',
+                      (timelineSettings.mobileBucketMode as string) === 'dts-phase' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-500'
+                    )}
+                  >
+                    DTS Phase
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1082,6 +1095,7 @@ export default function App() {
               const budgetMode = timelineSettings.budgetVisualisation || 'off';
               const budgetCycle: Array<'off' | 'label' | 'bar-height'> = ['off', 'label', 'bar-height'];
               const nextBudget = budgetCycle[(budgetCycle.indexOf(budgetMode as 'off' | 'label' | 'bar-height') + 1) % 3];
+              const dtsAdoptionOn = timelineSettings.showDtsAdoptionStatus === 'on';
               const sheetToggleClass = (active: boolean) => cn(
                 'px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors',
                 active ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-500'
@@ -1092,6 +1106,9 @@ export default function App() {
                   <button data-testid="mobile-toggle-relationships" className={sheetToggleClass(relationshipsOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, showRelationships: relationshipsOn ? 'off' : 'on' }, resources, applicationStatuses })}>Relationships</button>
                   <button data-testid="mobile-toggle-descriptions" className={sheetToggleClass(descriptionsOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, descriptionDisplay: descriptionsOn ? 'off' : 'on' }, resources, applicationStatuses })}>Descriptions</button>
                   <button data-testid="mobile-toggle-budget" className={sheetToggleClass(budgetMode !== 'off')} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, budgetVisualisation: nextBudget }, resources, applicationStatuses })}>Budget: {budgetMode}</button>
+                  {hasDtsAssets && (
+                    <button data-testid="mobile-toggle-dts-adoption" className={sheetToggleClass(dtsAdoptionOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, showDtsAdoptionStatus: dtsAdoptionOn ? 'off' : 'on' }, resources, applicationStatuses })}>Adoption Status</button>
+                  )}
                 </div>
               );
             })()}
