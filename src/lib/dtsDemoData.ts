@@ -10,7 +10,7 @@
  * © Crown copyright. Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
  */
 
-import { Initiative, Milestone, ApplicationSegment, Programme, Strategy, DtsAdoptionStatus, DtsPhase } from '../types';
+import { Initiative, Milestone, ApplicationSegment, Programme, Strategy, DtsAdoptionStatus, DtsPhase, Dependency } from '../types';
 
 function relDate(yearOffset: number, month: number, day: number): string {
   const year = new Date().getFullYear() + yearOffset;
@@ -489,3 +489,36 @@ export const dtsDemoAdoptionStatuses: Record<string, DtsAdoptionStatus> = {
   'dts-plt-04': 'not-started',   // FMIS
   'dts-plt-05': 'not-started',   // Contracts Management
 };
+
+// ── Pre-drawn dependencies for demo data ─────────────────────────────────
+//
+// Initiative-to-initiative dependencies reflect sequencing stated in the
+// initiative descriptions above.
+// Milestone dependencies reflect external blockers called out in descriptions.
+
+export const dtsDemoDependencies: Dependency[] = [
+
+  // Phase 1 → Phase 2 sequencing
+  // Data Dictionary alignment must complete before Core Data API can expose aligned schemas
+  { id: 'dts-dep-01', sourceId: 'dts-i-data-dict', targetId: 'dts-i-api',       type: 'blocks' },
+
+  // Rules Library must be registered before Semantic Search can index them
+  { id: 'dts-dep-02', sourceId: 'dts-i-rules',     targetId: 'dts-i-semantic',  type: 'blocks' },
+
+  // Phase 2 → Phase 3 sequencing
+  // AI Governance Framework must be signed off before AI-Assisted Service Routing goes to production
+  { id: 'dts-dep-03', sourceId: 'dts-i-safeguard', targetId: 'dts-i-ai-routing', type: 'blocks' },
+
+  // Portal Decommission prerequisites (three blockers called out in description)
+  { id: 'dts-dep-04', sourceId: 'dts-i-identity',  targetId: 'dts-i-portal',    type: 'blocks' },
+  { id: 'dts-dep-05', sourceId: 'dts-i-cms',       targetId: 'dts-i-portal',    type: 'blocks' },
+  { id: 'dts-dep-06', sourceId: 'dts-i-notify',    targetId: 'dts-i-portal',    type: 'blocks' },
+
+  // Milestone blockers — external platform readiness gates
+  // RealMe+ Agency Onboarding Window must be reached before Digital Credential Adoption can start
+  { id: 'dts-dep-07', sourceId: 'dts-ms-realme-ready',  targetId: 'dts-i-identity', type: 'blocks', sourceType: 'milestone' },
+  // GCDO Payments Platform GA must be reached before Payment Flows Migration can start
+  { id: 'dts-dep-08', sourceId: 'dts-ms-payments-ga',   targetId: 'dts-i-payments', type: 'blocks', sourceType: 'milestone' },
+  // Cluster Platform Go-Live must be reached before HRIS Migration can start
+  { id: 'dts-dep-09', sourceId: 'dts-ms-cluster-golive', targetId: 'dts-i-hris',    type: 'blocks', sourceType: 'milestone' },
+];
