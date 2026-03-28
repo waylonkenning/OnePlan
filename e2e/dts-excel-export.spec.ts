@@ -70,8 +70,8 @@ test.describe('US-23: DTS Summary Tab in Excel Export', () => {
     const ws = wb.Sheets['DTS Summary'];
     const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws);
 
-    // 20 DTS assets
-    expect(rows).toHaveLength(20);
+    // 23 DTS assets (20 original + 3 Customer Layer assets added in US-24)
+    expect(rows).toHaveLength(23);
 
     // Check required columns exist on at least the first row
     const first = rows[0];

@@ -18,6 +18,11 @@ export const DTS_CATEGORIES: AssetCategory[] = [
 ];
 
 export const DTS_ASSETS: Asset[] = [
+  // Customer Layer
+  { id: 'dts-cust-01', name: 'Citizens & Residents',             categoryId: 'cat-dts-customer', alias: 'DTS.CUST.01' },
+  { id: 'dts-cust-02', name: 'Businesses & Employers',           categoryId: 'cat-dts-customer', alias: 'DTS.CUST.02' },
+  { id: 'dts-cust-03', name: 'Iwi & Community Organisations',    categoryId: 'cat-dts-customer', alias: 'DTS.CUST.03' },
+
   // Channels
   { id: 'dts-ch-01', name: 'All-of-Government Channels',            categoryId: 'cat-dts-channels',    alias: 'DTS.CH.01' },
   { id: 'dts-ch-02', name: 'Existing Agency Channels',              categoryId: 'cat-dts-channels',    alias: 'DTS.CH.02' },
