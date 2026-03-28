@@ -4,7 +4,7 @@ import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, 
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, addDays, isValid, startOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes, Trash2 } from 'lucide-react';
-import { geanzAreas, GEANZ_CATEGORY_ID, GeanzArea } from '../lib/geanzCatalogue';
+import { geanzAreas, GEANZ_CATEGORY_ID, GEANZ_TO_DTS_MAP, GeanzArea } from '../lib/geanzCatalogue';
 import { InitiativePanel } from './InitiativePanel';
 import { ApplicationSegmentPanel } from './ApplicationSegmentPanel';
 import { DependencyPanel } from './DependencyPanel';
@@ -2216,6 +2216,15 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                           >
                             <div className="flex-1">
                               <div className="text-xs font-semibold text-slate-600">{area.name}</div>
+                              {GEANZ_TO_DTS_MAP[area.alias] && (
+                                <span
+                                  data-testid="geanz-dts-map-badge"
+                                  className="inline-block mt-0.5 text-[9px] font-mono font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded px-1 py-0.5 leading-none"
+                                  title={`Maps to DTS component ${GEANZ_TO_DTS_MAP[area.alias]}`}
+                                >
+                                  {GEANZ_TO_DTS_MAP[area.alias]}
+                                </span>
+                              )}
                             </div>
                             {area.assets.length > 0 ? (
                               <button

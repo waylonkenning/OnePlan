@@ -23,6 +23,33 @@ export interface GeanzAssetEntry {
 
 export const GEANZ_CATEGORY_ID = 'cat-geanz-app-tech';
 
+/**
+ * Cross-mapping from GEANZ TAP area alias to the most relevant DTS asset alias.
+ * Areas not listed here have no direct DTS mapping.
+ *
+ * Mapping rationale:
+ *   TAP.01 Corporate          → DTS.PLT.04 FMIS (largest overlap via ERP/FMIS assets)
+ *   TAP.02 Service Delivery   → DTS.DPI.04 Notifications & Messaging (citizen-facing delivery)
+ *   TAP.03 Experience & UX    → DTS.CH.01 All-of-Government Channels
+ *   TAP.04 Data & Info Mgmt   → DTS.DPI.07 Data Dictionary
+ *   TAP.06 Integration        → DTS.INT.01 Data, API and AI Services Exchange
+ *   TAP.07 Identity & Access  → DTS.DPI.01 Identity & Credential Services
+ *   TAP.10 Data Sharing       → DTS.INT.01 Data, API and AI Services Exchange
+ *   TAP.16 Analytics & BI     → DTS.DPI.09 Data & Services Catalogue
+ *   TAP.17 Emerging Tech      → DTS.DPI.02 AI Platform Services
+ */
+export const GEANZ_TO_DTS_MAP: Record<string, string> = {
+  'TAP.01': 'DTS.PLT.04',
+  'TAP.02': 'DTS.DPI.04',
+  'TAP.03': 'DTS.CH.01',
+  'TAP.04': 'DTS.DPI.07',
+  'TAP.06': 'DTS.INT.01',
+  'TAP.07': 'DTS.DPI.01',
+  'TAP.10': 'DTS.INT.01',
+  'TAP.16': 'DTS.DPI.09',
+  'TAP.17': 'DTS.DPI.02',
+};
+
 export const geanzAreas: GeanzArea[] = [
   {
     alias: 'TAP.01',
