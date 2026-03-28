@@ -1764,7 +1764,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                         </div>
 
                         {/* Swimlanes stacked vertically */}
-                        <div className="flex flex-col">
+                        <div className="flex flex-col relative">
 
                         {/* Initiatives swimlane — hidden when display is 'applications' */}
                         {display !== 'applications' && (
@@ -2021,33 +2021,6 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             );
                           })}
 
-                          {assetMilestones.map(mile => {
-                            const currentMile = localMilestones.find(m => m.id === mile.id) || mile;
-                            const pos = getPosition(currentMile.date);
-                            if (pos < 0 || pos > 100) return null;
-                            return (
-                              <div
-                                key={mile.id}
-                                data-milestone-id={mile.id}
-                                onMouseDown={(e) => handleMilestoneMouseDown(e, mile)}
-                                className="absolute top-0 bottom-0 flex flex-col items-center justify-center group/marker z-0 cursor-grab active:cursor-grabbing"
-                                style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
-                              >
-                                <div className="absolute top-0 bottom-0 w-px border-l border-dashed border-slate-400/50 group-hover/marker:border-slate-600" />
-                                <div data-testid="milestone-dep-handle" className={cn(
-                                  "relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110",
-                                  mile.type === 'critical' ? "bg-red-100 text-red-600" :
-                                    mile.type === 'warning' ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
-                                )}>
-                                  {mile.type === 'critical' ? <Star size={16} fill="currentColor" /> : <Info size={16} />}
-                                </div>
-                                <div className="absolute left-full ml-2 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-200 shadow-sm whitespace-nowrap z-40 pointer-events-none">
-                                  <div className="text-[10px] font-bold text-slate-800 leading-none">{mile.name}</div>
-                                  <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(currentMile.date), 'MMM yyyy')}</div>
-                                </div>
-                              </div>
-                            );
-                          })}
                         </div>
                         )} {/* end initiatives swimlane */}
 
@@ -2175,6 +2148,38 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                           </div>
                           );
                         })()} {/* end applications swimlane */}
+
+                        {/* Milestone markers — lifted to span both swimlanes */}
+                        {assetMilestones.map(mile => {
+                          const currentMile = localMilestones.find(m => m.id === mile.id) || mile;
+                          const pos = getPosition(currentMile.date);
+                          if (pos < 0 || pos > 100) return null;
+                          return (
+                            <div
+                              key={mile.id}
+                              data-milestone-id={mile.id}
+                              onMouseDown={(e) => handleMilestoneMouseDown(e, mile)}
+                              className="absolute top-0 bottom-0 flex flex-col items-center group/marker z-0 cursor-grab active:cursor-grabbing"
+                              style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
+                            >
+                              <div className="absolute top-0 bottom-0 w-px border-l border-dashed border-slate-400/50 group-hover/marker:border-slate-600" />
+                              {/* Badge pinned to initiatives-row height so it stays within that swimlane */}
+                              <div className="flex flex-col items-center justify-center" style={{ height: display !== 'applications' ? rowHeight : undefined }}>
+                                <div data-testid="milestone-dep-handle" className={cn(
+                                  "relative p-1.5 rounded-full shadow-md border-2 border-white transition-transform group-hover/marker:scale-110",
+                                  mile.type === 'critical' ? "bg-red-100 text-red-600" :
+                                    mile.type === 'warning' ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
+                                )}>
+                                  {mile.type === 'critical' ? <Star size={16} fill="currentColor" /> : <Info size={16} />}
+                                </div>
+                                <div className="absolute left-full ml-2 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-200 shadow-sm whitespace-nowrap z-40 pointer-events-none">
+                                  <div className="text-[10px] font-bold text-slate-800 leading-none">{mile.name}</div>
+                                  <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(currentMile.date), 'MMM yyyy')}</div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
 
                         </div> {/* end swimlanes stack */}
                       </div>
