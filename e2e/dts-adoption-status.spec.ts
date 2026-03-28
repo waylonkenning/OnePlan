@@ -124,9 +124,10 @@ test.describe('US-19: DTS Adoption Status per Asset', () => {
     await page.getByTestId('nav-data-manager').click();
     await page.getByRole('button', { name: /Assets/ }).click();
 
-    // Change the first DTS asset's status to "Adopted"
-    const firstSelect = page.getByTestId('dts-adoption-status-cell').first().locator('select');
-    await firstSelect.selectOption('adopted');
+    // Change a specific DTS asset's (dts-ch-01) status to "Adopted"
+    const assetRow = page.locator('tr[data-id="dts-ch-01"]');
+    const select = assetRow.locator('[data-testid="dts-adoption-status-cell"] select');
+    await select.selectOption('adopted');
 
     // Reload and navigate back to Data Manager
     await page.reload();
@@ -134,8 +135,9 @@ test.describe('US-19: DTS Adoption Status per Asset', () => {
     await page.getByTestId('nav-data-manager').click();
     await page.getByRole('button', { name: /Assets/ }).click();
 
-    // Status should have persisted
-    const reloadedSelect = page.getByTestId('dts-adoption-status-cell').first().locator('select');
+    // Status should have persisted for that specific asset
+    const reloadedRow = page.locator('tr[data-id="dts-ch-01"]');
+    const reloadedSelect = reloadedRow.locator('[data-testid="dts-adoption-status-cell"] select');
     await expect(reloadedSelect).toHaveValue('adopted');
   });
 

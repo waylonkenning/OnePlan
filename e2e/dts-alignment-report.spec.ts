@@ -51,7 +51,7 @@ test.describe('US-20: DTS Alignment Coverage Report', () => {
   });
 
   // ── AC2 ──────────────────────────────────────────────────────────────────
-  test('AC2: report renders 20 asset tiles arranged in 6 DTS layers', async ({ page }) => {
+  test('AC2: report renders 23 asset tiles arranged in 6 DTS layers', async ({ page }) => {
     await loadDtsTemplate(page);
     await page.getByTestId('nav-reports').click();
     await page.getByTestId('report-card-dts-alignment').click();
@@ -65,9 +65,9 @@ test.describe('US-20: DTS Alignment Coverage Report', () => {
     await expect(page.getByTestId('dts-alignment-layer-cat-dts-agency')).toBeVisible();
     await expect(page.getByTestId('dts-alignment-layer-cat-dts-platforms')).toBeVisible();
 
-    // All 20 asset tiles present
+    // All 23 asset tiles present (20 original + 3 Customer Layer added in US-24)
     const tiles = page.locator('[data-testid^="dts-alignment-tile-"]');
-    await expect(tiles).toHaveCount(20);
+    await expect(tiles).toHaveCount(23);
   });
 
   // ── AC3 ──────────────────────────────────────────────────────────────────
