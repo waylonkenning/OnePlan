@@ -310,6 +310,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     status: 'appstatus-planned',
     startDate: relDate(0, 7, 1),
     endDate: relDate(2, 12, 31),
+    label: 'Services Exchange API',
   },
 
   // Identity: legacy auth system in production, new RealMe+ integration planned
@@ -319,6 +320,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     status: 'appstatus-in-production',
     startDate: relDate(-2, 1, 1),
     endDate: relDate(1, 10, 31),
+    label: 'Legacy IdP',
   },
   {
     id: 'dts-seg-identity-new',
@@ -327,6 +329,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     startDate: relDate(1, 1, 1),
     endDate: relDate(2, 12, 31),
     row: 1,
+    label: 'RealMe+',
   },
 
   // Payments: legacy engine in production, entering sunset as migration proceeds
@@ -336,6 +339,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     status: 'appstatus-in-production',
     startDate: relDate(-2, 1, 1),
     endDate: relDate(1, 9, 30),
+    label: 'Legacy Payments Engine',
   },
   {
     id: 'dts-seg-payments-sunset',
@@ -344,6 +348,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     startDate: relDate(1, 10, 1),
     endDate: relDate(2, 6, 30),
     row: 1,
+    label: 'Legacy Payments Engine',
   },
 
   // Notifications: existing service in production, moving to sunset
@@ -353,6 +358,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     status: 'appstatus-in-production',
     startDate: relDate(-2, 1, 1),
     endDate: relDate(1, 5, 31),
+    label: 'Notify.govt.nz',
   },
   {
     id: 'dts-seg-notify-sunset',
@@ -361,6 +367,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     startDate: relDate(1, 6, 1),
     endDate: relDate(2, 3, 31),
     row: 1,
+    label: 'Notify.govt.nz',
   },
 
   // Agency Portal (Existing Agency Channels): in production, heading for sunset
@@ -370,6 +377,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     status: 'appstatus-in-production',
     startDate: relDate(-2, 1, 1),
     endDate: relDate(2, 6, 30),
+    label: 'Agency Portal',
   },
   {
     id: 'dts-seg-portal-sunset',
@@ -378,6 +386,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     startDate: relDate(2, 7, 1),
     endDate: relDate(3, 6, 30),
     row: 1,
+    label: 'Agency Portal',
   },
 
   // Govt.nz App (AoG Channels): planned — the future state
@@ -387,6 +396,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     status: 'appstatus-planned',
     startDate: relDate(2, 1, 1),
     endDate: relDate(3, 12, 31),
+    label: 'Govt.nz App',
   },
 
   // AI Platform: new capability planned
@@ -396,6 +406,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     status: 'appstatus-planned',
     startDate: relDate(1, 7, 1),
     endDate: relDate(2, 12, 31),
+    label: 'AI Platform',
   },
 
   // ITSM: standalone in production, moving to sunset as cluster migration completes
@@ -405,6 +416,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     status: 'appstatus-in-production',
     startDate: relDate(-2, 1, 1),
     endDate: relDate(1, 9, 30),
+    label: 'Agency ITSM (Standalone)',
   },
   {
     id: 'dts-seg-itsm-sunset',
@@ -413,6 +425,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     startDate: relDate(1, 10, 1),
     endDate: relDate(2, 3, 31),
     row: 1,
+    label: 'Agency ITSM (Standalone)',
   },
 
   // HRIS: on-premise in production, moving to sunset as cluster migration completes
@@ -422,6 +435,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     status: 'appstatus-in-production',
     startDate: relDate(-2, 1, 1),
     endDate: relDate(2, 3, 31),
+    label: 'On-Premise HRIS',
   },
   {
     id: 'dts-seg-hris-sunset',
@@ -430,6 +444,7 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
     startDate: relDate(2, 4, 1),
     endDate: relDate(3, 3, 31),
     row: 1,
+    label: 'On-Premise HRIS',
   },
 ];
 
