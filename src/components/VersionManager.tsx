@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Version, Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Version, Asset, Application, ApplicationSegment, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource, ApplicationStatus } from '../types';
 import { X, Save, History, Trash2, ArrowRight, FileText, AlertCircle, LayoutGrid, Check } from 'lucide-react';
 import { getAllVersions, saveVersion, deleteVersion } from '../lib/db';
 import { ConfirmModal } from './ConfirmModal';
@@ -22,6 +22,7 @@ interface VersionManagerProps {
     assetCategories: AssetCategory[];
     timelineSettings: TimelineSettings;
     resources: Resource[];
+    applicationStatuses?: ApplicationStatus[];
   };
 }
 

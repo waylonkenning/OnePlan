@@ -31,7 +31,7 @@ test.describe('Mobile Card View — display toggles', () => {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  type Page = Parameters<typeof test.beforeEach>[0]['page'];
+  type Page = import('@playwright/test').Page;
 
   async function openSettings(page: Page) {
     await page.locator('[data-testid="mobile-settings-btn"]').click();

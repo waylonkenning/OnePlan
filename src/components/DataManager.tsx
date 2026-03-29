@@ -447,7 +447,7 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
             data={data.applicationStatuses || []}
             columns={getColumnsWithWidths('appStatuses', appStatusColumns)}
             onUpdate={(newData) => updateData('applicationStatuses', newData)}
-            onDelete={(status) => updateData('applicationStatuses', (data.applicationStatuses || []).filter(s => s.id !== status.id))}
+            onDelete={(status) => { updateData('applicationStatuses', (data.applicationStatuses || []).filter(s => s.id !== status.id)); return true; }}
             idField="id"
             tableId="appStatuses"
             onColumnResize={(col, w) => handleColumnResize('appStatuses', col, w)}

@@ -18,7 +18,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Application Segment Drag Improvements', () => {
 
   /** Navigate to a year with no demo segments so we control the layout. */
-  async function goToEmptyYear(page: Parameters<typeof test>[1]['page']) {
+  async function goToEmptyYear(page: import('@playwright/test').Page) {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     const startInput = page.getByTestId('timeline-start-input');
@@ -28,7 +28,7 @@ test.describe('Application Segment Drag Improvements', () => {
   }
 
   /** Create one segment in the first application swimlane via double-click. */
-  async function createSegment(page: Parameters<typeof test>[1]['page']) {
+  async function createSegment(page: import('@playwright/test').Page) {
     const rowContent = page.locator('[data-testid="application-row-content"]').first();
     await rowContent.dblclick({ position: { x: 200, y: 20 } });
     const panel = page.getByTestId('segment-panel');

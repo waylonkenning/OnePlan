@@ -7,7 +7,7 @@
 
 import { Asset, AssetCategory, Initiative, Milestone, ApplicationSegment, Programme, Strategy, Dependency, Resource, ApplicationStatus, TimelineSettings, Application } from '../types';
 import { DTS_CATEGORIES, DTS_ASSETS } from './dtsCatalogue';
-import { dtsDemoInitiatives, dtsDemoMilestones, dtsDemoApplicationSegments, dtsDemoProgrammes, dtsDemoStrategies, dtsDemoAdoptionStatuses, dtsDemoInitiativePhases, dtsDemoDependencies } from './dtsDemoData';
+import { dtsDemoInitiatives, dtsDemoMilestones, dtsDemoApplicationSegments, dtsDemoApplications, dtsDemoProgrammes, dtsDemoStrategies, dtsDemoAdoptionStatuses, dtsDemoInitiativePhases, dtsDemoDependencies } from './dtsDemoData';
 import {
   demoAssets,
   demoInitiatives,
@@ -94,7 +94,7 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         strategies: dtsDemoStrategies,
         dependencies: withDemoData ? dtsDemoDependencies : [],
         resources: withDemoData ? demoResources : [],
-        applications: [],
+        applications: withDemoData ? dtsDemoApplications : [],
         applicationStatuses: demoApplicationStatuses,
         timelineSettings: { ...baseSettings, showGeanzCatalogue: false },
       };
@@ -112,7 +112,7 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         strategies: dtsDemoStrategies,
         dependencies: withDemoData ? dtsDemoDependencies : [],
         resources: withDemoData ? demoResources : [],
-        applications: [],
+        applications: withDemoData ? dtsDemoApplications : [],
         applicationStatuses: demoApplicationStatuses,
         timelineSettings: { ...baseSettings, showGeanzCatalogue: true },
       };

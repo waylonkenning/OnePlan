@@ -10,7 +10,7 @@
  * © Crown copyright. Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
  */
 
-import { Initiative, Milestone, ApplicationSegment, Programme, Strategy, DtsAdoptionStatus, DtsPhase, Dependency } from '../types';
+import { Initiative, Milestone, ApplicationSegment, Application, Programme, Strategy, DtsAdoptionStatus, DtsPhase, Dependency } from '../types';
 
 function relDate(yearOffset: number, month: number, day: number): string {
   const year = new Date().getFullYear() + yearOffset;
@@ -300,152 +300,58 @@ export const dtsDemoMilestones: Milestone[] = [
   },
 ];
 
+// ── Application records for DTS assets ────────────────────────────────────────
+// One Application per unique (asset, named system) combination.
+// The name comes from the old inline label on the segment.
+
+export const dtsDemoApplications: Application[] = [
+  { id: 'app-dts-exchange',   assetId: 'dts-int-01', name: 'Services Exchange API' },
+  { id: 'app-dts-legacy-idp', assetId: 'dts-dpi-01', name: 'Legacy IdP' },
+  { id: 'app-dts-realme',     assetId: 'dts-dpi-01', name: 'RealMe+' },
+  { id: 'app-dts-payments',   assetId: 'dts-dpi-05', name: 'Legacy Payments Engine' },
+  { id: 'app-dts-notify',     assetId: 'dts-dpi-04', name: 'Notify.govt.nz' },
+  { id: 'app-dts-portal',     assetId: 'dts-ch-02',  name: 'Agency Portal' },
+  { id: 'app-dts-aog',        assetId: 'dts-ch-01',  name: 'Govt.nz App' },
+  { id: 'app-dts-ai',         assetId: 'dts-dpi-02', name: 'AI Platform' },
+  { id: 'app-dts-itsm',       assetId: 'dts-plt-02', name: 'Agency ITSM (Standalone)' },
+  { id: 'app-dts-hris',       assetId: 'dts-plt-03', name: 'On-Premise HRIS' },
+];
+
 // ── Application lifecycle segments ────────────────────────────────────────────
 
 export const dtsDemoApplicationSegments: ApplicationSegment[] = [
   // Services Exchange: new capability going into production
-  {
-    id: 'dts-seg-exchange-prod',
-    assetId: 'dts-int-01',
-    status: 'appstatus-planned',
-    startDate: relDate(0, 7, 1),
-    endDate: relDate(2, 12, 31),
-    label: 'Services Exchange API',
-  },
+  { id: 'dts-seg-exchange-prod',   applicationId: 'app-dts-exchange',   status: 'appstatus-planned',       startDate: relDate(0, 7, 1),  endDate: relDate(2, 12, 31) },
 
   // Identity: legacy auth system in production, new RealMe+ integration planned
-  {
-    id: 'dts-seg-identity-legacy',
-    assetId: 'dts-dpi-01',
-    status: 'appstatus-in-production',
-    startDate: relDate(-2, 1, 1),
-    endDate: relDate(1, 10, 31),
-    label: 'Legacy IdP',
-  },
-  {
-    id: 'dts-seg-identity-new',
-    assetId: 'dts-dpi-01',
-    status: 'appstatus-planned',
-    startDate: relDate(1, 1, 1),
-    endDate: relDate(2, 12, 31),
-    row: 1,
-    label: 'RealMe+',
-  },
+  { id: 'dts-seg-identity-legacy', applicationId: 'app-dts-legacy-idp', status: 'appstatus-in-production', startDate: relDate(-2, 1, 1), endDate: relDate(1, 10, 31) },
+  { id: 'dts-seg-identity-new',    applicationId: 'app-dts-realme',     status: 'appstatus-planned',       startDate: relDate(1, 1, 1),  endDate: relDate(2, 12, 31), row: 1 },
 
   // Payments: legacy engine in production, entering sunset as migration proceeds
-  {
-    id: 'dts-seg-payments-legacy',
-    assetId: 'dts-dpi-05',
-    status: 'appstatus-in-production',
-    startDate: relDate(-2, 1, 1),
-    endDate: relDate(1, 9, 30),
-    label: 'Legacy Payments Engine',
-  },
-  {
-    id: 'dts-seg-payments-sunset',
-    assetId: 'dts-dpi-05',
-    status: 'appstatus-sunset',
-    startDate: relDate(1, 10, 1),
-    endDate: relDate(2, 6, 30),
-    row: 1,
-    label: 'Legacy Payments Engine',
-  },
+  { id: 'dts-seg-payments-legacy', applicationId: 'app-dts-payments',   status: 'appstatus-in-production', startDate: relDate(-2, 1, 1), endDate: relDate(1, 9, 30) },
+  { id: 'dts-seg-payments-sunset', applicationId: 'app-dts-payments',   status: 'appstatus-sunset',        startDate: relDate(1, 10, 1), endDate: relDate(2, 6, 30),  row: 1 },
 
   // Notifications: existing service in production, moving to sunset
-  {
-    id: 'dts-seg-notify-legacy',
-    assetId: 'dts-dpi-04',
-    status: 'appstatus-in-production',
-    startDate: relDate(-2, 1, 1),
-    endDate: relDate(1, 5, 31),
-    label: 'Notify.govt.nz',
-  },
-  {
-    id: 'dts-seg-notify-sunset',
-    assetId: 'dts-dpi-04',
-    status: 'appstatus-sunset',
-    startDate: relDate(1, 6, 1),
-    endDate: relDate(2, 3, 31),
-    row: 1,
-    label: 'Notify.govt.nz',
-  },
+  { id: 'dts-seg-notify-legacy',   applicationId: 'app-dts-notify',     status: 'appstatus-in-production', startDate: relDate(-2, 1, 1), endDate: relDate(1, 5, 31) },
+  { id: 'dts-seg-notify-sunset',   applicationId: 'app-dts-notify',     status: 'appstatus-sunset',        startDate: relDate(1, 6, 1),  endDate: relDate(2, 3, 31),  row: 1 },
 
   // Agency Portal (Existing Agency Channels): in production, heading for sunset
-  {
-    id: 'dts-seg-portal-prod',
-    assetId: 'dts-ch-02',
-    status: 'appstatus-in-production',
-    startDate: relDate(-2, 1, 1),
-    endDate: relDate(2, 6, 30),
-    label: 'Agency Portal',
-  },
-  {
-    id: 'dts-seg-portal-sunset',
-    assetId: 'dts-ch-02',
-    status: 'appstatus-sunset',
-    startDate: relDate(2, 7, 1),
-    endDate: relDate(3, 6, 30),
-    row: 1,
-    label: 'Agency Portal',
-  },
+  { id: 'dts-seg-portal-prod',     applicationId: 'app-dts-portal',     status: 'appstatus-in-production', startDate: relDate(-2, 1, 1), endDate: relDate(2, 6, 30) },
+  { id: 'dts-seg-portal-sunset',   applicationId: 'app-dts-portal',     status: 'appstatus-sunset',        startDate: relDate(2, 7, 1),  endDate: relDate(3, 6, 30),  row: 1 },
 
   // Govt.nz App (AoG Channels): planned — the future state
-  {
-    id: 'dts-seg-aog-planned',
-    assetId: 'dts-ch-01',
-    status: 'appstatus-planned',
-    startDate: relDate(2, 1, 1),
-    endDate: relDate(3, 12, 31),
-    label: 'Govt.nz App',
-  },
+  { id: 'dts-seg-aog-planned',     applicationId: 'app-dts-aog',        status: 'appstatus-planned',       startDate: relDate(2, 1, 1),  endDate: relDate(3, 12, 31) },
 
   // AI Platform: new capability planned
-  {
-    id: 'dts-seg-ai-planned',
-    assetId: 'dts-dpi-02',
-    status: 'appstatus-planned',
-    startDate: relDate(1, 7, 1),
-    endDate: relDate(2, 12, 31),
-    label: 'AI Platform',
-  },
+  { id: 'dts-seg-ai-planned',      applicationId: 'app-dts-ai',         status: 'appstatus-planned',       startDate: relDate(1, 7, 1),  endDate: relDate(2, 12, 31) },
 
   // ITSM: standalone in production, moving to sunset as cluster migration completes
-  {
-    id: 'dts-seg-itsm-prod',
-    assetId: 'dts-plt-02',
-    status: 'appstatus-in-production',
-    startDate: relDate(-2, 1, 1),
-    endDate: relDate(1, 9, 30),
-    label: 'Agency ITSM (Standalone)',
-  },
-  {
-    id: 'dts-seg-itsm-sunset',
-    assetId: 'dts-plt-02',
-    status: 'appstatus-sunset',
-    startDate: relDate(1, 10, 1),
-    endDate: relDate(2, 3, 31),
-    row: 1,
-    label: 'Agency ITSM (Standalone)',
-  },
+  { id: 'dts-seg-itsm-prod',       applicationId: 'app-dts-itsm',       status: 'appstatus-in-production', startDate: relDate(-2, 1, 1), endDate: relDate(1, 9, 30) },
+  { id: 'dts-seg-itsm-sunset',     applicationId: 'app-dts-itsm',       status: 'appstatus-sunset',        startDate: relDate(1, 10, 1), endDate: relDate(2, 3, 31),  row: 1 },
 
   // HRIS: on-premise in production, moving to sunset as cluster migration completes
-  {
-    id: 'dts-seg-hris-prod',
-    assetId: 'dts-plt-03',
-    status: 'appstatus-in-production',
-    startDate: relDate(-2, 1, 1),
-    endDate: relDate(2, 3, 31),
-    label: 'On-Premise HRIS',
-  },
-  {
-    id: 'dts-seg-hris-sunset',
-    assetId: 'dts-plt-03',
-    status: 'appstatus-sunset',
-    startDate: relDate(2, 4, 1),
-    endDate: relDate(3, 3, 31),
-    row: 1,
-    label: 'On-Premise HRIS',
-  },
+  { id: 'dts-seg-hris-prod',       applicationId: 'app-dts-hris',       status: 'appstatus-in-production', startDate: relDate(-2, 1, 1), endDate: relDate(2, 3, 31) },
+  { id: 'dts-seg-hris-sunset',     applicationId: 'app-dts-hris',       status: 'appstatus-sunset',        startDate: relDate(2, 4, 1),  endDate: relDate(3, 3, 31),  row: 1 },
 ];
 
 // ── Default DTS phases for demo initiatives ────────────────────────────────

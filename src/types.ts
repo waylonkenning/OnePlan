@@ -141,12 +141,10 @@ export interface Application {
  */
 export interface ApplicationSegment {
   id: string;
-  applicationId?: string; // Optional: links segment to a specific application within the asset
-  assetId?: string;       // Optional: links segment directly to an asset (when applicationId is absent)
+  applicationId: string; // Links segment to an Application record within the asset
   startDate: string; // ISO format: YYYY-MM-DD
   endDate: string;   // ISO format: YYYY-MM-DD
   status: string;
-  label?: string;    // Optional display override; defaults to the status label
   row?: number;      // Which row within the swimlane (0-indexed). Auto-assigned if absent.
   rowSpan?: number;  // How many rows tall this segment is (default 1). Controlled by bottom-edge drag.
 }
@@ -209,5 +207,6 @@ export interface Version {
     assetCategories: AssetCategory[];
     timelineSettings: TimelineSettings;
     resources: Resource[];
+    applicationStatuses?: ApplicationStatus[];
   };
 }

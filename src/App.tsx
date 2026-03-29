@@ -315,8 +315,8 @@ export default function App() {
     handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: updatedSettings, resources, applicationStatuses });
   }, [assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources, applicationStatuses, handleUpdate]);
 
-  const handleRestoreVersion = useCallback((version: { data: AppState }) => {
-    handleUpdate(version.data);
+  const handleRestoreVersion = useCallback((version: import('./types').Version) => {
+    handleUpdate({ ...version.data, applicationStatuses: version.data.applicationStatuses ?? [] });
   }, [handleUpdate]);
 
   const handleSaveApplicationSegment = useCallback((seg: import('./types').ApplicationSegment) => {
@@ -339,7 +339,7 @@ export default function App() {
     handleUpdate({
       assets: assets.filter(a => a.id !== assetId),
       applications: applications.filter(a => a.assetId !== assetId),
-      applicationSegments: applicationSegments.filter(s => s.assetId !== assetId && !assetAppIds.has(s.applicationId ?? '')),
+      applicationSegments: applicationSegments.filter(s => !assetAppIds.has(s.applicationId)),
       initiatives: initiatives.filter(i => i.assetId !== assetId),
       milestones: milestones.filter(m => m.assetId !== assetId),
       programmes, strategies,
@@ -362,9 +362,7 @@ export default function App() {
     handleUpdate({
       assets: assets.filter(a => !idSet.has(a.id)),
       applications: applications.filter(a => !idSet.has(a.assetId)),
-      applicationSegments: applicationSegments.filter(s =>
-        !idSet.has(s.assetId ?? '') && !assetAppIds.has(s.applicationId ?? '')
-      ),
+      applicationSegments: applicationSegments.filter(s => !assetAppIds.has(s.applicationId)),
       initiatives: initiatives.filter(i => !idSet.has(i.assetId)),
       milestones: milestones.filter(m => !idSet.has(m.assetId)),
       programmes, strategies,

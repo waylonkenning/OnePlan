@@ -127,16 +127,6 @@ export function ApplicationSegmentPanel({
                 </select>
               )}
 
-              {field('Label (optional)',
-                <input
-                  type="text"
-                  data-testid="segment-label"
-                  value={formData.label ?? ''}
-                  onChange={e => setFormData({ ...formData, label: e.target.value || undefined })}
-                  placeholder="e.g. Entra B2C CIAM — Production"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              )}
 
               <div className="grid grid-cols-2 gap-4">
                 {field('Start Date',
@@ -200,7 +190,7 @@ export function ApplicationSegmentPanel({
         <ConfirmModal
           isOpen={confirmDelete}
           title="Delete Segment"
-          message={`Remove the "${formData.label || statusOptions.find(o => o.value === formData.status)?.label}" segment? This cannot be undone.`}
+          message={`Remove the "${(application ?? applications.find(a => a.id === formData.applicationId))?.name ?? statusOptions.find(o => o.value === formData.status)?.label}" segment? This cannot be undone.`}
           confirmLabel="Delete"
           onConfirm={() => { onDelete(formData); setConfirmDelete(false); }}
           onCancel={() => setConfirmDelete(false)}

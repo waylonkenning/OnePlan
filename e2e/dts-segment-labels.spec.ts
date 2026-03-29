@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * User Story 28: DTS segment application names
+ * User Story 28 / US-30: DTS segment application names and unified model
  *
  * AC1: Each application segment has a meaningful label (not generic status text).
  * AC2: Segments for the same system across phases share the same label.
- * AC3: Timeline renders seg.label when present, falling back to status name.
+ * AC3: Timeline renders Application.name on the segment bar.
+ * US-30: DTS Application records are visible in the Data Manager Applications tab.
  */
 
 async function loadDtsTemplate(page: import('@playwright/test').Page) {
@@ -24,6 +25,11 @@ async function loadDtsTemplate(page: import('@playwright/test').Page) {
   await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
   await page.getByTestId('template-select-with-demo-btn-dts').click();
   await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
+  // Dismiss tutorial modal if it appears (shown on first-time template load)
+  const tutorialModal = page.getByTestId('tutorial-modal');
+  if (await tutorialModal.isVisible()) {
+    await tutorialModal.getByRole('button', { name: 'Close' }).click();
+  }
 }
 
 test.describe('DTS Segment Application Labels', () => {
@@ -68,5 +74,31 @@ test.describe('DTS Segment Application Labels', () => {
     await expect(itsmLabels.first()).toBeVisible();
     const itsmCount = await itsmLabels.count();
     expect(itsmCount).toBeGreaterThanOrEqual(2);
+  });
+
+});
+
+test.describe('US-30: DTS Application records in Data Manager', () => {
+  test.describe.configure({ timeout: 60000 });
+
+  test('DTS Application records are visible in Data Manager', async ({ page }) => {
+    await loadDtsTemplate(page);
+
+    await page.getByTestId('nav-data-manager').click();
+    await page.waitForSelector('[data-testid="data-manager"]', { timeout: 10000 });
+    await page.getByTestId('data-manager-tab-applications').click();
+    // Wait for the applications tab to be rendered (ghost row has assetId select unique to this tab)
+    await page.waitForSelector('[data-testid="ghost-select-assetId"]', { timeout: 10000 });
+
+    const rows = page.locator('[data-testid="data-manager"] tbody tr:not(.ghost-row)');
+    const count = await rows.count();
+    expect(count).toBeGreaterThanOrEqual(10);
+
+    // Spot-check application names by reading input values directly
+    const nameValues = await page.locator('[data-testid="data-manager"] tbody input[aria-label="Name"]').evaluateAll(
+      (els) => els.map(el => (el as HTMLInputElement).value)
+    );
+    expect(nameValues).toContain('RealMe+');
+    expect(nameValues).toContain('Legacy IdP');
   });
 });

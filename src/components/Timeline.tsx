@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useMediaQuery } from '../lib/useMediaQuery';
 import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
-import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, addDays, isValid, startOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
+import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, addDays, startOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes, Trash2 } from 'lucide-react';
 import { geanzAreas, GEANZ_CATEGORY_ID, GEANZ_TO_DTS_MAP, GeanzArea } from '../lib/geanzCatalogue';
@@ -11,8 +11,6 @@ import { DependencyPanel } from './DependencyPanel';
 import { ArrowDisambiguator } from './ArrowDisambiguator';
 import { computeCriticalPath } from '../lib/criticalPath';
 import {
-  SEG_BAR_HEIGHT,
-  SEG_ROW_HEIGHT,
   MIN_ROW_HEIGHT,
   BAR_HEIGHT,
   BAR_GAP,
@@ -1192,6 +1190,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                   <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
                 </marker>
               </defs>
+              {/* eslint-disable-next-line react-hooks/refs */}
               {settings.showRelationships !== 'off' && (() => {
                 // Auto-stagger: group deps that share the same routing corridor
                 const corridorGroups = new Map<string, string[]>();
@@ -1616,6 +1615,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             })}
 
             {/* Default view: group by Asset/Category */}
+            {/* eslint-disable-next-line react-hooks/refs */}
             {groupBy === 'asset' && sortedCategoryIds.map((catId) => {
               const category = assetCategories.find(c => c.id === catId);
               const categoryName = category?.name || 'Uncategorized';
@@ -1680,7 +1680,6 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                     const { items: layoutItems, height: rowHeight } = getAssetLayout(asset, assetLevelInitiatives);
                     // Collect all segments for this asset's applications swimlane
                     const assetSegments = localSegments.filter(s =>
-                      s.assetId === asset.id ||
                       assetApplications.some(a => a.id === s.applicationId)
                     );
 
@@ -2025,7 +2024,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                         )} {/* end initiatives swimlane */}
 
                         {/* Applications swimlane — single merged row per asset, hidden when display is 'initiatives'.
-                            Renders when the asset has Application objects OR segments linked directly via assetId. */}
+                            Renders when the asset has Application objects (which may have lifecycle segments). */}
                         {display !== 'initiatives' && (assetApplications.length > 0 || assetSegments.length > 0) && (() => {
                           const { items: segLayoutItems, height: swimlaneHeight } = layoutSegments(assetSegments);
                           return (
@@ -2059,8 +2058,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                               {segLayoutItems.map(({ seg, top, height, left, width, rowSpan }) => {
                                 if (left + width < 0 || left > 100) return null;
                                 const colorClass = SEGMENT_COLORS[seg.status] || 'bg-slate-400';
-                                const displayLabel = seg.label
-                                  || applications.find(a => a.id === seg.applicationId)?.name
+                                const displayLabel = applications.find(a => a.id === seg.applicationId)?.name
                                   || SEGMENT_LABELS[seg.status];
                                 const isSegSelected = selectedSegmentId === seg.id;
                                 return (
@@ -2202,6 +2200,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                   <div className="flex-shrink-0" style={{ width: totalWidth }} />
                 </div>
 
+                {/* eslint-disable-next-line react-hooks/refs */}
                 {geanzAreas.map((area: GeanzArea) => {
                   const areaAssets = geanzAssetsByArea[area.alias] || [];
                   const isPopulated = areaAssets.length > 0;
@@ -2476,7 +2475,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             : creatingSegmentParams
               ? {
                   id: creatingSegmentParams.id,
-                  assetId: creatingSegmentParams.assetId,
+                  applicationId: applications.find(a => a.assetId === creatingSegmentParams.assetId)?.id ?? '',
                   startDate: creatingSegmentParams.startDate,
                   endDate: creatingSegmentParams.endDate,
                   status: applicationStatuses[0]?.id ?? 'appstatus-planned',
@@ -2492,7 +2491,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         }
         applications={(() => {
           const assetId = segmentPanelId
-            ? localSegments.find(s => s.id === segmentPanelId)?.assetId
+            ? applications.find(a => a.id === localSegments.find(s => s.id === segmentPanelId)?.applicationId)?.assetId
             : creatingSegmentParams?.assetId;
           return assetId ? applications.filter(a => a.assetId === assetId) : [];
         })()}

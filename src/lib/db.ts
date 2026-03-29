@@ -57,14 +57,14 @@ interface ITMapDB extends DBSchema {
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 10;
+const DB_VERSION = 11;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
 export const initDB = () => {
   if (!dbPromise) {
     dbPromise = openDB<ITMapDB>(DB_NAME, DB_VERSION, {
-      upgrade(db, oldVersion) {
+      async upgrade(db, oldVersion, _newVersion, tx) {
         if (!db.objectStoreNames.contains('assets')) {
           db.createObjectStore('assets', { keyPath: 'id' });
         }
@@ -97,6 +97,45 @@ export const initDB = () => {
         }
         if (oldVersion < 10 && !db.objectStoreNames.contains('applicationStatuses')) {
           db.createObjectStore('applicationStatuses', { keyPath: 'id' });
+        }
+        if (oldVersion < 11) {
+          // Migrate assetId-based segments to Application records + applicationId.
+          // Segments that already have applicationId are left untouched.
+          const allSegments = await tx.objectStore('applicationSegments').getAll();
+          const allAssets = await tx.objectStore('assets').getAll();
+          const assetMap = new Map(allAssets.map((a: any) => [a.id, a]));
+
+          // Build a map from "assetId|label" → generated applicationId so that
+          // segments sharing the same asset+label resolve to the same Application.
+          const appKeyToId = new Map<string, string>();
+          let counter = 0;
+
+          for (const seg of allSegments) {
+            if ((seg as any).assetId && !(seg as any).applicationId) {
+              const assetId: string = (seg as any).assetId;
+              const label: string = (seg as any).label ?? '';
+              const key = `${assetId}|${label}`;
+              if (!appKeyToId.has(key)) {
+                const asset = assetMap.get(assetId) as any;
+                const appName = label || asset?.name || assetId;
+                const appId = `app-migrated-${assetId}-${counter++}`;
+                appKeyToId.set(key, appId);
+                await tx.objectStore('applications').add({ id: appId, assetId, name: appName });
+              }
+            }
+          }
+
+          // Rewrite each assetId-based segment to use applicationId.
+          for (const seg of allSegments) {
+            if ((seg as any).assetId && !(seg as any).applicationId) {
+              const key = `${(seg as any).assetId}|${(seg as any).label ?? ''}`;
+              const applicationId = appKeyToId.get(key);
+              if (applicationId) {
+                const { assetId: _a, label: _l, ...rest } = seg as any;
+                await tx.objectStore('applicationSegments').put({ ...rest, applicationId });
+              }
+            }
+          }
         }
       },
     });

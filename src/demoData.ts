@@ -127,6 +127,16 @@ export const demoApplications: Application[] = [
     { id: 'app-ios', assetId: 'a-mobile', name: 'iOS App' },
     { id: 'app-android', assetId: 'a-mobile', name: 'Android App' },
     { id: 'app-rn', assetId: 'a-mobile', name: 'React Native Shell' },
+    // ── GEANZ asset applications ──────────────────────────────────────────────
+    { id: 'app-gz-fmis',    assetId: 'gz-fmis',    name: 'Financial Management Information System' },
+    { id: 'app-gz-authn',   assetId: 'gz-authn',   name: 'Authentication' },
+    { id: 'app-gz-email',   assetId: 'gz-email',   name: 'Email applications' },
+    { id: 'app-gz-iaas',    assetId: 'gz-iaas',    name: 'Infrastructure as a Service (IaaS)' },
+    { id: 'app-gz-gesb',    assetId: 'gz-gesb',    name: 'Enterprise Service Bus (ESB)' },
+    { id: 'app-gz-siem',    assetId: 'gz-siem',    name: 'Security Incident and Event Management' },
+    { id: 'app-gz-portal',  assetId: 'gz-portal',  name: 'Customer Portal Application Service' },
+    { id: 'app-gz-itsm',    assetId: 'gz-itsm',    name: 'ICT Service Management (ITSM)' },
+    { id: 'app-gz-apimgmt', assetId: 'gz-apimgmt', name: 'API Management' },
 ];
 
 export const demoApplicationSegments: ApplicationSegment[] = [
@@ -156,34 +166,34 @@ export const demoApplicationSegments: ApplicationSegment[] = [
 
     // ── GEANZ asset lifecycle segments ────────────────────────────────────────
     // FMIS — in production, migrating to cloud
-    { id: 'seg-gz-fmis-prod',      assetId: 'gz-fmis',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(1, 3, 31) },
-    { id: 'seg-gz-fmis-sunset',    assetId: 'gz-fmis',    status: 'appstatus-sunset',        startDate: relDate(1, 4, 1),  endDate: relDate(2, 6, 30), row: 1 },
+    { id: 'seg-gz-fmis-prod',      applicationId: 'app-gz-fmis',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(1, 3, 31) },
+    { id: 'seg-gz-fmis-sunset',    applicationId: 'app-gz-fmis',    status: 'appstatus-sunset',        startDate: relDate(1, 4, 1),  endDate: relDate(2, 6, 30), row: 1 },
     // Authentication — current platform phasing out, replacement being funded
-    { id: 'seg-gz-authn-prod',     assetId: 'gz-authn',   status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 6, 30) },
-    { id: 'seg-gz-authn-funded',   assetId: 'gz-authn',   status: 'appstatus-funded',        startDate: relDate(0, 1, 1),  endDate: relDate(0, 6, 30), row: 1 },
-    { id: 'seg-gz-authn-new-prod', assetId: 'gz-authn',   status: 'appstatus-in-production', startDate: relDate(0, 7, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    { id: 'seg-gz-authn-prod',     applicationId: 'app-gz-authn',   status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 6, 30) },
+    { id: 'seg-gz-authn-funded',   applicationId: 'app-gz-authn',   status: 'appstatus-funded',        startDate: relDate(0, 1, 1),  endDate: relDate(0, 6, 30), row: 1 },
+    { id: 'seg-gz-authn-new-prod', applicationId: 'app-gz-authn',   status: 'appstatus-in-production', startDate: relDate(0, 7, 1),  endDate: relDate(2, 12, 31), row: 1 },
     // Email — legacy mail in production, M365 funded and going live
-    { id: 'seg-gz-email-legacy',   assetId: 'gz-email',   status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 6, 30) },
-    { id: 'seg-gz-email-m365-fd',  assetId: 'gz-email',   status: 'appstatus-funded',        startDate: relDate(0, 1, 1),  endDate: relDate(0, 5, 31), row: 1 },
-    { id: 'seg-gz-email-m365',     assetId: 'gz-email',   status: 'appstatus-in-production', startDate: relDate(0, 7, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    { id: 'seg-gz-email-legacy',   applicationId: 'app-gz-email',   status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 6, 30) },
+    { id: 'seg-gz-email-m365-fd',  applicationId: 'app-gz-email',   status: 'appstatus-funded',        startDate: relDate(0, 1, 1),  endDate: relDate(0, 5, 31), row: 1 },
+    { id: 'seg-gz-email-m365',     applicationId: 'app-gz-email',   status: 'appstatus-in-production', startDate: relDate(0, 7, 1),  endDate: relDate(2, 12, 31), row: 1 },
     // IaaS — on-prem datacentre running down as cloud ramps up
-    { id: 'seg-gz-iaas-onprem',    assetId: 'gz-iaas',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(1, 6, 30) },
-    { id: 'seg-gz-iaas-cloud-fd',  assetId: 'gz-iaas',    status: 'appstatus-funded',        startDate: relDate(0, 1, 1),  endDate: relDate(1, 6, 30), row: 1 },
-    { id: 'seg-gz-iaas-sunset',    assetId: 'gz-iaas',    status: 'appstatus-sunset',        startDate: relDate(1, 7, 1),  endDate: relDate(2, 6, 30) },
-    { id: 'seg-gz-iaas-cloud',     assetId: 'gz-iaas',    status: 'appstatus-in-production', startDate: relDate(1, 7, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    { id: 'seg-gz-iaas-onprem',    applicationId: 'app-gz-iaas',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(1, 6, 30) },
+    { id: 'seg-gz-iaas-cloud-fd',  applicationId: 'app-gz-iaas',    status: 'appstatus-funded',        startDate: relDate(0, 1, 1),  endDate: relDate(1, 6, 30), row: 1 },
+    { id: 'seg-gz-iaas-sunset',    applicationId: 'app-gz-iaas',    status: 'appstatus-sunset',        startDate: relDate(1, 7, 1),  endDate: relDate(2, 6, 30) },
+    { id: 'seg-gz-iaas-cloud',     applicationId: 'app-gz-iaas',    status: 'appstatus-in-production', startDate: relDate(1, 7, 1),  endDate: relDate(2, 12, 31), row: 1 },
     // Enterprise Service Bus — production until retirement
-    { id: 'seg-gz-gesb-prod',      assetId: 'gz-gesb',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
-    { id: 'seg-gz-gesb-sunset',    assetId: 'gz-gesb',    status: 'appstatus-sunset',        startDate: relDate(1, 1, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    { id: 'seg-gz-gesb-prod',      applicationId: 'app-gz-gesb',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
+    { id: 'seg-gz-gesb-sunset',    applicationId: 'app-gz-gesb',    status: 'appstatus-sunset',        startDate: relDate(1, 1, 1),  endDate: relDate(2, 12, 31), row: 1 },
     // SIEM — platform upgrade in progress
-    { id: 'seg-gz-siem-prod',      assetId: 'gz-siem',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 12, 31) },
-    { id: 'seg-gz-siem-funded',    assetId: 'gz-siem',    status: 'appstatus-funded',        startDate: relDate(0, 7, 1),  endDate: relDate(1, 3, 31), row: 1 },
-    { id: 'seg-gz-siem-new',       assetId: 'gz-siem',    status: 'appstatus-in-production', startDate: relDate(1, 4, 1),  endDate: relDate(2, 12, 31), row: 1 },
+    { id: 'seg-gz-siem-prod',      applicationId: 'app-gz-siem',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(0, 12, 31) },
+    { id: 'seg-gz-siem-funded',    applicationId: 'app-gz-siem',    status: 'appstatus-funded',        startDate: relDate(0, 7, 1),  endDate: relDate(1, 3, 31), row: 1 },
+    { id: 'seg-gz-siem-new',       applicationId: 'app-gz-siem',    status: 'appstatus-in-production', startDate: relDate(1, 4, 1),  endDate: relDate(2, 12, 31), row: 1 },
     // Customer Portal — long-running production service
-    { id: 'seg-gz-portal-prod',    assetId: 'gz-portal',  status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
+    { id: 'seg-gz-portal-prod',    applicationId: 'app-gz-portal',  status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
     // ITSM — in production
-    { id: 'seg-gz-itsm-prod',      assetId: 'gz-itsm',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
+    { id: 'seg-gz-itsm-prod',      applicationId: 'app-gz-itsm',    status: 'appstatus-in-production', startDate: relDate(-1, 1, 1), endDate: relDate(2, 12, 31) },
     // API Management — in production
-    { id: 'seg-gz-api-prod',       assetId: 'gz-apimgmt', status: 'appstatus-in-production', startDate: relDate(0, 1, 1),  endDate: relDate(2, 12, 31) },
+    { id: 'seg-gz-api-prod',       applicationId: 'app-gz-apimgmt', status: 'appstatus-in-production', startDate: relDate(0, 1, 1),  endDate: relDate(2, 12, 31) },
 ];
 
 export const demoInitiatives: Initiative[] = [

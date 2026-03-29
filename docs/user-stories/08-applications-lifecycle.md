@@ -133,3 +133,39 @@
 - When a segment's start date is before the visible timeline window and its bar extends into the visible area, the label is pinned to the left edge of the content area (not clipped off-screen)
 - When a segment is fully within the visible window, the label sits at the natural start of the bar (no change to normal behaviour)
 - Both the application name / custom label and the status badge remain readable at the clamped position
+
+---
+
+## US-30: Unify Application Segment Model (Remove assetId Shortcut)
+
+**As a** developer maintaining the Scenia data model,
+**I want** all application lifecycle segments to link via an `Application` record rather than directly to an asset,
+**so that** the data model has a single, consistent path and all segments are visible and editable in the Data Manager.
+
+**Background:**
+Two code paths currently exist for `ApplicationSegment`:
+- Some segments use `applicationId` → `Application` record → `assetId` (the intended model)
+- Others use `assetId` directly with an inline `label` (a shortcut introduced in commit `1114627`)
+
+The shortcut is used in both GEANZ demo data (~20 segments for `gz-*` assets) and all DTS demo data. Any user who loaded a GEANZ or DTS workspace with demo data will have `assetId`-based segments in their IndexedDB. The shortcut also means those segments are invisible in the Data Manager "Applications" tab, and the codebase has branching logic throughout to handle both paths.
+
+**Acceptance Criteria:**
+- `ApplicationSegment.assetId` is removed from the type
+- `ApplicationSegment.label` is removed from the type; the display name comes from `Application.name`
+- All `demoApplicationSegments` in `demoData.ts` are updated to use `applicationId`, backed by new `Application` records with names derived from the corresponding asset name
+- All `dtsDemoApplicationSegments` in `dtsDemoData.ts` are updated to use `applicationId`, backed by a new `Application[]` export; the existing `label` values become `Application.name`
+- `workspaceTemplates.ts` populates `applications` for the `dts` and `mixed` templates (currently hardcoded to `[]`)
+- The Data Manager "Applications" tab shows all application records regardless of template
+- All timeline rendering logic that branched on `applicationId` vs `assetId` is consolidated to a single path
+- No change to visible behaviour on the timeline (segments render identically before and after)
+- `DB_VERSION` is bumped to 11 with a migration that: reads all segments with `assetId` set, looks up the asset name from the `assets` store within the same versionchange transaction, creates one `Application` record per unique `assetId` (named after the asset), and rewrites each segment with `applicationId` pointing to the new record
+- All existing E2E tests continue to pass; a new test confirms DTS and GEANZ applications appear in the Data Manager
+
+**Files to Touch:**
+- `src/types.ts` — remove `assetId` and `label` from `ApplicationSegment`
+- `src/demoData.ts` — add `Application` records for GEANZ `assetId` segments; update those segments to use `applicationId`
+- `src/lib/dtsDemoData.ts` — add `Application[]` export; update all segments to use `applicationId`
+- `src/lib/workspaceTemplates.ts` — populate `applications` for `dts` and `mixed` templates
+- `src/lib/db.ts` — bump `DB_VERSION` to 11; add migration in `upgrade()` callback
+- `src/components/Timeline.tsx` — remove `assetId` branch in segment rendering
+- `e2e/` — add test confirming applications appear in the Data Manager for both GEANZ and DTS templates
