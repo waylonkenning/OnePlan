@@ -7,3 +7,9 @@ test-results/
 *.log
 .env*
 .claude-flow/
+
+# Private deployment documentation
+CLAUDE.md
+AZURE_DEPLOYMENT.md
+docs/DEPLOYMENT_WORKFLOW.md
+plans/
