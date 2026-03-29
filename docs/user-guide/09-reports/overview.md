@@ -13,6 +13,7 @@ Open the Reports section from the main navigation. You will see a selection scre
 - **Initiatives & Dependencies** — view every initiative alongside its dependency relationships
 - **Capacity** — see resource allocation across the timeline period
 - **Maturity Heatmap** — view all IT assets coloured by their maturity level, grouped by capability
+- **DTS Alignment** — view all 20 DTS assets in a coverage grid coloured by adoption status, with initiative count and budget per asset. Only visible in DTS and Mixed workspaces.
 
 Click any card to open that report. Use the back button to return to the selection screen.
 

@@ -49,4 +49,4 @@ Clicking **Cancel** or clicking outside the panel closes it without making any c
 ---
 
 - Previous: [Capacity Report](capacity-report.md)
-- Next: [History Diff Report](history-diff-report.md)
+- Next: [DTS Alignment Report](dts-alignment-report.md)

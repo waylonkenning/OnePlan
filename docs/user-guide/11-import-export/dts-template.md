@@ -17,9 +17,9 @@ Selecting the DTS template on first load sets up:
 | Agency, Platform & Infrastructure | Agency-specific platforms and infrastructure |
 | Common Consolidated Platforms | Shared back-office systems (ITSM, FMIS, HRIS, EAM, Contracts) |
 
-**20 pre-built assets** with DTS alias codes (DTS.DPI.01 – DTS.PLT.05), covering the 11 DPI components, 3 channel types, integration layer, and 5 common consolidated platform types.
+**20 pre-built assets** with DTS alias codes (DTS.DPI.01 – DTS.PLT.05), covering the 11 DPI components, 3 channel types, integration layer, and 5 common consolidated platform types. The Customer Layer also includes three reference touchpoints (Citizens & Residents, Businesses & Employers, Iwi & Community Organisations) so the full four-layer structure is visible from the start.
 
-**Example initiatives** spanning the DTS layers, including Identity Platform Uplift, AI Platform Pilot, Payments Consolidation, and API Gateway Implementation — showing how real delivery work maps to the GCDO architecture.
+**Demo data** (optional) loads 14 initiatives across the three DTS adoption phases and back-office consolidation, 8 application lifecycle segments showing legacy systems transitioning to DPI equivalents, 5 milestones including GCDO Payments Platform GA and Cluster Platform Go-Live as external dependency events, and 5 pre-drawn dependency arrows showing the critical sequencing constraints of DTS adoption.
 
 ## When to use this template
 
@@ -29,9 +29,21 @@ Choose the DTS template if your agency wants to:
 - Identify which DTS shared capabilities it is consuming, building, or yet to adopt
 - Report portfolio progress against the Digital Target State to GCDO or cluster leads
 
+## DTS-specific features
+
+Several features in Scenia are only active in DTS and Mixed workspaces:
+
+**DTS Adoption Status per asset** — each of the 20 DTS assets has an adoption status field (Not Started / Scoping / In Delivery / Adopted / Decommissioning Incumbent / Not Applicable). Set it in Data Manager → Assets. Enable the **DTS Adoption Status** toggle in the display menu to show coloured badges on the timeline.
+
+**DTS Alignment Coverage report** — a grid of all 20 DTS assets arranged in their six layers, coloured by adoption status with initiative count and budget per asset. Available in the Reports section. See [DTS Alignment Report](../09-reports/dts-alignment-report.md).
+
+**DTS Phase on initiatives** — each initiative can be tagged with its DTS adoption phase (Phase 1 / Phase 2 / Phase 3 / Back-Office / Not DTS). Use this to group the timeline by phase or to see spend broken down by phase in the Budget report.
+
+**DTS Summary tab in Excel export** — when exporting from a DTS or Mixed workspace, the Excel workbook includes a DTS Summary sheet with one row per asset showing adoption status, initiative count, total budget, lead owner, and target adoption date.
+
 ## Using the GEANZ catalogue alongside DTS
 
-If you want the full GEANZ technology catalogue browsable alongside the DTS structure, choose **Mixed** instead of DTS. The Mixed template gives you the six DTS layers with the GEANZ catalogue section below.
+If you want the full GEANZ technology catalogue browsable alongside the DTS structure, choose **Mixed** instead of DTS. The Mixed template gives you the six DTS layers with the GEANZ catalogue section below. In the Mixed template, GEANZ application area rows show a badge indicating the corresponding DTS alias code where a mapping exists, so you can see where your GEANZ applications sit in the DTS architecture without separate research.
 
 ## Starting without demo data
 

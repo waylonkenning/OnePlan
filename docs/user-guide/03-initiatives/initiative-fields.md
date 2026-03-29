@@ -16,6 +16,7 @@ Every initiative has the following fields. All are available in both the edit pa
 | Budget | Planned cost | Budget label on bar, Budget Summary report |
 | Description | Free-text notes | Tooltip, mobile card rows |
 | Application | The application within the asset this work relates to | Metadata only |
+| DTS Phase | DTS adoption phase (Phase 1 – Register & Expose / Phase 2 – Integrate DPI / Phase 3 – AI & Legacy Exit / Back-Office Consolidation / Not DTS) | Group-by-DTS-Phase mode, Budget report. Only shown in DTS and Mixed workspaces. |
 | Resources | Team members assigned to this initiative | Names on bar when "Show Resources" toggle is on |
 
 **Owner** and **Resources** are populated from the [Resources roster](../08-resources/resource-roster.md). Add people there before assigning them.

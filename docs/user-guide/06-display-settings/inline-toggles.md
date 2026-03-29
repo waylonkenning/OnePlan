@@ -25,6 +25,12 @@ Four icon toggle buttons in the header control what detail is shown on the timel
 - Label mode shows a formatted budget figure directly on the bar.
 - Bar-height mode scales bar height proportionally to the budget value, giving an instant visual sense of relative investment across initiatives.
 
+## DTS Adoption Status
+
+- Shows or hides a coloured badge on each DTS asset row header indicating that asset's current adoption status (Not Started, Scoping, In Delivery, Adopted, Decommissioning Incumbent, Not Applicable).
+- This toggle is only visible in DTS and Mixed workspaces.
+- Set adoption status per asset in **Data Manager → Assets**.
+
 ## Behaviour
 
 - All toggle states persist across page reloads.

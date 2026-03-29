@@ -24,5 +24,5 @@ If the report cannot load the selected versions, an error message is displayed. 
 
 ---
 
-- Previous: [Capacity Report](capacity-report.md)
+- Previous: [DTS Alignment Report](dts-alignment-report.md)
 - Next: [Saving a Version](../10-version-history/saving-a-version.md)
