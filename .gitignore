@@ -14,3 +14,4 @@ AZURE_DEPLOYMENT.md
 docs/DEPLOYMENT_WORKFLOW.md
 plans/
 staticwebapp.config.json
+.github/workflows/azure-static-web-apps-*.yml
