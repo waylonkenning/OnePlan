@@ -226,13 +226,13 @@ export const saveAppData = async (data: {
     tx.objectStore('strategies').clear(),
     tx.objectStore('dependencies').clear(),
     tx.objectStore('assetCategories').clear(),
-    ...data.assets.map(item => tx.objectStore('assets').add(item)),
-    ...data.initiatives.map(item => tx.objectStore('initiatives').add(item)),
-    ...data.milestones.map(item => tx.objectStore('milestones').add(item)),
-    ...data.programmes.map(item => tx.objectStore('programmes').add(item)),
-    ...data.strategies.map(item => tx.objectStore('strategies').add(item)),
-    ...data.dependencies.map(item => tx.objectStore('dependencies').add(item)),
-    ...data.assetCategories.map(item => tx.objectStore('assetCategories').add(item)),
+    ...data.assets.map(item => tx.objectStore('assets').put(item)),
+    ...data.initiatives.map(item => tx.objectStore('initiatives').put(item)),
+    ...data.milestones.map(item => tx.objectStore('milestones').put(item)),
+    ...data.programmes.map(item => tx.objectStore('programmes').put(item)),
+    ...data.strategies.map(item => tx.objectStore('strategies').put(item)),
+    ...data.dependencies.map(item => tx.objectStore('dependencies').put(item)),
+    ...data.assetCategories.map(item => tx.objectStore('assetCategories').put(item)),
   ];
   if (db.objectStoreNames.contains('settings')) {
     allPromises.push(tx.objectStore('settings').clear());
@@ -240,19 +240,19 @@ export const saveAppData = async (data: {
   }
   if (db.objectStoreNames.contains('resources')) {
     allPromises.push(tx.objectStore('resources').clear());
-    (data.resources || []).forEach(item => allPromises.push(tx.objectStore('resources').add(item)));
+    (data.resources || []).forEach(item => allPromises.push(tx.objectStore('resources').put(item)));
   }
   if (db.objectStoreNames.contains('applications')) {
     allPromises.push(tx.objectStore('applications').clear());
-    (data.applications || []).forEach(item => allPromises.push(tx.objectStore('applications').add(item)));
+    (data.applications || []).forEach(item => allPromises.push(tx.objectStore('applications').put(item)));
   }
   if (db.objectStoreNames.contains('applicationSegments')) {
     allPromises.push(tx.objectStore('applicationSegments').clear());
-    (data.applicationSegments || []).forEach(item => allPromises.push(tx.objectStore('applicationSegments').add(item)));
+    (data.applicationSegments || []).forEach(item => allPromises.push(tx.objectStore('applicationSegments').put(item)));
   }
   if (db.objectStoreNames.contains('applicationStatuses')) {
     allPromises.push(tx.objectStore('applicationStatuses').clear());
-    (data.applicationStatuses || []).forEach(item => allPromises.push(tx.objectStore('applicationStatuses').add(item)));
+    (data.applicationStatuses || []).forEach(item => allPromises.push(tx.objectStore('applicationStatuses').put(item)));
   }
   await Promise.all(allPromises);
 
