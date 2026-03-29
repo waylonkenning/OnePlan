@@ -214,7 +214,7 @@ export function EditableTable<T extends { [key: string]: any }>({
     setSortConfig({ key, direction });
   };
 
-  const handleChange = (index: number, key: keyof T, value: unknown, isGhost: boolean = false) => {
+  const handleChange = (index: number, key: keyof T, value: unknown, isGhost: boolean = false, focusNextColumn: boolean = false) => {
     if (isGhost) {
       const newId = `new-${rowIdCounter.current++}`;
       const newRow = {} as T;
@@ -232,7 +232,18 @@ export function EditableTable<T extends { [key: string]: any }>({
       setRows(updatedRows);
       onUpdate(updatedRows);
 
-      setPendingFocus({ id: newId, key });
+      // If focusNextColumn is true, find and focus the next column
+      if (focusNextColumn) {
+        const currentColIndex = columns.findIndex(col => col.key === key);
+        const nextColIndex = currentColIndex + 1;
+        if (nextColIndex < columns.length) {
+          setPendingFocus({ id: newId, key: columns[nextColIndex].key });
+        } else {
+          setPendingFocus({ id: newId, key });
+        }
+      } else {
+        setPendingFocus({ id: newId, key });
+      }
     } else {
       const newRows = [...rows];
       newRows[index] = { ...newRows[index], [key]: value };
@@ -242,15 +253,18 @@ export function EditableTable<T extends { [key: string]: any }>({
   };
 
   const handleCheckboxChange = (index: number, key: keyof T, checked: boolean, isGhost: boolean = false) => {
-    handleChange(index, key, checked, isGhost);
+    handleChange(index, key, checked, isGhost, false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent, colIndex: number, isGhost: boolean) => {
     if (isGhost && e.key === 'Tab' && !e.shiftKey) {
       const target = e.target as HTMLInputElement;
       if (target.value || target.type === 'checkbox') {
-        // Let the browser handle the TAB, our pendingFocus logic will redirect it to the right place
-        // in the real row if needed.
+        // Prevent default Tab behavior
+        e.preventDefault();
+        
+        // Trigger the change to create the new row, with focusNextColumn flag
+        handleChange(rows.length, columns[colIndex].key, target.type === 'checkbox' ? target.checked : target.value, true, true);
       }
     }
   };
