@@ -405,8 +405,16 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     const calculatedStartDate = format(addDays(startDate, daysFromStart), 'yyyy-MM-dd');
     const calculatedEndDate = format(addDays(startDate, daysFromStart + 90), 'yyyy-MM-dd'); // 90 days default duration
 
+    // Generate unique ID by checking existing initiatives
+    let newId = `init-new-${initIdCounter.current}`;
+    while (initiatives.some(init => init.id === newId)) {
+      initIdCounter.current++;
+      newId = `init-new-${initIdCounter.current}`;
+    }
+    initIdCounter.current++;
+
     setCreatingInitiativeParams({
-      id: `init-new-${initIdCounter.current++}`,
+      id: newId,
       assetId,
       startDate: calculatedStartDate,
       endDate: calculatedEndDate
