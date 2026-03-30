@@ -13,7 +13,7 @@ test('Initiatives touching on same date do not trigger conflict', async ({ page 
 
   // Paste CSV to ensure exact setup
   await page.getByRole('button', { name: /Paste CSV/i }).click();
-  const textarea = page.locator('textarea');
+  const textarea = page.getByTestId('csv-paste-textarea');
   
   // Columns: name, assetId, programmeId, strategyId, startDate, endDate, budget
   // asset-ciam exists in default assets after reset, but we cleared everything.

@@ -38,7 +38,7 @@ test('Greedy placement handles 20+ overlapping initiatives without errors', asyn
   }
   const csv = rows.join('\n');
 
-  const textarea = page.locator('textarea');
+  const textarea = page.getByTestId('csv-paste-textarea');
   await textarea.fill(csv);
 
   await page.waitForTimeout(500);

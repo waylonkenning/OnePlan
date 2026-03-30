@@ -90,7 +90,7 @@ test.describe('Data Manager Operations', () => {
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Asset columns: id, name, categoryId
-    const textarea = page.locator('textarea');
+    const textarea = page.getByTestId('csv-paste-textarea');
     await textarea.fill(`id,name,categoryId\nasset-99,"Very Important, Secure Server",cat-iam`);
 
     await page.waitForTimeout(1000);

@@ -42,7 +42,7 @@ test.describe('Visualiser (Timeline)', () => {
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Ensure significant overlap within 2026-2028 range
-    const textarea = page.locator('textarea');
+    const textarea = page.getByTestId('csv-paste-textarea');
     await textarea.fill(`id,name,assetId,startDate,endDate,budget\nconf-1,Conflict A,a-ciam,2026-04-01,2026-12-31,100\nconf-2,Conflict B,a-ciam,2026-04-01,2026-12-31,100`);
 
     await page.waitForTimeout(1000);
@@ -69,7 +69,7 @@ test.describe('Visualiser (Timeline)', () => {
     await page.getByRole('button', { name: 'Delete all rows for this table' }).click();
     await page.locator('[data-testid="confirm-modal-confirm"]').click();
     await page.getByRole('button', { name: 'Paste CSV' }).click();
-    const textarea = page.locator('textarea');
+    const textarea = page.getByTestId('csv-paste-textarea');
     await textarea.fill(`id,name,assetId,startDate,endDate,budget\nconf-1,Conflict A,a-ciam,2026-04-01,2026-12-31,100\nconf-2,Conflict B,a-ciam,2026-04-01,2026-12-31,100`);
     await page.waitForTimeout(500);
     await page.getByRole('button', { name: 'Import Rows' }).click();
@@ -100,7 +100,7 @@ test.describe('Visualiser (Timeline)', () => {
 
     // Import an initiative with a valid date and one with an empty/invalid endDate
     await page.getByRole('button', { name: 'Paste CSV' }).click();
-    const textarea = page.locator('textarea');
+    const textarea = page.getByTestId('csv-paste-textarea');
     await textarea.fill(`id,name,assetId,startDate,endDate,budget\ngood-1,Good Initiative,a-ciam,2026-01-01,2026-06-30,0\nbad-1,Bad Date Initiative,a-ciam,2026-01-01,,0`);
     await page.waitForTimeout(500);
     await page.getByRole('button', { name: 'Import Rows' }).click();
