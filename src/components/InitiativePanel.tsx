@@ -33,7 +33,11 @@ export function InitiativePanel({ initiative, assets, applications = [], program
             setFormData({ ...initiative });
             setErrors({});
         }
-    }, [initiative]);
+    // Use initiative.id as the dependency — the prop object is recreated on every
+    // render (inline object literal in Timeline), so depending on the full object
+    // would reset the form on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initiative?.id]);
     /* eslint-enable react-hooks/set-state-in-effect */
 
     if (!isOpen || !formData) return null;

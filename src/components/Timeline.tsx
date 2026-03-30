@@ -1831,6 +1831,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                   }
                                   setSelectedInitiativeId(init.id);
                                 }}
+                                onDoubleClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
                                 className={cn(
                                   "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden transition hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
                                   init.isPlaceholder
