@@ -42,6 +42,18 @@ test.describe('Data Manager Reset Buttons', () => {
         await page.getByRole('button', { name: /Assets/ }).click();
         const assetRows = page.locator('table tbody tr');
         await expect(assetRows).toHaveCount(1);
+
+        // Programmes should also be cleared
+        await page.getByTestId('data-manager-tab-programmes').click();
+        await expect(page.locator('table tbody tr')).toHaveCount(1);
+
+        // Strategies should also be cleared
+        await page.getByTestId('data-manager-tab-strategies').click();
+        await expect(page.locator('table tbody tr')).toHaveCount(1);
+
+        // App Statuses should also be cleared
+        await page.getByTestId('data-manager-tab-appStatuses').click();
+        await expect(page.locator('table tbody tr')).toHaveCount(1);
     });
 
     test('"Clear data and start again" with GEANZ demo data populates all tables', async ({ page }) => {

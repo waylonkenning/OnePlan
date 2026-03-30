@@ -124,12 +124,12 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         initiatives: [],
         milestones: [],
         applicationSegments: [],
-        programmes: demoProgrammes,
-        strategies: demoStrategies,
+        programmes: [],
+        strategies: [],
         dependencies: [],
         resources: [],
         applications: [],
-        applicationStatuses: demoApplicationStatuses,
+        applicationStatuses: [],
         timelineSettings: { ...baseSettings, showGeanzCatalogue: false },
       };
 
