@@ -47,7 +47,7 @@ test.describe('Data Manager Operations', () => {
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Use the correct column order from DataManager.tsx: name, assetId, programmeId, strategyId, startDate, endDate, budget
-    const textarea = page.locator('textarea');
+    const textarea = page.getByTestId('csv-paste-textarea');
     await textarea.fill(`name,startDate,endDate,budget\nNew Initiative,2026-01-01,2026-12-31,100000`);
 
     // Give state a moment to sync and button to enable
@@ -66,7 +66,7 @@ test.describe('Data Manager Operations', () => {
 
   test('CSV Paste: Update Existing', async ({ page }) => {
     await page.getByRole('button', { name: 'Paste CSV' }).click();
-    const textarea = page.locator('textarea');
+    const textarea = page.getByTestId('csv-paste-textarea');
     // i-ciam-passkey exists in default data
     await textarea.fill(`id,name,assetId,startDate,endDate,budget\ni-ciam-passkey,Updated Init Name,a-ciam,2026-01-01,2026-06-30,350000`);
 
@@ -113,7 +113,7 @@ test.describe('Data Manager Operations', () => {
   test('CSV Paste: Missing optional columns import without errors', async ({ page }) => {
     await page.getByRole('button', { name: 'Paste CSV' }).click();
     // Only supply required columns — omit strategyId, description, progress, owner, status
-    const textarea = page.locator('textarea');
+    const textarea = page.getByTestId('csv-paste-textarea');
     await textarea.fill(`name,startDate,endDate,budget\nMinimal Initiative,2026-03-01,2026-09-30,50000`);
 
     await page.waitForTimeout(1000);

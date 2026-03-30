@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Plus, Trash2, ClipboardPaste, X, Check, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { ConfirmModal } from './ConfirmModal';
@@ -25,7 +25,7 @@ const COLORS = [
 export interface Column<T> {
   key: keyof T;
   label: string;
-  type: 'text' | 'number' | 'date' | 'select' | 'color' | 'boolean';
+  type: 'text' | 'number' | 'date' | 'select' | 'color' | 'boolean' | 'textarea';
   options?: Option[]; // For select type
   placeholder?: string;
   width?: string;
@@ -60,10 +60,12 @@ export function EditableTable<T extends { [key: string]: any }>({
   const [pendingFocus, setPendingFocus] = useState<{ id: string; key: keyof T } | null>(null);
   const [activeColorPicker, setActiveColorPicker] = useState<{ rowId: string | number, colKey: keyof T } | null>(null);
   const [confirmClearAll, setConfirmClearAll] = useState(false);
+  const [showScrollFade, setShowScrollFade] = useState(false);
 
   // Column Resizing State
   const [resizing, setResizing] = useState<{ key: string; startX: number; startWidth: number } | null>(null);
   const tableRef = useRef<HTMLTableElement>(null);
+  const scrollWrapperRef = useRef<HTMLDivElement>(null);
   const rowIdCounter = useRef(0);
 
   useEffect(() => {
@@ -105,6 +107,27 @@ export function EditableTable<T extends { [key: string]: any }>({
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [resizing, columns, onColumnResize]);
+
+  const checkScrollFade = useCallback(() => {
+    const el = scrollWrapperRef.current;
+    if (!el) return;
+    const canScrollRight = el.scrollWidth > el.clientWidth + 1;
+    const atRightEdge = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
+    setShowScrollFade(canScrollRight && !atRightEdge);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollWrapperRef.current;
+    if (!el) return;
+    checkScrollFade();
+    el.addEventListener('scroll', checkScrollFade);
+    const ro = new ResizeObserver(checkScrollFade);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener('scroll', checkScrollFade);
+      ro.disconnect();
+    };
+  }, [checkScrollFade]);
 
   const handleResizeStart = (e: React.MouseEvent, key: string, currentWidth: string) => {
     e.preventDefault();
@@ -387,8 +410,13 @@ export function EditableTable<T extends { [key: string]: any }>({
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="flex-1 overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
-        <table ref={tableRef} className="w-full text-sm text-left border-collapse table-fixed">
+      <div className="flex-1 relative">
+        <div
+          ref={scrollWrapperRef}
+          data-testid={`${tableId}-table-scroll-wrapper`}
+          className="h-full overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm"
+        >
+        <table ref={tableRef} className="min-w-full text-sm text-left border-collapse table-fixed">
           <thead className="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 shadow-sm">
             <tr>
               {columns.map(col => (
@@ -494,6 +522,16 @@ export function EditableTable<T extends { [key: string]: any }>({
                             className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
                           />
                         </div>
+                      ) : col.type === 'textarea' ? (
+                        <textarea
+                          rows={2}
+                          value={String(row[col.key] || '')}
+                          onChange={(e) => handleChange(rowIndex, col.key, e.target.value, false)}
+                          placeholder={col.placeholder}
+                          aria-label={col.label}
+                          className="w-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none resize-none text-sm"
+                          data-testid={`real-textarea-${String(col.key)}`}
+                        />
                       ) : (
                         <input
                           type={col.type}
@@ -587,6 +625,22 @@ export function EditableTable<T extends { [key: string]: any }>({
                           data-testid={`ghost-checkbox-${String(col.key)}`}
                         />
                       </div>
+                    ) : col.type === 'textarea' ? (
+                      <textarea
+                        rows={2}
+                        defaultValue=""
+                        onKeyDown={(e) => handleKeyDown(e, colIndex, true)}
+                        onBlur={(e) => {
+                          if (e.target.value) {
+                            handleChange(rows.length + i, col.key, e.target.value, true);
+                            e.target.value = "";
+                          }
+                        }}
+                        placeholder={col.placeholder}
+                        aria-label={col.label}
+                        className="w-full px-3 py-2 bg-transparent border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none resize-none text-sm"
+                        data-testid={`ghost-textarea-${String(col.key)}`}
+                      />
                     ) : (
                       <input
                         type={col.type}
@@ -613,6 +667,14 @@ export function EditableTable<T extends { [key: string]: any }>({
             ))}
           </tbody>
         </table>
+        </div>
+        {showScrollFade && (
+          <div
+            data-testid="table-scroll-fade-right"
+            className="pointer-events-none absolute top-0 right-0 h-full w-16 rounded-r-lg"
+            style={{ background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.9))' }}
+          />
+        )}
       </div>
       <div className="mt-4 flex gap-3">
         <button
@@ -665,6 +727,7 @@ export function EditableTable<T extends { [key: string]: any }>({
                 className="w-full h-48 p-3 text-sm font-mono border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
                 placeholder="Value 1, Value 2, Value 3..."
                 autoFocus
+                data-testid="csv-paste-textarea"
               />
             </div>
             <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">

@@ -161,29 +161,30 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
   ];
 
   const initiativeColumns: Column<Initiative>[] = [
-    { key: 'name', label: 'Initiative Name', type: 'text', width: hasDtsAssets ? '16%' : '18%' },
-    { key: 'assetId', label: 'Asset', type: 'select', options: assetOptions, width: '12%' },
-    { key: 'programmeId', label: 'Programme', type: 'select', options: programmeOptions, width: '10%' },
-    { key: 'strategyId', label: 'Strategy', type: 'select', options: strategyOptions, width: '10%' },
-    { key: 'startDate', label: 'Start Date', type: 'date', width: '8%' },
-    { key: 'endDate', label: 'End Date', type: 'date', width: '8%' },
-    { key: 'budget', label: 'Budget ($)', type: 'number', width: '8%' },
+    { key: 'name', label: 'Initiative Name', type: 'text', width: '180px' },
+    { key: 'assetId', label: 'Asset', type: 'select', options: assetOptions, width: '120px' },
+    { key: 'programmeId', label: 'Programme', type: 'select', options: programmeOptions, width: '110px' },
+    { key: 'strategyId', label: 'Strategy', type: 'select', options: strategyOptions, width: '110px' },
+    { key: 'startDate', label: 'Start Date', type: 'date', width: '120px' },
+    { key: 'endDate', label: 'End Date', type: 'date', width: '120px' },
+    { key: 'budget', label: 'Budget ($)', type: 'number', width: '100px' },
     { key: 'status', label: 'Status', type: 'select', options: [
       { value: 'planned', label: 'Planned' },
       { value: 'active', label: 'Active' },
       { value: 'done', label: 'Done' },
       { value: 'cancelled', label: 'Cancelled' },
-    ], width: '7%' },
-    { key: 'progress', label: 'Progress (%)', type: 'number', width: '6%' },
-    { key: 'owner', label: 'Owner', type: 'text', width: '8%' },
-    { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '5%' },
+    ], width: '100px' },
+    { key: 'progress', label: 'Progress (%)', type: 'number', width: '90px' },
+    { key: 'owner', label: 'Owner', type: 'text', width: '110px' },
+    { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '80px' },
+    { key: 'description', label: 'Description', type: 'textarea', width: '220px', placeholder: 'Add a description...' },
     ...(hasDtsAssets ? [{
       key: 'dtsPhase' as keyof Initiative,
       label: 'DTS Phase',
       type: 'select' as const,
       cellTestId: 'dts-phase-cell',
       options: DTS_PHASE_OPTIONS,
-      width: '10%',
+      width: '140px',
     }] : []),
   ];
 

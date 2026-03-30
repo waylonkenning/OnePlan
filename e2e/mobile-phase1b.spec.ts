@@ -43,8 +43,8 @@ test.describe('Mobile Phase 1b — Horizontal Scroll', () => {
     });
     await page.waitForSelector('[data-testid="data-manager"]');
 
-    // The EditableTable wrapper div (overflow-auto) should be present
-    const tableScrollContainer = page.locator('.flex-1.overflow-auto.border.border-slate-200.rounded-lg');
+    // The EditableTable scroll wrapper should be present
+    const tableScrollContainer = page.getByTestId('initiatives-table-scroll-wrapper');
     await expect(tableScrollContainer).toBeVisible();
 
     const overflowX = await tableScrollContainer.evaluate(el => getComputedStyle(el).overflowX);
