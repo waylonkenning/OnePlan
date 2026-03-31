@@ -26,7 +26,7 @@ test.describe('View Options Popover', () => {
     await expect(page.getByTestId('group-by-strategy')).toBeVisible();
     await expect(page.getByRole('button', { name: 'By Programme' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'By Strategy' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'By Status' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'By Progress' })).toBeVisible();
   });
 
   test('popover closes when clicking outside', async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe('View Options Popover', () => {
 
   test('button label reflects current colour and group mode', async ({ page }) => {
     const btn = page.getByTestId('view-options-btn');
-    await expect(btn).toContainText(/Programme|Strategy|Status/);
+    await expect(btn).toContainText(/Programme|Strategy|Progress/);
     await expect(btn).toContainText(/Asset|Programme|Strategy/);
   });
 });

@@ -1,16 +1,16 @@
 # User Stories — Display Settings & Visualisation Modes
 
-## US-DS-01: Colour Initiatives by Programme, Strategy, or Status
+## US-DS-01: Colour Initiatives by Programme, Strategy, or Progress
 
 **As an** IT portfolio manager,
 **I want** to choose how initiative bars are coloured,
 **so that** I can surface the dimension most relevant to my current analysis.
 
 **Acceptance Criteria:**
-- A View popover in the header offers three colour modes: By Programme, By Strategy, By Status
+- A View popover in the header offers three colour modes: By Programme, By Strategy, By Progress
 - Selecting "By Programme" colours bars by their assigned programme
 - Selecting "By Strategy" colours bars by their assigned strategy
-- Selecting "By Status" colours bars by their status value (Planned / Active / Done / Cancelled)
+- Selecting "By Progress" colours bars by their status value (Planned / Active / Done / Cancelled)
 - The floating legend updates to show the correct swatches and labels for the active mode
 - The selected colour mode persists across page reloads
 

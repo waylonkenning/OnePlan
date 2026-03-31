@@ -1,9 +1,9 @@
 import { test, expect, Page } from '@playwright/test';
 
 /**
- * Colour-by-Status feature:
+ * Colour-by-Progress feature:
  * - Initiatives have a Status field (planned / active / done / cancelled)
- * - A "By Status" colour mode is available in the timeline legend bar
+ * - A "By Progress" colour mode is available in the timeline legend bar
  * - Bars are coloured by status when that mode is active
  * - The legend updates to show status colours
  * - Status is saved to IndexedDB and persists across reloads
@@ -79,7 +79,7 @@ test.describe('Initiative status field', () => {
   });
 });
 
-test.describe('By Status colour mode', () => {
+test.describe('By Progress colour mode', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
@@ -94,22 +94,22 @@ test.describe('By Status colour mode', () => {
     }
   }
 
-  test('"By Status" button is available inside the View Options popover', async ({ page }) => {
+  test('"By Progress" button is available inside the View Options popover', async ({ page }) => {
     await openViewOptions(page);
-    await expect(page.getByRole('button', { name: 'By Status' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'By Progress' })).toBeVisible();
   });
 
-  test('clicking "By Status" activates the mode', async ({ page }) => {
+  test('clicking "By Progress" activates the mode', async ({ page }) => {
     await openViewOptions(page);
-    await page.getByRole('button', { name: 'By Status' }).click();
+    await page.getByRole('button', { name: 'By Progress' }).click();
     // The button should become visually active (highlighted)
-    const btn = page.getByRole('button', { name: 'By Status' });
+    const btn = page.getByRole('button', { name: 'By Progress' });
     await expect(btn).toHaveClass(/bg-emerald|shadow/);
   });
 
-  test('legend shows status entries when "By Status" is active', async ({ page }) => {
+  test('legend shows status entries when "By Progress" is active', async ({ page }) => {
     await openViewOptions(page);
-    await page.getByRole('button', { name: 'By Status' }).click();
+    await page.getByRole('button', { name: 'By Progress' }).click();
 
     // Legend must list each status label
     const legend = page.getByTestId('colour-legend');
@@ -121,7 +121,7 @@ test.describe('By Status colour mode', () => {
 
   test('legend reverts to programmes when "By Programme" is re-selected', async ({ page }) => {
     await openViewOptions(page);
-    await page.getByRole('button', { name: 'By Status' }).click();
+    await page.getByRole('button', { name: 'By Progress' }).click();
     await openViewOptions(page);
     await page.getByRole('button', { name: 'By Programme' }).click();
 

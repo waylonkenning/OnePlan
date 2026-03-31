@@ -14,7 +14,7 @@ The **View** popover in the header (click the **View** button) lets you choose h
 - Each strategy is assigned a colour.
 - Useful for seeing how strategic themes are distributed across the portfolio.
 
-## By Status
+## By Progress
 
 - Colours reflect each initiative's current status: Planned (slate), Active (blue), Done (green), Cancelled (red).
 - Use this mode to quickly assess portfolio health at a glance.

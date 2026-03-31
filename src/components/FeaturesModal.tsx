@@ -73,9 +73,9 @@ const featureSections = [
         desc: "Highlight the longest dependency chain across your plan. Critical path bars and arrows are visually distinct so you can see immediately which work drives your end date.",
       },
       {
-        title: "Colour by Status",
+        title: "Colour by Progress",
         image: "/features/colour-by-status.png",
-        desc: "Switch initiative bar colouring from Programme or Strategy to Status — Planned, Active, Done, or Cancelled — for an instant health-check view of your portfolio.",
+        desc: "Switch initiative bar colouring from Programme or Strategy to Progress — Planned, Active, Done, or Cancelled — for an instant health-check view of your portfolio.",
       },
     ],
   },

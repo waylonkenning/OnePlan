@@ -60,7 +60,7 @@ test.describe('Features Modal — Card Layout', () => {
     await expect(page.locator('[data-testid="feature-card-image"]').filter({ hasText: 'Conflict Detection' })).toBeVisible();
   });
 
-  test('Colour by Status renders as an image card', async ({ page }) => {
-    await expect(page.locator('[data-testid="feature-card-image"]').filter({ hasText: 'Colour by Status' })).toBeVisible();
+  test('Colour by Progress renders as an image card', async ({ page }) => {
+    await expect(page.locator('[data-testid="feature-card-image"]').filter({ hasText: 'Colour by Progress' })).toBeVisible();
   });
 });
