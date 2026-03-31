@@ -1508,11 +1508,13 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             key={init.id}
                             data-initiative-id={init.id}
                             data-testid="initiative-bar"
-                            onClick={() => setSelectedInitiativeId(init.id)}
+                            onClick={(e) => { e.stopPropagation(); setSelectedInitiativeId(init.id); }}
+                            onDoubleClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
                             className={cn(
                               "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
                               cn(colorClass, "text-white border-white/20"),
-                              isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10"
+                              isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10",
+                              selectedInitiativeId === init.id && "ring-2 ring-white/80 ring-offset-1 z-20"
                             )}
                             style={{ left: `${left}%`, width: `${barW}%`, height: barH, top }}
                             title={`${init.name}\nProgramme: ${prog?.name ?? ''}\nStrategy: ${strat?.name ?? ''}${init.description ? `\n${init.description}` : ''}`}
@@ -1559,6 +1561,17 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 );
                               })()}
                             </div>
+
+                            {/* Edit Button for selected initiatives */}
+                            {selectedInitiativeId === init.id && (
+                              <button
+                                data-testid="initiative-edit"
+                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none z-20"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
+                                title="Edit initiative"
+                              >✎</button>
+                            )}
                           </div>
                         );
                       })}
@@ -1604,15 +1617,27 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             key={init.id}
                             data-initiative-id={init.id}
                             data-testid="initiative-bar"
-                            onClick={() => setSelectedInitiativeId(init.id)}
+                            onClick={(e) => { e.stopPropagation(); setSelectedInitiativeId(init.id); }}
                             onDoubleClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
                             className={cn(
                               "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
                               cn(colorClass, "text-white border-white/20"),
+                              selectedInitiativeId === init.id && "ring-2 ring-white/80 ring-offset-1 z-20"
                             )}
                             style={{ left: `${left}%`, width: `${barW}%`, height: barH, top }}
                           >
                             <div className="font-bold text-[11px] leading-tight line-clamp-2 drop-shadow-md">{init.name}</div>
+
+                            {/* Edit Button for selected initiatives */}
+                            {selectedInitiativeId === init.id && (
+                              <button
+                                data-testid="initiative-edit"
+                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none z-20"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
+                                title="Edit initiative"
+                              >✎</button>
+                            )}
                           </div>
                         );
                       })}

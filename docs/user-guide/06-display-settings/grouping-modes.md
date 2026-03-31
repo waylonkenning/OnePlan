@@ -29,6 +29,7 @@ The same **View** popover that controls colour mode also controls how the timeli
 
 - Switching grouping mode re-draws the swimlane rows with the appropriate labels. All initiative bars remain visible.
 - The selected grouping mode persists across page reloads.
+- Editing initiatives works the same way in all grouping modes: single-click an initiative bar to select it and reveal the edit icon (✎) in the top-right corner, then click the icon to open the Edit Initiative panel. Double-clicking an initiative bar also opens the panel directly.
 
 ---
 
