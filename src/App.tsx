@@ -966,7 +966,7 @@ export default function App() {
 
         {/* Data Controls (PDF, Export, Import) */}
         <DataControls
-          data={{ assets, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources }}
+          data={{ assets, applications, applicationSegments, applicationStatuses, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources }}
           onImport={handleUpdate}
           timelineId={view === 'visualiser' ? 'timeline-visualiser' : undefined}
         />

@@ -17,14 +17,18 @@ The exported workbook contains one sheet per data type:
 
 | Sheet | Contents |
 |---|---|
-| Sheet | Contents |
-|---|---|
-| **Initiatives** | All initiatives with their fields |
+| **Initiatives** | All initiatives with their fields (including CapEx and OpEx) |
 | **Assets** | All application assets |
+| **AssetCategories** | All asset category groupings |
 | **Programmes** | All programmes |
 | **Strategies** | All strategies |
 | **Milestones** | All milestones |
-| **DTS Summary** | One row per DTS asset showing adoption status, active initiative count, total budget, lead owner, and target adoption date. Only included when exporting from a DTS or Mixed workspace. |
+| **Dependencies** | All initiative dependency relationships |
+| **Applications** | All applications linked to assets |
+| **ApplicationSegments** | All application lifecycle segments |
+| **ApplicationStatuses** | All named status labels for segments |
+| **Resources** | All people and roles in the resources roster |
+| **DTS Summary** | One row per DTS asset showing adoption status, active initiative count, and total CapEx/OpEx. Only included when exporting from a DTS or Mixed workspace. |
 
 Each sheet (except DTS Summary) uses column headers that match the field names expected by the [Excel Import](excel-import.md) process. This means an exported file can be edited and re-imported without reformatting.
 

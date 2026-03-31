@@ -1,8 +1,11 @@
 import * as XLSX from 'xlsx';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, DtsAdoptionStatus, TimelineSettings } from '../types';
+import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, DtsAdoptionStatus, TimelineSettings, Resource } from '../types';
 
 interface AppData {
   assets: Asset[];
+  applications?: Application[];
+  applicationSegments?: ApplicationSegment[];
+  applicationStatuses?: ApplicationStatus[];
   initiatives: Initiative[];
   milestones: Milestone[];
   programmes: Programme[];
@@ -10,6 +13,7 @@ interface AppData {
   dependencies: Dependency[];
   assetCategories: AssetCategory[];
   timelineSettings?: TimelineSettings;
+  resources?: Resource[];
 }
 
 const DTS_ADOPTION_STATUS_LABEL: Record<DtsAdoptionStatus, string> = {
@@ -52,7 +56,23 @@ export const exportToExcel = (data: AppData) => {
   const dependenciesWs = XLSX.utils.json_to_sheet(data.dependencies || []);
   XLSX.utils.book_append_sheet(wb, dependenciesWs, 'Dependencies');
 
-  // 8. DTS Summary — only for workspaces that have DTS assets (alias starts with "DTS.")
+  // 8. Applications
+  const applicationsWs = XLSX.utils.json_to_sheet(data.applications || []);
+  XLSX.utils.book_append_sheet(wb, applicationsWs, 'Applications');
+
+  // 9. Application Segments
+  const appSegmentsWs = XLSX.utils.json_to_sheet(data.applicationSegments || []);
+  XLSX.utils.book_append_sheet(wb, appSegmentsWs, 'ApplicationSegments');
+
+  // 10. Application Statuses
+  const appStatusesWs = XLSX.utils.json_to_sheet(data.applicationStatuses || []);
+  XLSX.utils.book_append_sheet(wb, appStatusesWs, 'ApplicationStatuses');
+
+  // 11. Resources
+  const resourcesWs = XLSX.utils.json_to_sheet(data.resources || []);
+  XLSX.utils.book_append_sheet(wb, resourcesWs, 'Resources');
+
+  // 12. DTS Summary — only for workspaces that have DTS assets (alias starts with "DTS.")
   const dtsAssets = data.assets.filter(a => a.alias?.startsWith('DTS.'));
   if (dtsAssets.length > 0) {
     const activeInitiatives = data.initiatives.filter(i => !i.isPlaceholder);
@@ -132,6 +152,10 @@ export const importFromExcel = async (file: File): Promise<Partial<AppData>> => 
         result.strategies = getSheetData<Strategy>('Strategies');
         result.milestones = getSheetData<Milestone>('Milestones');
         result.dependencies = getSheetData<Dependency>('Dependencies');
+        result.applications = getSheetData<Application>('Applications');
+        result.applicationSegments = getSheetData<ApplicationSegment>('ApplicationSegments');
+        result.applicationStatuses = getSheetData<ApplicationStatus>('ApplicationStatuses');
+        result.resources = getSheetData<Resource>('Resources');
 
         resolve(result);
       } catch (error) {

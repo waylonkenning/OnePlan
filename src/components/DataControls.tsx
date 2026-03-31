@@ -37,11 +37,14 @@ function validateImportSchema(data: Record<string, unknown[]>): SchemaIssue[] {
 }
 import { exportToExcel, importFromExcel } from '../lib/excel';
 import { exportToPDF, exportToSVG } from '../lib/pdf';
-import { Asset, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 
 interface DataControlsProps {
   data: {
     assets: Asset[];
+    applications?: Application[];
+    applicationSegments?: ApplicationSegment[];
+    applicationStatuses?: ApplicationStatus[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
@@ -53,6 +56,9 @@ interface DataControlsProps {
   };
   onImport: (data: {
     assets: Asset[];
+    applications: Application[];
+    applicationSegments: ApplicationSegment[];
+    applicationStatuses: ApplicationStatus[];
     initiatives: Initiative[];
     milestones: Milestone[];
     programmes: Programme[];
@@ -134,6 +140,9 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
     if (!importPreviewData) return;
     onImport({
       assets: importPreviewData.assets || [],
+      applications: importPreviewData.applications || [],
+      applicationSegments: importPreviewData.applicationSegments || [],
+      applicationStatuses: importPreviewData.applicationStatuses || [],
       initiatives: importPreviewData.initiatives || [],
       milestones: importPreviewData.milestones || [],
       programmes: importPreviewData.programmes || [],
@@ -168,6 +177,9 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
 
     onImport({
       assets: mergeArrays(data.assets, importPreviewData.assets),
+      applications: mergeArrays(data.applications || [], importPreviewData.applications),
+      applicationSegments: mergeArrays(data.applicationSegments || [], importPreviewData.applicationSegments),
+      applicationStatuses: mergeArrays(data.applicationStatuses || [], importPreviewData.applicationStatuses),
       initiatives: mergeArrays(data.initiatives, importPreviewData.initiatives),
       milestones: mergeArrays(data.milestones, importPreviewData.milestones),
       programmes: mergeArrays(data.programmes, importPreviewData.programmes),
@@ -261,6 +273,10 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
             <ul className="space-y-2 mb-4 text-sm text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-200">
               {importPreviewData.initiatives && <li><span className="font-semibold">{importPreviewData.initiatives.length}</span> Initiatives</li>}
               {importPreviewData.assets && <li><span className="font-semibold">{importPreviewData.assets.length}</span> Assets</li>}
+              {importPreviewData.applications && importPreviewData.applications.length > 0 && <li><span className="font-semibold">{importPreviewData.applications.length}</span> Applications</li>}
+              {importPreviewData.applicationSegments && importPreviewData.applicationSegments.length > 0 && <li><span className="font-semibold">{importPreviewData.applicationSegments.length}</span> Application Segments</li>}
+              {importPreviewData.applicationStatuses && importPreviewData.applicationStatuses.length > 0 && <li><span className="font-semibold">{importPreviewData.applicationStatuses.length}</span> Application Statuses</li>}
+              {importPreviewData.resources && importPreviewData.resources.length > 0 && <li><span className="font-semibold">{importPreviewData.resources.length}</span> Resources</li>}
               {importPreviewData.programmes && <li><span className="font-semibold">{importPreviewData.programmes.length}</span> Programmes</li>}
               {importPreviewData.strategies && <li><span className="font-semibold">{importPreviewData.strategies.length}</span> Strategies</li>}
               {importPreviewData.milestones && <li><span className="font-semibold">{importPreviewData.milestones.length}</span> Milestones</li>}
