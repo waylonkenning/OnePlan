@@ -81,6 +81,7 @@ export default function App() {
 
   const [undoStack, setUndoStack] = useState<AppState[]>([]);
   const [redoStack, setRedoStack] = useState<AppState[]>([]);
+  const [dbSaveError, setDbSaveError] = useState<string | null>(null);
 
   const hasDtsAssets = assets.some(a => a.alias?.startsWith('DTS.'));
 
@@ -197,7 +198,12 @@ export default function App() {
 
   const handleSelectTemplate = useCallback(async (templateId: TemplateId, withDemoData: boolean) => {
     const data = getTemplateData(templateId, withDemoData);
-    await saveAppData(data);
+    try {
+      await saveAppData(data);
+    } catch (error) {
+      console.error('Failed to save template data to DB:', error instanceof Error ? `${error.name}: ${error.message}` : error);
+      setDbSaveError('Failed to save the selected template. Your data may not persist after a reload.');
+    }
     setAssets(data.assets);
     setApplications(data.applications);
     setApplicationSegments(data.applicationSegments);
@@ -244,8 +250,8 @@ export default function App() {
     try {
       await saveAppData(data);
     } catch (error) {
-      console.error('Failed to save data to DB:', error);
-      alert('Failed to save changes to local storage.');
+      console.error('Failed to save data to DB:', error instanceof Error ? `${error.name}: ${error.message}` : error);
+      setDbSaveError('Failed to save changes. Your data may not persist after a reload. If this keeps happening, try refreshing the page.');
     }
   }, []);
 
@@ -434,6 +440,19 @@ export default function App() {
 
   return (
     <div className="h-screen w-full bg-slate-100 p-3 md:p-6 flex flex-col">
+      {dbSaveError && (
+        <div
+          data-testid="db-error-banner"
+          className="flex items-center gap-3 mb-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-800 flex-shrink-0"
+        >
+          <span className="flex-1">{dbSaveError}</span>
+          <button
+            onClick={() => setDbSaveError(null)}
+            className="text-red-500 hover:text-red-700 font-bold text-lg leading-none"
+            title="Dismiss"
+          >×</button>
+        </div>
+      )}
       <header className="mb-4 flex-shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm">
 
         {/* ── Mobile header ── */}
