@@ -36,7 +36,7 @@ function validateImportSchema(data: Record<string, unknown[]>): SchemaIssue[] {
   return issues;
 }
 import { exportToExcel, importFromExcel } from '../lib/excel';
-import { exportToPDF, exportToSVG } from '../lib/pdf';
+import { exportToPDF, exportToJPG } from '../lib/pdf';
 import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 
 interface DataControlsProps {
@@ -96,12 +96,12 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
     }
   };
 
-  const handleExportSVG = () => {
+  const handleExportJPG = () => {
     if (timelineId) {
-      exportToSVG(timelineId, `it-roadmap-${new Date().toISOString().split('T')[0]}.svg`)
-        .catch(() => showNotification('error', 'Failed to export SVG. Please try again.'));
+      exportToJPG(timelineId, `it-roadmap-${new Date().toISOString().split('T')[0]}.jpg`)
+        .catch(() => showNotification('error', 'Failed to export JPG. Please try again.'));
     } else {
-      showNotification('error', 'Switch to Visualiser view to export SVG.');
+      showNotification('error', 'Switch to Visualiser view to export JPG.');
     }
   };
 
@@ -208,14 +208,14 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       </button>
 
       <button
-        data-testid="export-svg"
-        onClick={handleExportSVG}
+        data-testid="export-jpg"
+        onClick={handleExportJPG}
         className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
-        title="Download roadmap as SVG"
+        title="Download roadmap as JPG"
         disabled={!timelineId}
       >
         <ImageDown size={14} />
-        SVG
+        JPG
       </button>
 
       <button

@@ -1,4 +1,4 @@
-import { toJpeg, toSvg } from 'html-to-image';
+import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 
 /**
@@ -98,9 +98,9 @@ export const exportToPDF = async (elementId: string, filename: string = 'roadmap
 };
 
 /**
- * Exports the timeline element as an SVG file download.
+ * Exports the timeline element as a JPG file download.
  */
-export const exportToSVG = async (elementId: string, filename: string = 'roadmap.svg') => {
+export const exportToJPG = async (elementId: string, filename: string = 'roadmap.jpg') => {
   const element = document.getElementById(elementId);
   if (!element) {
     console.error(`Element with id ${elementId} not found`);
@@ -109,7 +109,8 @@ export const exportToSVG = async (elementId: string, filename: string = 'roadmap
 
   const scrollableArea = (element.querySelector('.overflow-auto') as HTMLElement) || element;
 
-  const dataUrl = await toSvg(scrollableArea, {
+  const dataUrl = await toJpeg(scrollableArea, {
+    quality: 0.92,
     backgroundColor: '#ffffff',
     width: scrollableArea.scrollWidth,
     height: scrollableArea.scrollHeight,
@@ -122,12 +123,10 @@ export const exportToSVG = async (elementId: string, filename: string = 'roadmap
     },
   });
 
-  const svgContent = decodeURIComponent(dataUrl.split(',')[1]);
-  const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
+  a.href = dataUrl;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  document.body.removeChild(a);
 };
