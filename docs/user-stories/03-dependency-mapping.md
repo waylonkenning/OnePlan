@@ -107,3 +107,16 @@
 - A "Critical Path" toggle button is visible in the header, off by default
 - Enabling the toggle visually distinguishes bars and arrows on the critical path from non-critical items
 - The critical path toggle state persists across page reloads
+
+---
+
+## US-DM-09: Dependency Constraint Validation (Safety)
+
+**As a** Scenia application,
+**I want** to handle invalid dependency data gracefully,
+**so that** the app never crashes due to self-referencing or orphaned dependency records.
+
+**Acceptance Criteria:**
+- AC1: A dependency with `sourceId === targetId` stored in IndexedDB does not crash the app on load; the timeline renders normally
+- AC2: A dependency referencing one or both initiative IDs that no longer exist does not crash the app; no arrow is drawn for it
+- AC3: Dragging an initiative dependency arrow and releasing on the same initiative creates no new dependency

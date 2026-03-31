@@ -113,3 +113,17 @@
 - A global search input filters initiative bars in the Visualiser to only matching items
 - The same search query filters all Data Manager table rows in real time
 - Clearing the search restores all items
+
+
+---
+
+## US-DA-09: Import Error Path Handling (Safety)
+
+**As an** IT portfolio manager,
+**I want** import failures to show inline error notifications,
+**so that** I always receive clear feedback when an upload goes wrong.
+
+**Acceptance Criteria:**
+- AC1: Uploading a non-Excel file (e.g. `.txt`, `.csv`) shows an inline error notification — no browser `alert()` dialog
+- AC2: Uploading a corrupted or truncated `.xlsx` file shows an inline error notification — no browser `alert()` dialog
+- AC3: Both error conditions leave the existing portfolio data intact

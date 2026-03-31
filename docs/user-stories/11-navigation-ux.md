@@ -116,3 +116,16 @@
 **Acceptance Criteria:**
 - InitiativePanel, DependencyPanel, and VersionManager all close when Escape is pressed
 - Tab cycles focus within the InitiativePanel without escaping to the background
+
+---
+
+## US-UX-10: Undo/Redo Edge Case Behaviour (Safety)
+
+**As an** IT portfolio manager,
+**I want** undo/redo to behave predictably in edge cases,
+**so that** I can trust it won't silently fail or corrupt my in-progress edits.
+
+**Acceptance Criteria:**
+- AC1: On fresh page load with no edits, both the Undo and Redo buttons are disabled
+- AC2: After undoing an action, performing any new edit clears the redo stack (Redo button becomes disabled)
+- AC3: Pressing Cmd/Ctrl+Z while focus is inside an input or textarea field triggers the browser's native text undo — it does not pop the app-level undo stack
