@@ -4,10 +4,10 @@ import { test, expect } from '@playwright/test';
  * User Story 15: Workspace Templates (Multi-Taxonomy Support)
  *
  * AC1: TemplatePickerModal shown on first load (empty DB, no scenia-e2e flag)
- * AC2: Modal shows 4 template cards: dts, geanz, mixed, blank
+ * AC2: Modal shows 4 template cards: dts, geanz, viewer, blank
  * AC3: DTS template loads 6 DTS layer categories + 20 assets; GEANZ section hidden
  * AC4: GEANZ template loads GEANZ demo portfolio; GEANZ section visible
- * AC5: Mixed template loads DTS categories/assets + GEANZ section visible
+ * AC5: Viewer card has single "Upload file" button; triggers file chooser; closes picker after import
  * AC6: Blank template loads empty workspace; GEANZ section hidden
  * AC7: Template picker NOT shown in E2E mode (scenia-e2e flag)
  * AC8: Template picker NOT shown on subsequent loads (non-empty DB)
@@ -54,8 +54,10 @@ test.describe('Workspace Templates', () => {
     await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
     await expect(page.getByTestId('template-card-dts')).toBeVisible();
     await expect(page.getByTestId('template-card-geanz')).toBeVisible();
-    await expect(page.getByTestId('template-card-mixed')).toBeVisible();
+    await expect(page.getByTestId('template-card-viewer')).toBeVisible();
     await expect(page.getByTestId('template-card-blank')).toBeVisible();
+    // Mixed card must no longer exist
+    await expect(page.getByTestId('template-card-mixed')).not.toBeVisible();
   });
 
   // AC3: DTS template
@@ -85,17 +87,61 @@ test.describe('Workspace Templates', () => {
     await expect(page.getByTestId('geanz-section')).toBeVisible();
   });
 
-  // AC5: Mixed template
-  test('AC5: Mixed template loads DTS assets and shows GEANZ section', async ({ page }) => {
+  // AC5: Viewer mode
+  test('AC5a: Viewer card has a single "Upload file" button and no demo-data buttons', async ({ page }) => {
     await page.goto('/');
     await simulateFirstRun(page);
     await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
-    await page.getByTestId('template-select-with-demo-btn-mixed').click();
-    await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
-    // DTS asset visible
-    await expect(page.getByText('Identity & Credential Services').first()).toBeVisible();
-    // GEANZ section also visible
-    await expect(page.getByTestId('geanz-section')).toBeVisible();
+    const card = page.getByTestId('template-card-viewer');
+    await expect(card).toBeVisible();
+    await expect(card.getByTestId('template-viewer-upload-btn')).toBeVisible();
+    await expect(card.getByTestId('template-select-with-demo-btn-viewer')).not.toBeVisible();
+    await expect(card.getByTestId('template-select-no-demo-btn-viewer')).not.toBeVisible();
+  });
+
+  test('AC5b: clicking Upload file on Viewer card opens a file chooser', async ({ page }) => {
+    await page.goto('/');
+    await simulateFirstRun(page);
+    await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
+    const [fileChooser] = await Promise.all([
+      page.waitForEvent('filechooser'),
+      page.getByTestId('template-viewer-upload-btn').click(),
+    ]);
+    expect(fileChooser).toBeTruthy();
+  });
+
+  test('AC5c: uploading an Excel file via Viewer mode loads data and closes the picker', async ({ page }) => {
+    // Create a minimal valid XLSX buffer with an Assets sheet
+    const { utils, write } = await import('xlsx');
+    const wb = utils.book_new();
+    utils.book_append_sheet(
+      wb,
+      utils.aoa_to_sheet([
+        ['id', 'name', 'categoryId'],
+        ['asset-1', 'Imported Asset', 'cat-1'],
+      ]),
+      'Assets'
+    );
+    const buf: Buffer = write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    await page.goto('/');
+    await simulateFirstRun(page);
+    await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
+
+    const [fileChooser] = await Promise.all([
+      page.waitForEvent('filechooser'),
+      page.getByTestId('template-viewer-upload-btn').click(),
+    ]);
+    await fileChooser.setFiles({
+      name: 'test-portfolio.xlsx',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      buffer: buf,
+    });
+
+    // Template picker should close after import
+    await expect(page.getByTestId('template-picker-modal')).not.toBeVisible({ timeout: 10000 });
+    // App nav is visible
+    await expect(page.getByTestId('nav-visualiser')).toBeVisible();
   });
 
   // AC6: Blank template

@@ -51,6 +51,7 @@ type AppState = {
 };
 import { cn } from './lib/utils';
 import { getAppData, saveAppData } from './lib/db';
+import { importFromExcel } from './lib/excel';
 import { useRef } from 'react';
 
 export default function App() {
@@ -220,6 +221,45 @@ export default function App() {
     setTemplatePickerIsReset(false);
     if (!data.timelineSettings.hasSeenTutorial && !localStorage.getItem('scenia-e2e')) {
       setShowTutorial(true);
+    }
+  }, []);
+
+  const handleViewerImport = useCallback(async (file: File) => {
+    try {
+      const imported = await importFromExcel(file);
+      const blank = getTemplateData('viewer', false);
+      const data: typeof blank = {
+        assetCategories: imported.assetCategories ?? blank.assetCategories,
+        assets: imported.assets ?? blank.assets,
+        initiatives: imported.initiatives ?? blank.initiatives,
+        milestones: imported.milestones ?? blank.milestones,
+        applicationSegments: imported.applicationSegments ?? blank.applicationSegments,
+        programmes: imported.programmes ?? blank.programmes,
+        strategies: imported.strategies ?? blank.strategies,
+        dependencies: imported.dependencies ?? blank.dependencies,
+        resources: imported.resources ?? blank.resources,
+        applications: imported.applications ?? blank.applications,
+        applicationStatuses: imported.applicationStatuses ?? blank.applicationStatuses,
+        timelineSettings: { ...blank.timelineSettings, ...(imported.timelineSettings ?? {}) },
+      };
+      await saveAppData(data);
+      setAssets(data.assets);
+      setApplications(data.applications);
+      setApplicationSegments(data.applicationSegments);
+      setInitiatives(data.initiatives);
+      setMilestones(data.milestones);
+      setProgrammes(data.programmes);
+      setStrategies(data.strategies);
+      setDependencies(data.dependencies);
+      setAssetCategories(data.assetCategories);
+      setTimelineSettings(data.timelineSettings);
+      setResources(data.resources);
+      setApplicationStatuses(data.applicationStatuses);
+      setShowTemplatePicker(false);
+      setTemplatePickerIsReset(false);
+    } catch (error) {
+      console.error('Viewer import failed:', error instanceof Error ? `${error.name}: ${error.message}` : error);
+      setDbSaveError('Failed to import the file. Please check it is a valid Scenia Excel export.');
     }
   }, []);
 
@@ -1249,7 +1289,7 @@ export default function App() {
       <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
       {showTemplatePicker && !showLandingPage && (
-        <TemplatePickerModal onSelect={handleSelectTemplate} isReset={templatePickerIsReset} />
+        <TemplatePickerModal onSelect={handleSelectTemplate} onViewerImport={handleViewerImport} isReset={templatePickerIsReset} />
       )}
 
       {showTutorial && (

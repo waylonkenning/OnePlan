@@ -1,11 +1,15 @@
+import { useRef } from 'react';
 import { WORKSPACE_TEMPLATES, TemplateId } from '../lib/workspaceTemplates';
 
 interface TemplatePickerModalProps {
   onSelect: (templateId: TemplateId, withDemoData: boolean) => void;
+  onViewerImport: (file: File) => void;
   isReset?: boolean;
 }
 
-export function TemplatePickerModal({ onSelect, isReset = false }: TemplatePickerModalProps) {
+export function TemplatePickerModal({ onSelect, onViewerImport, isReset = false }: TemplatePickerModalProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   return (
     <div
       className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
@@ -42,6 +46,27 @@ export function TemplatePickerModal({ onSelect, isReset = false }: TemplatePicke
                 >
                   Start blank
                 </button>
+              ) : template.id === 'viewer' ? (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".xlsx,.xls"
+                    data-testid="template-viewer-file-input"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) onViewerImport(file);
+                    }}
+                  />
+                  <button
+                    data-testid="template-viewer-upload-btn"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="mt-2 px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                  >
+                    Upload file
+                  </button>
+                </>
               ) : (
                 <div className="mt-2 flex flex-col gap-2">
                   <button

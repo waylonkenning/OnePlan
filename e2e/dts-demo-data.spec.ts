@@ -7,10 +7,9 @@ import { test, expect } from '@playwright/test';
  * AC2: Initiatives appear across at least 3 DTS layers
  * AC3: At least one application lifecycle segment is visible
  * AC4: Specific named initiatives are present
- * AC5: DTS demo data also loads in Mixed template
  */
 
-async function selectTemplate(page: import('@playwright/test').Page, templateId: 'dts' | 'mixed') {
+async function selectTemplate(page: import('@playwright/test').Page, templateId: 'dts') {
   await page.goto('/');
   await page.evaluate(async () => {
     await new Promise<void>((resolve) => {
@@ -62,11 +61,4 @@ test.describe('DTS Template Demo Data', () => {
     await expect(page.getByText('Payment Flows Migration to AoG Platform').first()).toBeVisible();
   });
 
-  test('AC5: DTS demo data also loads in Mixed template', async ({ page }) => {
-    await selectTemplate(page, 'mixed');
-    const bars = page.locator('[data-testid^="initiative-bar"]');
-    const count = await bars.count();
-    expect(count).toBeGreaterThanOrEqual(6);
-    await expect(page.getByText('Service Rules Digitalisation').first()).toBeVisible();
-  });
 });

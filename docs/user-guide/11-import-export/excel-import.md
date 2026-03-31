@@ -10,6 +10,14 @@ Upload a `.xlsx` file. The importer reads the following sheets by name: **Initia
 
 ## Uploading a file
 
+**Via the Viewer template (first run):**
+
+1. On the welcome screen, choose **Viewer**.
+2. Click **Upload file** and select your `.xlsx` file.
+3. The file loads directly into the app and the template picker closes.
+
+**Via the Data Manager (existing workspace):**
+
 1. Open the **Data Manager** panel.
 2. Click **Import Excel**.
 3. Select your `.xlsx` file. The **Import Preview** modal opens.

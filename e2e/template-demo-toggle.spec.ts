@@ -64,7 +64,7 @@ test.describe('US-18: Template Demo Data Toggle', () => {
     await simulateFirstRun(page);
     await page.waitForSelector('[data-testid="template-picker-modal"]', { timeout: 20000 });
 
-    for (const templateId of ['dts', 'geanz', 'mixed']) {
+    for (const templateId of ['dts', 'geanz']) {
       await expect(page.getByTestId(`template-select-with-demo-btn-${templateId}`)).toBeVisible();
       await expect(page.getByTestId(`template-select-no-demo-btn-${templateId}`)).toBeVisible();
     }

@@ -23,7 +23,7 @@ import {
   demoTimelineSettings,
 } from '../demoData';
 
-export type TemplateId = 'dts' | 'geanz' | 'mixed' | 'blank';
+export type TemplateId = 'dts' | 'geanz' | 'viewer' | 'blank';
 
 export interface WorkspaceTemplate {
   id: TemplateId;
@@ -46,10 +46,10 @@ export const WORKSPACE_TEMPLATES: WorkspaceTemplate[] = [
     tagline: '17 areas · 300+ asset types',
   },
   {
-    id: 'mixed',
-    name: 'Mixed',
-    description: 'DTS architecture layers with GEANZ catalogue for detailed asset types.',
-    tagline: 'DTS structure + GEANZ catalogue',
+    id: 'viewer',
+    name: 'Viewer',
+    description: 'Upload an Excel file shared by a colleague to view their portfolio.',
+    tagline: 'Upload & view a shared file',
   },
   {
     id: 'blank',
@@ -99,22 +99,22 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         timelineSettings: { ...baseSettings, showGeanzCatalogue: false },
       };
 
-    case 'mixed':
+    case 'viewer':
+      // Viewer mode loads data from an uploaded Excel file — no preset data needed.
+      // Return a blank workspace as the fallback.
       return {
-        assetCategories: DTS_CATEGORIES,
-        assets: withDemoData
-          ? DTS_ASSETS.map(a => ({ ...a, dtsAdoptionStatus: dtsDemoAdoptionStatuses[a.id] }))
-          : DTS_ASSETS,
-        initiatives: withDemoData ? dtsDemoInitiatives.map(i => ({ ...i, dtsPhase: dtsDemoInitiativePhases[i.id] })) : [],
-        milestones: withDemoData ? dtsDemoMilestones : [],
-        applicationSegments: withDemoData ? dtsDemoApplicationSegments : [],
-        programmes: dtsDemoProgrammes,
-        strategies: dtsDemoStrategies,
-        dependencies: withDemoData ? dtsDemoDependencies : [],
-        resources: withDemoData ? demoResources : [],
-        applications: withDemoData ? dtsDemoApplications : [],
-        applicationStatuses: demoApplicationStatuses,
-        timelineSettings: { ...baseSettings, showGeanzCatalogue: true },
+        assetCategories: [],
+        assets: [],
+        initiatives: [],
+        milestones: [],
+        applicationSegments: [],
+        programmes: [],
+        strategies: [],
+        dependencies: [],
+        resources: [],
+        applications: [],
+        applicationStatuses: [],
+        timelineSettings: { ...baseSettings, showGeanzCatalogue: false },
       };
 
     case 'blank':

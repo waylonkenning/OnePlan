@@ -13,14 +13,14 @@ So that I start with a relevant portfolio structure without having to configure 
 **AC2:** The modal shows exactly 4 template cards:
 - NZ Digital Target State (`template-card-dts`)
 - GEANZ Technology Catalogue (`template-card-geanz`)
-- Mixed (`template-card-mixed`)
+- Viewer (`template-card-viewer`)
 - Blank (`template-card-blank`)
 
 **AC3:** Selecting "NZ Digital Target State" loads the 6 DTS layer categories and 20 DTS assets as regular swimlanes. The GEANZ catalogue section is hidden.
 
 **AC4:** Selecting "GEANZ Technology Catalogue" loads the existing GEANZ demo portfolio (current default behaviour). The GEANZ catalogue section is visible.
 
-**AC5:** Selecting "Mixed" loads the 6 DTS layer categories and 20 DTS assets, with the GEANZ catalogue section also visible for browsing.
+**AC5:** The Viewer card shows a single "Upload file" button (no "With / Without demo data" options). Clicking it opens a file chooser for `.xlsx`/`.xls` files. After a file is selected the data is loaded into the app and the template picker closes.
 
 **AC6:** Selecting "Blank" loads an empty workspace with no assets and no categories. The GEANZ catalogue section is hidden.
 
