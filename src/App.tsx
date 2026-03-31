@@ -153,7 +153,7 @@ export default function App() {
           setAssets(dbData.assets);
           setApplications(dbData.applications || []);
           setApplicationSegments((dbData as any).applicationSegments || []);
-          setInitiatives(dbData.initiatives.map(i => ({ ...i, budget: Number(i.budget) || 0 })));
+          setInitiatives(dbData.initiatives.map(i => ({ ...i, capex: Number(i.capex) || 0, opex: Number(i.opex) || 0 })));
           setMilestones(dbData.milestones);
           setProgrammes(dbData.programmes);
           setStrategies(dbData.strategies || []);

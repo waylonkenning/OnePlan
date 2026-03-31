@@ -46,7 +46,7 @@ test.describe('Data Manager Operations', () => {
     await page.locator('[data-testid="confirm-modal-confirm"]').click();
 
     await page.getByRole('button', { name: 'Paste CSV' }).click();
-    // Use the correct column order from DataManager.tsx: name, assetId, programmeId, strategyId, startDate, endDate, budget
+    // Use the correct column order from DataManager.tsx: name, assetId, programmeId, strategyId, startDate, endDate, capex, opex
     const textarea = page.getByTestId('csv-paste-textarea');
     await textarea.fill(`name,startDate,endDate,budget\nNew Initiative,2026-01-01,2026-12-31,100000`);
 

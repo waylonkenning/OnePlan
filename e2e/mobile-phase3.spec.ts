@@ -51,7 +51,7 @@ test.describe('Mobile Phase 3 — Touch Optimisation', () => {
     const panel = page.locator('[data-testid="initiative-panel"]');
     await expect(panel).toBeVisible({ timeout: 5000 });
 
-    const budgetInput = panel.locator('input[inputmode="numeric"]');
+    const budgetInput = panel.locator('input[inputmode="numeric"]').first();
     await expect(budgetInput).toBeVisible();
   });
 });

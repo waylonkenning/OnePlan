@@ -9,7 +9,7 @@ import * as XLSX from 'xlsx';
  *      a "DTS Summary" sheet alongside the existing sheets
  * AC2: The DTS Summary sheet has one row per DTS asset (20 rows for demo data)
  *      with columns: Layer, Asset Name, Alias, Adoption Status,
- *      Initiative Count, Total Budget ($)
+ *      Initiative Count, Total CapEx ($)
  * AC3: The DTS Summary sheet does NOT appear when exporting from a non-DTS
  *      (GEANZ) workspace
  * AC4: Assets that have demo initiatives show a non-zero Initiative Count
@@ -80,7 +80,7 @@ test.describe('US-23: DTS Summary Tab in Excel Export', () => {
     expect(first).toHaveProperty('Alias');
     expect(first).toHaveProperty('Adoption Status');
     expect(first).toHaveProperty('Initiative Count');
-    expect(first).toHaveProperty('Total Budget ($)');
+    expect(first).toHaveProperty('Total CapEx ($)');
   });
 
   // ── AC3 ──────────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ test.describe('US-23: DTS Summary Tab in Excel Export', () => {
     expect(withInitiatives.length).toBeGreaterThan(0);
 
     // At least one asset should have Total Budget > 0
-    const withBudget = rows.filter(r => Number(r['Total Budget ($)']) > 0);
+    const withBudget = rows.filter(r => Number(r['Total CapEx ($)']) > 0);
     expect(withBudget.length).toBeGreaterThan(0);
   });
 

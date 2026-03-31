@@ -63,7 +63,8 @@ export interface Initiative {
   applicationId?: string; // Optional: links the initiative to a specific application within the asset
   startDate: string; // ISO format: YYYY-MM-DD
   endDate: string;   // ISO format: YYYY-MM-DD
-  budget: number;    // Numeric value, also used to scale bar height in some views
+  capex: number;     // Capital expenditure
+  opex: number;      // Operational expenditure
   description?: string;
   isPlaceholder?: boolean;
   status?: 'planned' | 'active' | 'done' | 'cancelled';

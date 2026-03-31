@@ -57,7 +57,7 @@ interface ITMapDB extends DBSchema {
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 11;
+const DB_VERSION = 12;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
@@ -134,6 +134,17 @@ export const initDB = () => {
                 const { assetId: _a, label: _l, ...rest } = seg as any;
                 await tx.objectStore('applicationSegments').put({ ...rest, applicationId });
               }
+            }
+          }
+        }
+        if (oldVersion < 12) {
+          // Migrate single budget field to capex/opex split.
+          // Existing budget value moves to capex; opex defaults to 0.
+          const allInitiatives = await tx.objectStore('initiatives').getAll();
+          for (const init of allInitiatives) {
+            if ((init as any).budget !== undefined && (init as any).capex === undefined) {
+              const { budget, ...rest } = init as any;
+              await tx.objectStore('initiatives').put({ ...rest, capex: Number(budget) || 0, opex: 0 });
             }
           }
         }

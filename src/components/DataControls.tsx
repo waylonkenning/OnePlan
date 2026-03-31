@@ -8,7 +8,7 @@ interface SchemaIssue {
 }
 
 const REQUIRED_FIELDS: Record<string, string[]> = {
-  initiatives: ['id', 'name', 'programmeId', 'assetId', 'startDate', 'endDate', 'budget'],
+  initiatives: ['id', 'name', 'programmeId', 'assetId', 'startDate', 'endDate', 'capex', 'opex'],
   assets: ['id', 'name', 'categoryId'],
   programmes: ['id', 'name', 'color'],
   strategies: ['id', 'name', 'color'],

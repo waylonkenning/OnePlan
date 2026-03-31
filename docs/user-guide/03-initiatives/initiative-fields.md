@@ -13,7 +13,8 @@ Every initiative has the following fields. All are available in both the edit pa
 | End Date | When the initiative ends | Bar right edge |
 | Progress % | Percentage complete | Fill overlay on the bar |
 | Owner | Primary responsible person (from the Resources list) | Initials badge on the bar |
-| Budget | Planned cost | Budget label on bar, Budget Summary report |
+| CapEx | Capital expenditure for this initiative | CapEx label on bar, Budget Summary report |
+| OpEx | Operational expenditure for this initiative | OpEx label on bar, Budget Summary report |
 | Description | Free-text notes | Tooltip, mobile card rows |
 | Application | The application within the asset this work relates to | Metadata only |
 | DTS Phase | DTS adoption phase (Phase 1 – Register & Expose / Phase 2 – Integrate DPI / Phase 3 – AI & Legacy Exit / Back-Office Consolidation / Not DTS) | Group-by-DTS-Phase mode, Budget report. Only shown in DTS and Mixed workspaces. |

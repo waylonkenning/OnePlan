@@ -38,7 +38,7 @@ test.describe('Budget Visualisation', () => {
         const initiativeBar = page.locator('div[data-initiative-id="i-ciam-sso"]');
         await expect(initiativeBar).toBeVisible();
 
-        // Check for budget label
-        await expect(initiativeBar).toContainText('$600k');
+        // Check for capex label (SSO Consolidation has capex: 600k)
+        await expect(initiativeBar).toContainText('CapEx $600k');
     });
 });

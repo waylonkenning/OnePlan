@@ -167,7 +167,8 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
     { key: 'strategyId', label: 'Strategy', type: 'select', options: strategyOptions, width: '110px' },
     { key: 'startDate', label: 'Start Date', type: 'date', width: '120px' },
     { key: 'endDate', label: 'End Date', type: 'date', width: '120px' },
-    { key: 'budget', label: 'Budget ($)', type: 'number', width: '100px' },
+    { key: 'capex', label: 'CapEx ($)', type: 'number', width: '100px' },
+    { key: 'opex', label: 'OpEx ($)', type: 'number', width: '100px' },
     { key: 'status', label: 'Status', type: 'select', options: [
       { value: 'planned', label: 'Planned' },
       { value: 'active', label: 'Active' },

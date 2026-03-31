@@ -208,7 +208,8 @@ const InitiativeRow: React.FC<{
   const hasProgress = typeof initiative.progress === 'number' && initiative.progress > 0;
 
   const showDescription = settings.descriptionDisplay === 'on' && !!initiative.description;
-  const showBudget = settings.budgetVisualisation !== 'off' && initiative.budget > 0;
+  const totalBudget = (initiative.capex || 0) + (initiative.opex || 0);
+  const showBudget = settings.budgetVisualisation !== 'off' && totalBudget > 0;
   const showRelationships = settings.showRelationships === 'on';
 
   const relatedDeps = showRelationships
@@ -278,7 +279,9 @@ const InitiativeRow: React.FC<{
           <div data-testid={`initiative-budget-${initiative.id}`} className="mt-1 flex items-center gap-1">
             <DollarSign size={10} className="text-slate-400 flex-shrink-0" />
             <span className="text-xs text-slate-500">
-              {initiative.budget.toLocaleString('en-NZ', { style: 'currency', currency: 'NZD', maximumFractionDigits: 0 })}
+              {(initiative.capex || 0) > 0 && `CapEx ${(initiative.capex || 0).toLocaleString('en-NZ', { style: 'currency', currency: 'NZD', maximumFractionDigits: 0 })}`}
+              {(initiative.capex || 0) > 0 && (initiative.opex || 0) > 0 && ' · '}
+              {(initiative.opex || 0) > 0 && `OpEx ${(initiative.opex || 0).toLocaleString('en-NZ', { style: 'currency', currency: 'NZD', maximumFractionDigits: 0 })}`}
             </span>
           </div>
         )}

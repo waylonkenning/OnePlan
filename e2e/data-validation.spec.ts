@@ -38,13 +38,13 @@ test.describe('Data Validation', () => {
         await expect(panel).toBeVisible();
 
         // Set a negative budget
-        await panel.getByLabel('Budget ($)').fill('-5000');
+        await panel.getByLabel('CapEx ($)').fill('-5000');
 
         // Try to save
         await panel.getByRole('button', { name: 'Save Changes' }).click();
 
         // Error message should appear
-        await expect(panel.getByText('Budget cannot be negative')).toBeVisible();
+        await expect(panel.getByText('CapEx cannot be negative')).toBeVisible();
 
         // Panel should still be open
         await expect(panel).toBeVisible();
@@ -61,7 +61,7 @@ test.describe('Data Validation', () => {
         // Set valid dates
         await panel.getByLabel('Start Date').fill('2026-01-01');
         await panel.getByLabel('End Date').fill('2026-12-31');
-        await panel.getByLabel('Budget ($)').fill('100000');
+        await panel.getByLabel('CapEx ($)').fill('100000');
 
         // Save should work
         await panel.getByRole('button', { name: 'Save Changes' }).click();

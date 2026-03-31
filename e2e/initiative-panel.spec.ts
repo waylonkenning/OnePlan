@@ -33,7 +33,7 @@ test.describe('Initiative Panel', () => {
         await expect(panel).toBeVisible();
 
         // Budget field should have the current budget
-        const budgetInput = panel.getByLabel('Budget ($)');
+        const budgetInput = panel.getByLabel('CapEx ($)');
         await expect(budgetInput).toHaveValue('350000');
 
         // Change the budget
@@ -66,6 +66,6 @@ test.describe('Initiative Panel', () => {
         await updatedInitiative.click();
         await updatedInitiative.locator('[data-testid="initiative-edit"]').click();
         await expect(panel).toBeVisible();
-        await expect(panel.getByLabel('Budget ($)')).toHaveValue('600000');
+        await expect(panel.getByLabel('CapEx ($)')).toHaveValue('600000');
     });
 });

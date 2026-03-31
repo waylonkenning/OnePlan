@@ -329,20 +329,21 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
   // ── Budget Report ────────────────────────────────────────────────────────────
   if (selectedReport === 'budget') {
     const realInitiatives = initiatives.filter(i => !i.isPlaceholder);
-    const grandTotal = realInitiatives.reduce((sum, i) => sum + (i.budget || 0), 0);
+    const totalOf = (inits: typeof realInitiatives) => inits.reduce((sum, i) => sum + (i.capex || 0) + (i.opex || 0), 0);
+    const grandTotal = totalOf(realInitiatives);
 
     const byProgramme = programmes
-      .map(p => ({ id: p.id, name: p.name, color: p.color, total: realInitiatives.filter(i => i.programmeId === p.id).reduce((s, i) => s + (i.budget || 0), 0) }))
+      .map(p => ({ id: p.id, name: p.name, color: p.color, total: totalOf(realInitiatives.filter(i => i.programmeId === p.id)) }))
       .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
 
     const byStrategy = strategies
-      .map(s => ({ id: s.id, name: s.name, color: s.color, total: realInitiatives.filter(i => i.strategyId === s.id).reduce((sum, i) => sum + (i.budget || 0), 0) }))
+      .map(s => ({ id: s.id, name: s.name, color: s.color, total: totalOf(realInitiatives.filter(i => i.strategyId === s.id)) }))
       .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
 
     const byCategory = assetCategories
       .map(c => {
         const catAssets = assets.filter(a => a.categoryId === c.id).map(a => a.id);
-        return { id: c.id, name: c.name, total: realInitiatives.filter(i => catAssets.includes(i.assetId)).reduce((s, i) => s + (i.budget || 0), 0) };
+        return { id: c.id, name: c.name, total: totalOf(realInitiatives.filter(i => catAssets.includes(i.assetId))) };
       })
       .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
 
@@ -356,7 +357,7 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
 
     const byDtsPhase = hasDtsAssets
       ? DTS_PHASE_DEFS
-          .map(p => ({ id: p.id, name: p.name, total: realInitiatives.filter(i => i.dtsPhase === p.id).reduce((s, i) => s + (i.budget || 0), 0) }))
+          .map(p => ({ id: p.id, name: p.name, total: totalOf(realInitiatives.filter(i => i.dtsPhase === p.id)) }))
           .filter(r => r.total > 0)
       : [];
 
@@ -536,7 +537,7 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
                         const assetInits = initiatives.filter(
                           i => i.assetId === asset.id && i.status !== 'cancelled'
                         );
-                        const totalBudget = assetInits.reduce((s, i) => s + (i.budget ?? 0), 0);
+                        const totalBudget = assetInits.reduce((s, i) => s + (i.capex ?? 0) + (i.opex ?? 0), 0);
                         return (
                           <button
                             key={asset.id}

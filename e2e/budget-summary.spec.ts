@@ -34,13 +34,15 @@ test.describe('Budget Summary Charts', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.getByRole('button', { name: 'Data Manager' }).click();
 
-    // Sum all budget inputs
-    const budgetInputs = page.locator('[data-testid^="real-input-budget"]');
-    const count = await budgetInputs.count();
+    // Sum all capex + opex inputs
+    const capexInputs = page.locator('[data-testid^="real-input-capex"]');
+    const opexInputs = page.locator('[data-testid^="real-input-opex"]');
+    const count = await capexInputs.count();
     let total = 0;
     for (let i = 0; i < count; i++) {
-      const val = await budgetInputs.nth(i).inputValue();
-      total += parseFloat(val) || 0;
+      const capexVal = await capexInputs.nth(i).inputValue();
+      const opexVal = await opexInputs.nth(i).inputValue();
+      total += (parseFloat(capexVal) || 0) + (parseFloat(opexVal) || 0);
     }
 
     // Go to Reports and check the total

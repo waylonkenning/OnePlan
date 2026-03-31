@@ -28,24 +28,24 @@ test.describe('Table Column Sorting', () => {
     expect(nameDesc1.localeCompare(nameDesc2)).toBeGreaterThanOrEqual(0);
   });
 
-  test('Should sort Initiatives by Budget', async ({ page }) => {
-    const budgetHeader = page.getByRole('columnheader', { name: 'Budget ($)' });
-    
-    // Sort Ascending
-    await budgetHeader.click();
-    
-    const realRows = page.locator('table tbody tr[data-real="true"]');
-    const firstBudget = await realRows.first().getByTestId('real-input-budget').inputValue();
-    const lastBudget = await realRows.last().getByTestId('real-input-budget').inputValue();
+  test('Should sort Initiatives by CapEx', async ({ page }) => {
+    const capexHeader = page.getByRole('columnheader', { name: 'CapEx ($)' });
 
-    expect(parseFloat(firstBudget)).toBeLessThanOrEqual(parseFloat(lastBudget));
+    // Sort Ascending
+    await capexHeader.click();
+
+    const realRows = page.locator('table tbody tr[data-real="true"]');
+    const firstCapex = await realRows.first().getByTestId('real-input-capex').inputValue();
+    const lastCapex = await realRows.last().getByTestId('real-input-capex').inputValue();
+
+    expect(parseFloat(firstCapex) || 0).toBeLessThanOrEqual(parseFloat(lastCapex) || 0);
 
     // Sort Descending
-    await budgetHeader.click();
-    const firstBudgetDesc = await realRows.first().getByTestId('real-input-budget').inputValue();
-    const lastBudgetDesc = await realRows.last().getByTestId('real-input-budget').inputValue();
-    
-    expect(parseFloat(firstBudgetDesc)).toBeGreaterThanOrEqual(parseFloat(lastBudgetDesc));
+    await capexHeader.click();
+    const firstCapexDesc = await realRows.first().getByTestId('real-input-capex').inputValue();
+    const lastCapexDesc = await realRows.last().getByTestId('real-input-capex').inputValue();
+
+    expect(parseFloat(firstCapexDesc) || 0).toBeGreaterThanOrEqual(parseFloat(lastCapexDesc) || 0);
   });
 
   test('Blank row should always be at the bottom after sorting', async ({ page }) => {

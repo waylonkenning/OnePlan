@@ -844,7 +844,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       
       const minStart = gInits.reduce((m, i) => i.startDate < m ? i.startDate : m, gInits[0].startDate);
       const maxEnd = gInits.reduce((m, i) => i.endDate > m ? i.endDate : m, gInits[0].endDate);
-      const totalBudget = gInits.reduce((sum, i) => sum + (i.budget || 0), 0);
+      const totalCapex = gInits.reduce((sum, i) => sum + (i.capex || 0), 0);
+      const totalOpex = gInits.reduce((sum, i) => sum + (i.opex || 0), 0);
       const groupDescription = [...gInits].sort((a, b) => (a.startDate || '').localeCompare(b.startDate || '')).map(i => i.name).filter(Boolean).map(n => `• ${n}`).join('\n');
 
       const groupProgrammeIds = Array.from(new Set(gInits.map(i => i.programmeId)));
@@ -866,7 +867,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
           ...gInits[0],
           id: groupId,
           name: `${group.length} Connected Initiatives`,
-          budget: totalBudget,
+          capex: totalCapex,
+          opex: totalOpex,
           description: groupDescription,
           startDate: minStart,
           endDate: maxEnd
@@ -902,8 +904,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       const right = left + width;
 
       let budgetHeight = BAR_HEIGHT;
-      if (settings.budgetVisualisation === 'bar-height' && init.budget) {
-        budgetHeight = Math.min(120, BAR_HEIGHT + (init.budget / 15000));
+      const totalBudget = (init.capex || 0) + (init.opex || 0);
+      if (settings.budgetVisualisation === 'bar-height' && totalBudget) {
+        budgetHeight = Math.min(120, BAR_HEIGHT + (totalBudget / 15000));
       }
 
       let descHeight = BAR_HEIGHT;
@@ -1532,11 +1535,18 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                   <div className="text-[9px] leading-[12px] opacity-90 mt-1 pt-1 border-t border-white/30 whitespace-pre-wrap break-words line-clamp-3 drop-shadow-md">{init.description}</div>
                                 )}
                               </div>
-                              {settings.budgetVisualisation === 'label' && init.budget > 0 && (
-                                <div className="flex-shrink-0 text-[10px] font-bold px-1 rounded backdrop-blur-[2px] self-center bg-white/20 text-white">
-                                  ${init.budget >= 1000000
-                                    ? `${(init.budget / 1000000).toFixed(1)}m`
-                                    : `${Math.round(init.budget / 1000)}k`}
+                              {settings.budgetVisualisation === 'label' && ((init.capex || 0) + (init.opex || 0)) > 0 && (
+                                <div className="flex-shrink-0 flex flex-col items-end gap-0.5">
+                                  {(init.capex || 0) > 0 && (
+                                    <div data-testid="capex-label" className="text-[9px] font-bold px-1 rounded backdrop-blur-[2px] bg-white/20 text-white leading-tight">
+                                      CapEx {(init.capex || 0) >= 1000000 ? `$${((init.capex || 0) / 1000000).toFixed(1)}m` : `$${Math.round((init.capex || 0) / 1000)}k`}
+                                    </div>
+                                  )}
+                                  {(init.opex || 0) > 0 && (
+                                    <div data-testid="opex-label" className="text-[9px] font-bold px-1 rounded backdrop-blur-[2px] bg-white/20 text-white leading-tight">
+                                      OpEx {(init.opex || 0) >= 1000000 ? `$${((init.opex || 0) / 1000000).toFixed(1)}m` : `$${Math.round((init.opex || 0) / 1000)}k`}
+                                    </div>
+                                  )}
                                 </div>
                               )}
                               {settings.showResources === 'on' && barW > 8 && (() => {
@@ -1870,7 +1880,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
                                 title={(init as any).isGroup 
                                   ? `Group: ${init.name}\n${init.description}`
-                                  : `${init.isPlaceholder ? '[Placeholder] ' : ''}${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nBudget: $${(init.budget || 0).toLocaleString()}${init.description ? `\n${init.description}` : ''}`}
+                                  : `${init.isPlaceholder ? '[Placeholder] ' : ''}${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nCapEx: $${(init.capex || 0).toLocaleString()}\nOpEx: $${(init.opex || 0).toLocaleString()}${init.description ? `\n${init.description}` : ''}`}
                               >
                                 {isGroup && (
                                   <div className={cn("absolute inset-0 pointer-events-none rounded-md opacity-20", colorClass)} style={{ zIndex: 0 }} />
@@ -1908,18 +1918,32 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                     )}
                                   </div>
 
-                                  {settings.budgetVisualisation === 'label' && init.budget > 0 && (
-                                    <div className={cn(
-                                      "flex-shrink-0 text-[10px] font-bold px-1 rounded backdrop-blur-[2px] self-center",
-                                      init.isPlaceholder
-                                        ? "bg-red-50 text-red-600 border border-red-200"
-                                        : isGroup
-                                          ? "bg-blue-100/50 text-blue-900 border border-blue-200/50"
-                                          : "bg-white/20 text-white"
-                                    )}>
-                                      ${init.budget >= 1000000
-                                        ? `${(init.budget / 1000000).toFixed(1)}m`
-                                        : `${Math.round(init.budget / 1000)}k`}
+                                  {settings.budgetVisualisation === 'label' && ((init.capex || 0) + (init.opex || 0)) > 0 && (
+                                    <div className="flex-shrink-0 flex flex-col items-end gap-0.5 self-center">
+                                      {(init.capex || 0) > 0 && (
+                                        <div data-testid="capex-label" className={cn(
+                                          "text-[9px] font-bold px-1 rounded backdrop-blur-[2px] leading-tight",
+                                          init.isPlaceholder
+                                            ? "bg-red-50 text-red-600 border border-red-200"
+                                            : isGroup
+                                              ? "bg-blue-100/50 text-blue-900 border border-blue-200/50"
+                                              : "bg-white/20 text-white"
+                                        )}>
+                                          CapEx {(init.capex || 0) >= 1000000 ? `$${((init.capex || 0) / 1000000).toFixed(1)}m` : `$${Math.round((init.capex || 0) / 1000)}k`}
+                                        </div>
+                                      )}
+                                      {(init.opex || 0) > 0 && (
+                                        <div data-testid="opex-label" className={cn(
+                                          "text-[9px] font-bold px-1 rounded backdrop-blur-[2px] leading-tight",
+                                          init.isPlaceholder
+                                            ? "bg-red-50 text-red-600 border border-red-200"
+                                            : isGroup
+                                              ? "bg-blue-100/50 text-blue-900 border border-blue-200/50"
+                                              : "bg-white/20 text-white"
+                                        )}>
+                                          OpEx {(init.opex || 0) >= 1000000 ? `$${((init.opex || 0) / 1000000).toFixed(1)}m` : `$${Math.round((init.opex || 0) / 1000)}k`}
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                   {settings.showResources === 'on' && !isGroup && width > 8 && (() => {
@@ -2471,7 +2495,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                 strategyId: strategies[0]?.id || '',
                 startDate: creatingInitiativeParams.startDate,
                 endDate: creatingInitiativeParams.endDate,
-                budget: 0,
+                capex: 0,
+                opex: 0,
               }
               : null
         }

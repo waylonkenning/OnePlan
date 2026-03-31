@@ -68,7 +68,8 @@ export const exportToExcel = (data: AppData) => {
       .map(asset => {
         const category = data.assetCategories.find(c => c.id === asset.categoryId);
         const assetInits = activeInitiatives.filter(i => i.assetId === asset.id);
-        const totalBudget = assetInits.reduce((sum, i) => sum + (i.budget || 0), 0);
+        const totalCapex = assetInits.reduce((sum, i) => sum + (i.capex || 0), 0);
+        const totalOpex = assetInits.reduce((sum, i) => sum + (i.opex || 0), 0);
         return {
           'Layer': category?.name ?? '',
           'Asset Name': asset.name,
@@ -77,7 +78,8 @@ export const exportToExcel = (data: AppData) => {
             ? DTS_ADOPTION_STATUS_LABEL[asset.dtsAdoptionStatus] ?? asset.dtsAdoptionStatus
             : '',
           'Initiative Count': assetInits.length,
-          'Total Budget ($)': totalBudget,
+          'Total CapEx ($)': totalCapex,
+          'Total OpEx ($)': totalOpex,
         };
       });
 
@@ -88,8 +90,8 @@ export const exportToExcel = (data: AppData) => {
       dtsSummaryWs = XLSX.utils.aoa_to_sheet([
         ['Cluster', clusterName],
         [],
-        ['Layer', 'Asset Name', 'Alias', 'Adoption Status', 'Initiative Count', 'Total Budget ($)'],
-        ...dtsSummaryRows.map(r => [r['Layer'], r['Asset Name'], r['Alias'], r['Adoption Status'], r['Initiative Count'], r['Total Budget ($)']]),
+        ['Layer', 'Asset Name', 'Alias', 'Adoption Status', 'Initiative Count', 'Total CapEx ($)', 'Total OpEx ($)'],
+        ...dtsSummaryRows.map(r => [r['Layer'], r['Asset Name'], r['Alias'], r['Adoption Status'], r['Initiative Count'], r['Total CapEx ($)'], r['Total OpEx ($)']]),
       ]);
     } else {
       dtsSummaryWs = XLSX.utils.json_to_sheet(dtsSummaryRows);
@@ -119,9 +121,10 @@ export const importFromExcel = async (file: File): Promise<Partial<AppData>> => 
           return XLSX.utils.sheet_to_json(ws);
         };
 
-        result.initiatives = getSheetData<Initiative>('Initiatives').map(init => ({
+        result.initiatives = getSheetData<Initiative>('Initiatives').map((init: any) => ({
           ...init,
-          budget: Number(init.budget) || 0
+          capex: Number(init.capex) || Number(init.budget) || 0,  // backward compat: fall back to budget
+          opex: Number(init.opex) || 0,
         }));
         result.assets = getSheetData<Asset>('Assets');
         result.assetCategories = getSheetData<AssetCategory>('AssetCategories');

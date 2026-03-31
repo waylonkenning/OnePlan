@@ -89,10 +89,10 @@ test.describe('Version History & Snapshotting', () => {
     await page.locator('input[data-testid^="real-input-name"]').last().fill(addedInitName);
     await page.locator('input[data-testid^="real-input-name"]').last().press('Enter');
 
-    // c) Modify an initiative (Budget)
+    // c) Modify an initiative (CapEx)
     const secondInitName = await page.locator('input[data-testid^="real-input-name"]').nth(1).inputValue();
-    await page.locator('input[data-testid^="real-input-budget"]').nth(1).fill('999999');
-    await page.locator('input[data-testid^="real-input-budget"]').nth(1).press('Enter');
+    await page.locator('input[data-testid^="real-input-capex"]').nth(1).fill('999999');
+    await page.locator('input[data-testid^="real-input-capex"]').nth(1).press('Enter');
 
     // 3. Run report
     await page.getByTestId('nav-history').click();
@@ -108,7 +108,7 @@ test.describe('Version History & Snapshotting', () => {
     
     await expect(page.getByText('Changed').first()).toBeVisible();
     await expect(page.getByText(secondInitName, { exact: true })).toBeVisible();
-    await expect(page.getByText(/Budget: .*\d+ → \$999,999/)).toBeVisible();
+    await expect(page.getByText(/CapEx: .*\d+ → \$999,999/)).toBeVisible();
   });
 
   test('Should not crash if selected version is deleted while comparison report is open', async ({ page }) => {

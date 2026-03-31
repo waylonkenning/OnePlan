@@ -33,8 +33,11 @@ export function validateInitiative(
         errors.endDate = 'End date must be on or after start date';
     }
 
-    if (init.budget != null && init.budget < 0) {
-        errors.budget = 'Budget cannot be negative';
+    if (init.capex != null && init.capex < 0) {
+        errors.capex = 'CapEx cannot be negative';
+    }
+    if (init.opex != null && init.opex < 0) {
+        errors.opex = 'OpEx cannot be negative';
     }
 
     return errors;

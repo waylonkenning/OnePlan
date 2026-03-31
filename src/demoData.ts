@@ -200,140 +200,140 @@ export const demoInitiatives: Initiative[] = [
     // CIAM
     {
         id: 'i-ciam-passkey', name: 'Passkey Rollout', programmeId: 'prog-dtp', strategyId: 'strat-zero',
-        assetId: 'a-ciam', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), budget: 350000,
+        assetId: 'a-ciam', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), capex: 350000, opex: 0,
         description: 'Replace SMS OTP with FIDO2 passkeys for all customer-facing channels.',
         status: 'active', progress: 40, ownerId: 'res-4', resourceIds: ['res-2', 'res-3'],
     },
     {
         id: 'i-ciam-sso', name: 'SSO Consolidation', programmeId: 'prog-dtp', strategyId: 'strat-cust',
-        assetId: 'a-ciam', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), budget: 600000,
+        assetId: 'a-ciam', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), capex: 600000, opex: 0,
         description: 'Unify 12 legacy identity providers into a single CIAM platform.',
         status: 'planned', progress: 0, ownerId: 'res-1', resourceIds: ['res-3'],
     },
     // Employee IAM
     {
         id: 'i-eiam-ztna', name: 'Zero Trust Network Access', programmeId: 'prog-mod', strategyId: 'strat-zero',
-        assetId: 'a-eiam', startDate: relDate(0, 4, 1), endDate: relDate(1, 1, 31), budget: 800000,
+        assetId: 'a-eiam', startDate: relDate(0, 4, 1), endDate: relDate(1, 1, 31), capex: 800000, opex: 0,
         description: 'Implement identity-centric perimeter for all internal applications.',
         status: 'planned', progress: 0, ownerId: 'res-4',
     },
     // PAM
     {
         id: 'i-pam-vault', name: 'Secrets Vault Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'a-pam', startDate: relDate(0, 3, 1), endDate: relDate(0, 9, 30), budget: 250000,
+        assetId: 'a-pam', startDate: relDate(0, 3, 1), endDate: relDate(0, 9, 30), capex: 250000, opex: 0,
         description: 'Move from legacy PAM to cloud-native HashiCorp Vault.',
         status: 'active', progress: 10, ownerId: 'res-4', resourceIds: ['res-5'],
     },
     // Data Lake
     {
         id: 'i-lake-ingest', name: 'Real-Time Ingestion', programmeId: 'prog-data', strategyId: 'strat-data',
-        assetId: 'a-lake', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), budget: 1200000,
+        assetId: 'a-lake', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), capex: 1200000, opex: 0,
         description: 'Kafka-based streaming ingestion pipeline replacing nightly batch ETL.',
         status: 'active', progress: 30, ownerId: 'res-6', resourceIds: ['res-3', 'res-5'],
     },
     {
         id: 'i-lake-gov', name: 'Data Governance Framework', programmeId: 'prog-reg', strategyId: 'strat-reg',
-        assetId: 'a-lake', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), budget: 500000,
+        assetId: 'a-lake', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), capex: 500000, opex: 0,
         description: 'Implement data lineage, quality scoring, and automated PII tagging.',
         status: 'planned', progress: 0, ownerId: 'res-2',
     },
     // Data Warehouse
     {
         id: 'i-dwh-snow', name: 'Snowflake Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'a-dwh', startDate: relDate(0, 4, 1), endDate: relDate(1, 3, 31), budget: 2000000,
+        assetId: 'a-dwh', startDate: relDate(0, 4, 1), endDate: relDate(1, 3, 31), capex: 2000000, opex: 0,
         description: 'Migrate on-prem Teradata warehouse to Snowflake on AWS.',
         status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-5'],
     },
     // MDM
     {
         id: 'i-mdm-golden', name: 'Golden Customer Record', programmeId: 'prog-cx', strategyId: 'strat-data',
-        assetId: 'a-mdm', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), budget: 750000,
+        assetId: 'a-mdm', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), capex: 750000, opex: 0,
         description: 'Create single 360° customer view across banking, insurance and wealth.',
         status: 'planned', progress: 0, ownerId: 'res-1', resourceIds: ['res-3'],
     },
     // Internet Banking
     {
         id: 'i-web-redesign', name: 'Web Platform Redesign', programmeId: 'prog-cx', strategyId: 'strat-cust',
-        assetId: 'a-web', startDate: relDate(0, 1, 1), endDate: relDate(0, 12, 31), budget: 3000000,
+        assetId: 'a-web', startDate: relDate(0, 1, 1), endDate: relDate(0, 12, 31), capex: 3000000, opex: 0,
         description: 'Complete redesign of the internet banking UIUX using React + Tailwind micro-frontends.',
         status: 'active', progress: 20, ownerId: 'res-1', resourceIds: ['res-2', 'res-6'],
     },
     {
         id: 'i-web-a11y', name: 'WCAG 2.2 AA Compliance', programmeId: 'prog-reg', strategyId: 'strat-reg',
-        assetId: 'a-web', startDate: relDate(1, 1, 1), endDate: relDate(1, 6, 30), budget: 400000,
+        assetId: 'a-web', startDate: relDate(1, 1, 1), endDate: relDate(1, 6, 30), capex: 400000, opex: 0,
         description: 'Accessibility remediation to meet WCAG 2.2 Level AA for all customer journeys.',
         status: 'planned', progress: 0, ownerId: 'res-2',
     },
     // Mobile Banking
     {
         id: 'i-mobile-rn', name: 'React Native Rewrite', programmeId: 'prog-dtp', strategyId: 'strat-cust',
-        assetId: 'a-mobile', startDate: relDate(0, 3, 1), endDate: relDate(1, 6, 30), budget: 4500000,
+        assetId: 'a-mobile', startDate: relDate(0, 3, 1), endDate: relDate(1, 6, 30), capex: 4500000, opex: 0,
         description: 'Rewrite native iOS and Android apps as a single React Native codebase.',
         status: 'active', progress: 5, ownerId: 'res-6', resourceIds: ['res-2', 'res-3'],
     },
     // Contact Centre
     {
         id: 'i-cc-ai', name: 'AI-Powered IVR', programmeId: 'prog-cx', strategyId: 'strat-data',
-        assetId: 'a-cc', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), budget: 900000,
+        assetId: 'a-cc', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), capex: 900000, opex: 0,
         description: 'Deploy conversational AI to handle 60% of Tier 1 support calls.',
         status: 'planned', progress: 0, ownerId: 'res-2',
     },
     // Core Ledger
     {
         id: 'i-core-iso', name: 'ISO 20022 Migration', programmeId: 'prog-reg', strategyId: 'strat-reg',
-        assetId: 'a-core', startDate: relDate(0, 1, 1), endDate: relDate(1, 6, 30), budget: 5000000,
+        assetId: 'a-core', startDate: relDate(0, 1, 1), endDate: relDate(1, 6, 30), capex: 5000000, opex: 0,
         description: 'Upgrade core messaging to ISO 20022 format for SWIFT and domestic payments.',
         status: 'active', progress: 10, ownerId: 'res-1', resourceIds: ['res-2', 'res-6'],
     },
     {
         id: 'i-core-api', name: 'Core Banking API Layer', programmeId: 'prog-mod', strategyId: 'strat-api',
-        assetId: 'a-core', startDate: relDate(1, 1, 1), endDate: relDate(1, 12, 31), budget: 2500000,
+        assetId: 'a-core', startDate: relDate(1, 1, 1), endDate: relDate(1, 12, 31), capex: 2500000, opex: 0,
         description: 'Wrap legacy COBOL core with gRPC and REST APIs for channel consumption.',
         status: 'planned', progress: 0, ownerId: 'res-6',
     },
     // Payments Engine
     {
         id: 'i-pay-rtp', name: 'Real-Time Payments Gateway', programmeId: 'prog-dtp', strategyId: 'strat-api',
-        assetId: 'a-pay', startDate: relDate(0, 4, 1), endDate: relDate(1, 3, 31), budget: 1800000,
+        assetId: 'a-pay', startDate: relDate(0, 4, 1), endDate: relDate(1, 3, 31), capex: 1800000, opex: 0,
         description: 'Connect to the national real-time payments network (NPP/FPS).',
         status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-5'],
     },
     {
         id: 'i-pay-fraud', name: 'Transaction Fraud ML', programmeId: 'prog-data', strategyId: 'strat-data',
-        assetId: 'a-pay', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), budget: 700000,
+        assetId: 'a-pay', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), capex: 700000, opex: 0,
         description: 'Deploy ML models for real-time fraud scoring on all payment channels.',
         status: 'planned', progress: 0, ownerId: 'res-2', resourceIds: ['res-3'],
     },
     // API Gateway
     {
         id: 'i-apigw-v2', name: 'API Gateway v2 Migration', programmeId: 'prog-mod', strategyId: 'strat-api',
-        assetId: 'a-apigw', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), budget: 350000,
+        assetId: 'a-apigw', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), capex: 350000, opex: 0,
         description: 'Migrate from Kong to cloud-native AWS API Gateway with WAF integration.',
         status: 'active', progress: 50, ownerId: 'res-2', resourceIds: ['res-5'],
     },
     {
         id: 'i-apigw-portal', name: 'Developer Portal Launch', programmeId: 'prog-dtp', strategyId: 'strat-api',
-        assetId: 'a-apigw', startDate: relDate(0, 7, 1), endDate: relDate(1, 1, 31), budget: 300000,
+        assetId: 'a-apigw', startDate: relDate(0, 7, 1), endDate: relDate(1, 1, 31), capex: 300000, opex: 0,
         description: 'Self-service developer portal for internal and partner API consumers.',
         status: 'planned', progress: 0, ownerId: 'res-6',
     },
     // Enterprise Service Bus
     {
         id: 'i-esb-decomm', name: 'ESB Decommission', programmeId: 'prog-mod', strategyId: 'strat-api',
-        assetId: 'a-esb', startDate: relDate(1, 1, 1), endDate: relDate(2, 6, 30), budget: 1200000,
+        assetId: 'a-esb', startDate: relDate(1, 1, 1), endDate: relDate(2, 6, 30), capex: 1200000, opex: 0,
         description: 'Progressively decommission on-prem ESB by migrating integrations to event-driven architecture.',
         status: 'planned', progress: 0, ownerId: 'res-2',
     },
     // Lending
     {
         id: 'i-lend-auto', name: 'Automated Decisioning', programmeId: 'prog-mod', strategyId: 'strat-data',
-        assetId: 'a-lend', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), budget: 1500000,
+        assetId: 'a-lend', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), capex: 1500000, opex: 0,
         description: 'New real-time credit scoring engine based on cloud-native decisioning platform.',
         status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-3'],
     },
     {
         id: 'i-lend-open', name: 'Open Banking Origination', programmeId: 'prog-reg', strategyId: 'strat-reg',
-        assetId: 'a-lend', startDate: relDate(1, 4, 1), endDate: relDate(2, 3, 31), budget: 900000,
+        assetId: 'a-lend', startDate: relDate(1, 4, 1), endDate: relDate(2, 3, 31), capex: 900000, opex: 0,
         description: 'Integrate CDR/Open Banking data into loan origination for richer affordability checks.',
         status: 'planned', progress: 0, ownerId: 'res-1',
     },
@@ -345,7 +345,7 @@ export const demoInitiatives: Initiative[] = [
         assetId: 'a-k8s',
         startDate: relDate(2, 1, 1),
         endDate: relDate(2, 12, 31),
-        budget: 0,
+        capex: 0, opex: 0,
         description: 'Placeholder for future cloud-native workloads.',
         status: 'planned', progress: 0,
         isPlaceholder: true
@@ -355,182 +355,182 @@ export const demoInitiatives: Initiative[] = [
     // TAP.01 — FMIS
     {
         id: 'i-gz-fmis-cloud', name: 'FMIS Cloud Uplift', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'gz-fmis', startDate: relDate(0, 1, 1), endDate: relDate(1, 3, 31), budget: 1800000,
+        assetId: 'gz-fmis', startDate: relDate(0, 1, 1), endDate: relDate(1, 3, 31), capex: 1800000, opex: 0,
         description: 'Migrate on-premises FMIS to a SaaS financial management platform.',
         status: 'active', progress: 20, ownerId: 'res-1', resourceIds: ['res-5'],
     },
     // TAP.01 — HR Management
     {
         id: 'i-gz-hrm-selfserv', name: 'HR Self-Service Portal', programmeId: 'prog-dtp', strategyId: 'strat-cust',
-        assetId: 'gz-hrm', startDate: relDate(0, 4, 1), endDate: relDate(0, 12, 31), budget: 400000,
+        assetId: 'gz-hrm', startDate: relDate(0, 4, 1), endDate: relDate(0, 12, 31), capex: 400000, opex: 0,
         description: 'Deploy employee self-service module for leave, payslips and benefits.',
         status: 'planned', progress: 0, ownerId: 'res-1',
     },
     // TAP.01 — ERP
     {
         id: 'i-gz-erp-consolidate', name: 'ERP Consolidation', programmeId: 'prog-mod', strategyId: 'strat-api',
-        assetId: 'gz-erp', startDate: relDate(1, 1, 1), endDate: relDate(2, 6, 30), budget: 3500000,
+        assetId: 'gz-erp', startDate: relDate(1, 1, 1), endDate: relDate(2, 6, 30), capex: 3500000, opex: 0,
         description: 'Consolidate fragmented back-office systems into a single cloud ERP.',
         status: 'planned', progress: 0, ownerId: 'res-6',
     },
     // TAP.02 — Case Management
     {
         id: 'i-gz-case-upgrade', name: 'Case Management Upgrade', programmeId: 'prog-mod', strategyId: 'strat-cust',
-        assetId: 'gz-case', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), budget: 850000,
+        assetId: 'gz-case', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), capex: 850000, opex: 0,
         description: 'Replace legacy case system with a cloud-native, API-first case platform.',
         status: 'planned', progress: 0, ownerId: 'res-1', resourceIds: ['res-2'],
     },
     // TAP.02 — CRM
     {
         id: 'i-gz-crm-migrate', name: 'CRM Cloud Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'gz-crm', startDate: relDate(0, 3, 1), endDate: relDate(1, 1, 31), budget: 1200000,
+        assetId: 'gz-crm', startDate: relDate(0, 3, 1), endDate: relDate(1, 1, 31), capex: 1200000, opex: 0,
         description: 'Migrate on-premises CRM to cloud, integrating with citizen portal and case management.',
         status: 'active', progress: 10, ownerId: 'res-6', resourceIds: ['res-3'],
     },
     // TAP.03 — Customer Portal
     {
         id: 'i-gz-portal-redesign', name: 'Citizen Portal Redesign', programmeId: 'prog-cx', strategyId: 'strat-cust',
-        assetId: 'gz-portal', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), budget: 600000,
+        assetId: 'gz-portal', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), capex: 600000, opex: 0,
         description: 'Redesign the citizen-facing portal to meet NZ Government Design System standards.',
         status: 'active', progress: 35, ownerId: 'res-2', resourceIds: ['res-3'],
     },
     // TAP.03 — Web CMS
     {
         id: 'i-gz-wcm-headless', name: 'Headless CMS Migration', programmeId: 'prog-dtp', strategyId: 'strat-api',
-        assetId: 'gz-wcm', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), budget: 300000,
+        assetId: 'gz-wcm', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), capex: 300000, opex: 0,
         description: 'Move from monolithic CMS to headless architecture to support omnichannel publishing.',
         status: 'planned', progress: 0, ownerId: 'res-2',
     },
     // TAP.04 — Data Governance
     {
         id: 'i-gz-datagov-prog', name: 'Data Governance Programme', programmeId: 'prog-reg', strategyId: 'strat-reg',
-        assetId: 'gz-datagov', startDate: relDate(0, 1, 1), endDate: relDate(1, 3, 31), budget: 500000,
+        assetId: 'gz-datagov', startDate: relDate(0, 1, 1), endDate: relDate(1, 3, 31), capex: 500000, opex: 0,
         description: 'Establish agency-wide data governance: lineage, quality scoring, PII classification.',
         status: 'active', progress: 20, ownerId: 'res-2', resourceIds: ['res-3'],
     },
     // TAP.04 — Records Management
     {
         id: 'i-gz-records-digital', name: 'Digital Records Uplift', programmeId: 'prog-dtp', strategyId: 'strat-reg',
-        assetId: 'gz-records', startDate: relDate(0, 7, 1), endDate: relDate(1, 6, 30), budget: 400000,
+        assetId: 'gz-records', startDate: relDate(0, 7, 1), endDate: relDate(1, 6, 30), capex: 400000, opex: 0,
         description: 'Digitise paper records and align with NZ Archives digital continuity requirements.',
         status: 'planned', progress: 0, ownerId: 'res-1',
     },
     // TAP.06 — API Management
     {
         id: 'i-gz-api-platform', name: 'API Platform Uplift', programmeId: 'prog-mod', strategyId: 'strat-api',
-        assetId: 'gz-apimgmt', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), budget: 750000,
+        assetId: 'gz-apimgmt', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), capex: 750000, opex: 0,
         description: 'Upgrade API gateway and developer portal to support whole-of-government API integration.',
         status: 'active', progress: 60, ownerId: 'res-2', resourceIds: ['res-5'],
     },
     // TAP.06 — ESB
     {
         id: 'i-gz-esb-retire', name: 'ESB Retirement Programme', programmeId: 'prog-mod', strategyId: 'strat-api',
-        assetId: 'gz-gesb', startDate: relDate(1, 1, 1), endDate: relDate(2, 12, 31), budget: 2000000,
+        assetId: 'gz-gesb', startDate: relDate(1, 1, 1), endDate: relDate(2, 12, 31), capex: 2000000, opex: 0,
         description: 'Decommission legacy ESB by migrating all integrations to event-driven API patterns.',
         status: 'planned', progress: 0, ownerId: 'res-6',
     },
     // TAP.07 — Identity Governance
     {
         id: 'i-gz-idgov-jml', name: 'Joiner/Mover/Leaver Automation', programmeId: 'prog-dtp', strategyId: 'strat-zero',
-        assetId: 'gz-idgov', startDate: relDate(0, 4, 1), endDate: relDate(1, 1, 31), budget: 450000,
+        assetId: 'gz-idgov', startDate: relDate(0, 4, 1), endDate: relDate(1, 1, 31), capex: 450000, opex: 0,
         description: 'Automate identity lifecycle across HR, directory and application provisioning.',
         status: 'planned', progress: 0, ownerId: 'res-4',
     },
     // TAP.07 — Authentication
     {
         id: 'i-gz-authn-mfa', name: 'MFA Modernisation', programmeId: 'prog-dtp', strategyId: 'strat-zero',
-        assetId: 'gz-authn', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), budget: 250000,
+        assetId: 'gz-authn', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), capex: 250000, opex: 0,
         description: 'Replace SMS OTP with phishing-resistant MFA (FIDO2/passkeys) for all staff.',
         status: 'active', progress: 75, ownerId: 'res-4', resourceIds: ['res-3'],
     },
     // TAP.08 — Network Security
     {
         id: 'i-gz-netsec-seg', name: 'Network Segmentation Project', programmeId: 'prog-mod', strategyId: 'strat-zero',
-        assetId: 'gz-netsec', startDate: relDate(0, 3, 1), endDate: relDate(1, 3, 31), budget: 900000,
+        assetId: 'gz-netsec', startDate: relDate(0, 3, 1), endDate: relDate(1, 3, 31), capex: 900000, opex: 0,
         description: 'Implement micro-segmentation across agency network to reduce lateral movement risk.',
         status: 'planned', progress: 0, ownerId: 'res-4',
     },
     // TAP.08 — SIEM
     {
         id: 'i-gz-siem-upgrade', name: 'SIEM Platform Upgrade', programmeId: 'prog-mod', strategyId: 'strat-reg',
-        assetId: 'gz-siem', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), budget: 650000,
+        assetId: 'gz-siem', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), capex: 650000, opex: 0,
         description: 'Upgrade SIEM to support NZISM-aligned security monitoring and automated alerting.',
         status: 'planned', progress: 0, ownerId: 'res-4', resourceIds: ['res-5'],
     },
     // TAP.09 — BPM
     {
         id: 'i-gz-bpm-automate', name: 'Process Automation Initiative', programmeId: 'prog-dtp', strategyId: 'strat-api',
-        assetId: 'gz-bpm', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), budget: 800000,
+        assetId: 'gz-bpm', startDate: relDate(0, 6, 1), endDate: relDate(1, 3, 31), capex: 800000, opex: 0,
         description: 'Automate high-volume ministerial and regulatory approval workflows using BPM tooling.',
         status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-3'],
     },
     // TAP.12 — ITSM
     {
         id: 'i-gz-itsm-consolidate', name: 'ITSM Tool Consolidation', programmeId: 'prog-mod', strategyId: 'strat-api',
-        assetId: 'gz-itsm', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), budget: 350000,
+        assetId: 'gz-itsm', startDate: relDate(0, 1, 1), endDate: relDate(0, 9, 30), capex: 350000, opex: 0,
         description: 'Consolidate three agency service desk tools into a single enterprise ITSM platform.',
         status: 'active', progress: 45, ownerId: 'res-6',
     },
     // TAP.12 — CMDB
     {
         id: 'i-gz-cmdb-auto', name: 'CMDB Automation', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'gz-cmdb', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), budget: 300000,
+        assetId: 'gz-cmdb', startDate: relDate(0, 10, 1), endDate: relDate(1, 6, 30), capex: 300000, opex: 0,
         description: 'Automate CMDB discovery and reconciliation with cloud infrastructure inventory.',
         status: 'planned', progress: 0, ownerId: 'res-5',
     },
     // TAP.13 — Email
     {
         id: 'i-gz-email-m365', name: 'Microsoft 365 Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'gz-email', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), budget: 400000,
+        assetId: 'gz-email', startDate: relDate(0, 1, 1), endDate: relDate(0, 6, 30), capex: 400000, opex: 0,
         description: 'Migrate agency email from on-premises Exchange to Microsoft 365.',
         status: 'active', progress: 80, ownerId: 'res-5', resourceIds: ['res-3'],
     },
     // TAP.13 — Video Services
     {
         id: 'i-gz-video-upgrade', name: 'Video Conferencing Uplift', programmeId: 'prog-cx', strategyId: 'strat-cust',
-        assetId: 'gz-video', startDate: relDate(0, 7, 1), endDate: relDate(0, 12, 31), budget: 150000,
+        assetId: 'gz-video', startDate: relDate(0, 7, 1), endDate: relDate(0, 12, 31), capex: 150000, opex: 0,
         description: 'Standardise video conferencing across all meeting rooms and remote workers.',
         status: 'planned', progress: 0, ownerId: 'res-5',
     },
     // TAP.14 — System Monitoring
     {
         id: 'i-gz-sysmon-unified', name: 'Unified Monitoring Platform', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'gz-sysmon', startDate: relDate(0, 4, 1), endDate: relDate(1, 1, 31), budget: 500000,
+        assetId: 'gz-sysmon', startDate: relDate(0, 4, 1), endDate: relDate(1, 1, 31), capex: 500000, opex: 0,
         description: 'Consolidate fragmented monitoring tools into a single observability platform.',
         status: 'planned', progress: 0, ownerId: 'res-5', resourceIds: ['res-6'],
     },
     // TAP.14 — APM
     {
         id: 'i-gz-apm-rollout', name: 'APM Rollout', programmeId: 'prog-cloud', strategyId: 'strat-api',
-        assetId: 'gz-apm', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), budget: 250000,
+        assetId: 'gz-apm', startDate: relDate(0, 7, 1), endDate: relDate(1, 3, 31), capex: 250000, opex: 0,
         description: 'Deploy application performance monitoring across all public-facing digital services.',
         status: 'planned', progress: 0, ownerId: 'res-5',
     },
     // TAP.15 — IaaS
     {
         id: 'i-gz-iaas-migration', name: 'IaaS Cloud Migration', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'gz-iaas', startDate: relDate(0, 1, 1), endDate: relDate(1, 6, 30), budget: 2500000,
+        assetId: 'gz-iaas', startDate: relDate(0, 1, 1), endDate: relDate(1, 6, 30), capex: 2500000, opex: 0,
         description: 'Exit on-premises datacentre by migrating all workloads to government cloud tenancy.',
         status: 'active', progress: 25, ownerId: 'res-6', resourceIds: ['res-5'],
     },
     // TAP.15 — PaaS
     {
         id: 'i-gz-paas-k8s', name: 'Container Platform (PaaS)', programmeId: 'prog-cloud', strategyId: 'strat-cloud',
-        assetId: 'gz-paas', startDate: relDate(0, 6, 1), endDate: relDate(1, 6, 30), budget: 800000,
+        assetId: 'gz-paas', startDate: relDate(0, 6, 1), endDate: relDate(1, 6, 30), capex: 800000, opex: 0,
         description: 'Establish shared Kubernetes-based PaaS for agency application workloads.',
         status: 'planned', progress: 0, ownerId: 'res-6',
     },
     // TAP.16 — Data Warehouse
     {
         id: 'i-gz-dwh-cloud', name: 'Cloud Data Warehouse', programmeId: 'prog-data', strategyId: 'strat-data',
-        assetId: 'gz-dwh', startDate: relDate(0, 4, 1), endDate: relDate(1, 6, 30), budget: 1800000,
+        assetId: 'gz-dwh', startDate: relDate(0, 4, 1), endDate: relDate(1, 6, 30), capex: 1800000, opex: 0,
         description: 'Replace on-premises data warehouse with cloud-native analytical database.',
         status: 'planned', progress: 0, ownerId: 'res-6', resourceIds: ['res-3'],
     },
     // TAP.16 — BI Reporting
     {
         id: 'i-gz-bi-selfserv', name: 'Self-Service BI Platform', programmeId: 'prog-data', strategyId: 'strat-data',
-        assetId: 'gz-bi', startDate: relDate(0, 10, 1), endDate: relDate(1, 9, 30), budget: 600000,
+        assetId: 'gz-bi', startDate: relDate(0, 10, 1), endDate: relDate(1, 9, 30), capex: 600000, opex: 0,
         description: 'Deploy self-service BI tooling enabling business units to create their own reports.',
         status: 'planned', progress: 0, ownerId: 'res-2', resourceIds: ['res-3'],
     },
