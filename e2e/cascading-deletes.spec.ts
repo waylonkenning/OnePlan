@@ -6,6 +6,49 @@ test.describe('Cascading Deletes', () => {
         await expect(page.getByRole('button', { name: 'Visualiser' })).toBeVisible();
     });
 
+    test('deleting asset removes its initiative bars from the Visualiser timeline', async ({ page }) => {
+        // Verify the CIAM initiative bar is present on the timeline first
+        const initiativeBar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
+        await expect(initiativeBar).toBeVisible();
+
+        // Switch to Data Manager and delete the Customer IAM (CIAM) asset
+        await page.getByRole('button', { name: 'Data Manager' }).click();
+        await page.getByRole('button', { name: 'Assets' }).click();
+        await page.locator('table tbody tr').first().getByRole('button', { name: 'Delete row' }).click();
+        await page.locator('[data-testid="confirm-modal-confirm"]').click();
+
+        // Switch back to Visualiser and verify the initiative bar is gone (no ghost bar)
+        await page.getByRole('button', { name: 'Visualiser' }).click();
+        await expect(initiativeBar).not.toBeVisible();
+    });
+
+    test('deleting initiative removes its dependencies from Data Manager', async ({ page }) => {
+        // Count deps before deletion
+        await page.getByRole('button', { name: 'Data Manager' }).click();
+        await page.getByRole('button', { name: 'Dependencies' }).click();
+        const depsBefore = await page.locator('table tbody tr').count();
+
+        // Go to Visualiser and delete the Passkey Rollout initiative
+        await page.getByRole('button', { name: 'Visualiser' }).click();
+        const initiativeBar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
+        await expect(initiativeBar).toBeVisible();
+        await initiativeBar.click();
+        await initiativeBar.locator('[data-testid="initiative-edit"]').click();
+        const deleteBtn = page.getByRole('button', { name: 'Delete Initiative' });
+        await expect(deleteBtn).toBeVisible();
+        await deleteBtn.click();
+        await page.locator('[data-testid="confirm-modal-confirm"]').click();
+
+        // Verify initiative bar is gone from timeline (no ghost bar)
+        await expect(initiativeBar).not.toBeVisible();
+
+        // Verify dependencies referencing this initiative are gone from Data Manager
+        await page.getByRole('button', { name: 'Data Manager' }).click();
+        await page.getByRole('button', { name: 'Dependencies' }).click();
+        const depsAfter = await page.locator('table tbody tr').count();
+        expect(depsAfter).toBeLessThan(depsBefore);
+    });
+
     test('deleting an asset cascades to its initiatives and milestones', async ({ page }) => {
         // Switch to Data Manager
         await page.getByRole('button', { name: 'Data Manager' }).click();
