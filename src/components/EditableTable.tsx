@@ -239,7 +239,7 @@ export function EditableTable<T extends { [key: string]: any }>({
 
   const handleChange = (index: number, key: keyof T, value: unknown, isGhost: boolean = false, focusNextColumn: boolean = false) => {
     if (isGhost) {
-      const newId = `new-${rowIdCounter.current++}`;
+      const newId = crypto.randomUUID();
       const newRow = {} as T;
       newRow[idField] = newId as T[keyof T];
 
@@ -293,7 +293,7 @@ export function EditableTable<T extends { [key: string]: any }>({
   };
 
   const handleAdd = () => {
-    const newId = `new-${rowIdCounter.current++}`;
+    const newId = crypto.randomUUID();
     const newRow = {} as T;
     newRow[idField] = newId as T[keyof T];
 
@@ -391,7 +391,7 @@ export function EditableTable<T extends { [key: string]: any }>({
         });
       }
 
-      const targetId = rowData[idField] || `csv-${rowIdCounter.current++}`;
+      const targetId = rowData[idField] || crypto.randomUUID();
       rowData[idField] = targetId as T[keyof T];
 
       const existingIndex = updatedRows.findIndex(r => String(r[idField]) === String(targetId));
