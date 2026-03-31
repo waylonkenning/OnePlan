@@ -281,6 +281,24 @@ export function InitiativePanel({ initiative, assets, applications = [], program
                         </div>
 
                         <div>
+                            <label htmlFor="ragStatus" className="block text-sm font-medium text-slate-700 mb-1">
+                                RAG Status
+                            </label>
+                            <select
+                                id="ragStatus"
+                                data-testid="initiative-rag-status"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+                                value={formData.ragStatus || ''}
+                                onChange={(e) => setFormData({ ...formData, ragStatus: (e.target.value || undefined) as Initiative['ragStatus'] })}
+                            >
+                                <option value="">— None —</option>
+                                <option value="green">Green</option>
+                                <option value="amber">Amber</option>
+                                <option value="red">Red</option>
+                            </select>
+                        </div>
+
+                        <div>
                             <label htmlFor="progress" className="block text-sm font-medium text-slate-700 mb-1">
                                 Progress (%)
                             </label>

@@ -44,7 +44,7 @@ test.describe('View Options Popover', () => {
 
   test('button label reflects current colour and group mode', async ({ page }) => {
     const btn = page.getByTestId('view-options-btn');
-    await expect(btn).toContainText(/Programme|Strategy|Progress/);
+    await expect(btn).toContainText(/Programme|Strategy|Progress|Status/);
     await expect(btn).toContainText(/Asset|Programme|Strategy/);
   });
 });

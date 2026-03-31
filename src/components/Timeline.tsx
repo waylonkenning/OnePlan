@@ -82,6 +82,17 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     done: 'Done',
     cancelled: 'Cancelled',
   };
+  const RAG_COLORS: Record<string, string> = {
+    green: 'bg-green-500',
+    amber: 'bg-amber-400',
+    red: 'bg-red-500',
+    none: 'bg-slate-300',
+  };
+  const RAG_LABELS: Record<string, string> = {
+    green: 'Green',
+    amber: 'Amber',
+    red: 'Red',
+  };
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
   const [initiativePanelId, setInitiativePanelId] = useState<string | null>(null); // separate from selectedInitiativeId — panel only opens when this is set
   const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null);
@@ -1603,12 +1614,16 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                         if (left + barW < 0 || left > 100) return null;
                         const prog = programmes.find(p => p.id === init.programmeId);
                         const strat = strategies.find(s => s.id === init.strategyId);
-                        const colorClass = colorBy === 'status'
+                        const colorClass = colorBy === 'rag'
+                          ? (RAG_COLORS[init.ragStatus || 'none'])
+                          : colorBy === 'status'
                           ? (STATUS_COLORS[init.status || 'planned'])
                           : colorBy === 'programme'
                           ? (prog?.color || 'bg-slate-500')
                           : (strat?.color || 'bg-slate-400');
-                        const subtitle = colorBy === 'status'
+                        const subtitle = colorBy === 'rag'
+                          ? (init.ragStatus ? RAG_LABELS[init.ragStatus] : undefined)
+                          : colorBy === 'status'
                           ? STATUS_LABELS[init.status || 'planned']
                           : colorBy === 'programme'
                           ? prog?.name
@@ -1725,7 +1740,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                         if (left + barW < 0 || left > 100) return null;
                         const prog = programmes.find(p => p.id === init.programmeId);
                         const strat = strategies.find(s => s.id === init.strategyId);
-                        const colorClass = colorBy === 'status'
+                        const colorClass = colorBy === 'rag'
+                          ? (RAG_COLORS[init.ragStatus || 'none'])
+                          : colorBy === 'status'
                           ? (STATUS_COLORS[init.status || 'planned'])
                           : colorBy === 'programme'
                           ? (prog?.color || 'bg-slate-500')
@@ -1933,12 +1950,16 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                           {layoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
                             const prog = programmes.find(p => p.id === init.programmeId);
                             const strat = strategies.find(s => s.id === init.strategyId);
-                            const colorClass = colorBy === 'status'
+                            const colorClass = colorBy === 'rag'
+                              ? (RAG_COLORS[init.ragStatus || 'none'])
+                              : colorBy === 'status'
                               ? (STATUS_COLORS[init.status || 'planned'])
                               : colorBy === 'programme'
                               ? (prog?.color || 'bg-slate-500')
                               : (strat?.color || 'bg-slate-400');
-                            const subtitle = colorBy === 'status'
+                            const subtitle = colorBy === 'rag'
+                              ? (init.ragStatus ? RAG_LABELS[init.ragStatus] : undefined)
+                              : colorBy === 'status'
                               ? STATUS_LABELS[init.status || 'planned']
                               : isGroup
                               ? (colorBy === 'programme' ? groupProgrammeNames : groupStrategyNames)
@@ -2512,7 +2533,9 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 {layoutItems.map(({ init, top, height, left, width }: any) => {
                                   const prog = programmes.find(p => p.id === init.programmeId);
                                   const strat = strategies.find(s => s.id === init.strategyId);
-                                  const colorClass = colorBy === 'status'
+                                  const colorClass = colorBy === 'rag'
+                                    ? (RAG_COLORS[init.ragStatus || 'none'])
+                                    : colorBy === 'status'
                                     ? (STATUS_COLORS[init.status || 'planned'])
                                     : colorBy === 'programme'
                                     ? (prog?.color || 'bg-slate-500')
@@ -2737,10 +2760,17 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             <div data-testid="legend-colour-swatches">
               <div data-testid="colour-legend">
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">
-                  {colorBy === 'status' ? 'Status' : colorBy === 'programme' ? 'Programmes' : 'Strategies'}
+                  {colorBy === 'rag' ? 'Status' : colorBy === 'status' ? 'Progress' : colorBy === 'programme' ? 'Programmes' : 'Strategies'}
                 </p>
                 <div className="space-y-1">
-                  {colorBy === 'status' ? (
+                  {colorBy === 'rag' ? (
+                    Object.entries(RAG_LABELS).map(([key, label]) => (
+                      <div key={key} className="flex items-center gap-1.5">
+                        <div className={cn('w-2.5 h-2.5 rounded-full flex-shrink-0', RAG_COLORS[key])} />
+                        <span className="text-slate-600">{label}</span>
+                      </div>
+                    ))
+                  ) : colorBy === 'status' ? (
                     Object.entries(STATUS_LABELS).map(([key, label]) => (
                       <div key={key} className="flex items-center gap-1.5">
                         <div className={cn('w-2.5 h-2.5 rounded-full flex-shrink-0', STATUS_COLORS[key])} />

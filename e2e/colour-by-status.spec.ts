@@ -50,7 +50,7 @@ test.describe('Initiative status field', () => {
     await page.getByTestId('data-manager').getByRole('button', { name: /Initiatives/ }).click();
 
     // Status column header must be present
-    await expect(page.getByTestId('data-manager').locator('th').filter({ hasText: 'Status' })).toBeVisible();
+    await expect(page.getByTestId('data-manager').getByRole('columnheader', { name: 'Status', exact: true })).toBeVisible();
   });
 
   test('changing status in InitiativePanel persists after reload', async ({ page }) => {

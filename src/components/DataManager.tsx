@@ -175,6 +175,12 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
       { value: 'done', label: 'Done' },
       { value: 'cancelled', label: 'Cancelled' },
     ], width: '100px' },
+    { key: 'ragStatus', label: 'RAG Status', type: 'select', options: [
+      { value: '', label: '— None —' },
+      { value: 'green', label: 'Green' },
+      { value: 'amber', label: 'Amber' },
+      { value: 'red', label: 'Red' },
+    ], width: '100px' },
     { key: 'progress', label: 'Progress (%)', type: 'number', width: '90px' },
     { key: 'owner', label: 'Owner', type: 'text', width: '110px' },
     { key: 'isPlaceholder', label: 'Placeholder?', type: 'boolean', width: '80px' },

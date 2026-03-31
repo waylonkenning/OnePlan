@@ -68,6 +68,7 @@ export interface Initiative {
   description?: string;
   isPlaceholder?: boolean;
   status?: 'planned' | 'active' | 'done' | 'cancelled';
+  ragStatus?: 'green' | 'amber' | 'red';
   progress?: number; // 0–100
   owner?: string;    // Legacy free-text owner (used as fallback when ownerId is absent)
   ownerId?: string;  // ID of a Resource record
@@ -180,7 +181,7 @@ export interface TimelineSettings {
   mobileBucketMode?: 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy' | 'dts-phase';
   criticalPath?: 'on' | 'off';
   groupBy?: 'asset' | 'programme' | 'strategy' | 'dts-phase';
-  colorBy?: 'programme' | 'strategy' | 'status';
+  colorBy?: 'programme' | 'strategy' | 'status' | 'rag';
   showResources?: 'on' | 'off';
   display?: 'both' | 'initiatives' | 'applications';
   templateId?: string;           // Which workspace template was selected on first load

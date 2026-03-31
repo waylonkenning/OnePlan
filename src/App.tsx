@@ -788,7 +788,7 @@ export default function App() {
           const groupBy = timelineSettings.groupBy || 'asset';
           const display = timelineSettings.display || 'both';
           const dtsAdoptionOn = timelineSettings.showDtsAdoptionStatus === 'on';
-          const colorLabel = colorBy === 'programme' ? 'Programme' : colorBy === 'strategy' ? 'Strategy' : 'Progress';
+          const colorLabel = colorBy === 'programme' ? 'Programme' : colorBy === 'strategy' ? 'Strategy' : colorBy === 'rag' ? 'Status' : 'Progress';
           const groupLabel = groupBy === 'asset' ? 'Asset' : groupBy === 'programme' ? 'Programme' : groupBy === 'dts-phase' ? 'DTS Phase' : 'Strategy';
           const displayLabel = display === 'initiatives' ? 'Initiatives' : display === 'applications' ? 'Applications' : 'Both';
           return (
@@ -847,6 +847,13 @@ export default function App() {
                     >
                       <Palette size={13} />
                       By Progress
+                    </button>
+                    <button
+                      onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'rag' })}
+                      className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", colorBy === 'rag' ? "bg-rose-50 text-rose-600" : "text-slate-600 hover:bg-slate-50")}
+                    >
+                      <Palette size={13} />
+                      By Status
                     </button>
                   </div>
 

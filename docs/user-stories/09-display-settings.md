@@ -70,6 +70,23 @@
 
 ---
 
+## US-DS-07: Colour Initiatives by RAG Status
+
+**As an** IT portfolio manager,
+**I want** to assign a RAG (Red / Amber / Green) status to each initiative and colour the timeline by it,
+**so that** I can instantly see the health of every initiative at a glance.
+
+**Acceptance Criteria:**
+- A `ragStatus` field (Green / Amber / Red) is available in the InitiativePanel
+- The same field is available in the Data Manager initiatives table
+- The `ragStatus` value persists to IndexedDB across reloads
+- The View popover offers a fourth colour mode: "By Status"
+- Selecting "By Status" colours initiative bars: Green → green, Amber → amber, Red → red; initiatives with no `ragStatus` set default to a neutral grey
+- The floating legend updates to show Green, Amber, Red swatches and labels when "By Status" is active
+- The selected colour mode persists across page reloads
+
+---
+
 ## US-DS-06: Choose What to Display on the Timeline
 
 **As an** IT portfolio manager,

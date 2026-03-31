@@ -19,6 +19,12 @@ The **View** popover in the header (click the **View** button) lets you choose h
 - Colours reflect each initiative's current status: Planned (slate), Active (blue), Done (green), Cancelled (red).
 - Use this mode to quickly assess portfolio health at a glance.
 
+## By Status
+
+- Colours reflect each initiative's RAG Status field: Green, Amber, or Red.
+- Initiatives with no RAG Status set appear in neutral grey.
+- Use this mode to surface delivery confidence or risk across the portfolio.
+
 ## Behaviour
 
 - The selected colour mode persists across page reloads.
