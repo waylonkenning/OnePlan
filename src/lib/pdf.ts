@@ -123,10 +123,17 @@ export const exportToJPG = async (elementId: string, filename: string = 'roadmap
     },
   });
 
+  // Convert data URL to blob URL — Chrome blocks large data URL downloads.
+  const bstr = atob(dataUrl.split(',')[1]);
+  const u8arr = new Uint8Array(bstr.length);
+  for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
+  const blob = new Blob([u8arr], { type: 'image/jpeg' });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = dataUrl;
+  a.href = url;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
 };
