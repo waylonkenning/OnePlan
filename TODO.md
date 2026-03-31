@@ -1,0 +1,25 @@
+# E2E Test Suite Improvements
+
+## Completed
+- [x] Delete `capture-*.spec.ts` screenshot tests
+- [x] Add form input validation tests
+- [x] Add cascading delete state consistency tests
+
+## Pending
+
+### P0 — Safety Net
+- [ ] Add dependency constraint validation tests
+- [ ] Add import error path tests
+- [ ] Add undo/redo edge case tests
+
+### P1 — Fragility
+- [ ] Replace CSS class assertions with computed style checks
+- [ ] Replace `waitForTimeout()` with deterministic waits
+
+### P2 — Organisation
+- [ ] Consolidate 15 dependency spec files into 3
+- [ ] Consolidate 17 mobile spec files into 2–3
+- [ ] Consolidate Data Manager spec files
+
+### P2 — Coverage
+- [ ] Add search & filter edge case tests
