@@ -4,6 +4,7 @@
 
 - [ ] Rename "Colour by Status" to "Colour by Progress"
 - [ ] Add new "Colour by Status" — RAG traffic light (Green / Amber / Red) stored as a field on initiatives, with Colour by Status display mode
+- [ ] Add "Viewer mode" to templates modal — replaces Mixed template; triggers Excel import flow so users can upload and view a shared file; final four choices: Viewer, NZ Digital Target State, GEANZ Technology Catalogue, Blank
 
 ## E2E Test Suite Improvements
 
