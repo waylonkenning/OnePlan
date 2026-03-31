@@ -20,6 +20,31 @@ export const exportToPDF = async (elementId: string, filename: string = 'roadmap
 
   const scrollableArea = (element.querySelector('.overflow-auto') as HTMLElement) || element;
 
+  // The legend lives outside the scrollable area (sibling div). Ensure it is
+  // expanded, then clone it into the scrollable content so it appears at the
+  // bottom-right corner of the captured image.
+  const legendEl = element.querySelector('[data-testid="timeline-legend"]') as HTMLElement | null;
+  const legendToggle = legendEl?.querySelector('[data-testid="legend-toggle"]') as HTMLButtonElement | null;
+  const legendWasCollapsed = !!legendEl && !legendEl.querySelector('[data-testid="legend-content"]');
+
+  if (legendWasCollapsed && legendToggle) {
+    legendToggle.click();
+    await new Promise(resolve => setTimeout(resolve, 150)); // wait for React re-render
+  }
+
+  // Clone the (now-expanded) legend into the scrollable content for capture.
+  let legendClone: HTMLElement | null = null;
+  if (legendEl) {
+    legendClone = legendEl.cloneNode(true) as HTMLElement;
+    legendClone.style.position = 'absolute';
+    legendClone.style.bottom = '12px';
+    legendClone.style.right = '12px';
+    legendClone.style.zIndex = '40';
+    legendClone.style.maxWidth = '220px';
+    const contentDiv = (scrollableArea.querySelector(':scope > div') as HTMLElement) || scrollableArea;
+    contentDiv.appendChild(legendClone);
+  }
+
   const dataUrl = await toJpeg(scrollableArea, {
     quality: 0.92,
     pixelRatio: 1.5,
@@ -34,6 +59,11 @@ export const exportToPDF = async (elementId: string, filename: string = 'roadmap
       overflow: 'visible',
     },
   });
+
+  // Remove the legend clone now that capture is done.
+  if (legendClone && legendClone.parentNode) {
+    legendClone.parentNode.removeChild(legendClone);
+  }
 
   const pdf = new jsPDF({
     orientation: 'landscape',
@@ -60,6 +90,11 @@ export const exportToPDF = async (elementId: string, filename: string = 'roadmap
 
   pdf.addImage(dataUrl, 'JPEG', x, 0, finalWidth, finalHeight, undefined, 'FAST');
   pdf.save(filename);
+
+  // Restore legend to collapsed state if we expanded it
+  if (legendWasCollapsed && legendToggle) {
+    legendToggle.click();
+  }
 };
 
 /**

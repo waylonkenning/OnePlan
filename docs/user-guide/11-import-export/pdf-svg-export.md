@@ -26,6 +26,10 @@ The exported file contains valid SVG markup and can be opened in vector graphics
 
 SVG is the best choice when you need to resize the output without loss of quality or want to apply custom styling after export.
 
+## Legend in PDF exports
+
+The legend is always included in the PDF output at the bottom-right corner of the exported image, regardless of whether it is collapsed or expanded in the Visualiser at the time of export. After the export completes, the legend returns to whatever state it was in before.
+
 ## Tips for a clean export
 
 - Set the timeline window to show only the date range you need before exporting.
