@@ -50,6 +50,48 @@ test.describe('Data Validation', () => {
         await expect(panel).toBeVisible();
     });
 
+    test('prevents saving initiative with empty name', async ({ page }) => {
+        const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
+        await bar.click();
+        await bar.locator('[data-testid="initiative-edit"]').click();
+
+        const panel = page.getByTestId('initiative-panel');
+        await expect(panel).toBeVisible();
+
+        // Clear the name field
+        await panel.getByLabel('Initiative Name').fill('');
+
+        // Try to save
+        await panel.getByRole('button', { name: 'Save Changes' }).click();
+
+        // Error message should appear
+        await expect(panel.getByText('Name is required')).toBeVisible();
+
+        // Panel should still be open
+        await expect(panel).toBeVisible();
+    });
+
+    test('prevents saving initiative with negative OpEx', async ({ page }) => {
+        const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
+        await bar.click();
+        await bar.locator('[data-testid="initiative-edit"]').click();
+
+        const panel = page.getByTestId('initiative-panel');
+        await expect(panel).toBeVisible();
+
+        // Set a negative OpEx
+        await panel.getByLabel('OpEx ($)').fill('-1000');
+
+        // Try to save
+        await panel.getByRole('button', { name: 'Save Changes' }).click();
+
+        // Error message should appear
+        await expect(panel.getByText('OpEx cannot be negative')).toBeVisible();
+
+        // Panel should still be open
+        await expect(panel).toBeVisible();
+    });
+
     test('allows saving initiative with valid data', async ({ page }) => {
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
