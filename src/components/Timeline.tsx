@@ -129,7 +129,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const initIdCounter = useRef(0);
   const [drawingDependency, setDrawingDependency] = useState<{
     sourceId: string;
-    sourceType: 'initiative' | 'milestone';
+    sourceType: 'initiative' | 'milestone' | 'segment';
     startX: number;
     startY: number;
     currentX: number;
@@ -167,6 +167,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
 
   const [initiativePositions, setInitiativePositions] = useState<Map<string, { x: number; y: number; width: number; height: number }>>(new Map());
   const [milestonePositions, setMilestonePositions] = useState<Map<string, { x: number; y: number }>>(new Map());
+  const [segmentPositions, setSegmentPositions] = useState<Map<string, { x: number; y: number; width: number; height: number }>>(new Map());
+  const segmentDepDirectRef = useRef(false);
   const lastStableLayouts = useRef<Map<string, { items: any[]; height: number }>>(new Map());
 
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -726,23 +728,37 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       } else if (movingDependency && onUpdateDependencies) {
         const updated = dependencies.find(d => d.id === movingDependency.id);
         if (updated) onUpdateDependencies([...dependencies]); // Trigger save
-      } else if (drawingDependency && onUpdateDependencies && !milestoneDepDirectRef.current) {
-        // Only handle here if the direct milestone dep listener isn't already handling it
-        // Find if we released over an initiative — check all elements at the point
-        // (SVG dep arrows have pointerEvents: 'all' at z-25, so they may be topmost)
+      } else if (drawingDependency && onUpdateDependencies && !milestoneDepDirectRef.current && !segmentDepDirectRef.current) {
+        // Only handle here if no direct listeners are already handling it
+        // Find if we released over an initiative or segment
         const elements = document.elementsFromPoint(e.clientX, e.clientY);
         let targetId: string | null = null;
+        let targetType: 'initiative' | 'segment' = 'initiative';
         for (const el of elements) {
-          const id = el.getAttribute('data-initiative-id') ?? el.closest('[data-initiative-id]')?.getAttribute('data-initiative-id');
-          if (id) { targetId = id; break; }
+          const initId = el.getAttribute('data-initiative-id') ?? el.closest('[data-initiative-id]')?.getAttribute('data-initiative-id');
+          if (initId) { targetId = initId; targetType = 'initiative'; break; }
+          // Also check for segment targets (only when source is not a segment)
+          if (drawingDependency.sourceType !== 'segment') {
+            const segId = el.getAttribute('data-segment-id') ?? el.closest('[data-segment-id]')?.getAttribute('data-segment-id');
+            if (segId) { targetId = segId; targetType = 'segment'; break; }
+          }
         }
-        // Fallback: scan by bounding rect (handles drops near or beyond viewport edge)
+        // Fallback: scan by bounding rect
         if (!targetId) {
           for (const el of document.querySelectorAll('[data-initiative-id]')) {
             const r = el.getBoundingClientRect();
             if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
               targetId = el.getAttribute('data-initiative-id');
-              if (targetId) break;
+              if (targetId) { targetType = 'initiative'; break; }
+            }
+          }
+        }
+        if (!targetId && drawingDependency.sourceType !== 'segment') {
+          for (const el of document.querySelectorAll('[data-segment-id]')) {
+            const r = el.getBoundingClientRect();
+            if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
+              targetId = el.getAttribute('data-segment-id');
+              if (targetId) { targetType = 'segment'; break; }
             }
           }
         }
@@ -753,6 +769,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
             sourceId: drawingDependency.sourceId,
             sourceType: drawingDependency.sourceType,
             targetId: targetId,
+            targetType: targetType === 'segment' ? 'segment' : undefined,
             type: 'requires'
           };
           onUpdateDependencies([...dependencies, newDependency]);
@@ -803,7 +820,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, resizingSegment, resizingSegmentVertical, movingSegment, localInitiatives, localMilestones, localSegments, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, onSaveApplicationSegment, onUpdateApplicationSegments, dependencies, initiativePositions, milestonePositions, settings.showRelationships, settings.snapToPeriod]);
+  }, [resizing, moving, movingMilestone, drawingDependency, movingDependency, resizingSegment, resizingSegmentVertical, movingSegment, localInitiatives, localMilestones, localSegments, totalWidth, totalDays, onUpdateInitiative, onUpdateDependencies, onUpdateMilestone, onSaveApplicationSegment, onUpdateApplicationSegments, dependencies, initiativePositions, milestonePositions, segmentPositions, settings.showRelationships, settings.snapToPeriod]);
 
   const handleCategoryDragStart = (e: React.DragEvent, category: string) => {
     setDraggingCategory(category);
@@ -977,6 +994,77 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     tlComputeAutoRow(newStart, newEnd, existingSegments, startDate, totalDays);
 
   // Move a segment up or down one row, cascading conflicts if needed
+  const handleSegmentDepMouseDown = (e: React.MouseEvent, segId: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!onUpdateDependencies || settings.showRelationships === 'off') return;
+    if (!containerRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    // Try cached position first; fall back to the DOM element's own position
+    const segPos = segmentPositions.get(segId);
+    const segEl = containerRef.current.querySelector(`[data-segment-id="${segId}"]`);
+    let startX: number, startY: number;
+    if (segPos) {
+      startX = segPos.x + segPos.width / 2;
+      startY = segPos.y + segPos.height / 2;
+    } else if (segEl) {
+      const r = segEl.getBoundingClientRect();
+      startX = r.left + r.width / 2 - containerRect.left;
+      startY = r.top + r.height / 2 - containerRect.top;
+    } else {
+      startX = e.clientX - containerRect.left;
+      startY = e.clientY - containerRect.top;
+    }
+    setDrawingDependency({
+      sourceId: segId,
+      sourceType: 'segment',
+      startX,
+      startY,
+      currentX: e.clientX - containerRect.left,
+      currentY: e.clientY - containerRect.top,
+    });
+    segmentDepDirectRef.current = true;
+    const handleDepMove = (dmv: MouseEvent) => {
+      if (!containerRef.current) return;
+      const cr = containerRef.current.getBoundingClientRect();
+      setDrawingDependency(prev => prev ? { ...prev, currentX: dmv.clientX - cr.left, currentY: dmv.clientY - cr.top } : null);
+    };
+    const handleDepUp = (dup: MouseEvent) => {
+      window.removeEventListener('mousemove', handleDepMove);
+      window.removeEventListener('mouseup', handleDepUp);
+      segmentDepDirectRef.current = false;
+      setDrawingDependency(null);
+      if (!onUpdateDependencies) return;
+      // Segments can only link to initiatives (not to other segments)
+      let targetId: string | null = null;
+      const els = document.elementsFromPoint(dup.clientX, dup.clientY);
+      for (const el of els) {
+        const id = el.getAttribute('data-initiative-id') ?? el.closest('[data-initiative-id]')?.getAttribute('data-initiative-id');
+        if (id) { targetId = id; break; }
+      }
+      if (!targetId) {
+        for (const el of document.querySelectorAll('[data-initiative-id]')) {
+          const r = el.getBoundingClientRect();
+          if (dup.clientX >= r.left && dup.clientX <= r.right && dup.clientY >= r.top && dup.clientY <= r.bottom) {
+            targetId = el.getAttribute('data-initiative-id');
+            if (targetId) break;
+          }
+        }
+      }
+      if (targetId && targetId !== segId) {
+        onUpdateDependencies([...dependencies, {
+          id: `dep-${Date.now()}`,
+          sourceId: segId,
+          sourceType: 'segment',
+          targetId,
+          type: 'requires',
+        }]);
+      }
+    };
+    window.addEventListener('mousemove', handleDepMove);
+    window.addEventListener('mouseup', handleDepUp);
+  };
+
   const handleSegmentRowMove = (segId: string, delta: number) => {
     const seg = localSegments.find(s => s.id === segId);
     if (!seg) return;
@@ -1077,10 +1165,27 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         }
       });
       setMilestonePositions(milePositions);
+
+      // Also track segment positions
+      const segPositions = new Map<string, { x: number; y: number; width: number; height: number }>();
+      const segElements = containerRef.current.querySelectorAll('[data-segment-id]');
+      segElements.forEach((el) => {
+        const segId = el.getAttribute('data-segment-id');
+        if (segId) {
+          const rect = el.getBoundingClientRect();
+          segPositions.set(segId, {
+            x: rect.left - containerRect.left,
+            y: rect.top - containerRect.top,
+            width: rect.width,
+            height: rect.height,
+          });
+        }
+      });
+      setSegmentPositions(segPositions);
     }, 50);
 
     return () => clearTimeout(timer);
-  }, [localInitiatives, assets, totalWidth, sortedCategoryIds, assetsByCategory, settings, collapsedCategories, dependencies]);
+  }, [localInitiatives, localSegments, assets, totalWidth, sortedCategoryIds, assetsByCategory, settings, collapsedCategories, dependencies]);
 
   const formatOverlapDuration = (days: number) => {
     if (settings.monthsToShow <= 3) {
@@ -1203,11 +1308,20 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
               </defs>
               {/* eslint-disable-next-line react-hooks/refs */}
               {settings.showRelationships !== 'off' && (() => {
+                // Helper to look up position for any entity (initiative or segment)
+                const getEntityPos = (id: string, type?: 'initiative' | 'milestone' | 'segment') => {
+                  if (type === 'segment') return segmentPositions.get(id);
+                  if (type === 'milestone') {
+                    const mPos = milestonePositions.get(id);
+                    return mPos ? { x: mPos.x, y: mPos.y, width: 0, height: 0 } : undefined;
+                  }
+                  return initiativePositions.get(id) ?? segmentPositions.get(id);
+                };
                 // Auto-stagger: group deps that share the same routing corridor
                 const corridorGroups = new Map<string, string[]>();
                 for (const dep of dependencies) {
-                  const source = initiativePositions.get(dep.sourceId);
-                  const target = initiativePositions.get(dep.targetId);
+                  const source = getEntityPos(dep.sourceId, dep.sourceType);
+                  const target = getEntityPos(dep.targetId, dep.targetType);
                   if (!source || !target) continue;
                   const sEndX = source.x + source.width;
                   const tStartX = target.x;
@@ -1229,14 +1343,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
 
                 return dependencies.map(dep => {
                 const isMilestoneSource = dep.sourceType === 'milestone';
-                let source: { x: number; y: number; width: number; height: number } | undefined;
-                if (isMilestoneSource) {
-                  const mPos = milestonePositions.get(dep.sourceId);
-                  if (mPos) source = { x: mPos.x, y: mPos.y, width: 0, height: 0 };
-                } else {
-                  source = initiativePositions.get(dep.sourceId);
-                }
-                const target = initiativePositions.get(dep.targetId);
+                const source = getEntityPos(dep.sourceId, dep.sourceType);
+                const target = getEntityPos(dep.targetId, dep.targetType);
                 if (!source || !target) return null;
 
                 // Determine if same asset
@@ -2123,6 +2231,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                   <div
                                     key={seg.id}
                                     data-testid={`segment-bar-${seg.id}`}
+                                    data-segment-id={seg.id}
                                     data-selected={isSegSelected ? 'true' : undefined}
                                     onMouseDown={(e) => {
                                       isDraggingRef.current = false;
@@ -2187,6 +2296,15 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                           title="Edit segment"
                                         >✎</button>
                                       </div>
+                                    )}
+                                    {isSegSelected && settings.showRelationships !== 'off' && onUpdateDependencies && (
+                                      <button
+                                        data-testid="segment-dep-handle"
+                                        className="absolute top-0.5 right-0.5 w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none z-20"
+                                        onMouseDown={(e) => handleSegmentDepMouseDown(e, seg.id)}
+                                        onClick={(e) => e.stopPropagation()}
+                                        title="Draw dependency from this segment"
+                                      >⤵</button>
                                     )}
                                     <div
                                       className="flex items-center justify-between gap-1 w-full overflow-hidden"
@@ -2575,6 +2693,8 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         dependency={selectedDependencyId ? dependencies.find(d => d.id === selectedDependencyId) || null : null}
         initiatives={initiatives}
         milestones={milestones}
+        applicationSegments={localSegments}
+        applications={applications}
         onSave={(updatedDep) => {
           if (onUpdateDependencies) {
             onUpdateDependencies(dependencies.map(d => d.id === updatedDep.id ? updatedDep : d));

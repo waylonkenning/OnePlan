@@ -80,11 +80,12 @@ export interface Initiative {
  */
 export interface Dependency {
   id: string;
-  sourceId: string; // The ID of the initiative (or milestone) that has the dependency
-  targetId: string; // The ID of the initiative that is being depended upon
+  sourceId: string; // The ID of the initiative, milestone, or application segment that has the dependency
+  targetId: string; // The ID of the initiative or application segment being depended upon
   type: 'blocks' | 'requires' | 'related';
   midXOffset?: number; // Manual horizontal offset for the vertical segment of the arrow
-  sourceType?: 'initiative' | 'milestone'; // Defaults to 'initiative' when absent
+  sourceType?: 'initiative' | 'milestone' | 'segment'; // Defaults to 'initiative' when absent
+  targetType?: 'initiative' | 'segment'; // Defaults to 'initiative' when absent
 }
 
 /**

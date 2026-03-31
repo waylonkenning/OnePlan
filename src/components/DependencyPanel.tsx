@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dependency, Initiative, Milestone } from '../types';
+import { Dependency, Initiative, Milestone, ApplicationSegment, Application } from '../types';
 import { X, Save, Trash2, ArrowLeftRight } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import { useFocusTrap } from '../lib/useFocusTrap';
@@ -8,13 +8,15 @@ interface DependencyPanelProps {
     dependency: Dependency | null;
     initiatives: Initiative[];
     milestones?: Milestone[];
+    applicationSegments?: ApplicationSegment[];
+    applications?: Application[];
     onClose: () => void;
     onSave: (dependency: Dependency) => void;
     onDelete?: (dependency: Dependency) => void;
     isOpen: boolean;
 }
 
-export function DependencyPanel({ dependency, initiatives, milestones, onClose, onSave, onDelete, isOpen }: DependencyPanelProps) {
+export function DependencyPanel({ dependency, initiatives, milestones, applicationSegments, applications, onClose, onSave, onDelete, isOpen }: DependencyPanelProps) {
     const [formData, setFormData] = useState<Dependency | null>(null);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const panelRef = useFocusTrap(isOpen, onClose);
@@ -27,12 +29,26 @@ export function DependencyPanel({ dependency, initiatives, milestones, onClose, 
 
     if (!isOpen || !formData) return null;
 
-    const isMilestoneSource = formData.sourceType === 'milestone';
-    const sourceName = isMilestoneSource
-        ? (milestones?.find(m => m.id === formData.sourceId)?.name ?? 'Milestone')
-        : (initiatives.find(i => i.id === formData.sourceId)?.name ?? 'Unknown');
-    const targetInit = initiatives.find(i => i.id === formData.targetId);
-    const targetName = targetInit?.name || 'Unknown';
+    const getSegmentLabel = (seg: ApplicationSegment): string => {
+        const appName = applications?.find(a => a.id === seg.applicationId)?.name;
+        return appName ? `${appName} (${seg.status})` : `Segment (${seg.status})`;
+    };
+
+    const getEntityName = (id: string, type?: 'initiative' | 'milestone' | 'segment'): string => {
+        if (type === 'milestone') return milestones?.find(m => m.id === id)?.name ?? 'Milestone';
+        if (type === 'segment') {
+            const seg = applicationSegments?.find(s => s.id === id);
+            return seg ? getSegmentLabel(seg) : 'Segment';
+        }
+        // Default: check initiatives first, then segments as fallback
+        const init = initiatives.find(i => i.id === id);
+        if (init) return init.name;
+        const seg = applicationSegments?.find(s => s.id === id);
+        return seg ? getSegmentLabel(seg) : 'Unknown';
+    };
+
+    const sourceName = getEntityName(formData.sourceId, formData.sourceType ?? 'initiative');
+    const targetName = getEntityName(formData.targetId, formData.targetType ?? 'initiative');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
