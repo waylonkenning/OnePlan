@@ -267,7 +267,7 @@ export default function App() {
     if (!skipHistory) {
       setUndoStack(prev => {
         const newStack = [...prev, getCurrentStateRef.current()];
-        if (newStack.length > 50) return newStack.slice(newStack.length - 50);
+        if (newStack.length > 10) return newStack.slice(newStack.length - 10);
         return newStack;
       });
       setRedoStack([]);
@@ -301,7 +301,7 @@ export default function App() {
 
     setRedoStack(prev => {
       const newStack = [...prev, getCurrentState()];
-      if (newStack.length > 50) return newStack.slice(newStack.length - 50);
+      if (newStack.length > 10) return newStack.slice(newStack.length - 10);
       return newStack;
     });
     setUndoStack(prev => prev.slice(0, -1));
@@ -315,7 +315,7 @@ export default function App() {
 
     setUndoStack(prev => {
       const newStack = [...prev, getCurrentState()];
-      if (newStack.length > 50) return newStack.slice(newStack.length - 50);
+      if (newStack.length > 10) return newStack.slice(newStack.length - 10);
       return newStack;
     });
     setRedoStack(prev => prev.slice(0, -1));
@@ -521,6 +521,7 @@ export default function App() {
           <button
             onClick={() => setView('visualiser')}
             data-testid="nav-visualiser"
+            aria-pressed={view === 'visualiser'}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer",
               view === 'visualiser'
@@ -534,6 +535,7 @@ export default function App() {
           <button
             onClick={() => setView('data')}
             data-testid="nav-data-manager"
+            aria-pressed={view === 'data'}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer",
               view === 'data'
@@ -547,6 +549,7 @@ export default function App() {
           <button
             onClick={() => setView('reports')}
             data-testid="nav-reports"
+            aria-pressed={view === 'reports'}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer",
               view === 'reports'
@@ -868,6 +871,7 @@ export default function App() {
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Colour by</p>
                   <div className="flex flex-col gap-1 mb-3">
                     <button
+                      aria-pressed={colorBy === 'programme'}
                       onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'programme' })}
                       className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", colorBy === 'programme' ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-50")}
                     >
@@ -875,6 +879,7 @@ export default function App() {
                       By Programme
                     </button>
                     <button
+                      aria-pressed={colorBy === 'strategy'}
                       onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'strategy' })}
                       className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", colorBy === 'strategy' ? "bg-indigo-50 text-indigo-600" : "text-slate-600 hover:bg-slate-50")}
                     >
@@ -882,6 +887,7 @@ export default function App() {
                       By Strategy
                     </button>
                     <button
+                      aria-pressed={colorBy === 'status'}
                       onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'status' })}
                       className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", colorBy === 'status' ? "bg-emerald-50 text-emerald-600" : "text-slate-600 hover:bg-slate-50")}
                     >
@@ -889,6 +895,7 @@ export default function App() {
                       By Progress
                     </button>
                     <button
+                      aria-pressed={colorBy === 'rag'}
                       onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'rag' })}
                       className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", colorBy === 'rag' ? "bg-rose-50 text-rose-600" : "text-slate-600 hover:bg-slate-50")}
                     >
@@ -1166,10 +1173,10 @@ export default function App() {
               );
               return (
                 <div className="flex flex-wrap gap-2">
-                  <button data-testid="mobile-toggle-conflicts" className={sheetToggleClass(conflictsOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, conflictDetection: conflictsOn ? 'off' : 'on' }, resources, applicationStatuses })}>Conflicts</button>
-                  <button data-testid="mobile-toggle-relationships" className={sheetToggleClass(relationshipsOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, showRelationships: relationshipsOn ? 'off' : 'on' }, resources, applicationStatuses })}>Relationships</button>
-                  <button data-testid="mobile-toggle-descriptions" className={sheetToggleClass(descriptionsOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, descriptionDisplay: descriptionsOn ? 'off' : 'on' }, resources, applicationStatuses })}>Descriptions</button>
-                  <button data-testid="mobile-toggle-budget" className={sheetToggleClass(budgetMode !== 'off')} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, budgetVisualisation: nextBudget }, resources, applicationStatuses })}>Budget: {budgetMode}</button>
+                  <button data-testid="mobile-toggle-conflicts" aria-pressed={conflictsOn} className={sheetToggleClass(conflictsOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, conflictDetection: conflictsOn ? 'off' : 'on' }, resources, applicationStatuses })}>Conflicts</button>
+                  <button data-testid="mobile-toggle-relationships" aria-pressed={relationshipsOn} className={sheetToggleClass(relationshipsOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, showRelationships: relationshipsOn ? 'off' : 'on' }, resources, applicationStatuses })}>Relationships</button>
+                  <button data-testid="mobile-toggle-descriptions" aria-pressed={descriptionsOn} className={sheetToggleClass(descriptionsOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, descriptionDisplay: descriptionsOn ? 'off' : 'on' }, resources, applicationStatuses })}>Descriptions</button>
+                  <button data-testid="mobile-toggle-budget" aria-pressed={budgetMode !== 'off'} className={sheetToggleClass(budgetMode !== 'off')} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, budgetVisualisation: nextBudget }, resources, applicationStatuses })}>Budget: {budgetMode}</button>
                   {hasDtsAssets && (
                     <button data-testid="mobile-toggle-dts-adoption" className={sheetToggleClass(dtsAdoptionOn)} onClick={() => handleUpdate({ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings: { ...timelineSettings, showDtsAdoptionStatus: dtsAdoptionOn ? 'off' : 'on' }, resources, applicationStatuses })}>Adoption Status</button>
                   )}
