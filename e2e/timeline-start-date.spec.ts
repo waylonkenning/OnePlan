@@ -28,12 +28,11 @@ test.describe('Timeline Start Date', () => {
 
     // Change start date to 2025-06-15
     await startDateInput.fill('2025-06-15');
-    await page.waitForTimeout(500);
+    await startDateInput.press('Enter');
 
     // Verify first column reflects the change
     // When start date is mid-month, weekly view (3 months) should show the exact week
     await page.getByLabel('Months').selectOption('3');
-    await page.waitForTimeout(500);
     
     const firstCol = page.getByTestId('timeline-col-0');
     // 15 Jun 2025 is a Sunday — weekly columns snap to the Monday of that week (09 Jun)

@@ -54,9 +54,10 @@ test.describe('Navigation & State Management', () => {
     await page.getByTestId('nav-data-manager').click();
     await page.getByTestId('clear-and-start-again-btn').click();
     await page.getByTestId('template-select-with-demo-btn-geanz').click();
+    // Brief pause to let the DB write begin before reloading (intentional — tests write atomicity)
     await page.waitForTimeout(500);
 
-    // Reload immediately — no waiting, to maximise the chance of catching a mid-transaction commit
+    // Reload to verify atomicity of the IndexedDB write
     await page.reload();
     await page.getByTestId('nav-data-manager').click();
 

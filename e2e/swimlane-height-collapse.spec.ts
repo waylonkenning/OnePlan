@@ -27,8 +27,11 @@ test.describe('Swimlane Height Collapse', () => {
     const projectBar = page.getByTestId('project-group-bar');
     await expect(projectBar).toBeVisible({ timeout: 15000 });
 
-    // 4. Measure height again
-    await page.waitForTimeout(500); // Wait for transition if any
+    // 4. Measure height after collapse (wait for height to decrease)
+    await expect(async () => {
+      const box = await rowContent.boundingBox();
+      expect(box?.height).toBeLessThan(initialHeight);
+    }).toPass({ timeout: 2000 });
     const collapsedBox = await rowContent.boundingBox();
     const collapsedHeight = collapsedBox?.height || 0;
     console.log(`Collapsed height: ${collapsedHeight}`);
@@ -43,8 +46,11 @@ test.describe('Swimlane Height Collapse', () => {
     const expandBtn = projectBar.getByTestId('expand-group-btn');
     await expandBtn.click();
 
-    // 6. Measure height again
-    await page.waitForTimeout(500);
+    // 6. Measure height after expand (wait for height to restore)
+    await expect(async () => {
+      const box = await rowContent.boundingBox();
+      expect(box?.height).toBeGreaterThan(collapsedHeight);
+    }).toPass({ timeout: 2000 });
     const expandedBox = await rowContent.boundingBox();
     const expandedHeight = expandedBox?.height || 0;
     console.log(`Expanded height: ${expandedHeight}`);

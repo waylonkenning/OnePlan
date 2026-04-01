@@ -4,9 +4,6 @@ test('Conflict detection toggle works', async ({ page }) => {
   await page.goto('/');
   await page.waitForSelector('#timeline-visualiser');
 
-  // Wait for the initiatives to load from DB and for conflict detection to run
-  await page.waitForTimeout(2000);
-
   // By default, conflict detection is ON.
   // Check if "Conflict Detected" is present.
   const conflictText = page.getByText('Conflict Detected').first();

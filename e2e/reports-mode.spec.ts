@@ -28,9 +28,7 @@ test.describe('Reports mode', () => {
     const navBtn = page.getByTestId('nav-reports');
     await navBtn.click();
 
-    // Active state: bg-white shadow ring (same pattern as Visualiser/Data Manager)
-    const classes = await navBtn.getAttribute('class');
-    expect(classes).toContain('bg-white');
+    await expect(navBtn).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('switching away from Reports and back retains the Reports view', async ({ page }) => {

@@ -32,11 +32,8 @@ test.describe('Asset Reordering', () => {
     await page.mouse.move(eiamBox.x + 20, eiamBox.y + eiamBox.height / 2, { steps: 20 });
     await page.mouse.up();
 
-    // Wait for state update
-    await page.waitForTimeout(500);
-
     // After reordering, Employee IAM should be first and Customer IAM (CIAM) second
-    await expect(sidebarAssetNames.nth(0)).toHaveText('Employee IAM');
+    await expect(sidebarAssetNames.nth(0)).toHaveText('Employee IAM', { timeout: 3000 });
     await expect(sidebarAssetNames.nth(1)).toHaveText('Customer IAM (CIAM)');
   });
 });

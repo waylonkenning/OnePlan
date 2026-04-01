@@ -38,7 +38,6 @@ test.describe('Asset Category Normalization', () => {
 
     // Make sure we have enough timeline width to scroll
     await page.getByLabel('Months').selectOption('36');
-    await page.waitForTimeout(500);
 
     const categoryLabel = page.getByText('Identity & Access Management').first();
     await expect(categoryLabel).toBeVisible();
@@ -49,8 +48,6 @@ test.describe('Asset Category Normalization', () => {
     await scrollContainer.evaluate((el: HTMLElement) => {
       el.scrollBy({ left: 1000, behavior: 'instant' });
     });
-
-    await page.waitForTimeout(500);
 
     // After scrolling right, the label must still be visible in the viewport
     await expect(categoryLabel).toBeInViewport();

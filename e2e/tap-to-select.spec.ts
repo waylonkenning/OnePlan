@@ -44,8 +44,8 @@ test.describe('Tap-to-Select for Segments and Initiatives', () => {
     await bar.click();
     await expect(bar).toHaveAttribute('data-selected', 'true');
 
-    // The handle should have opacity-100 class (not relying on group-hover)
-    await expect(handle).toHaveClass(/opacity-100/);
+    // The handle should be fully visible (not relying on group-hover)
+    await expect(handle).toHaveCSS('opacity', '1');
   });
 
   test('AC3 – selected segment shows row-up and row-down buttons', async ({ page }) => {
@@ -53,7 +53,7 @@ test.describe('Tap-to-Select for Segments and Initiatives', () => {
     const startInput = page.getByTestId('timeline-start-input');
     await startInput.fill('2030-01-01');
     await startInput.press('Enter');
-    await page.waitForTimeout(300);
+    await page.waitForSelector('[data-testid="application-row-content"]');
 
     const rowContent = page.locator('[data-testid="application-row-content"]').first();
     await rowContent.dblclick({ position: { x: 200, y: 20 } });
@@ -74,7 +74,7 @@ test.describe('Tap-to-Select for Segments and Initiatives', () => {
     const startInput = page.getByTestId('timeline-start-input');
     await startInput.fill('2030-01-01');
     await startInput.press('Enter');
-    await page.waitForTimeout(300);
+    await page.waitForSelector('[data-testid="application-row-content"]');
 
     const rowContent = page.locator('[data-testid="application-row-content"]').first();
     await rowContent.dblclick({ position: { x: 200, y: 20 } });
@@ -88,18 +88,30 @@ test.describe('Tap-to-Select for Segments and Initiatives', () => {
     const boxBefore = await bar.boundingBox();
     expect(boxBefore).not.toBeNull();
 
-    // Move down
+    // Move down — wait for y position to settle below original
     await bar.locator('[data-testid="segment-row-down"]').click();
-    await page.waitForTimeout(100);
+    await page.waitForFunction(
+      ({ selector, minY }) => {
+        const el = document.querySelector(selector) as HTMLElement | null;
+        return el ? el.getBoundingClientRect().y > minY : false;
+      },
+      { selector: '[data-testid^="segment-bar-"]', minY: boxBefore!.y + 10 },
+      { timeout: 2000 }
+    );
     const boxAfterDown = await bar.boundingBox();
-    expect(boxAfterDown).not.toBeNull();
     expect(boxAfterDown!.y).toBeGreaterThan(boxBefore!.y + 10);
 
-    // Move back up (segment stays selected after row-down, no re-click needed)
+    // Move back up — wait for y position to settle above post-down position
     await bar.locator('[data-testid="segment-row-up"]').click();
-    await page.waitForTimeout(100);
+    await page.waitForFunction(
+      ({ selector, maxY }) => {
+        const el = document.querySelector(selector) as HTMLElement | null;
+        return el ? el.getBoundingClientRect().y < maxY : false;
+      },
+      { selector: '[data-testid^="segment-bar-"]', maxY: boxAfterDown!.y - 10 },
+      { timeout: 2000 }
+    );
     const boxAfterUp = await bar.boundingBox();
-    expect(boxAfterUp).not.toBeNull();
     expect(boxAfterUp!.y).toBeLessThan(boxAfterDown!.y - 10);
   });
 

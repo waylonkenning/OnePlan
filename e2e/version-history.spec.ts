@@ -48,9 +48,6 @@ test.describe('Version History & Snapshotting', () => {
     await firstInitName.click();
     await firstInitName.fill(newName);
     await firstInitName.press('Enter');
-    
-    // Small wait for persistence
-    await page.waitForTimeout(200);
 
     // 3. Open History and run report
     await page.getByTestId('nav-history').click();
@@ -143,7 +140,6 @@ test.describe('Version History & Snapshotting', () => {
       btn.click();
     });
     await page.locator('[data-testid="confirm-modal-confirm"]').click();
-    await page.waitForTimeout(500);
 
     // 4. With the fix: the comparison overlay must be gone (IIFE returned null)
     await expect(page.getByRole('heading', { name: 'Difference Report' })).not.toBeVisible({ timeout: 3000 });

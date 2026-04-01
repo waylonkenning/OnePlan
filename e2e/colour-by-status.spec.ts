@@ -104,7 +104,7 @@ test.describe('By Progress colour mode', () => {
     await page.getByRole('button', { name: 'By Progress' }).click();
     // The button should become visually active (highlighted)
     const btn = page.getByRole('button', { name: 'By Progress' });
-    await expect(btn).toHaveClass(/bg-emerald|shadow/);
+    await expect(btn).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('legend shows status entries when "By Progress" is active', async ({ page }) => {

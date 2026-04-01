@@ -83,13 +83,12 @@ test.describe('DB save error handling', () => {
     await expect(panel).toBeVisible();
     await panel.getByRole('button', { name: 'Save Changes' }).click();
 
-    // Wait briefly for async save to complete
-    await page.waitForTimeout(500);
-
-    // Console should have logged the error
-    const hasDbError = consoleErrors.some(msg =>
-      msg.toLowerCase().includes('failed to save') || msg.toLowerCase().includes('db')
-    );
-    expect(hasDbError).toBe(true);
+    // Wait for async save error to be logged to console
+    await expect(async () => {
+      const hasDbError = consoleErrors.some(msg =>
+        msg.toLowerCase().includes('failed to save') || msg.toLowerCase().includes('db')
+      );
+      expect(hasDbError).toBe(true);
+    }).toPass({ timeout: 3000 });
   });
 });

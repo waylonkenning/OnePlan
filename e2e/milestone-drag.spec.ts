@@ -19,7 +19,7 @@ test.describe('Milestone Interaction', () => {
   test('Move Milestone horizontally should update its date and persist', async ({ page }) => {
     // Target the 'DR Failover Test' milestone container specifically
     const milestoneContainer = page.locator('.group\\/marker', { hasText: 'DR Failover Test' }).first();
-    const milestoneIcon = milestoneContainer.locator('.bg-amber-100');
+    const milestoneIcon = milestoneContainer.locator('[data-testid="milestone-dep-handle"]');
     
     await milestoneIcon.scrollIntoViewIfNeeded();
     const initialBox = await milestoneIcon.boundingBox();
@@ -31,13 +31,8 @@ test.describe('Milestone Interaction', () => {
     // Drag right by 300px
     await page.mouse.move(centerX, centerY);
     await page.mouse.down();
-    await page.waitForTimeout(200);
     await page.mouse.move(centerX + 300, centerY, { steps: 60 });
-    await page.waitForTimeout(200);
     await page.mouse.up();
-    
-    // Add 1000ms timeout before verification as requested
-    await page.waitForTimeout(1000);
 
     // Verify position changed
     const newBox = await milestoneIcon.boundingBox();
@@ -46,11 +41,11 @@ test.describe('Milestone Interaction', () => {
     // Verify persistence after reload
     await page.reload();
     await page.waitForSelector('#timeline-visualiser');
-    await page.waitForTimeout(1000);
+    await page.waitForSelector('[data-testid="milestone-dep-handle"]');
     
     // Look for it again after reload
     const persistedContainer = page.locator('.group\\/marker', { hasText: 'DR Failover Test' }).first();
-    const persistedBox = await persistedContainer.locator('.bg-amber-100').boundingBox();
+    const persistedBox = await persistedContainer.locator('[data-testid="milestone-dep-handle"]').boundingBox();
     expect(persistedBox!.x).toBeGreaterThan(initialBox.x + 200);
   });
 });

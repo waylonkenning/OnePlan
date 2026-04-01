@@ -17,8 +17,9 @@ async function openDataManager(page: Page) {
 }
 
 async function goToTab(page: Page, tabId: string) {
-  await page.locator(`[data-testid="data-manager-tab-${tabId}"]`).click();
-  await page.waitForTimeout(300);
+  const tab = page.locator(`[data-testid="data-manager-tab-${tabId}"]`);
+  await tab.click();
+  await expect(tab).toHaveAttribute('aria-pressed', 'true');
 }
 
 /** Returns all data-id values from real rows in the current table. */
@@ -35,8 +36,9 @@ test('AC1: new rows added across page reloads have unique IDs', async ({ page })
   await goToTab(page, 'programmes');
 
   // Add first row
+  const initialCount = await page.locator('[data-real="true"]').count();
   await page.locator('[data-testid="add-row-btn-programmes"]').click();
-  await page.waitForTimeout(300);
+  await expect(page.locator('[data-real="true"]')).toHaveCount(initialCount + 1);
   const idsAfterFirstAdd = await getRowIds(page);
   const firstNewId = idsAfterFirstAdd[idsAfterFirstAdd.length - 1];
   expect(firstNewId).toBeTruthy();
@@ -49,8 +51,9 @@ test('AC1: new rows added across page reloads have unique IDs', async ({ page })
   await goToTab(page, 'programmes');
 
   // Add second row after reload — without a fix this would also get id="new-0"
+  const countBeforeSecond = await page.locator('[data-real="true"]').count();
   await page.locator('[data-testid="add-row-btn-programmes"]').click();
-  await page.waitForTimeout(300);
+  await expect(page.locator('[data-real="true"]')).toHaveCount(countBeforeSecond + 1);
   const idsAfterSecondAdd = await getRowIds(page);
   const secondNewId = idsAfterSecondAdd[idsAfterSecondAdd.length - 1];
   expect(secondNewId).toBeTruthy();

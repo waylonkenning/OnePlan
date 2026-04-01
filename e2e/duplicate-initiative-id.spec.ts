@@ -30,7 +30,7 @@ test.describe('Duplicate Initiative ID Prevention', () => {
     const startInput = page.getByTestId('timeline-start-input');
     await startInput.fill('2035-01-01');
     await startInput.press('Enter');
-    await page.waitForTimeout(600);
+    await page.waitForSelector('[data-testid="asset-row-content"]');
   });
 
   test('three consecutive double-clicks produce three unique initiative IDs', async ({ page }) => {

@@ -41,8 +41,6 @@ test('Greedy placement handles 20+ overlapping initiatives without errors', asyn
   const textarea = page.getByTestId('csv-paste-textarea');
   await textarea.fill(csv);
 
-  await page.waitForTimeout(500);
-
   const importBtn = page.getByTestId('import-rows-button');
   await expect(importBtn).toBeEnabled({ timeout: 5000 });
   await importBtn.click();

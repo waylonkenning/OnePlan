@@ -32,9 +32,6 @@ test('Initiatives touching on same date do not trigger conflict', async ({ page 
   await page.getByTestId('nav-visualiser').click();
   await page.waitForSelector('#timeline-visualiser');
 
-  // Wait for conflict detection to run
-  await page.waitForTimeout(2000);
-
   // In the current buggy state, this should match "Conflict Detected"
   const conflictText = page.getByText('Conflict Detected');
   

@@ -198,7 +198,7 @@ test.describe('Applications — Visualiser sub-rows', () => {
 
   test('milestones remain visible at the asset level alongside application sub-rows', async ({ page }) => {
     // The CIAM asset has milestones in demo data — they should still render
-    await expect(page.locator('.bg-amber-100').first()).toBeVisible();
+    await expect(page.locator('[data-testid="milestone-dep-handle"]').first()).toBeVisible();
   });
 });
 

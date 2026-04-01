@@ -14,7 +14,7 @@ test.describe('Labels for Milestones and Dependencies', () => {
     // Find the icon that is in the same vertical stack/vicinity
     // We can look for the container that has both the icon and the label
     const milestoneContainer = page.locator('.group\\/marker', { hasText: 'DR Failover Test' }).first();
-    const icon = milestoneContainer.locator('.bg-amber-100');
+    const icon = milestoneContainer.locator('[data-testid="milestone-dep-handle"]');
     
     const iconBox = await icon.boundingBox();
     const labelBox = await milestoneLabel.boundingBox();

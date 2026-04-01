@@ -83,7 +83,7 @@ test.describe('By Status colour mode (RAG)', () => {
     await openViewOptions(page);
     await page.getByRole('button', { name: 'By Status' }).click();
     const btn = page.getByRole('button', { name: 'By Status' });
-    await expect(btn).toHaveClass(/bg-rose|bg-red|shadow/);
+    await expect(btn).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('legend shows Green, Amber, Red entries when "By Status" is active', async ({ page }) => {

@@ -59,7 +59,7 @@ test.describe('In-app User Guide', () => {
 
     // Navigate to a page that has an image (Creating Initiatives)
     await page.getByRole('button', { name: 'Creating Initiatives' }).click();
-    await page.waitForTimeout(500);
+    await page.waitForSelector('[data-testid="guide-content"]');
 
     const images = page.locator('[data-testid="guide-content"] img');
     const count = await images.count();

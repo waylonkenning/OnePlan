@@ -34,7 +34,7 @@ test.describe('Timeline Settings', () => {
 
     // Change start date to 2024-01-01
     await startYearInput.fill('2024-01-01');
-    await page.waitForTimeout(500);
+    await startYearInput.press('Enter');
 
     // Verify first column now starts at 2024
     const firstCol = page.getByTestId('timeline-col-0');
@@ -42,7 +42,6 @@ test.describe('Timeline Settings', () => {
 
     // Change to 12 months (should show monthly columns)
     await monthsSelect.selectOption('12');
-    await page.waitForTimeout(500);
 
     // Verify we have 12 monthly columns
     await expect(page.getByTestId('timeline-col-0')).toBeVisible();
@@ -61,7 +60,6 @@ test.describe('Timeline Settings', () => {
 
     // Set to 3 months (Weekly view, normally 12 columns max)
     await page.getByLabel('Months').selectOption('3');
-    await page.waitForTimeout(500);
 
     // Initial check: Since we have demo data that extends past 3 months (e.g. 2+ years of data),
     // the timeline should ALREADY have way more than 12 columns generated.

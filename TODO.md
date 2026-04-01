@@ -26,8 +26,8 @@
 
 #### P2 — Organisation
 - [x] Consolidate 15 dependency spec files into 3
-- [ ] Consolidate 17 mobile spec files into 2–3
-- [ ] Consolidate Data Manager spec files
+- [x] Consolidate 17 mobile spec files into 2–3
+- [x] Consolidate Data Manager spec files
 
 ## Bug Fixes
 
@@ -36,4 +36,4 @@
 - [x] Fix Data Manager initiatives table not scrollable with many rows (missing min-h-0)
 
 #### P2 — Coverage
-- [ ] Add search & filter edge case tests
+- [x] Add search & filter edge case tests
