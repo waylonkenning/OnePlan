@@ -90,7 +90,7 @@ async function openInitiativePanel(page: Page) {
   await page.waitForSelector('[data-initiative-id]');
   const bar = page.locator('[data-initiative-id]').first();
   await bar.click({ force: true });
-  await bar.locator('[data-testid="initiative-edit"]').click();
+  await page.getByTestId('initiative-action-edit').click();
   await expect(page.locator(PANEL)).toBeVisible();
 }
 

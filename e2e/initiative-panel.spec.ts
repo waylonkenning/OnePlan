@@ -26,7 +26,7 @@ test.describe('Initiative Panel', () => {
 
         // Click to select, then open the edit panel
         await initiative.click();
-        await initiative.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         // The panel should appear
         const panel = page.getByTestId('initiative-panel');
@@ -64,7 +64,7 @@ test.describe('Initiative Panel', () => {
 
         // Reopen to check budget: click to select, then open edit panel
         await updatedInitiative.click();
-        await updatedInitiative.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
         await expect(panel).toBeVisible();
         await expect(panel.getByLabel('CapEx ($)')).toHaveValue('600000');
     });

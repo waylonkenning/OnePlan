@@ -11,7 +11,7 @@ test.describe('Initiative Deletion', () => {
 
         // Click to select, then open the edit panel via the ✎ button
         await initiative.click();
-        await initiative.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         // Check for "Delete Initiative" button
         const deleteBtn = page.getByRole('button', { name: 'Delete Initiative' });

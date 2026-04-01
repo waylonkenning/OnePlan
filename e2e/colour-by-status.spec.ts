@@ -19,7 +19,7 @@ test.describe('Initiative status field', () => {
     // Select an initiative, then open its edit panel via the ✎ button
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 
@@ -31,7 +31,7 @@ test.describe('Initiative status field', () => {
   test('status field has planned / active / done / cancelled options', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 
@@ -56,7 +56,7 @@ test.describe('Initiative status field', () => {
   test('changing status in InitiativePanel persists after reload', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 
@@ -71,7 +71,7 @@ test.describe('Initiative status field', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     const bar2 = page.locator('[data-testid^="initiative-bar"]').first();
     await bar2.click();
-    await bar2.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel2 = page.getByTestId('initiative-panel');
     await expect(panel2).toBeVisible();
 

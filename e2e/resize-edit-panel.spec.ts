@@ -34,8 +34,8 @@ test.describe('Resize Initiative Edit Panel', () => {
         await expect(init).toHaveAttribute('data-selected', 'true');
         await expect(page.getByRole('heading', { name: 'Edit Initiative' })).not.toBeVisible();
 
-        // Clicking the ✎ edit button opens the panel
-        await init.locator('[data-testid="initiative-edit"]').click();
+        // Clicking the ✎ edit button (in the floating action toolbar) opens the panel
+        await page.getByTestId('initiative-action-edit').click();
         const editPanelHeading = page.getByRole('heading', { name: 'Edit Initiative' });
         await expect(editPanelHeading).toBeVisible();
     });

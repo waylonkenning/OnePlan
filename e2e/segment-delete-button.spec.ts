@@ -46,7 +46,7 @@ test.describe('Segment delete button after double-click creation', () => {
     // Click to select the segment, then open edit panel via the ✎ button
     const newBar = segmentBars.last();
     await newBar.click();
-    await newBar.locator('[data-testid="segment-edit"]').click();
+    await page.getByTestId('segment-action-edit').click();
     await expect(panel).toBeVisible();
     await expect(panel.getByRole('button', { name: 'Save Changes' })).toBeVisible();
 

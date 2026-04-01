@@ -13,7 +13,7 @@ test.describe('InitiativePanel — related initiatives', () => {
     const passkey = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
     await expect(passkey).toBeVisible({ timeout: 10000 });
     await passkey.click();
-    await passkey.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
 
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible({ timeout: 5000 });
@@ -34,7 +34,7 @@ test.describe('InitiativePanel — related initiatives', () => {
     const ztna = page.locator('[data-initiative-id="i-eiam-ztna"]').first();
     await expect(ztna).toBeVisible({ timeout: 10000 });
     await ztna.click();
-    await ztna.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
 
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible({ timeout: 5000 });

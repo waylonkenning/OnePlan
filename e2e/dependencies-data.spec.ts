@@ -181,14 +181,14 @@ test.describe('US-05: Segment dependency relationships', () => {
 
   test('AC1: selected segment shows a dependency-draw handle', async ({ page }) => {
     const bar = await selectFirstSegment(page);
-    await expect(bar.locator('[data-testid="segment-dep-handle"]')).toBeVisible();
+    await expect(bar.locator('[data-testid="segment-action-link"]')).toBeVisible();
   });
 
   test('AC2: dragging handle to initiative creates a dependency arrow', async ({ page }) => {
     const initialDepCount = await page.locator('[data-dep-id]').count();
 
     const bar = await selectFirstSegment(page);
-    const handle = bar.locator('[data-testid="segment-dep-handle"]');
+    const handle = bar.locator('[data-testid="segment-action-link"]');
     await expect(handle).toBeVisible();
     const handleBox = await handle.boundingBox();
     expect(handleBox).not.toBeNull();
@@ -209,7 +209,7 @@ test.describe('US-05: Segment dependency relationships', () => {
     const initialDepCount = await page.locator('[data-dep-id]').count();
 
     const bar = await selectFirstSegment(page);
-    const handle = bar.locator('[data-testid="segment-dep-handle"]');
+    const handle = bar.locator('[data-testid="segment-action-link"]');
     const handleBox = await handle.boundingBox();
     const initBox = await page.locator('[data-initiative-id]').first().boundingBox();
     expect(handleBox).not.toBeNull();
@@ -238,7 +238,7 @@ test.describe('US-05: Segment dependency relationships', () => {
 
     const firstBar = segBars.first();
     await firstBar.click();
-    const handleBox = await firstBar.locator('[data-testid="segment-dep-handle"]').boundingBox();
+    const handleBox = await firstBar.locator('[data-testid="segment-action-link"]').boundingBox();
     const secondBox = await segBars.nth(1).boundingBox();
     expect(handleBox).not.toBeNull();
     expect(secondBox).not.toBeNull();
@@ -256,7 +256,7 @@ test.describe('US-05: Segment dependency relationships', () => {
     const initialDepCount = await page.locator('[data-dep-id]').count();
 
     const bar = await selectFirstSegment(page);
-    const handle = bar.locator('[data-testid="segment-dep-handle"]');
+    const handle = bar.locator('[data-testid="segment-action-link"]');
     const handleBox = await handle.boundingBox();
     const initBox = await page.locator('[data-initiative-id]').first().boundingBox();
     expect(handleBox).not.toBeNull();
@@ -304,7 +304,7 @@ test.describe('US-22: Pre-drawn DTS Dependencies in Demo', () => {
     const portalBar = page.locator('[data-testid^="initiative-bar-dts-i-portal"]');
     await expect(portalBar).toBeVisible({ timeout: 15000 });
     await portalBar.click();
-    await portalBar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await expect(page.getByTestId('related-initiatives-section')).toBeVisible({ timeout: 10000 });
 
     expect(await page.locator('[data-testid="related-initiatives-section"] li').count()).toBeGreaterThanOrEqual(2);

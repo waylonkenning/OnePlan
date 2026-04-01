@@ -74,7 +74,7 @@ test.describe('Segment creation — application selector', () => {
     const newBar = page.locator('[data-testid^="segment-bar-"]').first();
     await expect(newBar).toBeVisible({ timeout: 5000 });
     await newBar.click();
-    await newBar.locator('[data-testid="segment-edit"]').click();
+    await page.getByTestId('segment-action-edit').click();
 
     // The panel subtitle should show "Keycloak"
     const editPanel = page.getByTestId('segment-panel');

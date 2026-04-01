@@ -33,7 +33,7 @@ test.describe('Cascading Deletes', () => {
         const initiativeBar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await expect(initiativeBar).toBeVisible();
         await initiativeBar.click();
-        await initiativeBar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
         const deleteBtn = page.getByRole('button', { name: 'Delete Initiative' });
         await expect(deleteBtn).toBeVisible();
         await deleteBtn.click();

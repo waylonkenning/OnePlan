@@ -10,7 +10,7 @@ test.describe('Data Validation', () => {
         // Click an initiative to select it, then open the edit panel
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();
@@ -32,7 +32,7 @@ test.describe('Data Validation', () => {
     test('prevents saving initiative with negative budget', async ({ page }) => {
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();
@@ -53,7 +53,7 @@ test.describe('Data Validation', () => {
     test('prevents saving initiative with empty name', async ({ page }) => {
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();
@@ -74,7 +74,7 @@ test.describe('Data Validation', () => {
     test('prevents saving initiative with negative OpEx', async ({ page }) => {
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();
@@ -95,7 +95,7 @@ test.describe('Data Validation', () => {
     test('allows saving initiative with valid data', async ({ page }) => {
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();

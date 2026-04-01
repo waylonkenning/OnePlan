@@ -64,7 +64,7 @@ test.describe('Applications — InitiativePanel dropdown', () => {
   test('Application dropdown appears in the InitiativePanel', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
     await expect(panel.locator('[data-testid="initiative-application"]')).toBeVisible();
@@ -74,7 +74,7 @@ test.describe('Applications — InitiativePanel dropdown', () => {
     // Open an initiative on an asset that has applications (a-ciam in demo data)
     const bar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 
@@ -90,7 +90,7 @@ test.describe('Applications — InitiativePanel dropdown', () => {
   test('Changing asset resets the application selection', async ({ page }) => {
     const bar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 
@@ -114,7 +114,7 @@ test.describe('Applications — InitiativePanel dropdown', () => {
   test('Application assignment saves and persists after reload', async ({ page }) => {
     const bar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 
@@ -131,7 +131,7 @@ test.describe('Applications — InitiativePanel dropdown', () => {
         await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
         const bar2 = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
         await bar2.click();
-        await bar2.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
         const panel2 = page.getByTestId('initiative-panel');
         await expect(panel2).toBeVisible();
         await expect(panel2.locator('[data-testid="initiative-application"]')).toHaveValue(appValue);
@@ -169,7 +169,7 @@ test.describe('Applications — Visualiser sub-rows', () => {
     // Link i-ciam-passkey to an application and verify it still renders in the asset row
     const bar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
 

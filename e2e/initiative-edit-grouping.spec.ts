@@ -41,7 +41,7 @@ test.describe('Initiative edit interaction — swimlane groupings', () => {
       await bar.click();
 
       // Edit icon should appear
-      const editBtn = bar.locator('[data-testid="initiative-edit"]');
+      const editBtn = page.getByTestId('initiative-action-edit');
       await expect(editBtn).toBeVisible();
     });
 
@@ -53,7 +53,7 @@ test.describe('Initiative edit interaction — swimlane groupings', () => {
 
       // Single-click then click edit icon
       await bar.click();
-      await bar.locator('[data-testid="initiative-edit"]').click();
+      await page.getByTestId('initiative-action-edit').click();
 
       // Initiative panel should open
       await expect(page.getByTestId('initiative-panel')).toBeVisible();

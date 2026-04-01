@@ -54,7 +54,7 @@ test.describe('History Differences report', () => {
     // Rename an initiative to create a difference
     const passkeyBar = page.locator('[data-initiative-id="i-ciam-passkey"]').first();
     await passkeyBar.click();
-    await passkeyBar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible({ timeout: 5000 });
     const nameInput = panel.getByLabel('Initiative Name');

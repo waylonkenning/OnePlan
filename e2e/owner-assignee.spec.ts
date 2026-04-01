@@ -12,14 +12,14 @@ test.describe('Owner / Assignee', () => {
   test('owner field is visible in InitiativePanel', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await expect(page.getByTestId('initiative-owner-select')).toBeVisible();
   });
 
   test('owner dropdown accepts a selection', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const field = page.getByTestId('initiative-owner-select');
     await field.selectOption({ index: 1 });
     await expect(field).toHaveValue(/.+/);
@@ -33,7 +33,7 @@ test.describe('Owner / Assignee', () => {
   test('owner value persists across reloads', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
     const ownerSelect = page.getByTestId('initiative-owner-select');
@@ -46,14 +46,14 @@ test.describe('Owner / Assignee', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     const bar2 = page.locator('[data-testid^="initiative-bar"]').first();
     await bar2.click();
-    await bar2.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await expect(page.getByTestId('initiative-owner-select')).toHaveValue(selectedValue);
   });
 
   test('owner initials are shown on the bar when owner is set', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
     const ownerSelect = page.getByTestId('initiative-owner-select');

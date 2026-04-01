@@ -15,9 +15,9 @@ async function openInitiativePanelById(page: Page, initiativeId: string) {
     const bar = document.querySelector(`[data-initiative-id="${id}"]`);
     bar?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
   }, initiativeId);
-  await expect(page.locator('[data-testid="initiative-edit"]')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('[data-testid="initiative-action-edit"]')).toBeVisible({ timeout: 5000 });
   await page.evaluate(() => {
-    const btn = document.querySelector('[data-testid="initiative-edit"]') as HTMLElement;
+    const btn = document.querySelector('[data-testid="initiative-action-edit"]') as HTMLElement;
     btn?.click();
   });
 }

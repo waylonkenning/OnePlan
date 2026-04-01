@@ -41,7 +41,7 @@ test.describe('DB save error handling', () => {
     // Trigger a save by opening and closing an initiative panel (causing a state update)
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
     await panel.getByRole('button', { name: 'Save Changes' }).click();
@@ -78,7 +78,7 @@ test.describe('DB save error handling', () => {
 
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
     await panel.getByRole('button', { name: 'Save Changes' }).click();

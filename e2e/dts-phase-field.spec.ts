@@ -70,7 +70,7 @@ test.describe('US-21: DTS Phase Field on Initiatives', () => {
     const firstBar = page.locator('[data-testid^="initiative-bar-"]').first();
     await expect(firstBar).toBeVisible({ timeout: 15000 });
     await firstBar.click();
-    await firstBar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await expect(page.getByTestId('initiative-panel-dts-phase')).toBeVisible({ timeout: 10000 });
 
     const options = await page.getByTestId('initiative-panel-dts-phase').locator('option').allTextContents();

@@ -11,7 +11,7 @@ test.describe('Description Display', () => {
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await expect(bar).toBeVisible();
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         // Panel should be open
         const panel = page.getByTestId('initiative-panel');
@@ -30,7 +30,7 @@ test.describe('Description Display', () => {
 
         // Re-open the panel and verify description persists
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
         await expect(panel).toBeVisible();
         await expect(panel.getByLabel('Description')).toHaveValue('This is a test description for the initiative.');
     });
@@ -39,7 +39,7 @@ test.describe('Description Display', () => {
         // First, add a description to i-ciam-passkey
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();
@@ -55,7 +55,7 @@ test.describe('Description Display', () => {
         // First add a description to i-ciam-passkey
         const bar = page.locator('div[data-initiative-id="i-ciam-passkey"]');
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         const panel = page.getByTestId('initiative-panel');
         await expect(panel).toBeVisible();

@@ -104,7 +104,7 @@ test.describe('Floating Legend Box', () => {
     // Open initiative panel
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await expect(page.getByTestId('initiative-panel')).toBeVisible();
 
     // Legend should still be in the DOM but visually behind the panel

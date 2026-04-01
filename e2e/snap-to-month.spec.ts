@@ -44,7 +44,7 @@ test.describe('Snap to Month Setting', () => {
 
         // Click to select, then open edit panel to check the exact date
         await bar.click();
-        await bar.locator('[data-testid="initiative-edit"]').click();
+        await page.getByTestId('initiative-action-edit').click();
 
         // The date should end in '-01' if it snapped to month
         const startDateInput = page.getByLabel('Start Date');

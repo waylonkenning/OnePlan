@@ -73,7 +73,7 @@ test.describe('Resources', () => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await expect(bar).toBeVisible({ timeout: 10000 });
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     // Owner should be a select element, not a text input
     const ownerSelect = page.getByTestId('initiative-owner-select');
@@ -84,7 +84,7 @@ test.describe('Resources', () => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await expect(bar).toBeVisible({ timeout: 10000 });
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     const ownerSelect = page.getByTestId('initiative-owner-select');
     // Should have at least a blank option + demo resources
@@ -97,7 +97,7 @@ test.describe('Resources', () => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await expect(bar).toBeVisible({ timeout: 10000 });
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     const ownerSelect = page.getByTestId('initiative-owner-select');
     // Pick the second option (first resource)
@@ -108,7 +108,7 @@ test.describe('Resources', () => {
     // Re-open panel and confirm selection persisted
     const bar2 = page.locator('[data-testid^="initiative-bar"]').first();
     await bar2.click();
-    await bar2.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     await expect(page.getByTestId('initiative-owner-select')).toHaveValue(/.+/);
     void resourceName; // suppress unused variable warning
@@ -120,7 +120,7 @@ test.describe('Resources', () => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await expect(bar).toBeVisible({ timeout: 10000 });
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     await expect(page.getByTestId('initiative-resources-section')).toBeVisible();
   });
@@ -129,7 +129,7 @@ test.describe('Resources', () => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await expect(bar).toBeVisible({ timeout: 10000 });
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     // Check the first resource checkbox in the assigned resources section
     const firstCheckbox = page.getByTestId('initiative-resources-section').locator('input[type="checkbox"]').first();
@@ -139,7 +139,7 @@ test.describe('Resources', () => {
     // Re-open and confirm checkbox is still checked
     const bar2 = page.locator('[data-testid^="initiative-bar"]').first();
     await bar2.click();
-    await bar2.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await page.waitForSelector('[data-testid="initiative-panel"]', { timeout: 5000 });
     await expect(
       page.getByTestId('initiative-resources-section').locator('input[type="checkbox"]').first()

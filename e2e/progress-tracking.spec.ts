@@ -13,14 +13,14 @@ test.describe('Progress Tracking', () => {
   test('progress field is visible in InitiativePanel', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await expect(page.getByTestId('initiative-progress')).toBeVisible();
   });
 
   test('progress field accepts a value between 0 and 100', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const field = page.getByTestId('initiative-progress');
     await field.fill('75');
     await expect(field).toHaveValue('75');
@@ -35,7 +35,7 @@ test.describe('Progress Tracking', () => {
   test('progress value persists across reloads', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
     const progressInput = page.getByTestId('initiative-progress');
@@ -48,14 +48,14 @@ test.describe('Progress Tracking', () => {
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     const bar2 = page.locator('[data-testid^="initiative-bar"]').first();
     await bar2.click();
-    await bar2.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     await expect(page.getByTestId('initiative-progress')).toHaveValue('60');
   });
 
   test('bar renders a progress fill overlay when progress > 0', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
     const progressInput = page.getByTestId('initiative-progress');
@@ -71,7 +71,7 @@ test.describe('Progress Tracking', () => {
   test('progress fill overlay width is proportional to progress value', async ({ page }) => {
     const bar = page.locator('[data-testid^="initiative-bar"]').first();
     await bar.click();
-    await bar.locator('[data-testid="initiative-edit"]').click();
+    await page.getByTestId('initiative-action-edit').click();
     const panel = page.getByTestId('initiative-panel');
     await expect(panel).toBeVisible();
     const progressInput = page.getByTestId('initiative-progress');

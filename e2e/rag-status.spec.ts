@@ -13,7 +13,7 @@ async function openInitiativePanel(page: Page) {
   await page.waitForSelector('[data-testid^="initiative-bar"]', { timeout: 20000 });
   const bar = page.locator('[data-testid^="initiative-bar"]').first();
   await bar.click();
-  await bar.locator('[data-testid="initiative-edit"]').click();
+  await page.getByTestId('initiative-action-edit').click();
   await expect(page.getByTestId('initiative-panel')).toBeVisible();
 }
 
