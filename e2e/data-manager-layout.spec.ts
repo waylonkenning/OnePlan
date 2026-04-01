@@ -48,8 +48,11 @@ test.describe('Data Manager — tab strip', () => {
 
   test('all tabs are clickable and activate the correct table', async ({ page }) => {
     for (const tabId of tabs) {
-      await page.getByTestId(`data-manager-tab-${tabId}`).click();
-      await expect(page.getByTestId(`data-manager-tab-${tabId}`)).toHaveAttribute('aria-pressed', 'true');
+      const tab = page.getByTestId(`data-manager-tab-${tabId}`);
+      await tab.click();
+      // Active tab has blue bottom border (border-blue-500 = rgb(59, 130, 246))
+      // toHaveCSS retries until the style resolves, handling async React updates
+      await expect(tab).toHaveCSS('border-bottom-color', 'rgb(59, 130, 246)');
     }
   });
 });
