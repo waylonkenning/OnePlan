@@ -1037,6 +1037,11 @@ export default function App() {
           >
             <Undo2 size={14} />
           </button>
+          {undoStack.length > 0 && (
+            <span data-testid="undo-counter" className="text-[10px] font-medium text-slate-400 px-0.5 min-w-[12px] text-center leading-none select-none">
+              {undoStack.length}
+            </span>
+          )}
           <div className="w-px h-3.5 bg-slate-200" />
           <button
             onClick={handleRedo}

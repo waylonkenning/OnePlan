@@ -81,6 +81,34 @@ test.describe('Undo/Redo Functionality', () => {
         await expect(nameInput).toHaveValue('Kb Shortcut Edit');
     });
 
+    test('undo counter shows remaining steps and disappears when stack is empty', async ({ page }) => {
+        const firstRow = page.locator('tbody tr[data-real="true"]').first();
+        const nameInput = firstRow.locator('input[type="text"]').first();
+        const undoCounter = page.getByTestId('undo-counter');
+
+        // No counter when stack is empty
+        await expect(undoCounter).not.toBeVisible();
+
+        // Make 3 edits
+        for (let i = 1; i <= 3; i++) {
+            await nameInput.fill(`Edit ${i}`);
+            await page.keyboard.press('Tab');
+        }
+
+        // Counter should show 3
+        await expect(undoCounter).toBeVisible();
+        await expect(undoCounter).toHaveText('3');
+
+        // Undo once — counter drops to 2
+        await page.getByTitle('Undo').click();
+        await expect(undoCounter).toHaveText('2');
+
+        // Undo remaining — counter disappears
+        await page.getByTitle('Undo').click();
+        await page.getByTitle('Undo').click();
+        await expect(undoCounter).not.toBeVisible();
+    });
+
     test('history stack is limited to 10 operations', async ({ page }) => {
         const firstRow = page.locator('tbody tr[data-real="true"]').first();
         const nameInput = firstRow.locator('input[type="text"]').first();
