@@ -408,6 +408,18 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const getPosition = (dateStr: string) => tlGetPosition(dateStr, startDate, totalDays);
   const getWidth = (startStr: string, endStr: string) => tlGetWidth(startStr, endStr, totalDays);
 
+  // Clear selection on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedInitiativeId(null);
+        setSelectedSegmentId(null);
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, []);
+
   const handleRowDoubleClick = (e: React.MouseEvent, assetId: string) => {
     // Avoid triggering if clicking on an existing initiative or milestone
     if ((e.target as HTMLElement).closest('[data-initiative-id]') || (e.target as HTMLElement).closest('[data-milestone-id]')) return;
@@ -1640,7 +1652,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                               "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
                               cn(colorClass, "text-white border-white/20"),
                               isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10",
-                              selectedInitiativeId === init.id && "ring-2 ring-white/80 ring-offset-1 z-20"
+                              selectedInitiativeId === init.id && "outline outline-2 outline-dashed outline-slate-800 z-20"
                             )}
                             style={{ left: `${left}%`, width: `${barW}%`, height: barH, top }}
                             title={`${init.name}\nProgramme: ${prog?.name ?? ''}\nStrategy: ${strat?.name ?? ''}${init.description ? `\n${init.description}` : ''}`}
@@ -1695,15 +1707,27 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                               })()}
                             </div>
 
-                            {/* Edit Button for selected initiatives */}
+                            {/* Action toolbar for selected initiatives */}
                             {selectedInitiativeId === init.id && (
-                              <button
-                                data-testid="initiative-edit"
-                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none z-20"
+                              <div
+                                data-testid="initiative-action-toolbar"
+                                className="absolute top-0.5 right-0.5 flex items-center gap-0.5 z-20"
                                 onMouseDown={(e) => e.stopPropagation()}
-                                onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                                title="Edit initiative"
-                              >✎</button>
+                              >
+                                <button
+                                  data-testid="initiative-action-edit"
+                                  className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
+                                  onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
+                                  title="Edit initiative"
+                                >✎</button>
+                                <button
+                                  data-testid="initiative-dep-handle"
+                                  className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
+                                  title="Drag to another initiative to create a dependency"
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onClick={(e) => e.stopPropagation()}
+                                >⛓</button>
+                              </div>
                             )}
                           </div>
                         );
@@ -1757,21 +1781,33 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                             className={cn(
                               "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
                               cn(colorClass, "text-white border-white/20"),
-                              selectedInitiativeId === init.id && "ring-2 ring-white/80 ring-offset-1 z-20"
+                              selectedInitiativeId === init.id && "outline outline-2 outline-dashed outline-slate-800 z-20"
                             )}
                             style={{ left: `${left}%`, width: `${barW}%`, height: barH, top }}
                           >
                             <div className="font-bold text-[11px] leading-tight line-clamp-2 drop-shadow-md">{init.name}</div>
 
-                            {/* Edit Button for selected initiatives */}
+                            {/* Action toolbar for selected initiatives */}
                             {selectedInitiativeId === init.id && (
-                              <button
-                                data-testid="initiative-edit"
-                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none z-20"
+                              <div
+                                data-testid="initiative-action-toolbar"
+                                className="absolute top-0.5 right-0.5 flex items-center gap-0.5 z-20"
                                 onMouseDown={(e) => e.stopPropagation()}
-                                onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                                title="Edit initiative"
-                              >✎</button>
+                              >
+                                <button
+                                  data-testid="initiative-action-edit"
+                                  className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
+                                  onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
+                                  title="Edit initiative"
+                                >✎</button>
+                                <button
+                                  data-testid="initiative-dep-handle"
+                                  className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
+                                  title="Drag to another initiative to create a dependency"
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onClick={(e) => e.stopPropagation()}
+                                >⛓</button>
+                              </div>
                             )}
                           </div>
                         );
@@ -2004,7 +2040,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                       ? "border-2 border-dashed border-blue-400/60 text-slate-900 font-bold"
                                       : cn(colorClass, "text-white border-white/20"),
                                   isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10",
-                                  selectedInitiativeId === init.id && "ring-2 ring-white/80 ring-offset-1 z-20"
+                                  selectedInitiativeId === init.id && "outline outline-2 outline-dashed outline-slate-800 z-20"
                                 )}
                                 style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
                                 title={(init as any).isGroup 
@@ -2102,15 +2138,27 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                   })()}
                                 </div>
 
-                                {/* Edit Button for selected non-group initiatives */}
+                                {/* Action toolbar for selected non-group initiatives */}
                                 {selectedInitiativeId === init.id && !isGroup && (
-                                  <button
-                                    data-testid="initiative-edit"
-                                    className="absolute top-0.5 right-0.5 w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none z-20"
+                                  <div
+                                    data-testid="initiative-action-toolbar"
+                                    className="absolute top-0.5 right-0.5 flex items-center gap-0.5 z-20"
                                     onMouseDown={(e) => e.stopPropagation()}
-                                    onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                                    title="Edit initiative"
-                                  >✎</button>
+                                  >
+                                    <button
+                                      data-testid="initiative-action-edit"
+                                      className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
+                                      onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
+                                      title="Edit initiative"
+                                    >✎</button>
+                                    <button
+                                      data-testid="initiative-action-link"
+                                      className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
+                                      title="Drag to another initiative to create a dependency"
+                                      onMouseDown={(e) => e.stopPropagation()}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >⛓</button>
+                                  </div>
                                 )}
 
                                 {/* Ungroup Button for summary bars */}
@@ -2272,7 +2320,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                     className={cn(
                                       "absolute rounded-md shadow-sm border border-white/20 flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none group/seg",
                                       colorClass, "text-white",
-                                      isSegSelected && "ring-2 ring-white/80 ring-offset-1 z-20"
+                                      isSegSelected && "outline outline-2 outline-dashed outline-slate-800 z-[50]"
                                     )}
                                     style={{ left: `${left}%`, width: `${Math.max(width, 0.5)}%`, height, top }}
                                     title={`${displayLabel}\n${seg.startDate} → ${seg.endDate}`}
@@ -2309,23 +2357,31 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                           onMouseDown={(e) => e.stopPropagation()}
                                           onClick={(e) => { e.stopPropagation(); handleSegmentRowMove(seg.id, +1); }}
                                         >↓</button>
+                                      </div>
+                                    )}
+                                    {isSegSelected && (
+                                      <div
+                                        data-testid="segment-action-toolbar"
+                                        className="absolute top-0.5 right-0.5 flex items-center gap-0.5 z-[50]"
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
                                         <button
-                                          data-testid="segment-edit"
-                                          className="w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none"
-                                          onMouseDown={(e) => e.stopPropagation()}
+                                          data-testid="segment-action-edit"
+                                          className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
                                           onClick={(e) => { e.stopPropagation(); setSegmentPanelId(seg.id); }}
                                           title="Edit segment"
                                         >✎</button>
+                                        {settings.showRelationships !== 'off' && onUpdateDependencies && (
+                                          <button
+                                            data-testid="segment-action-link"
+                                            className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
+                                            onMouseDown={(e) => { e.stopPropagation(); handleSegmentDepMouseDown(e, seg.id); }}
+                                            onClick={(e) => e.stopPropagation()}
+                                            title="Drag to another segment to create a dependency"
+                                          >⛓</button>
+                                        )}
                                       </div>
-                                    )}
-                                    {isSegSelected && settings.showRelationships !== 'off' && onUpdateDependencies && (
-                                      <button
-                                        data-testid="segment-dep-handle"
-                                        className="absolute top-0.5 right-0.5 w-4 h-4 bg-white/30 hover:bg-white/60 rounded text-white text-[9px] flex items-center justify-center leading-none z-20"
-                                        onMouseDown={(e) => handleSegmentDepMouseDown(e, seg.id)}
-                                        onClick={(e) => e.stopPropagation()}
-                                        title="Draw dependency from this segment"
-                                      >⤵</button>
                                     )}
                                     <div
                                       className="flex items-center justify-between gap-1 w-full overflow-hidden"
