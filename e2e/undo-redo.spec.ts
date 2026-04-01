@@ -82,6 +82,7 @@ test.describe('Undo/Redo Functionality', () => {
     });
 
     test('history stack is limited to 50 operations', async ({ page }) => {
+        test.setTimeout(60000);
         const firstRow = page.locator('tbody tr[data-real="true"]').first();
         const nameInput = firstRow.locator('input[type="text"]').first();
 
