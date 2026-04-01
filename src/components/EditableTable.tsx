@@ -410,7 +410,7 @@ export function EditableTable<T extends { [key: string]: any }>({
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0">
         <div
           ref={scrollWrapperRef}
           data-testid={`${tableId}-table-scroll-wrapper`}

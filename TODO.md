@@ -21,13 +21,19 @@
 - [x] Add undo/redo edge case tests
 
 #### P1 — Fragility
-- [ ] Replace CSS class assertions with computed style checks
-- [ ] Replace `waitForTimeout()` with deterministic waits
+- [x] Replace CSS class assertions with computed style checks
+- [x] Replace `waitForTimeout()` with deterministic waits
 
 #### P2 — Organisation
-- [ ] Consolidate 15 dependency spec files into 3
+- [x] Consolidate 15 dependency spec files into 3
 - [ ] Consolidate 17 mobile spec files into 2–3
 - [ ] Consolidate Data Manager spec files
+
+## Bug Fixes
+
+### Completed
+- [x] Fix newly-created initiative showing "Create Initiative" title and no Delete button when re-opened (US-BUG-01)
+- [x] Fix Data Manager initiatives table not scrollable with many rows (missing min-h-0)
 
 #### P2 — Coverage
 - [ ] Add search & filter edge case tests

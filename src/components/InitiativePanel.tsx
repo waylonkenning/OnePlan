@@ -19,9 +19,10 @@ interface InitiativePanelProps {
     onDelete?: (initiative: Initiative) => void;
     isOpen: boolean;
     hasDtsAssets?: boolean;
+    isNew?: boolean;
 }
 
-export function InitiativePanel({ initiative, assets, applications = [], programmes, strategies, dependencies = [], initiatives = [], resources = [], onClose, onSave, onDelete, isOpen, hasDtsAssets = false }: InitiativePanelProps) {
+export function InitiativePanel({ initiative, assets, applications = [], programmes, strategies, dependencies = [], initiatives = [], resources = [], onClose, onSave, onDelete, isOpen, hasDtsAssets = false, isNew = false }: InitiativePanelProps) {
     const [formData, setFormData] = useState<Initiative | null>(null);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -70,7 +71,7 @@ export function InitiativePanel({ initiative, assets, applications = [], program
             <div ref={panelRef} className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
                 <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50 flex-shrink-0">
                     <h2 className="text-lg font-semibold text-slate-800">
-                        {formData.id.includes('new') ? 'Create Initiative' : 'Edit Initiative'}
+                        {isNew ? 'Create Initiative' : 'Edit Initiative'}
                     </h2>
                     <button
                         onClick={onClose}
@@ -455,7 +456,7 @@ export function InitiativePanel({ initiative, assets, applications = [], program
                     >
                         Cancel
                     </button>
-                    {onDelete && !formData.id.includes('new') && (
+                    {onDelete && !isNew && (
                         <button
                             type="button"
                             onClick={() => setConfirmDelete(true)}
