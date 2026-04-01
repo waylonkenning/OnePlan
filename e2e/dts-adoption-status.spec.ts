@@ -128,6 +128,11 @@ test.describe('US-19: DTS Adoption Status per Asset', () => {
     const assetRow = page.locator('tr[data-id="dts-ch-01"]');
     const select = assetRow.locator('[data-testid="dts-adoption-status-cell"] select');
     await select.selectOption('adopted');
+    // Wait for React state to confirm the change, then navigate away so the
+    // Data Manager unmounts cleanly and any in-flight IndexedDB write completes
+    await expect(select).toHaveValue('adopted');
+    await page.getByTestId('nav-visualiser').click();
+    await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 10000 });
 
     // Reload and navigate back to Data Manager
     await page.reload();
