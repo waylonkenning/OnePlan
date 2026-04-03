@@ -22,10 +22,17 @@ export function computeCriticalPath(
   }
 
   // Duration in days for each initiative
+  // Skip initiatives with invalid dates - they won't be included in critical path
   const durationOf = new Map<string, number>();
   for (const init of initiatives) {
     const start = new Date(init.startDate).getTime();
     const end = new Date(init.endDate).getTime();
+
+    // Skip if dates are invalid (NaN)
+    if (isNaN(start) || isNaN(end)) {
+      continue;
+    }
+
     const days = Math.max(1, Math.round((end - start) / 86_400_000));
     durationOf.set(init.id, days);
   }
