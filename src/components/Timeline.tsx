@@ -2194,10 +2194,26 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                 )}>
                                   {mile.type === 'critical' ? <Star size={16} fill="currentColor" /> : <Info size={16} />}
                                 </div>
-                                <div className="absolute left-full ml-2 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-200 shadow-sm whitespace-nowrap z-40 pointer-events-none">
-                                  <div className="text-[10px] font-bold text-slate-800 leading-none">{mile.name}</div>
-                                  <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(currentMile.date), 'MMM yyyy')}</div>
-                                </div>
+                                {(() => {
+                                  // Prefer left side when no initiative bar ends within 8% of the milestone
+                                  const hasContentLeft = layoutItems.some(({ left: iLeft, width: iWidth }: any) =>
+                                    iLeft < pos && iLeft + iWidth > pos - 8
+                                  );
+                                  const side = !hasContentLeft ? 'left' : 'right';
+                                  return (
+                                    <div
+                                      data-testid="milestone-label"
+                                      data-label-side={side}
+                                      className={cn(
+                                        "absolute bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded border border-slate-200 shadow-sm whitespace-nowrap z-40 pointer-events-none",
+                                        side === 'right' ? "left-full ml-2" : "right-full mr-2 text-right"
+                                      )}
+                                    >
+                                      <div className="text-[10px] font-bold text-slate-800 leading-none">{mile.name}</div>
+                                      <div className="text-[8px] text-slate-500 mt-0.5">{format(parseISO(currentMile.date), 'MMM yyyy')}</div>
+                                    </div>
+                                  );
+                                })()}
                               </div>
                             </div>
                           );
