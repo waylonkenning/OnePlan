@@ -23,4 +23,17 @@ export default defineConfig({
   server: {
     headers: securityHeaders,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-date': ['date-fns'],
+          'vendor-xlsx': ['xlsx'],
+          'vendor-lucide': ['lucide-react'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 400,
+  },
 });
