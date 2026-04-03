@@ -167,7 +167,7 @@ export function InitiativeBar({
           </div>
 
           {settings.budgetVisualisation === 'label' && hasBudget && (
-            <div data-testid="initiative-budget-pill" className="flex-shrink-0 flex gap-0.5">
+            <div data-testid="initiative-budget-pill" className="flex-shrink-0 flex flex-col gap-0.5">
               {capex > 0 && (
                 <span
                   data-testid="capex-label"

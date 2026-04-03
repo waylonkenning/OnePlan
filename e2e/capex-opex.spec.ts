@@ -58,10 +58,17 @@ test.describe('CapEx and OpEx split', () => {
     await expect(panel).not.toBeVisible();
 
     // Card should show stacked CapEx/OpEx labels
-    await expect(bar.getByTestId('capex-label')).toBeVisible();
-    await expect(bar.getByTestId('opex-label')).toBeVisible();
-    await expect(bar.getByTestId('capex-label')).toContainText('CapEx');
-    await expect(bar.getByTestId('opex-label')).toContainText('OpEx');
+    const capexLabel = bar.getByTestId('capex-label');
+    const opexLabel  = bar.getByTestId('opex-label');
+    await expect(capexLabel).toBeVisible();
+    await expect(opexLabel).toBeVisible();
+    await expect(capexLabel).toContainText('CapEx');
+    await expect(opexLabel).toContainText('OpEx');
+
+    // OpEx must appear BELOW CapEx (stacked vertically, not side-by-side)
+    const capexBox = await capexLabel.boundingBox();
+    const opexBox  = await opexLabel.boundingBox();
+    expect(opexBox!.y).toBeGreaterThan(capexBox!.y);
   });
 
   test('data manager shows CapEx and OpEx columns instead of Budget', async ({ page }) => {
