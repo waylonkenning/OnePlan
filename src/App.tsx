@@ -8,6 +8,7 @@ import { Timeline } from './components/Timeline';
 import { MobileCardView } from './components/MobileCardView';
 import { useMediaQuery } from './lib/useMediaQuery';
 import { DataControls } from './components/DataControls';
+import { ModalErrorBoundary } from './components/ErrorBoundary';
 import { TutorialModal } from './components/TutorialModal';
 import { FeaturesModal } from './components/FeaturesModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
@@ -1333,63 +1334,73 @@ export default function App() {
         </Suspense>
       )}
 
-      <Suspense fallback={null}>
-        <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
-      </Suspense>
+      <ModalErrorBoundary onDismiss={() => setShowShortcuts(false)}>
+        <Suspense fallback={null}>
+          <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
+        </Suspense>
+      </ModalErrorBoundary>
 
       {showTemplatePicker && !showLandingPage && (
-        <Suspense fallback={null}>
-          <TemplatePickerModal onSelect={handleSelectTemplate} onViewerImport={handleViewerImport} isReset={templatePickerIsReset} />
-        </Suspense>
+        <ModalErrorBoundary onDismiss={() => { setShowTemplatePicker(false); setTemplatePickerIsReset(false); }}>
+          <Suspense fallback={null}>
+            <TemplatePickerModal onSelect={handleSelectTemplate} onViewerImport={handleViewerImport} isReset={templatePickerIsReset} />
+          </Suspense>
+        </ModalErrorBoundary>
       )}
 
       {showTutorial && (
-        <Suspense fallback={null}>
-          <TutorialModal
-            onClose={() => {
-              setShowTutorial(false);
-              if (!timelineSettings.hasSeenTutorial) {
-                handleUpdate({
-                  assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                  timelineSettings: { ...timelineSettings, hasSeenTutorial: true },
-                  resources, applicationStatuses, dtsPhases,
-                });
-              }
-            }} 
-          />
-        </Suspense>
+        <ModalErrorBoundary onDismiss={() => setShowTutorial(false)}>
+          <Suspense fallback={null}>
+            <TutorialModal
+              onClose={() => {
+                setShowTutorial(false);
+                if (!timelineSettings.hasSeenTutorial) {
+                  handleUpdate({
+                    assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                    timelineSettings: { ...timelineSettings, hasSeenTutorial: true },
+                    resources, applicationStatuses, dtsPhases,
+                  });
+                }
+              }} 
+            />
+          </Suspense>
+        </ModalErrorBoundary>
       )}
 
       {showLandingPage && (
-        <Suspense fallback={null}>
-          <LandingPage
-            onGetStarted={() => {
-              setShowLandingPage(false);
-              localStorage.setItem('scenia_has_seen_landing', 'true');
-            }}
-          />
-        </Suspense>
+        <ModalErrorBoundary onDismiss={() => setShowLandingPage(false)}>
+          <Suspense fallback={null}>
+            <LandingPage
+              onGetStarted={() => {
+                setShowLandingPage(false);
+                localStorage.setItem('scenia_has_seen_landing', 'true');
+              }}
+            />
+          </Suspense>
+        </ModalErrorBoundary>
       )}
 
-      <VersionManager
-        isOpen={isVersionManagerOpen}
-        onClose={() => setIsVersionManagerOpen(false)}
-        onRestore={handleRestoreVersion}
-        currentData={{
-          assets,
-          applications,
-          applicationSegments,
-          initiatives,
-          milestones,
-          programmes,
-          strategies,
-          dependencies,
-          assetCategories,
-          timelineSettings,
-          resources,
-          applicationStatuses,
-        }}
-      />
+      <ModalErrorBoundary onDismiss={() => setIsVersionManagerOpen(false)}>
+        <VersionManager
+          isOpen={isVersionManagerOpen}
+          onClose={() => setIsVersionManagerOpen(false)}
+          onRestore={handleRestoreVersion}
+          currentData={{
+            assets,
+            applications,
+            applicationSegments,
+            initiatives,
+            milestones,
+            programmes,
+            strategies,
+            dependencies,
+            assetCategories,
+            timelineSettings,
+            resources,
+            applicationStatuses,
+          }}
+        />
+      </ModalErrorBoundary>
     </div>
   );
 }
