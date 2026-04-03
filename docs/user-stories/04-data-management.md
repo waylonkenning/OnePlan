@@ -170,3 +170,22 @@
 - Clicking the button downloads a `.jpg` file capturing the current visible canvas
 - The export reflects the active zoom level, grouping, display settings, and scroll position at the time of export
 - The export completes without a browser `alert()` dialog or page reload
+
+---
+
+## US-DA-13: Configure DTS Phases via Data Manager
+
+**As an** IT portfolio manager using a DTS workspace,
+**I want** to define and manage DTS Phases in the Data Manager,
+**so that** I can customise the phases to match my agency's DTS roadmap rather than using hard-coded defaults.
+
+**Acceptance Criteria:**
+- AC1: A "DTS Phases" tab appears in the Data Manager only when the workspace contains DTS assets
+- AC2: The tab shows a table with Name and Color columns; each row represents one phase
+- AC3: Phases can be added, inline-edited, and deleted via the standard Data Manager controls
+- AC4: The DTS Phase dropdown in the Initiative edit panel is populated from the configurable phase list
+- AC5: The "Group by DTS Phase" view on the timeline uses the configurable phase list as row labels
+- AC6: The Budget by DTS Phase section in Reports uses the configurable phase list
+- AC7: The DTS Phase grouping in Mobile Card View uses the configurable phase list
+- AC8: Default phases (Phase 1–3, Back-Office Consolidation, Not DTS) are pre-loaded in the DTS template
+- AC9: Phase definitions persist across page reloads via IndexedDB

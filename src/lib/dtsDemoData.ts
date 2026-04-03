@@ -10,7 +10,7 @@
  * © Crown copyright. Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
  */
 
-import { Initiative, Milestone, ApplicationSegment, Application, Programme, Strategy, DtsAdoptionStatus, DtsPhase, Dependency } from '../types';
+import { Initiative, Milestone, ApplicationSegment, Application, Programme, Strategy, DtsAdoptionStatus, DtsPhase, DtsPhaseRecord, Dependency } from '../types';
 
 function relDate(yearOffset: number, month: number, day: number): string {
   const year = new Date().getFullYear() + yearOffset;
@@ -352,6 +352,16 @@ export const dtsDemoApplicationSegments: ApplicationSegment[] = [
   // HRIS: on-premise in production, moving to sunset as cluster migration completes
   { id: 'dts-seg-hris-prod',       applicationId: 'app-dts-hris',       status: 'appstatus-in-production', startDate: relDate(-2, 1, 1), endDate: relDate(2, 3, 31) },
   { id: 'dts-seg-hris-sunset',     applicationId: 'app-dts-hris',       status: 'appstatus-sunset',        startDate: relDate(2, 4, 1),  endDate: relDate(3, 3, 31),  row: 1 },
+];
+
+// ── Default DTS phase records (user-configurable) ─────────────────────────
+
+export const defaultDtsPhases: DtsPhaseRecord[] = [
+  { id: 'phase-1',     name: 'Phase 1 — Register & Expose',  color: 'bg-blue-500' },
+  { id: 'phase-2',     name: 'Phase 2 — Integrate DPI',       color: 'bg-violet-500' },
+  { id: 'phase-3',     name: 'Phase 3 — AI & Legacy Exit',    color: 'bg-emerald-500' },
+  { id: 'back-office', name: 'Back-Office Consolidation',      color: 'bg-amber-500' },
+  { id: 'not-dts',     name: 'Not DTS',                        color: 'bg-slate-400' },
 ];
 
 // ── Default DTS phases for demo initiatives ────────────────────────────────

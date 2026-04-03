@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Initiative, Asset, Application, Programme, Strategy, Dependency, Resource, DtsPhase } from '../types';
+import { Initiative, Asset, Application, Programme, Strategy, Dependency, Resource, DtsPhase, DtsPhaseRecord } from '../types';
 import { X, Save, Trash2 } from 'lucide-react';
 import { validateInitiative, ValidationErrors } from '../lib/validation';
 import { ConfirmModal } from './ConfirmModal';
@@ -19,10 +19,11 @@ interface InitiativePanelProps {
     onDelete?: (initiative: Initiative) => void;
     isOpen: boolean;
     hasDtsAssets?: boolean;
+    dtsPhases?: DtsPhaseRecord[];
     isNew?: boolean;
 }
 
-export function InitiativePanel({ initiative, assets, applications = [], programmes, strategies, dependencies = [], initiatives = [], resources = [], onClose, onSave, onDelete, isOpen, hasDtsAssets = false, isNew = false }: InitiativePanelProps) {
+export function InitiativePanel({ initiative, assets, applications = [], programmes, strategies, dependencies = [], initiatives = [], resources = [], onClose, onSave, onDelete, isOpen, hasDtsAssets = false, dtsPhases = [], isNew = false }: InitiativePanelProps) {
     const [formData, setFormData] = useState<Initiative | null>(null);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -403,11 +404,18 @@ export function InitiativePanel({ initiative, assets, applications = [], program
                                     onChange={(e) => setFormData({ ...formData, dtsPhase: (e.target.value as DtsPhase) || undefined })}
                                 >
                                     <option value="">— Not Set —</option>
-                                    <option value="phase-1">Phase 1 — Register &amp; Expose</option>
-                                    <option value="phase-2">Phase 2 — Integrate DPI</option>
-                                    <option value="phase-3">Phase 3 — AI &amp; Legacy Exit</option>
-                                    <option value="back-office">Back-Office Consolidation</option>
-                                    <option value="not-dts">Not DTS</option>
+                                    {dtsPhases.length > 0
+                                      ? dtsPhases.map(p => (
+                                          <option key={p.id} value={p.id}>{p.name}</option>
+                                        ))
+                                      : <>
+                                          <option value="phase-1">Phase 1 — Register &amp; Expose</option>
+                                          <option value="phase-2">Phase 2 — Integrate DPI</option>
+                                          <option value="phase-3">Phase 3 — AI &amp; Legacy Exit</option>
+                                          <option value="back-office">Back-Office Consolidation</option>
+                                          <option value="not-dts">Not DTS</option>
+                                        </>
+                                    }
                                 </select>
                             </div>
                         )}

@@ -108,12 +108,17 @@ export type DtsAdoptionStatus =
   | 'decommissioning'
   | 'not-applicable';
 
-export type DtsPhase =
-  | 'phase-1'
-  | 'phase-2'
-  | 'phase-3'
-  | 'back-office'
-  | 'not-dts';
+/** Loose string type — phase IDs are now user-defined records stored in IndexedDB. */
+export type DtsPhase = string;
+
+/**
+ * A user-configurable DTS Phase record stored in the dtsPhases IndexedDB store.
+ */
+export interface DtsPhaseRecord {
+  id: string;
+  name: string;
+  color: string;
+}
 
 /**
  * Represents a specific system, team, or resource area.
@@ -211,5 +216,6 @@ export interface Version {
     timelineSettings: TimelineSettings;
     resources: Resource[];
     applicationStatuses?: ApplicationStatus[];
+    dtsPhases?: DtsPhaseRecord[];
   };
 }

@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useMediaQuery } from '../lib/useMediaQuery';
-import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Application, ApplicationSegment, ApplicationStatus, DtsPhaseRecord, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { differenceInDays, format, parseISO, addQuarters, getYear, getQuarter, addDays, startOfMonth, lastDayOfMonth, addMonths, addWeeks } from 'date-fns';
 import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes, Trash2 } from 'lucide-react';
@@ -49,6 +49,7 @@ interface TimelineProps {
   onDeleteApplicationSegment?: (segment: ApplicationSegment) => void;
   onUpdateApplicationSegments?: (segments: ApplicationSegment[]) => void;
   applicationStatuses?: ApplicationStatus[];
+  dtsPhases?: DtsPhaseRecord[];
   onDeleteAsset?: (assetId: string) => void;
   onBulkDeleteAssets?: (assetIds: string[]) => void;
   onAddAssets?: (assets: Asset[]) => void;
@@ -58,7 +59,7 @@ const SIDEBAR_WIDTH_DESKTOP = 256; // 16rem
 const SIDEBAR_WIDTH_MOBILE = 120; // 7.5rem
 
 
-export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment, onUpdateApplicationSegments, applicationStatuses = [], onDeleteAsset, onBulkDeleteAssets, onAddAssets }: TimelineProps) {
+export function Timeline({ assets, applications = [], initiatives, milestones, programmes, strategies, dependencies, assetCategories, resources = [], settings, onAddInitiative, onUpdateInitiative, onUpdateAssets, onUpdateDependencies, onUpdateMilestone, onDeleteInitiative, onUpdateSettings, searchQuery, applicationSegments: applicationSegmentsProp = [], onSaveApplicationSegment, onDeleteApplicationSegment, onUpdateApplicationSegments, applicationStatuses = [], dtsPhases = [], onDeleteAsset, onBulkDeleteAssets, onAddAssets }: TimelineProps) {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const SIDEBAR_WIDTH = isMobile ? SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_DESKTOP;
 
@@ -1288,13 +1289,15 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const display = settings.display || 'both';
   const hasDtsAssets = assets.some(a => a.alias?.startsWith('DTS.'));
 
-  const DTS_PHASE_GROUPS = [
-    { id: 'phase-1', name: 'Phase 1 — Register & Expose' },
-    { id: 'phase-2', name: 'Phase 2 — Integrate DPI' },
-    { id: 'phase-3', name: 'Phase 3 — AI & Legacy Exit' },
-    { id: 'back-office', name: 'Back-Office Consolidation' },
-    { id: 'not-dts', name: 'Not DTS' },
-  ];
+  const DTS_PHASE_GROUPS = dtsPhases.length > 0
+    ? dtsPhases.map(p => ({ id: p.id, name: p.name }))
+    : [
+        { id: 'phase-1', name: 'Phase 1 — Register & Expose' },
+        { id: 'phase-2', name: 'Phase 2 — Integrate DPI' },
+        { id: 'phase-3', name: 'Phase 3 — AI & Legacy Exit' },
+        { id: 'back-office', name: 'Back-Office Consolidation' },
+        { id: 'not-dts', name: 'Not DTS' },
+      ];
 
   if (timeColumns.length === 0) return null;
 
@@ -2496,6 +2499,7 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
         initiatives={initiatives}
         resources={resources}
         hasDtsAssets={hasDtsAssets}
+        dtsPhases={dtsPhases}
         isNew={creatingInitiativeParams !== null}
         onSave={(initiative) => {
           if (initiativePanelId) {

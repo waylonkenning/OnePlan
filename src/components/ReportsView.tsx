@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Asset, Initiative, Dependency, Milestone, Version, Programme, Strategy, AssetCategory, Resource, DtsAdoptionStatus, DtsPhase } from '../types';
+import { Asset, Initiative, Dependency, Milestone, Version, Programme, Strategy, AssetCategory, Resource, DtsAdoptionStatus, DtsPhase, DtsPhaseRecord } from '../types';
 import { getAllVersions } from '../lib/db';
 import { computeDiff, DiffResult } from '../lib/diff';
 import { History, DollarSign, GitBranch, Users, ChevronLeft, Grid, Download } from 'lucide-react';
@@ -17,6 +17,7 @@ interface ReportsViewProps {
   strategies: Strategy[];
   assetCategories: AssetCategory[];
   resources?: Resource[];
+  dtsPhases?: DtsPhaseRecord[];
   onSaveAsset?: (asset: Asset) => void;
   onNavigateToAsset?: (assetId: string, assetName: string) => void;
 }
@@ -102,7 +103,7 @@ const DTS_STATUS_LABEL: Record<DtsAdoptionStatus, string> = {
   'not-applicable': 'N/A',
 };
 
-export function ReportsView({ assets, initiatives, milestones, dependencies, currentData, programmes, strategies, assetCategories, resources = [], onSaveAsset, onNavigateToAsset }: ReportsViewProps) {
+export function ReportsView({ assets, initiatives, milestones, dependencies, currentData, programmes, strategies, assetCategories, resources = [], dtsPhases = [], onSaveAsset, onNavigateToAsset }: ReportsViewProps) {
   const [selectedReport, setSelectedReport] = useState<ReportSlug | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [assetPanelOpen, setAssetPanelOpen] = useState(false);
@@ -347,13 +348,15 @@ export function ReportsView({ assets, initiatives, milestones, dependencies, cur
       })
       .filter(r => r.total > 0).sort((a, b) => b.total - a.total);
 
-    const DTS_PHASE_DEFS: { id: DtsPhase; name: string }[] = [
-      { id: 'phase-1',     name: 'Phase 1 — Register & Expose' },
-      { id: 'phase-2',     name: 'Phase 2 — Integrate DPI' },
-      { id: 'phase-3',     name: 'Phase 3 — AI & Legacy Exit' },
-      { id: 'back-office', name: 'Back-Office Consolidation' },
-      { id: 'not-dts',     name: 'Not DTS' },
-    ];
+    const DTS_PHASE_DEFS: { id: DtsPhase; name: string }[] = dtsPhases.length > 0
+      ? dtsPhases.map(p => ({ id: p.id, name: p.name }))
+      : [
+          { id: 'phase-1',     name: 'Phase 1 — Register & Expose' },
+          { id: 'phase-2',     name: 'Phase 2 — Integrate DPI' },
+          { id: 'phase-3',     name: 'Phase 3 — AI & Legacy Exit' },
+          { id: 'back-office', name: 'Back-Office Consolidation' },
+          { id: 'not-dts',     name: 'Not DTS' },
+        ];
 
     const byDtsPhase = hasDtsAssets
       ? DTS_PHASE_DEFS

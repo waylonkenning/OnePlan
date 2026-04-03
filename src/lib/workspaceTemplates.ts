@@ -5,9 +5,9 @@
  * Templates correspond to different NZ government IT taxonomy / reference architecture choices.
  */
 
-import { Asset, AssetCategory, Initiative, Milestone, ApplicationSegment, Programme, Strategy, Dependency, Resource, ApplicationStatus, TimelineSettings, Application } from '../types';
+import { Asset, AssetCategory, DtsPhaseRecord, Initiative, Milestone, ApplicationSegment, Programme, Strategy, Dependency, Resource, ApplicationStatus, TimelineSettings, Application } from '../types';
 import { DTS_CATEGORIES, DTS_ASSETS } from './dtsCatalogue';
-import { dtsDemoInitiatives, dtsDemoMilestones, dtsDemoApplicationSegments, dtsDemoApplications, dtsDemoProgrammes, dtsDemoStrategies, dtsDemoAdoptionStatuses, dtsDemoInitiativePhases, dtsDemoDependencies } from './dtsDemoData';
+import { defaultDtsPhases, dtsDemoInitiatives, dtsDemoMilestones, dtsDemoApplicationSegments, dtsDemoApplications, dtsDemoProgrammes, dtsDemoStrategies, dtsDemoAdoptionStatuses, dtsDemoInitiativePhases, dtsDemoDependencies } from './dtsDemoData';
 import {
   demoAssets,
   demoInitiatives,
@@ -71,6 +71,7 @@ export interface TemplateAppData {
   resources: Resource[];
   applications: Application[];
   applicationStatuses: ApplicationStatus[];
+  dtsPhases: DtsPhaseRecord[];
   timelineSettings: TimelineSettings;
 }
 
@@ -96,6 +97,7 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         resources: withDemoData ? demoResources : [],
         applications: withDemoData ? dtsDemoApplications : [],
         applicationStatuses: demoApplicationStatuses,
+        dtsPhases: defaultDtsPhases,
         timelineSettings: { ...baseSettings, showGeanzCatalogue: false },
       };
 
@@ -114,6 +116,7 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         resources: [],
         applications: [],
         applicationStatuses: [],
+        dtsPhases: [],
         timelineSettings: { ...baseSettings, showGeanzCatalogue: false },
       };
 
@@ -130,6 +133,7 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         resources: [],
         applications: [],
         applicationStatuses: [],
+        dtsPhases: [],
         timelineSettings: { ...baseSettings, showGeanzCatalogue: false },
       };
 
@@ -147,6 +151,7 @@ export function getTemplateData(templateId: TemplateId | string, withDemoData = 
         resources: withDemoData ? demoResources : [],
         applications: withDemoData ? demoApplications : [],
         applicationStatuses: demoApplicationStatuses,
+        dtsPhases: [],
         timelineSettings: { ...baseSettings, showGeanzCatalogue: true },
       };
   }

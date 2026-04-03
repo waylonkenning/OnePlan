@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
+import { Asset, Application, ApplicationSegment, ApplicationStatus, DtsPhaseRecord, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from '../types';
 import { EditableTable, Column } from './EditableTable';
 import { cn } from '../lib/utils';
 import { Database, Layers, Calendar, Flag, Target, Link2, FolderTree, LayoutTemplate, Users, Box } from 'lucide-react';
@@ -19,6 +19,7 @@ interface DataManagerProps {
     timelineSettings: TimelineSettings;
     resources: Resource[];
     applicationStatuses: ApplicationStatus[];
+    dtsPhases: DtsPhaseRecord[];
   };
   onUpdate: (data: {
     assets: Asset[];
@@ -33,12 +34,13 @@ interface DataManagerProps {
     timelineSettings: TimelineSettings;
     resources: Resource[];
     applicationStatuses: ApplicationStatus[];
+    dtsPhases: DtsPhaseRecord[];
   }) => void;
   onOpenTemplatePicker: () => void;
   searchQuery?: string;
 }
 
-type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'programmes' | 'strategies' | 'milestones' | 'resources' | 'applications' | 'appStatuses';
+type Tab = 'initiatives' | 'dependencies' | 'assets' | 'assetCategories' | 'programmes' | 'strategies' | 'milestones' | 'resources' | 'applications' | 'appStatuses' | 'dtsPhases';
 
 export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery }: DataManagerProps) {
   const [activeTab, setActiveTab] = useState<Tab>('initiatives');
@@ -153,11 +155,12 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
 
   const DTS_PHASE_OPTIONS = [
     { value: '', label: '— Not Set —' },
-    { value: 'phase-1', label: 'Phase 1 — Register & Expose' },
-    { value: 'phase-2', label: 'Phase 2 — Integrate DPI' },
-    { value: 'phase-3', label: 'Phase 3 — AI & Legacy Exit' },
-    { value: 'back-office', label: 'Back-Office Consolidation' },
-    { value: 'not-dts', label: 'Not DTS' },
+    ...(data.dtsPhases || []).map(p => ({ value: p.id, label: p.name })),
+  ];
+
+  const dtsPhaseColumns: Column<DtsPhaseRecord>[] = [
+    { key: 'name', label: 'Phase Name', type: 'text', width: '70%' },
+    { key: 'color', label: 'Color', type: 'color', width: '30%' },
   ];
 
   const initiativeColumns: Column<Initiative>[] = [
@@ -319,6 +322,7 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
     { id: 'milestones', label: 'Milestones', icon: Flag, count: data.milestones.length },
     { id: 'resources', label: 'Resources', icon: Users, count: (data.resources || []).length },
     { id: 'appStatuses', label: 'App Statuses', icon: Layers, count: (data.applicationStatuses || []).length },
+    ...(hasDtsAssets ? [{ id: 'dtsPhases', label: 'DTS Phases', icon: Layers, count: (data.dtsPhases || []).length }] : []),
   ];
 
   return (
@@ -460,6 +464,17 @@ export function DataManager({ data, onUpdate, onOpenTemplatePicker, searchQuery 
             idField="id"
             tableId="appStatuses"
             onColumnResize={(col, w) => handleColumnResize('appStatuses', col, w)}
+          />
+        )}
+        {activeTab === 'dtsPhases' && (
+          <EditableTable
+            data={data.dtsPhases || []}
+            columns={getColumnsWithWidths('dtsPhases', dtsPhaseColumns)}
+            onUpdate={(newData) => updateData('dtsPhases', newData)}
+            onDelete={(phase) => { updateData('dtsPhases', (data.dtsPhases || []).filter(p => p.id !== phase.id)); return true; }}
+            idField="id"
+            tableId="dtsPhases"
+            onColumnResize={(col, w) => handleColumnResize('dtsPhases', col, w)}
           />
         )}
       </div>

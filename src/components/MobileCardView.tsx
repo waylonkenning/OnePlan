@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Asset, Initiative, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource, DtsAdoptionStatus } from '../types';
+import { Asset, Initiative, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource, DtsAdoptionStatus, DtsPhaseRecord } from '../types';
 import { ChevronDown, ChevronRight, AlertTriangle, DollarSign, AlignLeft, GitBranch } from 'lucide-react';
 import { InitiativePanel } from './InitiativePanel';
 
@@ -12,6 +12,7 @@ interface MobileCardViewProps {
   assetCategories: AssetCategory[];
   settings: TimelineSettings;
   resources?: Resource[];
+  dtsPhases?: DtsPhaseRecord[];
   onSaveInitiative: (initiative: Initiative) => void;
   onDeleteInitiative?: (initiative: Initiative) => void;
   onOpenSettings: () => void;
@@ -57,6 +58,7 @@ function bucketInitiatives(
   mode: BucketMode,
   programmes: Programme[],
   strategies: Strategy[],
+  dtsPhaseLabels: Record<string, string> = {},
 ): Map<string, Initiative[]> {
   const map = new Map<string, Initiative[]>();
 
@@ -77,7 +79,7 @@ function bucketInitiatives(
       const prog = programmes.find(p => p.id === init.programmeId);
       key = prog?.name ?? 'No programme';
     } else if (mode === 'dts-phase') {
-      key = (init.dtsPhase && DTS_PHASE_LABELS[init.dtsPhase]) ?? 'No DTS Phase';
+      key = (init.dtsPhase && dtsPhaseLabels[init.dtsPhase]) ?? 'No DTS Phase';
     } else {
       const strat = strategies.find(s => s.id === init.strategyId);
       key = strat?.name ?? 'No strategy';
@@ -120,13 +122,6 @@ function conflictCount(assetInitiatives: Initiative[]): number {
   return count;
 }
 
-const DTS_PHASE_LABELS: Record<string, string> = {
-  'phase-1':    'Phase 1 — Register & Expose',
-  'phase-2':    'Phase 2 — Integrate DPI',
-  'phase-3':    'Phase 3 — AI & Legacy Exit',
-  'back-office':'Back-Office Consolidation',
-  'not-dts':    'Not DTS',
-};
 
 const DTS_ADOPTION_STATUS_LABEL: Record<DtsAdoptionStatus, string> = {
   'not-started':    'Not Started',
@@ -188,6 +183,7 @@ const InitiativeRow: React.FC<{
   settings: TimelineSettings;
   dependencies: Dependency[];
   allInitiatives: Initiative[];
+  dtsPhaseLabels: Record<string, string>;
   onClick: () => void;
 }> = ({
   initiative,
@@ -196,6 +192,7 @@ const InitiativeRow: React.FC<{
   settings,
   dependencies,
   allInitiatives,
+  dtsPhaseLabels,
   onClick,
 }) => {
   const prog = programmes.find(p => p.id === initiative.programmeId);
@@ -259,12 +256,12 @@ const InitiativeRow: React.FC<{
         {/* Programme name */}
         {prog && <div className="text-xs text-slate-400 mt-0.5">{prog.name}</div>}
         {/* DTS Phase label */}
-        {initiative.dtsPhase && DTS_PHASE_LABELS[initiative.dtsPhase] && (
+        {initiative.dtsPhase && dtsPhaseLabels[initiative.dtsPhase] && (
           <div
             data-testid={`initiative-phase-label-${initiative.id}`}
             className="text-[10px] text-indigo-500 font-medium mt-0.5"
           >
-            {DTS_PHASE_LABELS[initiative.dtsPhase]}
+            {dtsPhaseLabels[initiative.dtsPhase]}
           </div>
         )}
         {/* Description */}
@@ -321,6 +318,7 @@ const BucketSection: React.FC<{
   settings: TimelineSettings;
   dependencies: Dependency[];
   allInitiatives: Initiative[];
+  dtsPhaseLabels: Record<string, string>;
   onSelectInitiative: (i: Initiative) => void;
 }> = ({
   label,
@@ -330,6 +328,7 @@ const BucketSection: React.FC<{
   settings,
   dependencies,
   allInitiatives,
+  dtsPhaseLabels,
   onSelectInitiative,
 }) => {
   const [expanded, setExpanded] = useState(true);
@@ -355,6 +354,7 @@ const BucketSection: React.FC<{
           settings={settings}
           dependencies={dependencies}
           allInitiatives={allInitiatives}
+          dtsPhaseLabels={dtsPhaseLabels}
           onClick={() => onSelectInitiative(init)}
         />
       ))}
@@ -375,6 +375,7 @@ const AssetCard: React.FC<{
   settings: TimelineSettings;
   allInitiatives: Initiative[];
   bucketMode: BucketMode;
+  dtsPhaseLabels: Record<string, string>;
   onSelectInitiative: (i: Initiative) => void;
   onOpenSettings?: () => void;
 }> = ({
@@ -388,6 +389,7 @@ const AssetCard: React.FC<{
   settings,
   allInitiatives,
   bucketMode,
+  dtsPhaseLabels,
   onSelectInitiative,
   onOpenSettings,
 }) => {
@@ -398,7 +400,7 @@ const AssetCard: React.FC<{
     return new Date(i.startDate) <= today && new Date(i.endDate) >= today;
   }).length;
 
-  const buckets = bucketInitiatives(initiatives, bucketMode, programmes, strategies);
+  const buckets = bucketInitiatives(initiatives, bucketMode, programmes, strategies, dtsPhaseLabels);
 
   // Determine a representative colour: first initiative's programme colour
   const firstProg = initiatives.length > 0
@@ -476,6 +478,7 @@ const AssetCard: React.FC<{
                 settings={settings}
                 dependencies={dependencies}
                 allInitiatives={allInitiatives}
+                dtsPhaseLabels={dtsPhaseLabels}
                 onSelectInitiative={onSelectInitiative}
               />
             ))}
@@ -497,6 +500,7 @@ export function MobileCardView({
   assetCategories,
   settings,
   resources = [],
+  dtsPhases = [],
   onSaveInitiative,
   onDeleteInitiative,
   onOpenSettings,
@@ -505,6 +509,16 @@ export function MobileCardView({
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   const bucketMode: BucketMode = settings.mobileBucketMode ?? 'timeline';
+
+  const dtsPhaseLabels: Record<string, string> = Object.fromEntries(
+    (dtsPhases.length > 0 ? dtsPhases : [
+      { id: 'phase-1',     name: 'Phase 1 — Register & Expose' },
+      { id: 'phase-2',     name: 'Phase 2 — Integrate DPI' },
+      { id: 'phase-3',     name: 'Phase 3 — AI & Legacy Exit' },
+      { id: 'back-office', name: 'Back-Office Consolidation' },
+      { id: 'not-dts',     name: 'Not DTS' },
+    ]).map(p => [p.id, p.name])
+  );
 
   // Filter initiatives to the window defined by startDate + monthsToShow
   const windowStart = new Date(settings.startDate);
@@ -578,6 +592,7 @@ export function MobileCardView({
                   settings={settings}
                   allInitiatives={initiatives}
                   bucketMode={bucketMode}
+                  dtsPhaseLabels={dtsPhaseLabels}
                   onSelectInitiative={handleSelectInitiative}
                   onOpenSettings={onOpenSettings}
                 />
@@ -601,6 +616,7 @@ export function MobileCardView({
                 settings={settings}
                 allInitiatives={initiatives}
                 bucketMode={bucketMode}
+                dtsPhaseLabels={dtsPhaseLabels}
                 onSelectInitiative={handleSelectInitiative}
                 onOpenSettings={onOpenSettings}
               />
@@ -617,6 +633,7 @@ export function MobileCardView({
         dependencies={dependencies}
         initiatives={initiatives}
         resources={resources}
+        dtsPhases={dtsPhases}
         onClose={() => setIsPanelOpen(false)}
         onSave={handleSave}
         onDelete={handleDelete}

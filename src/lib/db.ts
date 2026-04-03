@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Asset, Application, ApplicationSegment, ApplicationStatus, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Version, Resource } from '../types';
+import { Asset, Application, ApplicationSegment, ApplicationStatus, DtsPhaseRecord, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Version, Resource } from '../types';
 
 interface ITMapDB extends DBSchema {
   assets: {
@@ -54,10 +54,14 @@ interface ITMapDB extends DBSchema {
     key: string;
     value: ApplicationStatus;
   };
+  dtsPhases: {
+    key: string;
+    value: DtsPhaseRecord;
+  };
 }
 
 const DB_NAME = 'it-initiative-visualiser';
-const DB_VERSION = 12;
+const DB_VERSION = 13;
 
 let dbPromise: Promise<IDBPDatabase<ITMapDB>>;
 
@@ -148,6 +152,26 @@ export const initDB = () => {
             }
           }
         }
+        if (oldVersion < 13) {
+          if (!db.objectStoreNames.contains('dtsPhases')) {
+            db.createObjectStore('dtsPhases', { keyPath: 'id' });
+          }
+          // Seed default phases for existing DTS workspaces (those with DTS assets).
+          const allAssets = await tx.objectStore('assets').getAll();
+          const hasDts = allAssets.some((a: any) => a.alias?.startsWith('DTS.'));
+          if (hasDts) {
+            const defaults: DtsPhaseRecord[] = [
+              { id: 'phase-1',     name: 'Phase 1 — Register & Expose',  color: 'bg-blue-500' },
+              { id: 'phase-2',     name: 'Phase 2 — Integrate DPI',       color: 'bg-violet-500' },
+              { id: 'phase-3',     name: 'Phase 3 — AI & Legacy Exit',    color: 'bg-emerald-500' },
+              { id: 'back-office', name: 'Back-Office Consolidation',      color: 'bg-amber-500' },
+              { id: 'not-dts',     name: 'Not DTS',                        color: 'bg-slate-400' },
+            ];
+            for (const phase of defaults) {
+              await tx.objectStore('dtsPhases').put(phase);
+            }
+          }
+        }
       },
     });
   }
@@ -167,6 +191,7 @@ export const getAppData = async () => {
   const assetCategories = await db.getAll('assetCategories');
   const resources = db.objectStoreNames.contains('resources') ? await db.getAll('resources') : [];
   const applicationStatuses = db.objectStoreNames.contains('applicationStatuses') ? await db.getAll('applicationStatuses') : [];
+  const dtsPhases = db.objectStoreNames.contains('dtsPhases') ? await db.getAll('dtsPhases') : [];
 
   // Settings is not a standard list of entities, it's just one config object
   let settingsFromDb = null;
@@ -188,6 +213,7 @@ export const getAppData = async () => {
     timelineSettings,
     resources,
     applicationStatuses,
+    dtsPhases,
   };
 };
 
@@ -204,9 +230,10 @@ export const saveAppData = async (data: {
   timelineSettings: TimelineSettings;
   resources: Resource[];
   applicationStatuses: ApplicationStatus[];
+  dtsPhases?: DtsPhaseRecord[];
 }) => {
   const db = await initDB();
-  const stores: ("assets" | "applications" | "applicationSegments" | "applicationStatuses" | "initiatives" | "milestones" | "programmes" | "strategies" | "dependencies" | "assetCategories" | "settings" | "resources")[] = [
+  const stores: ("assets" | "applications" | "applicationSegments" | "applicationStatuses" | "dtsPhases" | "initiatives" | "milestones" | "programmes" | "strategies" | "dependencies" | "assetCategories" | "settings" | "resources")[] = [
     'assets', 'initiatives', 'milestones', 'programmes', 'strategies', 'dependencies', 'assetCategories'
   ];
   if (db.objectStoreNames.contains('settings')) {
@@ -223,6 +250,9 @@ export const saveAppData = async (data: {
   }
   if (db.objectStoreNames.contains('applicationStatuses')) {
     stores.push('applicationStatuses');
+  }
+  if (db.objectStoreNames.contains('dtsPhases')) {
+    stores.push('dtsPhases');
   }
   const tx = db.transaction(stores, 'readwrite');
 
@@ -264,6 +294,10 @@ export const saveAppData = async (data: {
   if (db.objectStoreNames.contains('applicationStatuses')) {
     allPromises.push(tx.objectStore('applicationStatuses').clear());
     (data.applicationStatuses || []).forEach(item => allPromises.push(tx.objectStore('applicationStatuses').put(item)));
+  }
+  if (db.objectStoreNames.contains('dtsPhases')) {
+    allPromises.push(tx.objectStore('dtsPhases').clear());
+    (data.dtsPhases || []).forEach(item => allPromises.push(tx.objectStore('dtsPhases').put(item)));
   }
   await Promise.all(allPromises);
 
