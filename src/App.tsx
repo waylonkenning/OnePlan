@@ -302,33 +302,43 @@ export default function App() {
     }
   }, []);
 
-  const handleUndo = () => {
+  const handleUndo = useCallback(() => {
     if (undoStack.length === 0) return;
+    // Capture previous state BEFORE any state mutations
     const previousState = undoStack[undoStack.length - 1];
+    // Capture current state for redo stack BEFORE mutating
+    const currentState = getCurrentState();
 
-    setRedoStack(prev => {
-      const newStack = [...prev, getCurrentState()];
-      if (newStack.length > 10) return newStack.slice(newStack.length - 10);
-      return newStack;
-    });
-    setUndoStack(prev => prev.slice(0, -1));
+    // Build new stacks with captured state
+    const newUndoStack = undoStack.slice(0, -1);
+    const newRedoStack = undoStack.length > 10
+      ? [...redoStack.slice(-9), currentState]
+      : [...redoStack, currentState];
+
+    setRedoStack(newRedoStack);
+    setUndoStack(newUndoStack);
 
     handleUpdate(previousState, true);
-  };
+  }, [undoStack, redoStack, handleUpdate]);
 
-  const handleRedo = () => {
+  const handleRedo = useCallback(() => {
     if (redoStack.length === 0) return;
+    // Capture next state BEFORE any state mutations
     const nextState = redoStack[redoStack.length - 1];
+    // Capture current state for undo stack BEFORE mutating
+    const currentState = getCurrentState();
 
-    setUndoStack(prev => {
-      const newStack = [...prev, getCurrentState()];
-      if (newStack.length > 10) return newStack.slice(newStack.length - 10);
-      return newStack;
-    });
-    setRedoStack(prev => prev.slice(0, -1));
+    // Build new stacks with captured state
+    const newRedoStack = redoStack.slice(0, -1);
+    const newUndoStack = undoStack.length > 10
+      ? [...undoStack.slice(-9), currentState]
+      : [...undoStack, currentState];
+
+    setUndoStack(newUndoStack);
+    setRedoStack(newRedoStack);
 
     handleUpdate(nextState, true);
-  };
+  }, [undoStack, redoStack, handleUpdate]);
 
   // Keep refs pointing to latest callbacks so the keyboard listener never needs to re-register
   undoRef.current = handleUndo;
