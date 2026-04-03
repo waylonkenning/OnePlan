@@ -6,6 +6,7 @@ import { cn, reorder } from '../lib/utils';
 import { AlertTriangle, Star, Info, ChevronRight, ChevronDown, ChevronUp, Boxes, Trash2 } from 'lucide-react';
 import { geanzAreas, GEANZ_CATEGORY_ID, GEANZ_TO_DTS_MAP, GeanzArea } from '../lib/geanzCatalogue';
 import { InitiativePanel } from './InitiativePanel';
+import { InitiativeBar } from './InitiativeBar';
 import { ApplicationSegmentPanel } from './ApplicationSegmentPanel';
 import { DependencyPanel } from './DependencyPanel';
 import { ArrowDisambiguator } from './ArrowDisambiguator';
@@ -93,6 +94,33 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     amber: 'Amber',
     red: 'Red',
   };
+
+  // ── Stable lookup maps (O(1) instead of O(N) .find() per initiative) ─────
+  const programmeMap = useMemo(() => new Map(programmes.map(p => [p.id, p])), [programmes]);
+  const strategyMap  = useMemo(() => new Map(strategies.map(s => [s.id, s])), [strategies]);
+
+  // ── Shared colour + subtitle helpers (single source of truth) ────────────
+  function getInitiativeColor(init: Initiative, prog: Programme | undefined, strat: Strategy | undefined): string {
+    if (colorBy === 'rag')       return RAG_COLORS[init.ragStatus || 'none'];
+    if (colorBy === 'status')    return STATUS_COLORS[init.status || 'planned'];
+    if (colorBy === 'programme') return prog?.color || 'bg-slate-500';
+    return strat?.color || 'bg-slate-400';
+  }
+
+  function getInitiativeSubtitle(
+    init: Initiative,
+    prog: Programme | undefined,
+    strat: Strategy | undefined,
+    isGroup?: boolean,
+    groupProgrammeNames?: string,
+    groupStrategyNames?: string,
+  ): string | undefined {
+    if (colorBy === 'rag')    return init.ragStatus ? RAG_LABELS[init.ragStatus] : undefined;
+    if (colorBy === 'status') return STATUS_LABELS[init.status || 'planned'];
+    if (isGroup)              return colorBy === 'programme' ? groupProgrammeNames : groupStrategyNames;
+    return colorBy === 'programme' ? prog?.name : strat?.name;
+  }
+
   const [selectedInitiativeId, setSelectedInitiativeId] = useState<string | null>(null);
   const [initiativePanelId, setInitiativePanelId] = useState<string | null>(null); // separate from selectedInitiativeId — panel only opens when this is set
   const [selectedDependencyId, setSelectedDependencyId] = useState<string | null>(null);
@@ -1624,117 +1652,36 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                       )}
                       {swimlaneItems.map(({ init, top, height: barH, left, width: barW }: any) => {
                         if (left + barW < 0 || left > 100) return null;
-                        const prog = programmes.find(p => p.id === init.programmeId);
-                        const strat = strategies.find(s => s.id === init.strategyId);
-                        const colorClass = colorBy === 'rag'
-                          ? (RAG_COLORS[init.ragStatus || 'none'])
-                          : colorBy === 'status'
-                          ? (STATUS_COLORS[init.status || 'planned'])
-                          : colorBy === 'programme'
-                          ? (prog?.color || 'bg-slate-500')
-                          : (strat?.color || 'bg-slate-400');
-                        const subtitle = colorBy === 'rag'
-                          ? (init.ragStatus ? RAG_LABELS[init.ragStatus] : undefined)
-                          : colorBy === 'status'
-                          ? STATUS_LABELS[init.status || 'planned']
-                          : colorBy === 'programme'
-                          ? prog?.name
-                          : strat?.name;
+                        const prog = programmeMap.get(init.programmeId);
+                        const strat = strategyMap.get(init.strategyId);
+                        const colorClass = getInitiativeColor(init, prog, strat);
+                        const subtitle = getInitiativeSubtitle(init, prog, strat);
                         const isOnCriticalPath = criticalPathInitIds.has(init.id);
                         return (
-                          <div
+                          <InitiativeBar
                             key={init.id}
-                            data-initiative-id={init.id}
-                            data-testid="initiative-bar"
-                            onClick={(e) => { e.stopPropagation(); setSelectedInitiativeId(init.id); }}
-                            onDoubleClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                            className={cn(
-                              "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
-                              cn(colorClass, "text-white border-white/20"),
-                              isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10",
-                              selectedInitiativeId === init.id && "outline outline-2 outline-dashed outline-slate-800 z-20"
-                            )}
-                            style={{ left: `${left}%`, width: `${barW}%`, height: barH, top }}
-                            title={`${init.name}\nProgramme: ${prog?.name ?? ''}\nStrategy: ${strat?.name ?? ''}${init.description ? `\n${init.description}` : ''}`}
-                          >
-                            {!init.isPlaceholder && (init.progress ?? 0) > 0 && (
-                              <div data-testid="progress-overlay" className="absolute left-0 top-0 bottom-0 pointer-events-none rounded-l-md bg-white/25" style={{ width: `${init.progress}%`, zIndex: 1 }} />
-                            )}
-                            {/* Owner badge — absolutely positioned top-right corner (AC3) */}
-                            {barW > 6 && (() => {
-                              const ownerResource = init.ownerId ? resources.find(r => r.id === init.ownerId) : null;
-                              const ownerName = ownerResource?.name || init.owner;
-                              if (!ownerName) return null;
-                              return (
-                                <div data-testid="owner-badge" className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white z-[2]" title={ownerName}>
-                                  {ownerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                                </div>
-                              );
-                            })()}
-                            <div className="flex flex-col overflow-hidden h-full py-0.5">
-                              {/* Title row: name + budget pill (AC1) */}
-                              <div data-testid="initiative-title-row" className="flex items-center gap-1 min-w-0 pr-6">
-                                <div className="font-bold text-[11px] leading-tight truncate flex-1 drop-shadow-md">{init.name}</div>
-                                {settings.budgetVisualisation === 'label' && ((init.capex || 0) + (init.opex || 0)) > 0 && (
-                                  <div data-testid="initiative-budget-pill" className="flex-shrink-0 flex gap-0.5">
-                                    {(init.capex || 0) > 0 && (
-                                      <span data-testid="capex-label" className="text-[9px] font-bold px-1 rounded backdrop-blur-[2px] bg-white/20 text-white leading-tight">
-                                        CapEx {(init.capex || 0) >= 1000000 ? `$${((init.capex || 0) / 1000000).toFixed(1)}m` : `$${Math.round((init.capex || 0) / 1000)}k`}
-                                      </span>
-                                    )}
-                                    {(init.opex || 0) > 0 && (
-                                      <span data-testid="opex-label" className="text-[9px] font-bold px-1 rounded backdrop-blur-[2px] bg-white/20 text-white leading-tight">
-                                        OpEx {(init.opex || 0) >= 1000000 ? `$${((init.opex || 0) / 1000000).toFixed(1)}m` : `$${Math.round((init.opex || 0) / 1000)}k`}
-                                      </span>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                              {/* Subtitle row */}
-                              {subtitle && barW > 5 && (
-                                <div className="text-[9px] italic opacity-70 truncate mt-0.5 drop-shadow-md">{subtitle}</div>
-                              )}
-                              {/* Resource names row */}
-                              {settings.showResources === 'on' && barW > 8 && (() => {
-                                const assignedNames = (init.resourceIds || [])
-                                  .map(rid => resources.find(r => r.id === rid)?.name)
-                                  .filter(Boolean);
-                                if (assignedNames.length === 0) return null;
-                                return (
-                                  <span data-testid="initiative-resource-names" className="text-[9px] text-white/80 truncate mt-0.5">
-                                    {assignedNames.join(', ')}
-                                  </span>
-                                );
-                              })()}
-                              {/* Description row — full width, capped at 2 lines (AC2, AC4) */}
-                              {settings.descriptionDisplay === 'on' && init.description && barW > 8 && (
-                                <div data-testid="initiative-description-row" className="text-[9px] leading-[12px] opacity-90 mt-1 pt-1 border-t border-white/30 whitespace-pre-wrap break-words line-clamp-2 drop-shadow-md">{init.description}</div>
-                              )}
-                            </div>
-
-                            {/* Action toolbar for selected initiatives */}
-                            {selectedInitiativeId === init.id && (
-                              <div
-                                data-testid="initiative-action-toolbar"
-                                className="absolute top-0.5 right-0.5 flex items-center gap-0.5 z-20"
-                                onMouseDown={(e) => e.stopPropagation()}
-                              >
-                                <button
-                                  data-testid="initiative-action-edit"
-                                  className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
-                                  onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                                  title="Edit initiative"
-                                >✎</button>
-                                <button
-                                  data-testid="initiative-dep-handle"
-                                  className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
-                                  title="Drag to another initiative to create a dependency"
-                                  onMouseDown={(e) => e.stopPropagation()}
-                                  onClick={(e) => e.stopPropagation()}
-                                >⛓</button>
-                              </div>
-                            )}
-                          </div>
+                            init={init}
+                            left={left}
+                            width={barW}
+                            height={barH}
+                            top={top}
+                            colorClass={colorClass}
+                            subtitle={subtitle}
+                            isOnCriticalPath={isOnCriticalPath}
+                            isSelected={selectedInitiativeId === init.id}
+                            resources={resources}
+                            settings={settings}
+                            progName={prog?.name}
+                            stratName={strat?.name}
+                            isDraggingRef={isDraggingRef}
+                            onSelect={() => setSelectedInitiativeId(init.id)}
+                            onOpenPanel={() => setInitiativePanelId(init.id)}
+                            onMoveStart={(e) => {
+                              isDraggingRef.current = false;
+                              setMoving({ id: init.id, initialX: e.clientX, initialY: e.clientY, initialStart: init.startDate, initialEnd: init.endDate });
+                            }}
+                            onResizeStart={(e, edge) => handleResizeStart(e, init.id, edge, edge === 'start' ? init.startDate : init.endDate)}
+                          />
                         );
                       })}
                     </div>
@@ -1767,54 +1714,31 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                       )}
                       {swimlaneItems.map(({ init, top, height: barH, left, width: barW }: any) => {
                         if (left + barW < 0 || left > 100) return null;
-                        const prog = programmes.find(p => p.id === init.programmeId);
-                        const strat = strategies.find(s => s.id === init.strategyId);
-                        const colorClass = colorBy === 'rag'
-                          ? (RAG_COLORS[init.ragStatus || 'none'])
-                          : colorBy === 'status'
-                          ? (STATUS_COLORS[init.status || 'planned'])
-                          : colorBy === 'programme'
-                          ? (prog?.color || 'bg-slate-500')
-                          : (strat?.color || 'bg-slate-400');
+                        const prog = programmeMap.get(init.programmeId);
+                        const strat = strategyMap.get(init.strategyId);
                         return (
-                          <div
+                          <InitiativeBar
                             key={init.id}
-                            data-initiative-id={init.id}
-                            data-testid="initiative-bar"
-                            onClick={(e) => { e.stopPropagation(); setSelectedInitiativeId(init.id); }}
-                            onDoubleClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                            className={cn(
-                              "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden cursor-pointer hover:z-20 hover:shadow-xl select-none",
-                              cn(colorClass, "text-white border-white/20"),
-                              selectedInitiativeId === init.id && "outline outline-2 outline-dashed outline-slate-800 z-20"
-                            )}
-                            style={{ left: `${left}%`, width: `${barW}%`, height: barH, top }}
-                          >
-                            <div className="font-bold text-[11px] leading-tight line-clamp-2 drop-shadow-md">{init.name}</div>
-
-                            {/* Action toolbar for selected initiatives */}
-                            {selectedInitiativeId === init.id && (
-                              <div
-                                data-testid="initiative-action-toolbar"
-                                className="absolute top-0.5 right-0.5 flex items-center gap-0.5 z-20"
-                                onMouseDown={(e) => e.stopPropagation()}
-                              >
-                                <button
-                                  data-testid="initiative-action-edit"
-                                  className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
-                                  onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                                  title="Edit initiative"
-                                >✎</button>
-                                <button
-                                  data-testid="initiative-dep-handle"
-                                  className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
-                                  title="Drag to another initiative to create a dependency"
-                                  onMouseDown={(e) => e.stopPropagation()}
-                                  onClick={(e) => e.stopPropagation()}
-                                >⛓</button>
-                              </div>
-                            )}
-                          </div>
+                            init={init}
+                            left={left}
+                            width={barW}
+                            height={barH}
+                            top={top}
+                            colorClass={getInitiativeColor(init, prog, strat)}
+                            isSelected={selectedInitiativeId === init.id}
+                            resources={resources}
+                            settings={settings}
+                            progName={prog?.name}
+                            stratName={strat?.name}
+                            isDraggingRef={isDraggingRef}
+                            onSelect={() => setSelectedInitiativeId(init.id)}
+                            onOpenPanel={() => setInitiativePanelId(init.id)}
+                            onMoveStart={(e) => {
+                              isDraggingRef.current = false;
+                              setMoving({ id: init.id, initialX: e.clientX, initialY: e.clientY, initialStart: init.startDate, initialEnd: init.endDate });
+                            }}
+                            onResizeStart={(e, edge) => handleResizeStart(e, init.id, edge, edge === 'start' ? init.startDate : init.endDate)}
+                          />
                         );
                       })}
                     </div>
@@ -1989,210 +1913,48 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                           </div>
 
                           {layoutItems.map(({ init, top, height, left, width, isGroup, groupProgrammeNames, groupStrategyNames }: any) => {
-                            const prog = programmes.find(p => p.id === init.programmeId);
-                            const strat = strategies.find(s => s.id === init.strategyId);
-                            const colorClass = colorBy === 'rag'
-                              ? (RAG_COLORS[init.ragStatus || 'none'])
-                              : colorBy === 'status'
-                              ? (STATUS_COLORS[init.status || 'planned'])
-                              : colorBy === 'programme'
-                              ? (prog?.color || 'bg-slate-500')
-                              : (strat?.color || 'bg-slate-400');
-                            const subtitle = colorBy === 'rag'
-                              ? (init.ragStatus ? RAG_LABELS[init.ragStatus] : undefined)
-                              : colorBy === 'status'
-                              ? STATUS_LABELS[init.status || 'planned']
-                              : isGroup
-                              ? (colorBy === 'programme' ? groupProgrammeNames : groupStrategyNames)
-                              : (colorBy === 'programme' ? prog?.name : strat?.name);
+                            const prog = programmeMap.get(init.programmeId);
+                            const strat = strategyMap.get(init.strategyId);
+                            const colorClass = getInitiativeColor(init, prog, strat);
+                            const subtitle = getInitiativeSubtitle(init, prog, strat, isGroup, groupProgrammeNames, groupStrategyNames);
 
                             if (left + width < 0 || left > 100) return null;
 
                             const isOnCriticalPath = criticalPathInitIds.has(init.id);
 
                             return (
-                              <div
+                              <InitiativeBar
                                 key={init.id}
-                                data-initiative-id={init.id}
-                                data-critical-path={isOnCriticalPath ? 'true' : 'false'}
-                                data-testid={isGroup ? "project-group-bar" : `initiative-bar-${init.id}`}
-                                data-selected={selectedInitiativeId === init.id ? 'true' : undefined}
-                                onMouseDown={(e) => {
+                                init={init}
+                                left={left}
+                                width={width}
+                                height={height}
+                                top={top}
+                                colorClass={colorClass}
+                                subtitle={subtitle}
+                                isGroup={isGroup}
+                                isOnCriticalPath={isOnCriticalPath}
+                                isSelected={selectedInitiativeId === init.id}
+                                groupProgrammeNames={groupProgrammeNames}
+                                groupStrategyNames={groupStrategyNames}
+                                resources={resources}
+                                settings={settings}
+                                progName={prog?.name}
+                                stratName={strat?.name}
+                                isDraggingRef={isDraggingRef}
+                                onSelect={() => setSelectedInitiativeId(init.id)}
+                                onOpenPanel={() => setInitiativePanelId(init.id)}
+                                onMoveStart={(e) => {
                                   isDraggingRef.current = false;
-                                  setMoving({
-                                    id: init.id,
-                                    initialX: e.clientX,
-                                    initialY: e.clientY,
-                                    initialStart: init.startDate,
-                                    initialEnd: init.endDate
-                                  });
+                                  setMoving({ id: init.id, initialX: e.clientX, initialY: e.clientY, initialStart: init.startDate, initialEnd: init.endDate });
                                 }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  // Prevent clicking if we just finished a drag
-                                  if (isDraggingRef.current) {
-                                    isDraggingRef.current = false;
-                                    return;
-                                  }
-                                  setSelectedInitiativeId(init.id);
-                                }}
-                                onDoubleClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                                className={cn(
-                                  "absolute rounded-md shadow-sm border flex flex-col justify-center px-2 overflow-hidden transition hover:z-20 hover:shadow-xl cursor-pointer group/item select-none",
-                                  init.isPlaceholder
-                                    ? "bg-transparent border-red-500 border-dashed border-2 text-red-600 opacity-70"
-                                    : isGroup
-                                      ? "border-2 border-dashed border-blue-400/60 text-slate-900 font-bold"
-                                      : cn(colorClass, "text-white border-white/20"),
-                                  isOnCriticalPath && "ring-2 ring-amber-400 ring-offset-1 z-10",
-                                  selectedInitiativeId === init.id && "outline outline-2 outline-dashed outline-slate-800 z-20"
-                                )}
-                                style={{ left: `${left}%`, width: `${width}%`, height: height, top: top }}
-                                title={(init as any).isGroup 
-                                  ? `Group: ${init.name}\n${init.description}`
-                                  : `${init.isPlaceholder ? '[Placeholder] ' : ''}${init.name}\nProgramme: ${prog?.name}\nStrategy: ${strat?.name}\nCapEx: $${(init.capex || 0).toLocaleString()}\nOpEx: $${(init.opex || 0).toLocaleString()}${init.description ? `\n${init.description}` : ''}`}
-                              >
-                                {isGroup && (
-                                  <div className={cn("absolute inset-0 pointer-events-none rounded-md opacity-20", colorClass)} style={{ zIndex: 0 }} />
-                                )}
-                                {!init.isPlaceholder && (init.progress ?? 0) > 0 && (
-                                  <div
-                                    data-testid="progress-overlay"
-                                    className="absolute left-0 top-0 bottom-0 pointer-events-none rounded-l-md bg-white/25"
-                                    style={{ width: `${init.progress}%`, zIndex: 1 }}
-                                  />
-                                )}
-                                <div draggable="false" className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'start', init.startDate); }} />
-                                <div draggable="false" className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 z-10" onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(e, init.id, 'end', init.endDate); }} />
-
-                                {/* Owner badge — absolutely positioned top-right corner (AC3) */}
-                                {!init.isPlaceholder && !isGroup && width > 6 && (() => {
-                                  const ownerResource = init.ownerId ? resources.find(r => r.id === init.ownerId) : null;
-                                  const ownerName = ownerResource?.name || init.owner;
-                                  if (!ownerName) return null;
-                                  return (
-                                    <div
-                                      data-testid="owner-badge"
-                                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white/30 border border-white/50 flex items-center justify-center text-[8px] font-bold text-white z-[2]"
-                                      title={ownerName}
-                                    >
-                                      {ownerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                                    </div>
-                                  );
-                                })()}
-                                <div className="flex flex-col overflow-hidden h-full py-0.5">
-                                  {/* Title row: name + budget pill (AC1) */}
-                                  <div data-testid="initiative-title-row" className="flex items-center gap-1 min-w-0 pr-6">
-                                    <div draggable="false" className={cn(
-                                      "font-bold text-[11px] leading-tight truncate flex-1",
-                                      !init.isPlaceholder && "drop-shadow-md"
-                                    )}>{init.name}</div>
-                                    {settings.budgetVisualisation === 'label' && ((init.capex || 0) + (init.opex || 0)) > 0 && (
-                                      <div data-testid="initiative-budget-pill" className="flex-shrink-0 flex gap-0.5">
-                                        {(init.capex || 0) > 0 && (
-                                          <span data-testid="capex-label" className={cn(
-                                            "text-[9px] font-bold px-1 rounded backdrop-blur-[2px] leading-tight",
-                                            init.isPlaceholder
-                                              ? "bg-red-50 text-red-600 border border-red-200"
-                                              : isGroup
-                                                ? "bg-blue-100/50 text-blue-900 border border-blue-200/50"
-                                                : "bg-white/20 text-white"
-                                          )}>
-                                            CapEx {(init.capex || 0) >= 1000000 ? `$${((init.capex || 0) / 1000000).toFixed(1)}m` : `$${Math.round((init.capex || 0) / 1000)}k`}
-                                          </span>
-                                        )}
-                                        {(init.opex || 0) > 0 && (
-                                          <span data-testid="opex-label" className={cn(
-                                            "text-[9px] font-bold px-1 rounded backdrop-blur-[2px] leading-tight",
-                                            init.isPlaceholder
-                                              ? "bg-red-50 text-red-600 border border-red-200"
-                                              : isGroup
-                                                ? "bg-blue-100/50 text-blue-900 border border-blue-200/50"
-                                                : "bg-white/20 text-white"
-                                          )}>
-                                            OpEx {(init.opex || 0) >= 1000000 ? `$${((init.opex || 0) / 1000000).toFixed(1)}m` : `$${Math.round((init.opex || 0) / 1000)}k`}
-                                          </span>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                  {/* Subtitle row */}
-                                  {subtitle && width > 5 && (
-                                    <div draggable="false" className={cn(
-                                      "text-[9px] italic opacity-70 truncate mt-0.5",
-                                      !init.isPlaceholder && "drop-shadow-md"
-                                    )}>{subtitle}</div>
-                                  )}
-                                  {/* Resource names row */}
-                                  {settings.showResources === 'on' && !isGroup && width > 8 && (() => {
-                                    const assignedNames = (init.resourceIds || [])
-                                      .map(rid => resources.find(r => r.id === rid)?.name)
-                                      .filter(Boolean);
-                                    if (assignedNames.length === 0) return null;
-                                    return (
-                                      <span data-testid="initiative-resource-names" className="text-[9px] text-white/80 truncate mt-0.5">
-                                        {assignedNames.join(', ')}
-                                      </span>
-                                    );
-                                  })()}
-                                  {/* Description row — full width, capped at 2 lines for individual bars; uncapped for group bars (AC2, AC4) */}
-                                  {settings.descriptionDisplay === 'on' && init.description && (
-                                    (isGroup || width > 8) ? (
-                                      <div draggable="false" data-testid="initiative-description-row" className={cn(
-                                        "text-[9px] leading-[12px] opacity-90 mt-1 pt-1 border-t border-white/30 whitespace-pre-wrap break-words",
-                                        !isGroup && "line-clamp-2",
-                                        !init.isPlaceholder && "drop-shadow-md"
-                                      )}>{init.description}</div>
-                                    ) : null
-                                  )}
-                                </div>
-
-                                {/* Action toolbar for selected non-group initiatives */}
-                                {selectedInitiativeId === init.id && !isGroup && (
-                                  <div
-                                    data-testid="initiative-action-toolbar"
-                                    className="absolute top-0.5 right-0.5 flex items-center gap-0.5 z-20"
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                  >
-                                    <button
-                                      data-testid="initiative-action-edit"
-                                      className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
-                                      onClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                                      title="Edit initiative"
-                                    >✎</button>
-                                    <button
-                                      data-testid="initiative-action-link"
-                                      className="w-5 h-5 bg-white hover:bg-slate-100 rounded shadow-sm text-slate-700 text-[10px] flex items-center justify-center leading-none"
-                                      title="Drag to another initiative to create a dependency"
-                                      onMouseDown={(e) => e.stopPropagation()}
-                                      onClick={(e) => e.stopPropagation()}
-                                    >⛓</button>
-                                  </div>
-                                )}
-
-                                {/* Ungroup Button for summary bars */}
-                                {isGroup && (
-                                  <button
-                                    data-testid="expand-group-btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const groupId = init.id;
-                                      const currentCollapsed = settings.collapsedGroups || [];
-                                      const nextCollapsed = currentCollapsed.filter(id => id !== groupId);
-                                      if (onUpdateSettings) {
-                                        onUpdateSettings({
-                                          ...settings,
-                                          collapsedGroups: nextCollapsed
-                                        });
-                                      }
-                                    }}
-                                    className="absolute top-1 right-1 p-1 bg-white/40 hover:bg-white/60 text-slate-700 rounded-md transition-all z-20 opacity-0 group-hover/item:opacity-100 shadow-sm"
-                                    title="Ungroup Initiatives"
-                                  >
-                                    <Boxes size={12} />
-                                  </button>
-                                )}
-                              </div>
+                                onResizeStart={(e, edge) => handleResizeStart(e, init.id, edge, edge === 'start' ? init.startDate : init.endDate)}
+                                onUngroup={isGroup ? () => {
+                                  const currentCollapsed = settings.collapsedGroups || [];
+                                  const nextCollapsed = currentCollapsed.filter(id => id !== init.id);
+                                  if (onUpdateSettings) onUpdateSettings({ ...settings, collapsedGroups: nextCollapsed });
+                                } : undefined}
+                              />
                             );
                           })}
 
@@ -2596,28 +2358,32 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
                                   ))}
                                 </div>
                                 {layoutItems.map(({ init, top, height, left, width }: any) => {
-                                  const prog = programmes.find(p => p.id === init.programmeId);
-                                  const strat = strategies.find(s => s.id === init.strategyId);
-                                  const colorClass = colorBy === 'rag'
-                                    ? (RAG_COLORS[init.ragStatus || 'none'])
-                                    : colorBy === 'status'
-                                    ? (STATUS_COLORS[init.status || 'planned'])
-                                    : colorBy === 'programme'
-                                    ? (prog?.color || 'bg-slate-500')
-                                    : (strat?.color || 'bg-slate-400');
                                   if (left + width < 0 || left > 100) return null;
+                                  const prog = programmeMap.get(init.programmeId);
+                                  const strat = strategyMap.get(init.strategyId);
                                   return (
-                                    <div
+                                    <InitiativeBar
                                       key={init.id}
-                                      data-initiative-id={init.id}
-                                      data-testid={`initiative-bar-${init.id}`}
-                                      className={cn('absolute rounded-md flex items-center px-2 overflow-hidden cursor-pointer text-white text-xs font-semibold shadow-sm select-none', colorClass)}
-                                      style={{ left: `${Math.max(0, left)}%`, width: `${width}%`, top, height }}
-                                      onClick={() => setSelectedInitiativeId(init.id)}
-                                      onDoubleClick={(e) => { e.stopPropagation(); setInitiativePanelId(init.id); }}
-                                    >
-                                      <span className="truncate">{init.name}</span>
-                                    </div>
+                                      init={init}
+                                      left={left}
+                                      width={width}
+                                      height={height}
+                                      top={top}
+                                      colorClass={getInitiativeColor(init, prog, strat)}
+                                      isSelected={selectedInitiativeId === init.id}
+                                      resources={resources}
+                                      settings={settings}
+                                      progName={prog?.name}
+                                      stratName={strat?.name}
+                                      isDraggingRef={isDraggingRef}
+                                      onSelect={() => setSelectedInitiativeId(init.id)}
+                                      onOpenPanel={() => setInitiativePanelId(init.id)}
+                                      onMoveStart={(e) => {
+                                        isDraggingRef.current = false;
+                                        setMoving({ id: init.id, initialX: e.clientX, initialY: e.clientY, initialStart: init.startDate, initialEnd: init.endDate });
+                                      }}
+                                      onResizeStart={(e, edge) => handleResizeStart(e, init.id, edge, edge === 'start' ? init.startDate : init.endDate)}
+                                    />
                                   );
                                 })}
                               </div>

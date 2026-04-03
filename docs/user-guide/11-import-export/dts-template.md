@@ -33,6 +33,8 @@ Choose the DTS template if your agency wants to:
 
 Several features in Scenia are only active in DTS and Mixed workspaces:
 
+**DTS Cluster field** — an optional text field in the timeline settings panel (open the **View** popover → **More settings**) where you can record which government cluster this workspace belongs to (e.g. "Digital First Cluster"). The cluster name appears in the timeline header and is included in the DTS Summary Excel export tab. Leave it blank if not applicable.
+
 **DTS Adoption Status per asset** — each of the 20 DTS assets has an adoption status field (Not Started / Scoping / In Delivery / Adopted / Decommissioning Incumbent / Not Applicable). Set it in Data Manager → Assets. Enable the **DTS Adoption Status** toggle in the display menu to show coloured badges on the timeline.
 
 **DTS Alignment Coverage report** — a grid of all 20 DTS assets arranged in their six layers, coloured by adoption status with initiative count and budget per asset. Available in the Reports section. See [DTS Alignment Report](../09-reports/dts-alignment-report.md).

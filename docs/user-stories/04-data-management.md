@@ -127,3 +127,46 @@
 - AC1: Uploading a non-Excel file (e.g. `.txt`, `.csv`) shows an inline error notification — no browser `alert()` dialog
 - AC2: Uploading a corrupted or truncated `.xlsx` file shows an inline error notification — no browser `alert()` dialog
 - AC3: Both error conditions leave the existing portfolio data intact
+
+---
+
+## US-DA-10: Toggle Demo Data When Selecting a Template
+
+**As an** IT portfolio manager setting up a new workspace,
+**I want** to choose whether to load example data alongside the template structure,
+**so that** I can explore the app with realistic data or start with a clean slate.
+
+**Acceptance Criteria:**
+- The template picker offers two buttons per template: "With demo data" and "Without demo data" (or equivalent labelling)
+- Selecting "With demo data" loads the template structure plus pre-built initiatives, segments, milestones, and dependencies representative of that template
+- Selecting "Without demo data" loads only the taxonomy (assets and categories) with no initiatives, segments, milestones, or dependencies
+- Both options are available for the DTS and GEANZ templates
+- The blank template always loads without demo data
+
+---
+
+## US-DA-11: Include a DTS Summary Tab in Excel Exports
+
+**As an** IT portfolio manager in a DTS or Mixed workspace,
+**I want** the Excel export to include a dedicated DTS Summary sheet,
+**so that** I can share adoption status and investment data per DTS asset without manual compilation.
+
+**Acceptance Criteria:**
+- Exporting to Excel from a DTS or Mixed workspace produces a workbook with a "DTS Summary" sheet
+- The DTS Summary sheet contains one row per DTS asset with: asset name, adoption status, initiative count, total budget (CapEx + OpEx), lead owner, and target adoption date
+- If a Cluster name is set in workspace settings, it appears in the DTS Summary sheet
+- Exporting from a non-DTS workspace does not include the DTS Summary sheet
+
+---
+
+## US-DA-12: Export the Timeline as a JPG Image
+
+**As an** IT portfolio manager,
+**I want** to export the current timeline view as a JPG image,
+**so that** I can embed it in documents, slide decks, or emails that don't support PDF.
+
+**Acceptance Criteria:**
+- An **Export JPG** button is available in the Visualiser alongside the PDF export button
+- Clicking the button downloads a `.jpg` file capturing the current visible canvas
+- The export reflects the active zoom level, grouping, display settings, and scroll position at the time of export
+- The export completes without a browser `alert()` dialog or page reload

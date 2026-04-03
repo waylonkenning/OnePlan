@@ -34,6 +34,13 @@ Tap any initiative row within a card to open the Initiative Panel. The panel sho
 
 If an asset has scheduling conflicts, a conflict badge appears in the card header showing the number of affected initiatives. Tapping the badge does not navigate away — open the relevant initiative row to review the conflict detail. The Conflicts toggle in mobile settings can hide badges if you want a cleaner view.
 
+## DTS workspace features
+
+In DTS and Mixed workspaces, Card View has two additional options in the mobile settings sheet:
+
+- **DTS Phase bucket mode** — groups initiative rows within each card by DTS adoption phase instead of by date or programme. Select "DTS Phase" from the bucket mode picker in settings.
+- **Adoption Status toggle** — when enabled, shows a coloured adoption status badge on each asset card header, matching the status set in Data Manager → Assets. Use this to scan adoption progress across the portfolio at a glance.
+
 ## Switching to timeline view
 
 Card View is only active when the viewport is at mobile width. Rotating to landscape or opening Scenia on a wider screen automatically restores the standard timeline.

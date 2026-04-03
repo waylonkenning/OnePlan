@@ -1,12 +1,12 @@
 # Reports
 
-![Reports home screen showing four report cards](../../public/features/reports-home-screen.png)
+![Reports home screen showing six report cards](../../public/features/reports-home-screen.png)
 
-The Reports section provides five analytical views of your portfolio data. Each report is self-contained and opens in full-width to give you a focused, uncluttered reading experience.
+The Reports section provides six analytical views of your portfolio data. Each report is self-contained and opens in full-width to give you a focused, uncluttered reading experience.
 
 ## Accessing Reports
 
-Open the Reports section from the main navigation. You will see a selection screen with five cards:
+Open the Reports section from the main navigation. You will see a selection screen with six cards:
 
 - **History** — compare differences between saved portfolio versions
 - **Budget** — break down spend by programme, strategy, and asset category

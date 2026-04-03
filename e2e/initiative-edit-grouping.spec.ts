@@ -34,7 +34,7 @@ test.describe('Initiative edit interaction — swimlane groupings', () => {
     test(`single-click shows edit icon when grouped by ${groupBy}`, async ({ page }) => {
       await switchGrouping(page, groupBy);
 
-      const bar = page.locator('[data-testid="initiative-bar"]').first();
+      const bar = page.locator('[data-initiative-id]').first();
       await expect(bar).toBeVisible();
 
       // Single-click to select
@@ -48,7 +48,7 @@ test.describe('Initiative edit interaction — swimlane groupings', () => {
     test(`clicking edit icon opens Edit Initiative modal when grouped by ${groupBy}`, async ({ page }) => {
       await switchGrouping(page, groupBy);
 
-      const bar = page.locator('[data-testid="initiative-bar"]').first();
+      const bar = page.locator('[data-initiative-id]').first();
       await expect(bar).toBeVisible();
 
       // Single-click then click edit icon
@@ -62,7 +62,7 @@ test.describe('Initiative edit interaction — swimlane groupings', () => {
     test(`double-click opens Edit Initiative modal when grouped by ${groupBy}`, async ({ page }) => {
       await switchGrouping(page, groupBy);
 
-      const bar = page.locator('[data-testid="initiative-bar"]').first();
+      const bar = page.locator('[data-initiative-id]').first();
       await expect(bar).toBeVisible();
 
       await bar.dblclick();

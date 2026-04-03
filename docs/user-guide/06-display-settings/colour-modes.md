@@ -25,6 +25,13 @@ The **View** popover in the header (click the **View** button) lets you choose h
 - Initiatives with no RAG Status set appear in neutral grey.
 - Use this mode to surface delivery confidence or risk across the portfolio.
 
+## By DTS Phase
+
+- Colours reflect each initiative's DTS adoption phase (Phase 1 – Register & Expose, Phase 2 – Integrate DPI, Phase 3 – AI & Legacy Exit, Back-Office Consolidation, Not DTS).
+- Initiatives with no DTS Phase set appear in neutral grey.
+- This mode is only available in DTS and Mixed workspaces.
+- Use this mode when presenting progress against the Digital Target State to cluster leads or GCDO.
+
 ## Behaviour
 
 - The selected colour mode persists across page reloads.

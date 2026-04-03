@@ -11,7 +11,8 @@
 
 - **Move horizontally**: drag the bar left or right to shift its dates while preserving its duration.
 - **Move vertically**: drag the bar up or down to move it to a different row within the swimlane. You can also use the **up** and **down** arrow buttons that appear in the top-left corner of a selected bar.
-- **Resize**: drag the left edge to change the start date, or the right edge to change the end date. A white indicator line on each edge marks where to grab.
+- **Resize horizontally**: drag the left edge to change the start date, or the right edge to change the end date. A white indicator line on each edge marks where to grab.
+- **Resize vertically**: drag the **bottom edge** of a segment bar downward to make it span multiple row heights. This is useful to show one application replacing several that previously ran in parallel. The handle appears on hover at the bottom of the bar. Drag upward to collapse back to a single row.
 
 All changes save automatically when you release the mouse.
 

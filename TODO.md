@@ -4,23 +4,23 @@
 
 ### Initiative Bar UX Improvements
 
-- [ ] **US-IE-01: Selection highlight** — Replace invisible white ring with a 2px dashed high-contrast border when an initiative is selected; must be visually distinct from the conflict solid border
+- [x] **US-IE-01: Selection highlight** — Replace invisible white ring with a 2px dashed high-contrast border when an initiative is selected; must be visually distinct from the conflict solid border
   - AC1: Single-click shows a 2px dashed `#1e293b` (slate-800) border on the bar
   - AC2: Clicking elsewhere removes the border
   - AC3: Border style is visually distinct from the solid conflict-detection border
 
-- [ ] **US-IE-02: Floating action toolbar** — Show Edit and Link icon buttons in a strip above the selected bar on single-click; replaces the invisible white corner pencil button
+- [x] **US-IE-02: Floating action toolbar** — Show Edit and Link icon buttons in a strip above the selected bar on single-click; replaces the invisible white corner pencil button
   - AC1: Single-click reveals a floating strip above the bar with Edit (pencil) and Link (chain) icons
   - AC2: Edit icon opens InitiativePanel (same as current double-click)
   - AC3: Link icon initiates the drag-to-relate flow
   - AC4: Strip disappears when clicking elsewhere or pressing Escape
 
-- [ ] **US-IE-03: Relationship drag discoverability** — Replace orange circle drag handle with a chain-link icon and add a descriptive tooltip
+- [x] **US-IE-03: Relationship drag discoverability** — Replace orange circle drag handle with a chain-link icon and add a descriptive tooltip
   - AC1: Drag handle uses a chain/link icon
   - AC2: Hovering shows tooltip: "Drag to another initiative to create a dependency"
   - AC3: Handle only visible when bar is selected (not always-on)
 
-- [ ] **US-IE-04: Bar content layout** — Restructure initiative bar to give description its own full-width row; move budget to title row; pin owner avatar to corner
+- [x] **US-IE-04: Bar content layout** — Restructure initiative bar to give description its own full-width row; move budget to title row; pin owner avatar to corner
   - AC1: Budget label renders as a small pill right-aligned on the title row
   - AC2: Description occupies a full-width row (not shared with budget or owner)
   - AC3: Owner avatar is absolutely positioned in the top-right corner, not inline
@@ -52,6 +52,71 @@
 - [x] Consolidate 15 dependency spec files into 3
 - [x] Consolidate 17 mobile spec files into 2–3
 - [x] Consolidate Data Manager spec files
+
+## Refactoring
+
+### Timeline.tsx — Unified Grouping and Colouring
+
+The `groupBy` feature is currently implemented as four separate rendering branches in `Timeline.tsx`. Each branch independently filters initiatives, calls `layoutAsset()`, and renders initiative bars — meaning a fix or improvement made in one branch (e.g. `asset`) does not automatically apply to the others (`programme`, `strategy`, `dts-phase`, GEANZ). There are also four copies of the colour-selection logic.
+
+The refactor below consolidates all groupBy modes into a single rendering path.
+
+#### Step 1 — Extract `getInitiativeColor()` helper
+
+- Extract the four-way ternary chain (duplicated at lines ~1630, ~1704, ~1910, ~2367) into a standalone function:
+  ```ts
+  getInitiativeColor(init: Initiative, colorBy: string, programmes: Programme[], strategies: Strategy[]): string
+  ```
+- Do the same for `getInitiativeSubtitle()` (duplicated at lines ~1637, ~1917).
+- This eliminates 4× colour-logic duplication and makes future colour modes a one-line change.
+
+#### Step 2 — Build programme/strategy lookup Maps
+
+- Replace the `programmes.find(p => p.id === init.programmeId)` O(N×M) lookups inside every `.map()` callback with two `useMemo` Maps built once:
+  ```ts
+  const programmeMap = useMemo(() => new Map(programmes.map(p => [p.id, p])), [programmes]);
+  const strategyMap  = useMemo(() => new Map(strategies.map(s => [s.id, s])), [strategies]);
+  ```
+- Update all four rendering branches to use the maps.
+
+#### Step 3 — Normalise groupBy into a uniform `groups` array
+
+- Add a `useMemo` that produces `GroupRow[]` regardless of `groupBy` mode:
+  ```ts
+  interface GroupRow {
+    id: string;
+    label: string;
+    initiatives: Initiative[];
+    // asset-mode extras:
+    asset?: Asset;
+    categoryId?: string;
+  }
+  ```
+- For `programme` / `strategy` / `dts-phase`: each group maps directly to one `GroupRow`.
+- For `asset`: each asset under each category becomes a `GroupRow` (preserving the existing category-header structure as a separate pass).
+- The GEANZ catalogue rows become `GroupRow` entries with `isGeanz: true`.
+
+#### Step 4 — Extract `<InitiativeSwimLane>` component
+
+- Extract the per-group rendering (header + sidebar + bar loop) into a single component parameterised by:
+  - `group: GroupRow`
+  - `showMilestones?: boolean` (asset mode only)
+  - `showConflicts?: boolean` (asset mode only)
+  - `showApplications?: boolean` (asset mode only)
+  - `showGroupBoxes?: boolean` (asset mode only)
+  - `sidebarContent?: ReactNode` (asset mode has drag handles, DTS badges; swimlane modes show "N initiatives")
+- The component calls `layoutAsset()` (or `getAssetLayout()` for drag stability) internally.
+- The main JSX becomes a single `{groups.map(group => <InitiativeSwimLane ... />)}`.
+
+#### Step 5 — Fix GEANZ initiative bars to use `<InitiativeBar>`
+
+- The GEANZ branch (lines ~2376–2387) renders initiative bars as raw `<div>` elements, bypassing `<InitiativeBar>` entirely.
+- Replace with `<InitiativeBar>` — the same component used in every other branch.
+- This brings GEANZ bars into parity: resize handles, drag-to-relate, budget height, description display, critical path highlighting, and owner badges all start working for GEANZ initiatives automatically.
+
+---
+
+**Why this matters:** Any future fix to initiative bar rendering (e.g. a layout bug, a new display toggle, a new colour mode) currently needs to be applied in up to four places. After this refactor it is applied once.
 
 ## Bug Fixes
 

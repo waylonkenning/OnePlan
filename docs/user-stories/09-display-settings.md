@@ -7,10 +7,12 @@
 **so that** I can surface the dimension most relevant to my current analysis.
 
 **Acceptance Criteria:**
-- A View popover in the header offers three colour modes: By Programme, By Strategy, By Progress
+- A View popover in the header offers five colour modes: By Programme, By Strategy, By Progress, By Status (RAG), By DTS Phase
 - Selecting "By Programme" colours bars by their assigned programme
 - Selecting "By Strategy" colours bars by their assigned strategy
 - Selecting "By Progress" colours bars by their status value (Planned / Active / Done / Cancelled)
+- Selecting "By Status" colours bars by their RAG status (Green / Amber / Red); unset bars default to neutral grey
+- Selecting "By DTS Phase" colours bars by their DTS adoption phase; only meaningful in DTS and Mixed workspaces
 - The floating legend updates to show the correct swatches and labels for the active mode
 - The selected colour mode persists across page reloads
 
@@ -23,9 +25,10 @@
 **so that** I can view the portfolio from a different organisational perspective.
 
 **Acceptance Criteria:**
-- A View popover offers three grouping modes: By Asset (default), By Programme, By Strategy
+- A View popover offers four grouping modes: By Asset (default), By Programme, By Strategy, By DTS Phase
 - Switching grouping re-renders swimlane rows with the appropriate labels
 - Initiative bars in all grouping modes show the same information: name, subtitle, description, budget, owner badge
+- By DTS Phase grouping is only meaningful in DTS and Mixed workspaces
 - The selected grouping mode persists across page reloads
 
 ---
@@ -102,3 +105,18 @@
 - In "Applications Only" mode with Empty Rows set to "Show" (default), all asset rows are visible even if an asset has no applications configured
 - In "Applications Only" mode with Empty Rows set to "Hide", asset rows with no applications are not rendered
 - In "Both" mode with Empty Rows set to "Hide", asset rows with neither initiatives nor applications are hidden; assets with applications but no initiatives remain visible
+
+---
+
+## US-DS-08: Colour Initiatives by DTS Phase
+
+**As an** IT portfolio manager working within a DTS or Mixed workspace,
+**I want** to colour initiative bars by their DTS adoption phase,
+**so that** I can immediately see which phase of the Digital Target State each initiative is driving.
+
+**Acceptance Criteria:**
+- The View popover offers a fifth colour mode: "By DTS Phase", available only in DTS and Mixed workspaces
+- Each DTS Phase value is assigned a distinct colour: Phase 1 – Register & Expose, Phase 2 – Integrate DPI, Phase 3 – AI & Legacy Exit, Back-Office Consolidation, Not DTS
+- Initiatives with no DTS Phase set appear in neutral grey
+- The floating legend updates to show the DTS Phase swatches and labels when this mode is active
+- The selected colour mode persists across page reloads
