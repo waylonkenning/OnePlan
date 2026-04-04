@@ -101,9 +101,12 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
   const strategyMap  = useMemo(() => new Map(strategies.map(s => [s.id, s])), [strategies]);
 
   // ── Shared colour + subtitle helpers (single source of truth) ────────────
+  const dtsPhaseMap = useMemo(() => new Map(dtsPhases.map(p => [p.id, p])), [dtsPhases]);
+
   function getInitiativeColor(init: Initiative, prog: Programme | undefined, strat: Strategy | undefined): string {
     if (colorBy === 'rag')       return RAG_COLORS[init.ragStatus || 'none'];
     if (colorBy === 'status')    return STATUS_COLORS[init.status || 'planned'];
+    if (colorBy === 'dts-phase') return dtsPhaseMap.get(init.dtsPhase as string)?.color || 'bg-slate-400';
     if (colorBy === 'programme') return prog?.color || 'bg-slate-500';
     return strat?.color || 'bg-slate-400';
   }
@@ -116,9 +119,10 @@ export function Timeline({ assets, applications = [], initiatives, milestones, p
     groupProgrammeNames?: string,
     groupStrategyNames?: string,
   ): string | undefined {
-    if (colorBy === 'rag')    return init.ragStatus ? RAG_LABELS[init.ragStatus] : undefined;
-    if (colorBy === 'status') return STATUS_LABELS[init.status || 'planned'];
-    if (isGroup)              return colorBy === 'programme' ? groupProgrammeNames : groupStrategyNames;
+    if (colorBy === 'rag')       return init.ragStatus ? RAG_LABELS[init.ragStatus] : undefined;
+    if (colorBy === 'status')    return STATUS_LABELS[init.status || 'planned'];
+    if (colorBy === 'dts-phase') return dtsPhaseMap.get(init.dtsPhase as string)?.name;
+    if (isGroup)                 return colorBy === 'programme' ? groupProgrammeNames : groupStrategyNames;
     return colorBy === 'programme' ? prog?.name : strat?.name;
   }
 

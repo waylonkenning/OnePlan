@@ -862,7 +862,7 @@ export default function App() {
           const groupBy = timelineSettings.groupBy || 'asset';
           const display = timelineSettings.display || 'both';
           const dtsAdoptionOn = timelineSettings.showDtsAdoptionStatus === 'on';
-          const colorLabel = colorBy === 'programme' ? 'Programme' : colorBy === 'strategy' ? 'Strategy' : colorBy === 'rag' ? 'Status' : 'Progress';
+          const colorLabel = colorBy === 'programme' ? 'Programme' : colorBy === 'strategy' ? 'Strategy' : colorBy === 'rag' ? 'Status' : colorBy === 'dts-phase' ? 'DTS Phase' : 'Progress';
           const groupLabel = groupBy === 'asset' ? 'Asset' : groupBy === 'programme' ? 'Programme' : groupBy === 'dts-phase' ? 'DTS Phase' : 'Strategy';
           const displayLabel = display === 'initiatives' ? 'Initiatives' : display === 'applications' ? 'Applications' : 'Both';
           return (
@@ -933,6 +933,17 @@ export default function App() {
                       <Palette size={13} />
                       By Status
                     </button>
+                    {hasDtsAssets && (
+                      <button
+                        data-testid="colour-by-dts-phase"
+                        aria-pressed={colorBy === 'dts-phase'}
+                        onClick={() => handleUpdateSettings({ ...timelineSettings, colorBy: 'dts-phase' })}
+                        className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", colorBy === 'dts-phase' ? "bg-violet-50 text-violet-600" : "text-slate-600 hover:bg-slate-50")}
+                      >
+                        <Palette size={13} />
+                        DTS Phase
+                      </button>
+                    )}
                   </div>
 
                   {/* Group by */}
@@ -965,17 +976,6 @@ export default function App() {
                       <Target size={13} />
                       Strategy
                     </button>
-                    {hasDtsAssets && (
-                      <button
-                        data-testid="group-by-dts-phase"
-                        aria-pressed={groupBy === 'dts-phase'}
-                        onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'dts-phase' })}
-                        className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", groupBy === 'dts-phase' ? "bg-slate-100 text-slate-800" : "text-slate-600 hover:bg-slate-50")}
-                      >
-                        <Boxes size={13} />
-                        DTS Phase
-                      </button>
-                    )}
                   </div>
 
                   {/* Show */}

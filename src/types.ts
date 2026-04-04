@@ -186,7 +186,7 @@ export interface TimelineSettings {
   mobileBucketMode?: 'timeline' | 'quarter' | 'year' | 'programme' | 'strategy' | 'dts-phase';
   criticalPath?: 'on' | 'off';
   groupBy?: 'asset' | 'programme' | 'strategy' | 'dts-phase';
-  colorBy?: 'programme' | 'strategy' | 'status' | 'rag';
+  colorBy?: 'programme' | 'strategy' | 'status' | 'rag' | 'dts-phase';
   showResources?: 'on' | 'off';
   display?: 'both' | 'initiatives' | 'applications';
   templateId?: string;           // Which workspace template was selected on first load
