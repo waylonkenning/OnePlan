@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * US-DTS-02: Replace DTS Phase groupBy swimlane with "Colour by DTS Phase" colour mode
+ * US-DTS-02: Add "Colour by DTS Phase" colour mode alongside the existing group-by option
  *
- * AC1: "DTS Phase" no longer appears in the Group By section of view options
+ * AC1: View options popover opens for DTS workspaces (group-by-dts-phase coexists with colour-by-dts-phase)
  * AC2: A "DTS Phase" option appears in the Colour By section for DTS workspaces
  * AC3: Selecting "Colour by DTS Phase" applies colour coding to initiative bars
  * AC4: "Colour by DTS Phase" is NOT shown for non-DTS workspaces
@@ -38,11 +38,12 @@ async function loadDtsTemplate(page: import('@playwright/test').Page) {
 
 test.describe('US-DTS-02: DTS Phase colour mode', () => {
 
-  test('AC1: Group By section has no DTS Phase option (DTS workspace)', async ({ page }) => {
+  test('AC1: view options popover opens and shows both group-by and colour-by sections (DTS workspace)', async ({ page }) => {
     await loadDtsTemplate(page);
     await page.getByTestId('view-options-btn').click();
     await expect(page.getByTestId('view-options-popover')).toBeVisible();
-    await expect(page.getByTestId('group-by-dts-phase')).not.toBeVisible();
+    await expect(page.getByTestId('group-by-dts-phase')).toBeVisible();
+    await expect(page.getByTestId('colour-by-dts-phase')).toBeVisible();
     await page.getByTestId('view-options-btn').click();
   });
 

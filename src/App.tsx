@@ -976,6 +976,17 @@ export default function App() {
                       <Target size={13} />
                       Strategy
                     </button>
+                    {hasDtsAssets && (
+                      <button
+                        data-testid="group-by-dts-phase"
+                        aria-pressed={groupBy === 'dts-phase'}
+                        onClick={() => handleUpdateSettings({ ...timelineSettings, groupBy: 'dts-phase' })}
+                        className={cn("flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", groupBy === 'dts-phase' ? "bg-slate-100 text-slate-800" : "text-slate-600 hover:bg-slate-50")}
+                      >
+                        <Boxes size={13} />
+                        DTS Phase
+                      </button>
+                    )}
                   </div>
 
                   {/* Show */}
