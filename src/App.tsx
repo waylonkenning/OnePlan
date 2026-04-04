@@ -8,15 +8,12 @@ import { Timeline } from './components/Timeline';
 import { MobileCardView } from './components/MobileCardView';
 import { useMediaQuery } from './lib/useMediaQuery';
 import { DataControls } from './components/DataControls';
-import { ModalErrorBoundary } from './components/ErrorBoundary';
+import { ModalErrorBoundary, TestErrorThrower } from './components/ErrorBoundary';
 import { TutorialModal } from './components/TutorialModal';
-import { FeaturesModal } from './components/FeaturesModal';
-import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { LandingPage } from './components/LandingPage';
 import { VersionManager } from './components/VersionManager';
 
-// Lazy load modals for code splitting
-const TutorialModal = lazy(() => import('./components/TutorialModal').then(m => ({ default: m.TutorialModal })));
+// Lazy load modals and heavy components for code splitting
 const FeaturesModal = lazy(() => import('./components/FeaturesModal').then(m => ({ default: m.FeaturesModal })));
 const KeyboardShortcutsModal = lazy(() => import('./components/KeyboardShortcutsModal').then(m => ({ default: m.KeyboardShortcutsModal })));
 const TemplatePickerModal = lazy(() => import('./components/TemplatePickerModal').then(m => ({ default: m.TemplatePickerModal })));
@@ -36,11 +33,9 @@ import {
 } from './demoData';
 import { Asset, Application, ApplicationSegment, ApplicationStatus, DtsPhaseRecord, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
 import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard, GitCommit, GitCommitHorizontal, Palette, Box, Boxes, Target, Users, Layers, AppWindow } from 'lucide-react';
-import { ReportsView } from './components/ReportsView';
-import { HelpView } from './components/HelpView';
-
-// Lazy load heavy components for code splitting
 const DataManager = lazy(() => import('./components/DataManager').then(m => ({ default: m.DataManager })));
+const ReportsView = lazy(() => import('./components/ReportsView').then(m => ({ default: m.ReportsView })));
+const HelpView = lazy(() => import('./components/HelpView').then(m => ({ default: m.HelpView })));
 import { getTemplateData, TemplateId } from './lib/workspaceTemplates';
 
 type AppState = {
@@ -1329,9 +1324,12 @@ export default function App() {
       </footer>
 
       {showFeatures && (
-        <Suspense fallback={null}>
-          <FeaturesModal onClose={() => setShowFeatures(false)} />
-        </Suspense>
+        <ModalErrorBoundary onDismiss={() => setShowFeatures(false)}>
+          <TestErrorThrower />
+          <Suspense fallback={null}>
+            <FeaturesModal onClose={() => setShowFeatures(false)} />
+          </Suspense>
+        </ModalErrorBoundary>
       )}
 
       <ModalErrorBoundary onDismiss={() => setShowShortcuts(false)}>
