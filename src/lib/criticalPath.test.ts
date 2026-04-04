@@ -198,4 +198,52 @@ describe('computeCriticalPath', () => {
     expect(depIds1).toEqual(depIds2);
     expect(depIds2).toEqual(depIds3);
   });
+
+  // ── AC2: Invalid date handling ──────────────────────────────────────────────
+  it('AC2: initiative with invalid dates gets 0 duration and does not corrupt path calculation', () => {
+    // B is in the dependency chain (a→b→c) but has invalid dates.
+    // Without the fix, NaN propagates into the duration map and corrupts comparisons.
+    // With the fix, B gets 0 duration via the ?? 0 fallback — path is still found correctly.
+    const initiatives = [
+      createInitiative('a', '2026-01-01', '2026-03-31'), // 89 days
+      { ...createInitiative('b', 'not-a-date', '2026-06-30'), startDate: '' }, // Invalid
+      createInitiative('c', '2026-04-01', '2026-06-30'), // 90 days
+    ];
+    const dependencies = [
+      createDependency('d1', 'a', 'b'),
+      createDependency('d2', 'b', 'c'),
+    ];
+
+    // Should not throw
+    expect(() => computeCriticalPath(initiatives, dependencies)).not.toThrow();
+
+    const [initIds, depIds] = computeCriticalPath(initiatives, dependencies);
+
+    // A→B→C is the only chain; all three should be on the critical path
+    expect(initIds.has('a')).toBe(true);
+    expect(initIds.has('b')).toBe(true);
+    expect(initIds.has('c')).toBe(true);
+    expect(depIds.has('d1')).toBe(true);
+    expect(depIds.has('d2')).toBe(true);
+  });
+
+  it('AC1+AC3: handles initiatives with invalid dates gracefully without throwing', () => {
+    const initiatives = [
+      createInitiative('a', 'invalid', 'also-invalid'), // Both dates invalid
+      createInitiative('b', '2026-01-01', '2026-06-30'),
+    ];
+    const dependencies = [
+      createDependency('d1', 'a', 'b'),
+    ];
+
+    // Should not throw
+    expect(() => computeCriticalPath(initiatives, dependencies)).not.toThrow();
+
+    const [initIds, depIds] = computeCriticalPath(initiatives, dependencies);
+    // A has 0 duration (invalid dates) but is still on the path due to dependency
+    // B is on the path with valid duration
+    expect(initIds.size).toBe(2);
+    expect(initIds.has('a')).toBe(true);
+    expect(initIds.has('b')).toBe(true);
+  });
 });
