@@ -30,6 +30,28 @@ If any required fields are missing or unrecognised column names are found, a **S
 
 A missing `startDate` value on an initiative will not crash the timeline; the initiative will appear without a start position until the field is populated.
 
+## Validation rules
+
+Import validates your data before completing. If any **error-severity** issues are found, the import is blocked and an error notification displays the issues. You must fix the issues in your spreadsheet and re-upload.
+
+**Blocking validations (import cannot proceed until fixed):**
+
+| Field | Validation | Error message example |
+|-------|------------|----------------------|
+| `name` (initiatives) | Cannot be empty | "name" missing in 1 record |
+| `startDate` / `endDate` | Must be valid ISO date (YYYY-MM-DD) | Row 1: invalid date format for "startDate" |
+| `startDate` / `endDate` | startDate must be ≤ endDate | Row 1: startDate must be before or equal to endDate |
+| `capex` / `opex` | Cannot be negative | Row 1: "capex" cannot be negative |
+
+**Non-blocking warnings (import can proceed):**
+
+| Field | Issue |
+|-------|-------|
+| Any | Missing optional fields |
+| Any | Unknown column names |
+
+After fixing validation errors, re-upload the corrected file.
+
 ## Choosing an import mode
 
 The modal offers two modes:

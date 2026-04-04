@@ -33,6 +33,62 @@ function validateImportSchema(data: Record<string, unknown[]>): SchemaIssue[] {
       }
     }
   }
+
+  // Validate initiatives data types and formats
+  const initiatives = data.initiatives as Record<string, unknown>[] | undefined;
+  if (initiatives) {
+    for (let i = 0; i < initiatives.length; i++) {
+      const init = initiatives[i];
+
+      // Validate date formats
+      const dateFields = ['startDate', 'endDate'];
+      for (const dateField of dateFields) {
+        const dateValue = init[dateField];
+        if (dateValue && typeof dateValue === 'string') {
+          const parsedDate = new Date(dateValue);
+          if (isNaN(parsedDate.getTime())) {
+            issues.push({
+              entity: 'initiatives',
+              issue: `Row ${i + 1}: invalid date format for "${dateField}" (expected YYYY-MM-DD)`,
+              severity: 'error',
+            });
+          }
+        }
+      }
+
+      // Validate numeric fields aren't negative
+      const numericFields = ['capex', 'opex'];
+      for (const numField of numericFields) {
+        const numValue = init[numField];
+        if (numValue !== undefined && numValue !== null && numValue !== '') {
+          const num = typeof numValue === 'number' ? numValue : parseFloat(String(numValue));
+          if (!isNaN(num) && num < 0) {
+            issues.push({
+              entity: 'initiatives',
+              issue: `Row ${i + 1}: "${numField}" cannot be negative (found ${num})`,
+              severity: 'error',
+            });
+          }
+        }
+      }
+
+      // Validate startDate is before or equal to endDate
+      const startDate = init.startDate;
+      const endDate = init.endDate;
+      if (startDate && endDate && typeof startDate === 'string' && typeof endDate === 'string') {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && start > end) {
+          issues.push({
+            entity: 'initiatives',
+            issue: `Row ${i + 1}: startDate must be before or equal to endDate`,
+            severity: 'error',
+          });
+        }
+      }
+    }
+  }
+
   return issues;
 }
 import { exportToExcel, importFromExcel } from '../lib/excel';
@@ -119,7 +175,19 @@ export function DataControls({ data, onImport, timelineId }: DataControlsProps) 
       // Basic validation/merging logic
       const hasData = Object.values(importedData).some(arr => Array.isArray(arr) && arr.length > 0);
       if (hasData) {
-        setImportSchemaIssues(validateImportSchema(importedData as Record<string, unknown[]>));
+        const schemaIssues = validateImportSchema(importedData as Record<string, unknown[]>);
+        const errorIssues = schemaIssues.filter(i => i.severity === 'error');
+
+        // If there are error-severity issues, block the import
+        if (errorIssues.length > 0) {
+          const errorSummary = errorIssues.slice(0, 3).map(i => i.issue).join('; ');
+          const moreText = errorIssues.length > 3 ? ` (and ${errorIssues.length - 3} more)` : '';
+          showNotification('error', `Validation failed: ${errorSummary}${moreText}`);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+          return;
+        }
+
+        setImportSchemaIssues(schemaIssues);
         setImportPreviewData(importedData);
         setShowImportModal(true);
       } else {
