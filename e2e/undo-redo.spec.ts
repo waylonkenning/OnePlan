@@ -1,137 +1,136 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Undo/Redo Functionality', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('/');
-        // Clear any existing db data just in case
-        await page.evaluate(async () => {
-            const databases = await window.indexedDB.databases();
-            for (const db of databases) {
-                if (db.name) {
-                    window.indexedDB.deleteDatabase(db.name);
-                }
-            }
-        });
-        await page.reload();
-        // Go to Data Manager
-        await page.getByRole('button', { name: 'Data Manager' }).click();
-    });
+async function openDataManager(page: import('@playwright/test').Page) {
+  await page.goto('/');
+  await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 10000 });
+  await page.getByTestId('nav-data-manager').click();
+  await page.getByTestId('data-manager').getByRole('button', { name: /Initiatives/ }).click();
+}
 
-    test('can undo and redo text edits via buttons', async ({ page }) => {
-        // Find the first initiative name input
-        const firstRow = page.locator('tbody tr[data-real="true"]').first();
-        const nameInput = firstRow.locator('input[type="text"]').first();
+test.describe('Undo/Redo', () => {
+  test('buttons are disabled on fresh page load', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 10000 });
+    await expect(page.getByTitle('Undo')).toBeDisabled();
+    await expect(page.getByTitle('Redo')).toBeDisabled();
+  });
 
-        // Initial value check
-        const initialValue = await nameInput.inputValue();
-        if (initialValue !== 'Passkey Rollout' && initialValue !== 'SSO Consolidation') {
-            console.warn('Initial value was not expected. Found:', initialValue);
-        }
+  test('can undo and redo text edits via buttons', async ({ page }) => {
+    await openDataManager(page);
+    const nameInput = page.locator('tbody tr[data-real="true"]').first().locator('input[type="text"]').first();
+    const initialValue = await nameInput.inputValue();
 
-        // Change the value
-        await nameInput.fill('Changed Name 1');
-        // Click away or press Enter to trigger onChange/onUpdate
-        await page.keyboard.press('Tab');
+    await nameInput.fill('Changed Name 1');
+    await page.keyboard.press('Tab');
+    await expect(nameInput).toHaveValue('Changed Name 1');
 
-        // Check it changed
-        await expect(nameInput).toHaveValue('Changed Name 1');
+    const undoBtn = page.getByTitle('Undo');
+    await expect(undoBtn).toBeEnabled();
+    await undoBtn.click();
+    await expect(nameInput).toHaveValue(initialValue);
 
-        // Undo via Button (assuming title='Undo')
-        const undoBtn = page.getByTitle('Undo');
-        await expect(undoBtn).toBeEnabled();
-        await undoBtn.click();
+    const redoBtn = page.getByTitle('Redo');
+    await expect(redoBtn).toBeEnabled();
+    await redoBtn.click();
+    await expect(nameInput).toHaveValue('Changed Name 1');
+  });
 
-        // Check it reverted
-        await expect(nameInput).toHaveValue(initialValue);
+  test('can undo and redo via keyboard shortcuts', async ({ page }) => {
+    await openDataManager(page);
+    const nameInput = page.locator('tbody tr[data-real="true"]').first().locator('input[type="text"]').first();
+    const initialValue = await nameInput.inputValue();
+    const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
 
-        // Redo via Button (assuming title='Redo')
-        const redoBtn = page.getByTitle('Redo');
-        await expect(redoBtn).toBeEnabled();
-        await redoBtn.click();
+    await nameInput.fill('Kb Shortcut Edit');
+    await page.keyboard.press('Tab');
+    await expect(nameInput).toHaveValue('Kb Shortcut Edit');
 
-        // Check it changed back
-        await expect(nameInput).toHaveValue('Changed Name 1');
-    });
+    await page.keyboard.press(`${mod}+z`);
+    await expect(nameInput).toHaveValue(initialValue);
 
-    test('can undo and redo via keyboard shortcuts', async ({ page }) => {
-        const firstRow = page.locator('tbody tr[data-real="true"]').first();
-        const nameInput = firstRow.locator('input[type="text"]').first();
+    await page.keyboard.press(`${mod}+Shift+Z`);
+    await expect(nameInput).toHaveValue('Kb Shortcut Edit');
+  });
 
-        const initialValue = await nameInput.inputValue();
+  test('undo counter tracks steps and disappears when stack is empty', async ({ page }) => {
+    await openDataManager(page);
+    const nameInput = page.locator('tbody tr[data-real="true"]').first().locator('input[type="text"]').first();
+    const undoCounter = page.getByTestId('undo-counter');
 
-        // Change the value
-        await nameInput.fill('Kb Shortcut Edit');
-        await page.keyboard.press('Tab'); // Trigger update
-        await expect(nameInput).toHaveValue('Kb Shortcut Edit');
+    await expect(undoCounter).not.toBeVisible();
 
-        // Note: Playwright keyboard shortcuts depend on the OS.
-        // We'll dispatch Cmd+Z for Mac or Ctrl+Z for Windows.
-        const modifier = process.platform === 'darwin' ? 'Meta' : 'Control';
+    for (let i = 1; i <= 3; i++) {
+      await nameInput.fill(`Edit ${i}`);
+      await page.keyboard.press('Tab');
+    }
+    await expect(undoCounter).toHaveText('3');
 
-        // Undo shortcut
-        await page.keyboard.press(`${modifier}+z`);
+    await page.getByTitle('Undo').click();
+    await expect(undoCounter).toHaveText('2');
 
-        // Check it reverted
-        await expect(nameInput).toHaveValue(initialValue);
+    await page.getByTitle('Undo').click();
+    await page.getByTitle('Undo').click();
+    await expect(undoCounter).not.toBeVisible();
+  });
 
-        // Redo shortcut (Cmd+Shift+Z or Ctrl+Shift+Z)
-        await page.keyboard.press(`${modifier}+Shift+Z`);
+  test('new edit after undo clears the redo stack', async ({ page }) => {
+    await openDataManager(page);
+    const nameInput = page.locator('tbody tr[data-real="true"]').first().locator('input[type="text"]').first();
+    const originalValue = await nameInput.inputValue();
+    const undoBtn = page.getByTitle('Undo');
+    const redoBtn = page.getByTitle('Redo');
 
-        // Check it reapplied
-        await expect(nameInput).toHaveValue('Kb Shortcut Edit');
-    });
+    await nameInput.fill('Edit One');
+    await nameInput.press('Tab');
+    await undoBtn.click();
+    await expect(nameInput).toHaveValue(originalValue);
+    await expect(redoBtn).toBeEnabled();
 
-    test('undo counter shows remaining steps and disappears when stack is empty', async ({ page }) => {
-        const firstRow = page.locator('tbody tr[data-real="true"]').first();
-        const nameInput = firstRow.locator('input[type="text"]').first();
-        const undoCounter = page.getByTestId('undo-counter');
+    await nameInput.fill('Brand New Edit');
+    await nameInput.press('Tab');
+    await expect(redoBtn).toBeDisabled();
+  });
 
-        // No counter when stack is empty
-        await expect(undoCounter).not.toBeVisible();
+  test('Cmd/Ctrl+Z inside an input does not trigger app-level undo', async ({ page }) => {
+    await openDataManager(page);
+    const nameInput = page.locator('tbody tr[data-real="true"]').first().locator('input[type="text"]').first();
+    const originalValue = await nameInput.inputValue();
+    const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
 
-        // Make 3 edits
-        for (let i = 1; i <= 3; i++) {
-            await nameInput.fill(`Edit ${i}`);
-            await page.keyboard.press('Tab');
-        }
+    await nameInput.fill('First Change');
+    await nameInput.press('Tab');
 
-        // Counter should show 3
-        await expect(undoCounter).toBeVisible();
-        await expect(undoCounter).toHaveText('3');
+    await nameInput.fill('Typing In Progress');
+    // Keep focus in the input and press the shortcut
+    await nameInput.press(`${mod}+z`);
 
-        // Undo once — counter drops to 2
-        await page.getByTitle('Undo').click();
-        await expect(undoCounter).toHaveText('2');
+    // App-level undo stack still has an entry (was not triggered)
+    await expect(page.getByTitle('Undo')).toBeEnabled();
+    expect(await nameInput.inputValue()).not.toBe(originalValue);
+  });
 
-        // Undo remaining — counter disappears
-        await page.getByTitle('Undo').click();
-        await page.getByTitle('Undo').click();
-        await expect(undoCounter).not.toBeVisible();
-    });
+  test('undo stack is capped at 10 — oldest operations fall off', async ({ page }) => {
+    await openDataManager(page);
+    const nameCell = page.locator('tbody tr').first().locator('td').first().locator('input[type="text"]');
 
-    test('history stack is limited to 10 operations', async ({ page }) => {
-        const firstRow = page.locator('tbody tr[data-real="true"]').first();
-        const nameInput = firstRow.locator('input[type="text"]').first();
+    for (let i = 1; i <= 15; i++) {
+      await nameCell.fill(`Rename ${i}`);
+      await nameCell.press('Tab');
+      await page.waitForTimeout(50);
+    }
 
-        // Perform 11 operations
-        for (let i = 1; i <= 11; i++) {
-            await nameInput.fill(`Edit Operation ${i}`);
-            await page.keyboard.press('Tab');
-        }
+    await page.getByTestId('nav-visualiser').click();
+    await page.waitForSelector('[data-testid="asset-row-content"]');
 
-        const undoBtn = page.getByTitle('Undo');
+    for (let i = 0; i < 10; i++) {
+      await page.keyboard.press('Meta+z');
+      await page.waitForTimeout(30);
+    }
 
-        // Undo 10 times (this should get us back to "Edit Operation 1")
-        for (let i = 0; i < 10; i++) {
-            await expect(undoBtn).toBeEnabled();
-            await undoBtn.click();
-        }
-
-        // We should now be at "Edit Operation 1", NOT the initial value,
-        // because the 11th operation pushed the initial state out of the stack.
-        await expect(nameInput).toHaveValue('Edit Operation 1');
-
-        // The Undo button should now be disabled since the stack (max size 10) is empty
-        await expect(undoBtn).toBeDisabled();
-    });
+    await page.getByTestId('nav-data-manager').click();
+    await page.getByTestId('data-manager').getByRole('button', { name: /Initiatives/ }).click();
+    await expect(nameCell).toHaveValue('Rename 5');
+    await page.getByTestId('nav-visualiser').click();
+    await expect(page.getByTitle('Undo')).toBeDisabled();
+  });
 });
