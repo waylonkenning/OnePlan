@@ -36,10 +36,10 @@ meaningful tests. Reduce redundancy and lower timeouts.
 | # | Group | Source files | Target file | Status |
 |---|-------|-------------|-------------|--------|
 | 1 | accessibility | accessibility-focus-trap, accessibility-table-aria-labels, accessibility-toggles | accessibility.spec.ts | ✅ PR #12 |
-| 2 | arrows | arrow-z-index, arrow-selection, arrow-label-tooltip | arrows.spec.ts | 🔲 |
-| 3 | assets | asset-categories, asset-reordering, category-reordering | assets.spec.ts | 🔲 |
+| 2 | arrows | arrow-z-index, arrow-selection, arrow-label-tooltip | arrows.spec.ts | ✅ PR #13 |
+| 3 | assets | asset-categories, asset-reordering, category-reordering | assets.spec.ts | ✅ PR #13 |
 | 4 | budget | budget-summary, budget-visualisation, capex-opex, grouped-budget | budget.spec.ts | 🔲 |
-| 5 | conflicts | conflict-boundary, conflict-detection-toggle | conflicts.spec.ts | 🔲 |
+| 5 | conflicts | conflict-boundary, conflict-detection-toggle | conflicts.spec.ts | ✅ PR #13 |
 | 6 | core | navigation, confirm-modal, keyboard-shortcuts, search-filter, landing-page, help-guide, error-boundary, modal-error-boundary | core.spec.ts | 🔲 |
 | 7 | data | data-manager, data-manager-layout, data-controls, data-validation, db-error-handling, demo-data-dates | data.spec.ts | 🔲 |
 | 8 | dependencies | dependencies-core, dependencies-data, dependencies-display | dependencies.spec.ts | 🔲 |
