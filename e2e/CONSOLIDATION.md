@@ -43,18 +43,18 @@ meaningful tests. Reduce redundancy and lower timeouts.
 | 6 | core | navigation, confirm-modal, keyboard-shortcuts, search-filter, landing-page, help-guide, error-boundary, modal-error-boundary | core.spec.ts | 🔲 |
 | 7 | data | data-manager, data-manager-layout, data-controls, data-validation, db-error-handling, demo-data-dates | data.spec.ts | 🔲 |
 | 8 | dependencies | dependencies-core, dependencies-data, dependencies-display | dependencies.spec.ts | 🔲 |
-| 9 | display | display-mode, display-mode-empty-rows, display-toggles, description-display, colour-by-status, collapsible-rows, visualiser-only-controls | display.spec.ts | 🔲 |
+| 9 | display | display-mode, display-mode-empty-rows, display-toggles, description-display, colour-by-status, collapsible-rows, visualiser-only-controls | display.spec.ts | ✅ PR #15 |
 | 10 | dts | dts-phase-field, dts-demo-data, dts-phases-configurable, dts-adoption-status, dts-customer-layer, dts-phase-colour-mode, dts-alignment-report, dts-cluster-field, dts-label-attribution, dts-segment-labels, dts-geanz-crossmap, dts-excel-export | dts.spec.ts | 🔲 |
 | 11 | features | features-modal, features-modal-cards, validate-feature-animations | features.spec.ts | 🔲 |
 | 12 | geanz | geanz-demo-data, geanz-catalogue | geanz.spec.ts | 🔲 |
 | 13 | grouped | grouped_initiative_description, grouped-description-narrow-bar, grouped-description-legacy-data, grouped-description-no-truncation, grouped-bullet-description, initiative-edit-grouping, initiative-grouping | grouped.spec.ts | 🔲 |
 | 14 | import-export | import-merge, import-schema-validation, excel-import-validation, import-error-paths, export-all-entities, import-export-notifications, jpg-export, pdf-legend, data-controls | import-export.spec.ts | 🔲 |
 | 15 | initiatives | initiative-panel, initiative-panel-related, initiative-panel-date-fields-mobile, initiative-create-edit, initiative-deletion, initiative-drag, initiative-bar-parity, initiative-bar-layout, initiative-bar-ux, initiative-position-stability, duplicate-initiative-id, entity-id-uniqueness, intra-asset-spacing | initiatives.spec.ts | 🔲 |
-| 16 | milestones | milestone-drag, milestone-label-side, milestone-swimlane-span | milestones.spec.ts | 🔲 |
+| 16 | milestones | milestone-drag, milestone-label-side, milestone-swimlane-span | milestones.spec.ts | ✅ PR #15 |
 | 17 | mobile | mobile-card-view, mobile-card-toggles, mobile-layout, initiative-panel-date-fields-mobile | mobile.spec.ts | 🔲 |
 | 18 | reports | reports-mode, reports-home, capacity-report, maturity-heatmap, rag-status, report-history-diff, reports-versions-error | reports.spec.ts | 🔲 |
 | 19 | segments | segment-delete-button, segment-vertical-drag-stability, segment-drag-improvements, segment-vertical-resize, segment-label-clamp, segment-application-selector, segment-conflict-resolution, segment-delete-confirm | segments.spec.ts | 🔲 |
-| 20 | swimlanes | swimlane-grouping, swimlane-height-collapse, swimlane-padding | swimlanes.spec.ts | 🔲 |
+| 20 | swimlanes | swimlane-grouping, swimlane-height-collapse, swimlane-padding | swimlanes.spec.ts | ✅ PR #15 |
 | 21 | timeline | timeline-create, timeline-settings, timeline-start-date, timeline-weekly-columns-monday, snap-to-month, today-indicator, zoom-control, floating-legend, critical-path, view-options-popover | timeline.spec.ts | 🔲 |
 | 22 | tutorial | tutorial-content, tutorial-modal | tutorial.spec.ts | 🔲 |
 | 23 | undo-redo | undo-redo, undo-redo-edge-cases, undo-depth | undo-redo.spec.ts | 🔲 |
