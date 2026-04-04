@@ -3,17 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Timeline } from './components/Timeline';
 import { MobileCardView } from './components/MobileCardView';
 import { useMediaQuery } from './lib/useMediaQuery';
 import { DataControls } from './components/DataControls';
-import { DataManager } from './components/DataManager';
 import { TutorialModal } from './components/TutorialModal';
-import { FeaturesModal } from './components/FeaturesModal';
-import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { LandingPage } from './components/LandingPage';
 import { VersionManager } from './components/VersionManager';
+
+// Lazy load modals and heavy components for code splitting
+const FeaturesModal = lazy(() => import('./components/FeaturesModal').then(m => ({ default: m.FeaturesModal })));
+const KeyboardShortcutsModal = lazy(() => import('./components/KeyboardShortcutsModal').then(m => ({ default: m.KeyboardShortcutsModal })));
+const TemplatePickerModal = lazy(() => import('./components/TemplatePickerModal').then(m => ({ default: m.TemplatePickerModal })));
 import {
   demoAssets as initialAssets,
   demoInitiatives as initialInitiatives,
@@ -30,9 +32,9 @@ import {
 } from './demoData';
 import { Asset, Application, ApplicationSegment, ApplicationStatus, DtsPhaseRecord, Initiative, Milestone, Programme, Strategy, Dependency, AssetCategory, TimelineSettings, Resource } from './types';
 import { LayoutGrid, Table, Loader2, Search, Undo2, Redo2, HelpCircle, BookOpen, History, AlertTriangle, GitBranch, AlignLeft, DollarSign, MoreHorizontal, BarChart2, ZoomIn, ZoomOut, SlidersHorizontal, X, Keyboard, GitCommit, GitCommitHorizontal, Palette, Box, Boxes, Target, Users, Layers, AppWindow } from 'lucide-react';
-import { ReportsView } from './components/ReportsView';
-import { HelpView } from './components/HelpView';
-import { TemplatePickerModal } from './components/TemplatePickerModal';
+const DataManager = lazy(() => import('./components/DataManager').then(m => ({ default: m.DataManager })));
+const ReportsView = lazy(() => import('./components/ReportsView').then(m => ({ default: m.ReportsView })));
+const HelpView = lazy(() => import('./components/HelpView').then(m => ({ default: m.HelpView })));
 import { getTemplateData, TemplateId } from './lib/workspaceTemplates';
 
 type AppState = {
@@ -54,6 +56,17 @@ import { cn } from './lib/utils';
 import { getAppData, saveAppData } from './lib/db';
 import { importFromExcel } from './lib/excel';
 import { useRef } from 'react';
+
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center h-full min-h-[200px]">
+      <div className="flex flex-col items-center gap-2 text-slate-500">
+        <Loader2 className="animate-spin" size={32} />
+        <p className="text-sm">Loading...</p>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const isMobile = useMediaQuery('(max-width: 767px)');
@@ -1279,16 +1292,22 @@ export default function App() {
           />
           )
         ) : view === 'data' ? (
-          <DataManager
-            data={{ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, applicationStatuses, dtsPhases }}
-            onUpdate={handleUpdate}
-            onOpenTemplatePicker={() => { setTemplatePickerIsReset(true); setShowTemplatePicker(true); }}
-            searchQuery={searchQuery}
-          />
+          <Suspense fallback={<LoadingFallback />}>
+            <DataManager
+              data={{ assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories, timelineSettings, resources, applicationStatuses, dtsPhases }}
+              onUpdate={handleUpdate}
+              onOpenTemplatePicker={() => { setTemplatePickerIsReset(true); setShowTemplatePicker(true); }}
+              searchQuery={searchQuery}
+            />
+          </Suspense>
         ) : view === 'reports' ? (
-          <ReportsView assets={assets} initiatives={initiatives} milestones={milestones} dependencies={dependencies} currentData={getCurrentState()} programmes={programmes} strategies={strategies} assetCategories={assetCategories} resources={resources} dtsPhases={dtsPhases} onSaveAsset={handleUpdateAsset} onNavigateToAsset={(assetId, assetName) => { setView('visualiser'); setSearchQuery(assetName); }} />
+          <Suspense fallback={<LoadingFallback />}>
+            <ReportsView assets={assets} initiatives={initiatives} milestones={milestones} dependencies={dependencies} currentData={getCurrentState()} programmes={programmes} strategies={strategies} assetCategories={assetCategories} resources={resources} dtsPhases={dtsPhases} onSaveAsset={handleUpdateAsset} onNavigateToAsset={(assetId, assetName) => { setView('visualiser'); setSearchQuery(assetName); }} />
+          </Suspense>
         ) : (
-          <HelpView />
+          <Suspense fallback={<LoadingFallback />}>
+            <HelpView />
+          </Suspense>
         )}
       </main>
 
@@ -1314,37 +1333,47 @@ export default function App() {
       </footer>
 
       {showFeatures && (
-        <FeaturesModal onClose={() => setShowFeatures(false)} />
+        <Suspense fallback={null}>
+          <FeaturesModal onClose={() => setShowFeatures(false)} />
+        </Suspense>
       )}
 
-      <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
+      <Suspense fallback={null}>
+        <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
+      </Suspense>
 
       {showTemplatePicker && !showLandingPage && (
-        <TemplatePickerModal onSelect={handleSelectTemplate} onViewerImport={handleViewerImport} isReset={templatePickerIsReset} />
+        <Suspense fallback={null}>
+          <TemplatePickerModal onSelect={handleSelectTemplate} onViewerImport={handleViewerImport} isReset={templatePickerIsReset} />
+        </Suspense>
       )}
 
       {showTutorial && (
-        <TutorialModal
-          onClose={() => {
-            setShowTutorial(false);
-            if (!timelineSettings.hasSeenTutorial) {
-              handleUpdate({
-                assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
-                timelineSettings: { ...timelineSettings, hasSeenTutorial: true },
-                resources, applicationStatuses, dtsPhases,
-              });
-            }
-          }} 
-        />
+        <Suspense fallback={null}>
+          <TutorialModal
+            onClose={() => {
+              setShowTutorial(false);
+              if (!timelineSettings.hasSeenTutorial) {
+                handleUpdate({
+                  assets, applications, applicationSegments, initiatives, milestones, programmes, strategies, dependencies, assetCategories,
+                  timelineSettings: { ...timelineSettings, hasSeenTutorial: true },
+                  resources, applicationStatuses, dtsPhases,
+                });
+              }
+            }} 
+          />
+        </Suspense>
       )}
 
       {showLandingPage && (
-        <LandingPage
-          onGetStarted={() => {
-            setShowLandingPage(false);
-            localStorage.setItem('scenia_has_seen_landing', 'true');
-          }}
-        />
+        <Suspense fallback={null}>
+          <LandingPage
+            onGetStarted={() => {
+              setShowLandingPage(false);
+              localStorage.setItem('scenia_has_seen_landing', 'true');
+            }}
+          />
+        </Suspense>
       )}
 
       <VersionManager
