@@ -3,17 +3,16 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   testIgnore: ['**/capture-*.spec.ts'],
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: 1,
-  workers: process.env.CI ? 2 : 4,
+  retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 2 : undefined,
   reporter: 'list',
-  timeout: 20000,
+  timeout: 30000,
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    // Inject a flag to bypass the tutorial modal during E2E testing
     storageState: {
       cookies: [],
       origins: [

@@ -9,17 +9,14 @@ import { MobileCardView } from './components/MobileCardView';
 import { useMediaQuery } from './lib/useMediaQuery';
 import { DataControls } from './components/DataControls';
 import { ModalErrorBoundary } from './components/ErrorBoundary';
-import { TutorialModal } from './components/TutorialModal';
-import { FeaturesModal } from './components/FeaturesModal';
-import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
-import { LandingPage } from './components/LandingPage';
-import { VersionManager } from './components/VersionManager';
 
 // Lazy load modals for code splitting
 const TutorialModal = lazy(() => import('./components/TutorialModal').then(m => ({ default: m.TutorialModal })));
 const FeaturesModal = lazy(() => import('./components/FeaturesModal').then(m => ({ default: m.FeaturesModal })));
 const KeyboardShortcutsModal = lazy(() => import('./components/KeyboardShortcutsModal').then(m => ({ default: m.KeyboardShortcutsModal })));
 const TemplatePickerModal = lazy(() => import('./components/TemplatePickerModal').then(m => ({ default: m.TemplatePickerModal })));
+const LandingPage = lazy(() => import('./components/LandingPage').then(m => ({ default: m.LandingPage })));
+const VersionManager = lazy(() => import('./components/VersionManager').then(m => ({ default: m.VersionManager })));
 import {
   demoAssets as initialAssets,
   demoInitiatives as initialInitiatives,

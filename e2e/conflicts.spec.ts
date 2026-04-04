@@ -1,0 +1,66 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('conflict-boundary', () => {
+  test('Initiatives touching on same date do not trigger conflict', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#timeline-visualiser');
+
+    // Go to Data Manager
+    await page.getByTestId('nav-data-manager').click();
+    
+    // Clear all data first
+    await page.getByRole('button', { name: /Delete all rows for this table/i }).click();
+    await page.locator('[data-testid="confirm-modal-confirm"]').click();
+
+    // Paste CSV to ensure exact setup
+    await page.getByRole('button', { name: /Paste CSV/i }).click();
+    const textarea = page.getByTestId('csv-paste-textarea');
+    
+    // Columns: name, assetId, programmeId, strategyId, startDate, endDate, budget
+    // asset-ciam exists in default assets after reset, but we cleared everything.
+    // Wait, if I delete all rows for THIS table, I only delete initiatives.
+    // The assets should still be there.
+    
+    await textarea.fill([
+      'name,assetId,startDate,endDate,budget',
+      'Init A,a-ciam,2026-01-01,2026-01-10,1000',
+      'Init B,a-ciam,2026-01-10,2026-01-20,1000'
+    ].join('\n'));
+    
+    await page.getByTestId('import-rows-button').click();
+
+    // Back to Visualiser
+    await page.getByTestId('nav-visualiser').click();
+    await page.waitForSelector('#timeline-visualiser');
+
+    // In the current buggy state, this should match "Conflict Detected"
+    const conflictText = page.getByText('Conflict Detected');
+    
+    // The test expects it NOT to be visible.
+    // If the bug is present, it WILL be visible, and the test will fail.
+    await expect(conflictText).not.toBeVisible();
+  });
+});
+
+test.describe('conflict-detection-toggle', () => {
+  test('Conflict detection toggle works', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#timeline-visualiser');
+
+    // By default, conflict detection is ON.
+    // Check if "Conflict Detected" is present.
+    const conflictText = page.getByText('Conflict Detected').first();
+    await expect(conflictText).toBeVisible({ timeout: 10000 });
+
+    // Toggle conflict detection OFF via inline icon toggle
+    const conflictToggle = page.getByTestId('toggle-conflicts');
+    await conflictToggle.click();
+
+    // Verify "Conflict Detected" is gone
+    await expect(conflictText).not.toBeVisible();
+
+    // Toggle back ON
+    await conflictToggle.click();
+    await expect(conflictText).toBeVisible();
+  });
+});
