@@ -200,23 +200,31 @@ describe('computeCriticalPath', () => {
   });
 
   // ── AC2: Invalid date handling ──────────────────────────────────────────────
-  it('AC2: skips initiatives with invalid startDate', () => {
+  it('AC2: initiative with invalid dates gets 0 duration and does not corrupt path calculation', () => {
+    // B is in the dependency chain (a→b→c) but has invalid dates.
+    // Without the fix, NaN propagates into the duration map and corrupts comparisons.
+    // With the fix, B gets 0 duration via the ?? 0 fallback — path is still found correctly.
     const initiatives = [
-      createInitiative('a', '2026-01-01', '2026-03-31'),
-      { ...createInitiative('b', 'not-a-date', '2026-06-30'), startDate: '' }, // Invalid - empty
-      createInitiative('c', '2026-04-01', '2026-06-30'),
+      createInitiative('a', '2026-01-01', '2026-03-31'), // 89 days
+      { ...createInitiative('b', 'not-a-date', '2026-06-30'), startDate: '' }, // Invalid
+      createInitiative('c', '2026-04-01', '2026-06-30'), // 90 days
     ];
     const dependencies = [
-      createDependency('d1', 'a', 'c'),
+      createDependency('d1', 'a', 'b'),
+      createDependency('d2', 'b', 'c'),
     ];
 
-    const [initIds] = computeCriticalPath(initiatives, dependencies);
+    // Should not throw
+    expect(() => computeCriticalPath(initiatives, dependencies)).not.toThrow();
 
-    // Only A and C should be in critical path (B is skipped due to invalid date)
-    expect(initIds.size).toBe(2);
+    const [initIds, depIds] = computeCriticalPath(initiatives, dependencies);
+
+    // A→B→C is the only chain; all three should be on the critical path
     expect(initIds.has('a')).toBe(true);
+    expect(initIds.has('b')).toBe(true);
     expect(initIds.has('c')).toBe(true);
-    expect(initIds.has('b')).toBe(false);
+    expect(depIds.has('d1')).toBe(true);
+    expect(depIds.has('d2')).toBe(true);
   });
 
   it('AC1+AC3: handles initiatives with invalid dates gracefully without throwing', () => {
