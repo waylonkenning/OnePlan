@@ -33,6 +33,7 @@ test.describe('Budget Summary Charts', () => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="asset-row-content"]', { timeout: 20000 });
     await page.getByRole('button', { name: 'Data Manager' }).click();
+    await page.waitForSelector('[data-testid^="real-input-capex"]', { timeout: 15000 });
 
     // Sum all capex + opex inputs
     const capexInputs = page.locator('[data-testid^="real-input-capex"]');

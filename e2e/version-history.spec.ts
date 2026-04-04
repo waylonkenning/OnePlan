@@ -163,6 +163,7 @@ test.describe('Version History & Snapshotting', () => {
 
     // 2. Make a radical change (Delete an initiative)
     await page.getByTestId('nav-data-manager').click();
+    await page.waitForSelector('input[data-testid^="real-input-name"]', { timeout: 15000 });
     const countBefore = await page.locator('input[data-testid^="real-input-name"]').count();
     const firstInitName = await page.locator('input[data-testid^="real-input-name"]').first().inputValue();
     

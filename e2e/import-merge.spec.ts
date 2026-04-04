@@ -56,6 +56,7 @@ test.describe('Import Preview & Merge', () => {
     test('Shows preview modal and merges data correctly', async ({ page }) => {
         // Start with the default Data Manager view to count initial items
         await page.getByRole('button', { name: 'Data Manager' }).click();
+        await page.waitForSelector('tbody tr[data-real="true"]', { timeout: 15000 });
 
         // Count initial rows (1 for new row + 6 default = 7 rows, but let's just make sure it's > 2)
         const initialRows = page.locator('tbody tr[data-real="true"]');
